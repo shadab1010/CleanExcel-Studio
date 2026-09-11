@@ -6,7 +6,7 @@
 const AppState = {
   activeColumnId: 'street',
   // Street cleaner options
-  wordsToRemove: ['street', 'builfin', 'building', 'unit', 'st', 'bldg'],
+  wordsToRemove: JSON.parse(localStorage.getItem('cleanexcel_words_to_remove') || 'null') || ['street', 'builfin', 'building', 'unit', 'st', 'bldg'],
   symbolsToRemove: String.raw`,./<>?;'\:"|[]{}=+-_()#$%^&*@!`.split(''),
   preserveNumberHyphen: true,
   extractPrimaryAddress: true,
@@ -1103,6 +1103,7 @@ function bindEvents() {
         const val = newWordInputEl.value.trim().toLowerCase();
         if (val && !AppState.wordsToRemove.includes(val)) {
           AppState.wordsToRemove.push(val);
+          saveWordsToStorage();
           renderWordTags();
           newWordInputEl.value = '';
           processCleaning();
@@ -1655,6 +1656,12 @@ function distribute2ColumnText(text) {
   processCleaning();
 }
 
+function saveWordsToStorage() {
+  try {
+    localStorage.setItem('cleanexcel_words_to_remove', JSON.stringify(AppState.wordsToRemove));
+  } catch (e) { /* storage not available */ }
+}
+
 function renderWordTags() {
   if (!wordsTagsContainerEl) return;
   wordsTagsContainerEl.innerHTML = '';
@@ -1670,6 +1677,7 @@ function renderWordTags() {
     tag.querySelector('.remove-tag').addEventListener('click', (e) => {
       e.stopPropagation();
       AppState.wordsToRemove = AppState.wordsToRemove.filter(w => w !== word);
+      saveWordsToStorage();
       renderWordTags();
       processCleaning();
     });
@@ -2170,6 +2178,7 @@ async function copyForExcel() {
   const isConstruction = AppState.activeColumnId === 'construction';
   const isRoof = AppState.activeColumnId === 'roof';
   const isWall = AppState.activeColumnId === 'wall';
+  const isRoofYear = AppState.activeColumnId === 'roof_year';
   let excelText = '';
   let excelHtml = '';
 
@@ -2323,6 +2332,7 @@ function downloadExcelSpreadsheet() {
   const isConstruction = AppState.activeColumnId === 'construction';
   const isRoof = AppState.activeColumnId === 'roof';
   const isWall = AppState.activeColumnId === 'wall';
+  const isRoofYear = AppState.activeColumnId === 'roof_year';
   const totalCount = (AppState.lastCleanedData || []).length;
   const isFiltered = dataToExport.length < totalCount;
 

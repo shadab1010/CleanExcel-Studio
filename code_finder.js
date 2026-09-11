@@ -8,7 +8,7 @@
  * 4. Exterior Wall Finish Classifier (wall) - WallType, WallSiding
  */
 
-(function(root) {
+(function (root) {
   'use strict';
 
   if (typeof module !== 'undefined' && module.exports && (!root.ConstructionClassifier || !root.RoofClassifier)) {
@@ -20,7 +20,7 @@
         if (!root.RoofClassifier) root.RoofClassifier = cl.RoofClassifier;
         if (!root.WallClassifier) root.WallClassifier = cl.WallClassifier;
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   // Comprehensive Occupancy Underwriting Taxonomy
@@ -834,11 +834,11 @@
       const isNumeric = /^\d+$/.test(qLower);
       const items = (section === 'all')
         ? [
-            ...this.getAll('occupancy').map(i => ({ ...i, section: 'occupancy' })),
-            ...this.getAll('construction').map(i => ({ ...i, section: 'construction' })),
-            ...this.getAll('roof').map(i => ({ ...i, section: 'roof' })),
-            ...this.getAll('wall').map(i => ({ ...i, section: 'wall' }))
-          ]
+          ...this.getAll('occupancy').map(i => ({ ...i, section: 'occupancy' })),
+          ...this.getAll('construction').map(i => ({ ...i, section: 'construction' })),
+          ...this.getAll('roof').map(i => ({ ...i, section: 'roof' })),
+          ...this.getAll('wall').map(i => ({ ...i, section: 'wall' }))
+        ]
         : this.getAll(section).map(i => ({ ...i, section }));
 
       const scored = [];
