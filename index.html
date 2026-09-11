@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CleanExcel Studio | Intelligent Column Data Sanitizer</title>
+  <meta name="description" content="Clean and standardize messy Excel columns instantly. Specially tailored Street Address cleaner preserving number ranges like 145-146 MIRAMAR BOULEVARD with 1-click Excel copy and export.">
+  
+  <!-- Google Fonts: Space Grotesk, Plus Jakarta Sans, Orbitron, Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- SheetJS CDN (optional enhancement for binary .xlsx, fallback is native XML .xls / .csv) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <!-- Cosmic Cybernetic Matrix & Glow Backdrop (Zerve Aesthetic) -->
+  <div class="cosmic-bg" aria-hidden="true">
+    <div class="cyber-grid-plane"></div>
+    <div class="cyber-grid-perspective"></div>
+    <div class="cosmic-glow-orb cosmic-glow-1"></div>
+    <div class="cosmic-glow-orb cosmic-glow-2"></div>
+    <div class="cosmic-glow-orb cosmic-glow-3"></div>
+    <div class="cyber-scanline"></div>
+  </div>
+
+  <!-- Full-Width Sticky Top Header (Vengeance UI Inspired) -->
+  <header class="app-header">
+    <div class="header-inner">
+      <!-- Left: Brand Logo & Title -->
+      <div class="brand-section" id="nav-brand-click" title="CleanExcel Studio">
+        <div class="brand-logo" id="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title-wrap">
+            <span class="brand-name">CleanExcel</span>
+            <span class="brand-accent">Studio</span>
+            <span class="brand-version-badge">v3.0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center: Vengeance Segmented Navigation Pill -->
+      <nav class="veng-nav-center" role="navigation" aria-label="Main Navigation">
+        <button id="nav-btn-home" class="veng-nav-link active" type="button">
+          <span>Home</span>
+        </button>
+        <button id="nav-btn-studio" class="veng-nav-link" type="button">
+          <span>Clean Studio</span>
+        </button>
+        <button id="nav-btn-finder" class="veng-nav-search-btn" type="button" title="Quick Search UNICEDE® Taxonomies (⌘K)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span class="nav-search-text">Search taxonomy...</span>
+          <kbd class="veng-kbd">⌘K</kbd>
+        </button>
+      </nav>
+
+      <!-- Right: Actions & Status -->
+      <div class="veng-nav-right">
+        <button id="btn-gemini-modal" class="veng-ai-pill" type="button" title="Google Gemini 2.5 Active. Click to customize API key.">
+          <span class="ai-sparkle">✨</span>
+          <span class="ai-pill-text">Gemini 2.5</span>
+          <span class="ai-badge-dot"></span>
+        </button>
+
+        <button id="btn-toggle-theme" class="veng-theme-toggle" type="button" title="Toggle Dark/Light theme" aria-label="Toggle theme">
+          <span id="theme-toggle-icon">🌙</span>
+        </button>
+
+        <button id="btn-launch-header" class="veng-btn-launch" type="button" title="Launch Clean Studio Workspace">
+          <span>Launch Studio</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-container">
+
+    <!-- ====================================================================
+         HOMEPAGE / LANDING PAGE VIEW (Vengeance UI Inspired)
+         ==================================================================== -->
+    <div id="landing-page-view" class="landing-page-view">
+      
+      <!-- 1. Hero Section -->
+      <section class="landing-hero-section">
+        <!-- Announcement Pill with animated glowing beam -->
+        <div class="hero-badge-wrapper">
+          <div class="hero-announcement-pill">
+            <span class="pill-dot"></span>
+            <span class="pill-text">Powered by Touchstone UNICEDE® &amp; AIR Catastrophe Model Engine</span>
+            <div class="pill-beam"></div>
+          </div>
+        </div>
+
+        <h1 class="hero-headline">
+          Next-Gen Underwriting <br>
+          <span class="hero-gradient-text">Data Cleaning Studio</span>
+        </h1>
+
+        <p class="hero-subheadline">
+          Transform messy broker schedules into model-ready underwriting assets in seconds.
+          Deterministic rules, strict Touchstone UNICEDE® classification, and zero server latency with 100% private in-browser processing.
+        </p>
+
+        <!-- Hero CTAs -->
+        <div class="hero-cta-group">
+          <button id="hero-btn-launch" class="btn-hero-primary" type="button">
+            <span>🚀 Launch Clean Studio</span>
+          </button>
+          <button id="hero-btn-finder" class="btn-hero-secondary" type="button">
+            <span>🔍 Explore UNICEDE® Taxonomy</span>
+            <kbd class="hero-kbd">⌘K</kbd>
+          </button>
+          <button id="hero-btn-sample" class="btn-hero-ghost" type="button">
+            <span>✨ Try Live Underwriting Demo</span>
+          </button>
+        </div>
+
+        <!-- Hero Interactive Transformation Showcase Card -->
+        <div class="hero-showcase-container">
+          <div class="showcase-card">
+            <div class="showcase-header">
+              <div class="showcase-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <span class="showcase-title">Interactive Underwriting Transformation Showcase</span>
+              <span class="showcase-badge">Deterministic Touchstone Rules</span>
+            </div>
+
+            <div class="showcase-content-grid">
+              <!-- Left: Raw Input -->
+              <div class="showcase-pane raw-pane-demo">
+                <div class="showcase-pane-header">
+                  <span class="pane-tag">Raw Broker Excel Input</span>
+                  <span class="pane-sub">Messy &amp; Unstructured</span>
+                </div>
+                <div class="code-preview-block">
+                  <div class="code-line"><span class="line-num">1</span> <span class="tok-kw">SINGLE PLY MEMBRANE (50%); ASPHALT (47%)</span></div>
+                  <div class="code-line"><span class="line-num">2</span> <span class="tok-num">1995/2005</span> <span class="tok-cmt">// Multi-year range</span></div>
+                  <div class="code-line"><span class="line-num">3</span> <span class="tok-str">YB: 2005 | Roof: 2006/2007</span></div>
+                  <div class="code-line"><span class="line-num">4</span> <span class="tok-kw">Stone facade, uncoursed rubble bed</span></div>
+                  <div class="code-line"><span class="line-num">5</span> <span class="tok-str">145-146 MIRAMAR BLVD. #STE. 400</span></div>
+                </div>
+              </div>
+
+              <!-- Center Divider Flow -->
+              <div class="showcase-divider">
+                <div class="flow-arrow-icon">➔</div>
+                <span class="flow-label">CleanExcel Engine</span>
+              </div>
+
+              <!-- Right: Model-Ready Output -->
+              <div class="showcase-pane clean-pane-demo">
+                <div class="showcase-pane-header">
+                  <span class="pane-tag clean-tag">Standardized Touchstone Output</span>
+                  <span class="pane-sub">Catastrophe Model Ready</span>
+                </div>
+                <div class="code-preview-block clean-block">
+                  <div class="code-line"><span class="line-num">1</span> <span class="badge-code badge-cyan">Covering 7</span> <span class="tok-val">Single-ply membrane</span> <span class="tok-badge-rule">Higher % Wins</span></div>
+                  <div class="code-line"><span class="line-num">2</span> <span class="badge-code badge-emerald">1995</span> <span class="tok-val">Original Construction Year</span> <span class="tok-badge-rule">Older Year Picked</span></div>
+                  <div class="code-line"><span class="line-num">3</span> <span class="badge-code badge-rose">Roof: 2007</span> <span class="tok-val">Validated (2007 ≥ 2005)</span> <span class="tok-badge-rule">Rule Passed</span></div>
+                  <div class="code-line"><span class="line-num">4</span> <span class="badge-code badge-amber">Code 113</span> <span class="tok-val">Rubble Stone Masonry</span> <span class="tok-badge-rule">Mandatory Stone Rule</span></div>
+                  <div class="code-line"><span class="line-num">5</span> <span class="badge-code badge-indigo">Standard Address</span> <span class="tok-val">145-146 MIRAMAR BLVD STE 400</span> <span class="tok-badge-rule">Range Preserved</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Feature Bento Grid (The 4 Core Power Engines) -->
+      <section class="landing-bento-section">
+        <div class="bento-header">
+          <span class="bento-header-badge">Core Capabilities</span>
+          <h2 class="bento-title">Purpose-Built for Commercial Risk Underwriters</h2>
+          <p class="bento-subtitle">Every feature is designed to automate hours of tedious schedule scrubbing with 100% deterministic accuracy.</p>
+        </div>
+
+        <div class="bento-grid">
+          <!-- Bento 1: Occupancy & Construction (Span 7) -->
+          <div class="bento-card bento-span-7" data-target-section="occupancy">
+            <div class="bento-card-top">
+              <div class="bento-card-header">
+                <div class="bento-icon">🏢</div>
+                <span class="bento-badge bento-badge-violet">3-Col Comparative</span>
+              </div>
+              <h3 class="bento-heading">Occupancy &amp; Construction Auto-Mapper</h3>
+              <p class="bento-desc">Intelligently maps free-form descriptions to Touchstone UNICEDE® 300–3023 &amp; 100–2720 codes with multi-column comparative validation and automated header stripping.</p>
+              
+              <div class="bento-rule-pills">
+                <span class="bento-rule-chip gold-chip">⭐ STONE ➔ Code 113 (Rubble Stone Masonry)</span>
+                <span class="bento-rule-chip gold-chip">⭐ BRICK ➔ Code 111 (Masonry)</span>
+                <span class="bento-rule-chip">3-Col Ingestion</span>
+              </div>
+            </div>
+            <button class="bento-cta-btn" type="button">
+              <span>Launch Occupancy &amp; Construction Studio</span>
+              <span>&rarr;</span>
+            </button>
+          </div>
+
+          <!-- Bento 2: Roof Detail (Span 5) -->
+          <div class="bento-card bento-span-5" data-target-section="roof">
+            <div class="bento-card-top">
+              <div class="bento-card-header">
+                <div class="bento-icon">🏠</div>
+                <span class="bento-badge bento-badge-cyan">4-Attribute Parser</span>
+              </div>
+              <h3 class="bento-heading">UNICEDE® Roof Detail Engine</h3>
+              <p class="bento-desc">Parses Geometry (0–10), Pitch (1–3), Covering (1–12), and Deck (1–8) with multi-component percentage logic.</p>
+              
+              <div class="bento-rule-pills">
+                <span class="bento-rule-chip">Rule 1: Higher % Wins</span>
+                <span class="bento-rule-chip">Rule 2: Weaker Material on Tie</span>
+              </div>
+            </div>
+            <button class="bento-cta-btn" type="button">
+              <span>Launch Roof Detail Studio</span>
+              <span>&rarr;</span>
+            </button>
+          </div>
+
+          <!-- Bento 3: Roof Year Built (Span 6) -->
+          <div class="bento-card bento-span-6" data-target-section="roof_year">
+            <div class="bento-card-top">
+              <div class="bento-card-header">
+                <div class="bento-icon">🏚️</div>
+                <span class="bento-badge bento-badge-rose">2-Column Strict</span>
+              </div>
+              <h3 class="bento-heading">2-Column Roof Year Built Validation</h3>
+              <p class="bento-desc">Strictly validates Roof Year Built against Year Built (<code>Roof Year Built ≥ Year Built</code>). Resolves multi-year ranges (e.g. <code>2006/2007 ➔ 2007</code>) and handles year built carry-forward.</p>
+              
+              <div class="bento-rule-pills">
+                <span class="bento-rule-chip">RYB ≥ YB Rule</span>
+                <span class="bento-rule-chip">&lt; YB Leaves Blank</span>
+                <span class="bento-rule-chip">Row-1 Carry-Forward</span>
+              </div>
+            </div>
+            <button class="bento-cta-btn" type="button">
+              <span>Launch Roof Year Validator</span>
+              <span>&rarr;</span>
+            </button>
+          </div>
+
+          <!-- Bento 4: Street Address (Span 6) -->
+          <div class="bento-card bento-span-6" data-target-section="street">
+            <div class="bento-card-top">
+              <div class="bento-card-header">
+                <div class="bento-icon">📍</div>
+                <span class="bento-badge bento-badge-emerald">Range-Protected</span>
+              </div>
+              <h3 class="bento-heading">Street Address &amp; Symbol Sanitizer</h3>
+              <p class="bento-desc">Strips 29 illegal symbols while strictly safeguarding critical number ranges like <code>145-146 MIRAMAR BOULEVARD</code>. 1-click copy formatted directly for Microsoft Excel.</p>
+              
+              <div class="bento-rule-pills">
+                <span class="bento-rule-chip">Range Protection</span>
+                <span class="bento-rule-chip">29 Symbols Cleaned</span>
+                <span class="bento-rule-chip">1-Click Excel Copy</span>
+              </div>
+            </div>
+            <button class="bento-cta-btn" type="button">
+              <span>Launch Street Address Sanitizer</span>
+              <span>&rarr;</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Stats & Trust Metrics Bar -->
+      <section class="landing-stats-bar">
+        <div class="stat-card-modern">
+          <span class="stat-number">224+</span>
+          <span class="stat-label">Construction Codes</span>
+          <span class="stat-sub">Touchstone UNICEDE® 100 to 2720</span>
+        </div>
+        <div class="stat-card-modern">
+          <span class="stat-number">55+</span>
+          <span class="stat-label">Occupancy Taxonomies</span>
+          <span class="stat-sub">Commercial &amp; Residential classes</span>
+        </div>
+        <div class="stat-card-modern">
+          <span class="stat-number">0 ms</span>
+          <span class="stat-label">Server Latency</span>
+          <span class="stat-sub">100% Client-Side In-Memory Engine</span>
+        </div>
+        <div class="stat-card-modern">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Deterministic Privacy</span>
+          <span class="stat-sub">Zero data leaves your browser</span>
+        </div>
+      </section>
+
+      <!-- 4. Bottom Call To Action Banner -->
+      <section class="landing-cta-banner">
+        <div class="cta-banner-content">
+          <h2 class="cta-banner-title">Ready to clean your schedule?</h2>
+          <p class="cta-banner-desc">Paste thousands of raw Excel rows directly into the studio and receive standardized Touchstone results in milliseconds.</p>
+        </div>
+        <div class="cta-banner-actions">
+          <button id="bento-btn-launch" class="btn-hero-primary" type="button">
+            <span>🚀 Launch Clean Studio Now</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 5. Modern Landing Footer -->
+      <footer class="landing-footer">
+        <div class="footer-top">
+          <div class="footer-brand">
+            <div class="brand-logo" style="width: 28px; height: 28px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+            </div>
+            <span style="font-weight: 700; color: #fff; font-size: 0.95rem;">CleanExcel Studio</span>
+            <span class="brand-version-badge">v3.0 Vengeance</span>
+          </div>
+
+          <div class="footer-links">
+            <button class="footer-link" id="footer-link-studio" type="button">Clean Studio</button>
+            <button class="footer-link" id="footer-link-finder" type="button">Code Finder (⌘K)</button>
+            <button class="footer-link" id="footer-link-rules" type="button">Underwriting Rules</button>
+            <button class="footer-link" id="footer-link-ai" type="button">Gemini AI Settings</button>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <span>&copy; 2026 CleanExcel Studio • Built for Catastrophe Risk Modeling &amp; Underwriting Analysis</span>
+          <div class="footer-status-pill">
+            <span class="footer-status-dot"></span>
+            <span>All 10 Cleaning Engines Online &amp; Verified</span>
+          </div>
+        </div>
+      </footer>
+
+    </div> <!-- /#landing-page-view -->
+
+    <!-- ====================================================================
+         CLEAN STUDIO WORKSPACE VIEW (#studio-view)
+         ==================================================================== -->
+    <div id="studio-view" class="studio-view" style="display: none;">
+
+      <!-- Consolidated Studio Command & Navigation Console (Vengeance UI Inspired) -->
+      <div class="studio-command-bar">
+        <!-- Top Tier: Engine Selector, Category Filter Pills & Primary Actions -->
+        <div class="command-bar-top">
+          <!-- Left: Active Engine Dropdown Selector -->
+          <div class="section-dropdown-wrapper" id="section-dropdown-wrapper">
+            <button id="btn-section-dropdown" class="section-dropdown-btn" type="button" aria-haspopup="true" aria-expanded="false" title="Quickly jump to any section">
+              <span class="dropdown-lightning">⚡</span>
+              <span class="dropdown-caption">Active Engine:</span>
+              <span id="section-current-label" class="section-current-badge">🏠 Street Address</span>
+              <svg class="dropdown-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+
+          <!-- Dropdown Quick Menu -->
+          <div id="section-dropdown-menu" class="section-dropdown-menu" style="display: none;">
+            <div class="dropdown-menu-header">
+              <span>⚡ Jump Directly to Any Section</span>
+              <span class="dropdown-menu-count">10 Engines</span>
+            </div>
+
+            <div class="dropdown-menu-grid">
+              <!-- Underwriting Group -->
+              <div class="dropdown-section-group">
+                <div class="dropdown-group-title">
+                  <span>🏗️ Underwriting &amp; UNICEDE®</span>
+                </div>
+                <div class="dropdown-group-items">
+                  <button class="dropdown-item" data-target="wall" type="button">
+                    <span class="item-icon">🧱</span>
+                    <div class="item-details">
+                      <span class="item-title">Exterior Wall Finish</span>
+                      <span class="item-sub">WallType (0-9) &bull; WallSiding (0-8)</span>
+                    </div>
+                    <span class="item-badge" style="background: rgba(234, 88, 12, 0.2); color: #fb923c;">Dual</span>
+                  </button>
+                  <button class="dropdown-item" data-target="roof" type="button">
+                    <span class="item-icon">🏠</span>
+                    <div class="item-details">
+                      <span class="item-title">Roof Description</span>
+                      <span class="item-sub">Geometry &bull; Pitch &bull; Covering &bull; Deck</span>
+                    </div>
+                    <span class="item-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">4 Fields</span>
+                  </button>
+                  <button class="dropdown-item" data-target="occupancy" type="button">
+                    <span class="item-icon">🏢</span>
+                    <div class="item-details">
+                      <span class="item-title">Occupancy Code</span>
+                      <span class="item-sub">3-Col Compare &bull; UNICEDE® 300-384</span>
+                    </div>
+                    <span class="item-badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc;">Touchstone</span>
+                  </button>
+                  <button class="dropdown-item" data-target="construction" type="button">
+                    <span class="item-icon">🏗️</span>
+                    <div class="item-details">
+                      <span class="item-title">ConstructionCode</span>
+                      <span class="item-sub">3-Col Compare &bull; UNICEDE® 100-514</span>
+                    </div>
+                    <span class="item-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">Touchstone</span>
+                  </button>
+                  <button class="dropdown-item" data-target="year" type="button">
+                    <span class="item-icon">📅</span>
+                    <div class="item-details">
+                      <span class="item-title">Year Built</span>
+                      <span class="item-sub">1753 – 2026 Strict Range Validator</span>
+                    </div>
+                    <span class="item-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">Range</span>
+                  </button>
+                  <button class="dropdown-item" data-target="roof_year" type="button">
+                    <span class="item-icon">🏚️</span>
+                    <div class="item-details">
+                      <span class="item-title">Roof Year Built</span>
+                      <span class="item-sub">2-Col &bull; Year Built Validation</span>
+                    </div>
+                    <span class="item-badge" style="background: rgba(244, 63, 94, 0.2); color: #fb7185;">2-Col</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Address & Contact Group -->
+              <div class="dropdown-section-group">
+                <div class="dropdown-group-title">
+                  <span>📍 Address &amp; Contact Records</span>
+                </div>
+                <div class="dropdown-group-items">
+                  <button class="dropdown-item active" data-target="street" type="button">
+                    <span class="item-icon">🏠</span>
+                    <div class="item-details">
+                      <span class="item-title">Street Address</span>
+                      <span class="item-sub">Strips 29 Symbols &bull; Range Protected</span>
+                    </div>
+                    <span class="item-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">Active</span>
+                  </button>
+                  <button class="dropdown-item" data-target="split" type="button">
+                    <span class="item-icon">🔀</span>
+                    <div class="item-details">
+                      <span class="item-title">Address Splitter</span>
+                      <span class="item-sub">US, UK, Germany, Canada &bull; ISO-2</span>
+                    </div>
+                    <span class="item-badge" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan);">Universal</span>
+                  </button>
+                  <button class="dropdown-item" data-target="name" type="button">
+                    <span class="item-icon">👤</span>
+                    <div class="item-details">
+                      <span class="item-title">Full Name</span>
+                      <span class="item-sub">First, Middle, Last &bull; Title casing</span>
+                    </div>
+                  </button>
+                  <button class="dropdown-item" data-target="phone" type="button">
+                    <span class="item-icon">📞</span>
+                    <div class="item-details">
+                      <span class="item-title">Phone Number</span>
+                      <span class="item-sub">E.164, National formatting</span>
+                    </div>
+                  </button>
+                  <button class="dropdown-item" data-target="email" type="button">
+                    <span class="item-icon">✉️</span>
+                    <div class="item-details">
+                      <span class="item-title">Email Address</span>
+                      <span class="item-sub">RFC 5322 syntax validation</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="section-category-filters" role="tablist" aria-label="Filter sections">
+          <button class="category-filter-pill active" data-filter="all" type="button" title="Show all 10 cleaner engines">
+            <span>🌟 All</span>
+            <span class="filter-num">10</span>
+          </button>
+          <button class="category-filter-pill" data-filter="underwriting" type="button" title="Touchstone UNICEDE Wall, Roof, Occupancy, Construction, Year">
+            <span>🏗️ Underwriting</span>
+            <span class="filter-num">5</span>
+          </button>
+          <button class="category-filter-pill" data-filter="address" type="button" title="Street Address &amp; Universal Splitter">
+            <span>📍 Address</span>
+            <span class="filter-num">2</span>
+          </button>
+          <button class="category-filter-pill" data-filter="contact" type="button" title="Name, Phone, Email">
+            <span>📇 Contact</span>
+            <span class="filter-num">3</span>
+          </button>
+        </div>
+
+        <!-- Primary Workspace Actions Group -->
+        <div class="workspace-header-actions">
+          <button id="btn-load-sample" class="btn-studio-action btn-sample-glow" type="button" title="Load sample records including 145-146 MIRAMAR BOULEVARD">
+            <span>✨ Load Sample</span>
+          </button>
+          <button id="btn-clear-all" class="btn-studio-action btn-clear-subtle" type="button" title="Clear all input text">
+            <span>🧹 Clear All</span>
+          </button>
+          <button id="btn-open-code-finder" class="btn-studio-action btn-finder-cyber" type="button" title="Universal Touchstone UNICEDE® Code Finder (Occupancy, Construction, Roof, Wall)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Code Finder</span>
+            <kbd class="studio-kbd">⌘K</kbd>
+          </button>
+        </div>
+      </div> <!-- /.command-bar-top -->
+
+      <!-- Bottom Tier: Tabs Ribbon & Controls -->
+      <div class="command-bar-tabs-row">
+        <div class="tabs-scroll-wrapper">
+          <nav class="column-tabs-container" id="column-tabs-container" aria-label="Column Selection">
+        <button class="column-tab active" data-column="street" data-category="address" data-name="Street Address" id="tab-street">
+          <span>🏠</span>
+          <span>Street Address</span>
+          <span class="tab-badge">Active Engine</span>
+        </button>
+        <button class="column-tab" data-column="split" data-category="address" data-name="Address Splitter" id="tab-split">
+          <span>🔀</span>
+          <span>Address Splitter</span>
+          <span class="tab-badge" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan);">US, UK, Germany, Canada</span>
+        </button>
+        <button class="column-tab" data-column="occupancy" data-category="underwriting" data-name="Occupancy Code" id="tab-occupancy">
+          <span>🏢</span>
+          <span>Occupancy Code</span>
+          <span class="tab-badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc;">Touchstone UNICEDE®</span>
+        </button>
+        <button class="column-tab" data-column="construction" data-category="underwriting" data-name="Construction Code" id="tab-construction">
+          <span>🏗️</span>
+          <span>ConstructionCode</span>
+          <span class="tab-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">Touchstone UNICEDE®</span>
+        </button>
+        <button class="column-tab" data-column="year" data-category="underwriting" data-name="Year Built" id="tab-year">
+          <span>📅</span>
+          <span>Year Built</span>
+          <span class="tab-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">1753 - 2026</span>
+        </button>
+        <button class="column-tab" data-column="roof_year" data-category="underwriting" data-name="Roof Year Built" id="tab-roof-year">
+          <span>🏚️</span>
+          <span>Roof Year Built</span>
+          <span class="tab-badge" style="background: rgba(244, 63, 94, 0.2); color: #fb7185;">2-Col Underwriting</span>
+        </button>
+        <button class="column-tab" data-column="roof" data-category="underwriting" data-name="Roof Description" id="tab-roof">
+          <span>🏠</span>
+          <span>Roof Description</span>
+          <span class="tab-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">Geometry • Pitch • Covering • Deck</span>
+        </button>
+        <button class="column-tab" data-column="wall" data-category="underwriting" data-name="Exterior Wall Finish" id="tab-wall">
+          <span>🧱</span>
+          <span>Exterior Wall Finish</span>
+          <span class="tab-badge" style="background: rgba(234, 88, 12, 0.2); color: #fb923c;">WallType • WallSiding</span>
+        </button>
+        <button class="column-tab" data-column="name" data-category="contact" data-name="Full Name" id="tab-name">
+          <span>👤</span>
+          <span>Full Name</span>
+        </button>
+        <button class="column-tab" data-column="phone" data-category="contact" data-name="Phone Number" id="tab-phone">
+          <span>📞</span>
+          <span>Phone Number</span>
+        </button>
+        <button class="column-tab" data-column="email" data-category="contact" data-name="Email Address" id="tab-email">
+          <span>✉️</span>
+          <span>Email Address</span>
+        </button>
+      </nav>
+      </div>
+
+      <!-- Right controls: Wrap toggle and scroll chevrons -->
+      <div class="section-nav-actions">
+        <button id="btn-toggle-wrap" class="btn-wrap-tabs" type="button" title="Toggle between single-row scroll and multi-row wrap (shows all sections at once)">
+          <svg class="wrap-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span id="btn-toggle-wrap-label">Show All (Wrap)</span>
+        </button>
+
+        <div class="tab-scroll-arrows">
+          <button id="btn-scroll-tabs-left" class="tab-scroll-btn" type="button" title="Scroll sections left">‹</button>
+          <button id="btn-scroll-tabs-right" class="tab-scroll-btn" type="button" title="Scroll sections right">›</button>
+        </div>
+      </div>
+    </div> <!-- /.command-bar-tabs-row -->
+  </div> <!-- /.studio-command-bar -->
+
+    <!-- Collapsible Rules Ribbon Header Bar -->
+    <div class="ribbon-collapse-toggle-bar" id="ribbon-collapse-toggle-bar" title="Click to collapse or expand the rule ribbon">
+      <button class="btn-toggle-ribbon" type="button" id="btn-toggle-rule-ribbon">
+        <span class="toggle-arrow" id="ribbon-toggle-arrow">▼</span>
+        <span id="ribbon-toggle-label">Section Rules &amp; UNICEDE® Finder</span>
+      </button>
+      <div class="ribbon-summary-preview" id="ribbon-summary-preview">
+        <span>💡 Real-time Underwriting Rules &amp; Taxonomy Quick Finder</span>
+        <span class="ribbon-summary-pill">Collapsible Drawer</span>
+      </div>
+    </div>
+
+    <div id="rules-collapsible-wrapper" class="rules-collapsible-wrapper">
+
+    <!-- Address Splitter Rule Configuration Ribbon -->
+    <section class="rules-card" id="split-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2>🔀 Universal Address Column Splitter</h2>
+          <div class="protect-banner" style="background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.3); color: var(--accent-cyan);">
+            <span>📊 Universal Format (US, UK, Germany, Canada):</span>
+            <code>STREET | City | State | County | Postal | Country</code>
+          </div>
+        </div>
+        <div>
+          <button id="btn-split-ai" class="btn btn-ai btn-sm" title="Use Gemini 2.5 AI with complete knowledge of all countries, postcodes, and appraisal formats">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Universal Split (Gemini 2.5)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Example Parsed Records</span>
+            <span class="tab-badge">Universal Engine</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 11px; line-height: 1.8; color: var(--text-primary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            US: <span style="color: #fff; font-weight: bold;">1908 Grand Ave</span> | <span style="color: var(--accent-cyan);">Nashville</span> | <span style="color: #fbbf24;">TN</span> | <span style="color: #c084fc;">Davidson</span> | <span style="color: var(--accent-emerald-light);">37212</span> | <span style="color: var(--text-secondary);">US</span><br>
+            UK: <span style="color: #fff; font-weight: bold;">10 Downing St</span> | <span style="color: var(--accent-cyan);">London</span> | <span style="color: var(--accent-emerald-light);">SW1A 2AA</span> | <span style="color: var(--text-secondary);">United Kingdom</span>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Text Casing</span>
+          </div>
+          <div class="casing-options">
+            <button class="radio-pill active" data-split-casing="titlecase" id="split-case-titlecase">Title Case</button>
+            <button class="radio-pill" data-split-casing="uppercase" id="split-case-uppercase">UPPERCASE</button>
+            <button class="radio-pill" data-split-casing="original" id="split-case-original">Original</button>
+          </div>
+          <label class="checkbox-toggle" style="margin-top: 8px;">
+            <input type="checkbox" id="split-remove-empty-checkbox">
+            <span>Filter out blank rows</span>
+          </label>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Columns & Export</span>
+          </div>
+          <label class="checkbox-toggle">
+            <input type="checkbox" id="split-include-county-checkbox" checked>
+            <span>Include County column (e.g. Davidson)</span>
+          </label>
+          <label class="checkbox-toggle" style="margin-top: 4px;">
+            <input type="checkbox" id="split-include-country-checkbox" checked>
+            <span>Include Country column</span>
+          </label>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Country Format (ISO-2)</span>
+          </div>
+          <div class="casing-options">
+            <button class="radio-pill active" data-country-format="iso2" id="country-format-iso2" title="ISO 3166-1 alpha-2 standard (US, GB, DE, CA)">ISO-2 (US, GB)</button>
+            <button class="radio-pill" data-country-format="iso2-uk" id="country-format-iso2-uk" title="ISO-2 with UK (US, UK, DE, CA)">ISO-2 (UK)</button>
+            <button class="radio-pill" data-country-format="fullname" id="country-format-fullname" title="Full country names">Full Name</button>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+            <span style="font-size: 11px; color: var(--text-secondary);">Default ISO-2 code:</span>
+            <input type="text" id="split-default-country-input" class="tag-input" value="US" style="width: 60px; text-transform: uppercase;" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Occupancy Code Rule Configuration Ribbon -->
+    <section class="rules-card" id="occupancy-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2>🏢 Touchstone / UNICEDE® Occupancy Class Classifier</h2>
+          <div class="protect-banner" style="background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.3); color: #c084fc;">
+            <span>📋 3-Column Excel Compare Mode:</span>
+            <code>OccupancyCode [AR] | Building Description [AS] | Occupancy Description [AT]</code>
+          </div>
+        </div>
+        <div>
+          <button id="btn-occupancy-ai" class="btn btn-ai btn-sm" title="Use Gemini 2.5 Flash to accurately classify tricky commercial and industrial descriptions">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Classify Occupancy (Gemini 2.5)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Interactive Occupancy Code & Description Finder -->
+      <div class="code-finder-ribbon-bar" id="occupancy-finder-bar">
+        <div class="finder-header-row">
+          <div class="finder-title-tag">
+            <span class="finder-tag-icon">🔍</span>
+            <span class="finder-title-text">Occupancy Code &amp; Description Finder</span>
+          </div>
+          <div class="finder-hint">Type code (e.g. <code>305</code>) or keyword (e.g. <code>nursing home</code>, <code>hotel</code>, <code>school</code>, <code>restaurant</code>)</div>
+          <button class="btn btn-xs btn-outline-purple btn-open-universal-finder" data-tab="occupancy" type="button">
+            📖 Browse All (50+ Codes)
+          </button>
+        </div>
+        <div class="finder-search-input-wrap">
+          <span class="finder-input-icon">⚡</span>
+          <input type="text" class="finder-search-input" id="occupancy-finder-input" placeholder="Search Occupancy: enter code (e.g. 305, 331, 342, 3001) or description (e.g. hotel, nursing home, hospital, church, data center, solar)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="occupancy-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <span class="finder-quick-label">Quick Lookup:</span>
+          <button type="button" class="finder-quick-tag" data-target="occupancy" data-query="305">305 Nursing / Dorms</button>
+          <button type="button" class="finder-quick-tag" data-target="occupancy" data-query="304">304 Hotel / Motel</button>
+          <button type="button" class="finder-quick-tag" data-target="occupancy" data-query="331">331 Restaurant</button>
+          <button type="button" class="finder-quick-tag" data-target="occupancy" data-query="342">342 Church / Religious</button>
+          <button type="button" class="finder-quick-tag" data-target="occupancy" data-query="346">346 School / University</button>
+          <button type="button" class="finder-quick-tag" data-target="occupancy" data-query="313">313 Warehouse / Storage</button>
+          <button type="button" class="finder-quick-tag" data-target="occupancy" data-query="316">316 Healthcare / Hospital</button>
+          <button type="button" class="finder-quick-tag" data-target="occupancy" data-query="327">327 High Tech / Data Center</button>
+          <button type="button" class="finder-quick-tag" data-target="occupancy" data-query="3001">3001 Solar Farm</button>
+        </div>
+        <!-- Live Results Drawer -->
+        <div class="finder-results-drawer" id="occupancy-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>UNICEDE® Code Ranges</span>
+            <span class="tab-badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc;">Official Schema</span>
+          </div>
+          <div class="occ-badges-container">
+            <span class="occ-badge-pill" title="300: Unknown occupancy">300: Unknown</span>
+            <span class="occ-badge-pill" title="301-307, 367, 382: Residential occupancies">301-307: Residential</span>
+            <span class="occ-badge-pill" title="311-319, 366, 383: Commercial occupancies">311-319: Commercial</span>
+            <span class="occ-badge-pill" title="321-330, 384: Industrial occupancies">321-330: Industrial</span>
+            <span class="occ-badge-pill" title="331: Restaurant occupancy">331: Restaurant</span>
+            <span class="occ-badge-pill" title="335-336: Mercantile occupancies">335-336: Mercantile</span>
+            <span class="occ-badge-pill" title="341-344: Public occupancies">341-344: Public / Church</span>
+            <span class="occ-badge-pill" title="345-346: Education occupancies">345-346: Education</span>
+            <span class="occ-badge-pill" title="351-356: Transportation occupancies">351-356: Transport</span>
+            <span class="occ-badge-pill" title="361-365: Utility occupancies">361-365: Utility</span>
+            <span class="occ-badge-pill" title="400-488: Industrial facility occupancies">400-488: Industrial Facility</span>
+            <span class="occ-badge-pill" title="3001-3023: Solar occupancies">3001+: Solar</span>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Example 3-Column Inputs</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 11px; line-height: 1.8; color: var(--text-primary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            [305] EXTENDED CARE CENTER ➔ <span style="color: #a78bfa; font-weight: bold;">305</span> (Group Institutional Housing)<br>
+            [346] HIGH SCHOOL ➔ <span style="color: #a78bfa; font-weight: bold;">346</span> (Primary/Secondary Schools)<br>
+            [342] CATHEDRAL AND RECTORY ➔ <span style="color: #a78bfa; font-weight: bold;">342</span> (Church / Religious)<br>
+            [300] ST PHILIP NERI MINISTRY BLDG ➔ <span style="color: #a78bfa; font-weight: bold;">342</span> (Resolved from 300!)<br>
+            [305] JENNINGS NURS HOME + CONVALESCENT (100%) ➔ <span style="color: #a78bfa; font-weight: bold;">305</span>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Settings</span>
+          </div>
+          <label class="checkbox-toggle">
+            <input type="checkbox" id="occ-remove-empty-checkbox">
+            <span>Filter out blank rows</span>
+          </label>
+          <label class="checkbox-toggle" style="margin-top: 6px;">
+            <input type="checkbox" id="occ-auto-header-checkbox" checked>
+            <span>Auto-detect column names from 1st row</span>
+          </label>
+          <div style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; line-height: 1.4;">
+            💡 <strong>Excel 3-Column Paste:</strong> Copy columns AR, AS, AT in Excel and click <em>"📋 Paste 3 Columns"</em> or paste into any box.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Construction Code Rule Configuration Ribbon -->
+    <section class="rules-card" id="construction-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2>🏗️ Touchstone / UNICEDE® Construction Class Classifier</h2>
+          <div class="protect-banner" style="background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); color: #fbbf24;">
+            <span>📋 3-Column Excel Compare Mode:</span>
+            <code>Existing ConstructionCode [AR] | Building / Structure Type [AS] | Construction / Material Description [AT]</code>
+          </div>
+        </div>
+        <div>
+          <button id="btn-construction-ai" class="btn btn-ai btn-sm" title="Use Gemini 2.5 Flash to accurately classify complex structural and engineering construction descriptions">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Classify Construction (Gemini 2.5)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Interactive Construction Code & Description Finder -->
+      <div class="code-finder-ribbon-bar" id="construction-finder-bar">
+        <div class="finder-header-row">
+          <div class="finder-title-tag">
+            <span class="finder-tag-icon">🔍</span>
+            <span class="finder-title-text">Construction Code &amp; Description Finder</span>
+          </div>
+          <div class="finder-hint">Type code (e.g. <code>113</code>, <code>111</code>, <code>101</code>) or description (e.g. <code>stone</code>, <code>brick</code>, <code>tilt-up</code>, <code>light metal</code>)</div>
+          <button class="btn btn-xs btn-outline-amber btn-open-universal-finder" data-tab="construction" type="button">
+            📖 Browse All (224 Codes)
+          </button>
+        </div>
+        <div class="finder-search-input-wrap">
+          <span class="finder-input-icon">⚡</span>
+          <input type="text" class="finder-search-input" id="construction-finder-input" placeholder="Search Construction: enter code (e.g. 113, 111, 101, 136, 152) or description (e.g. stone, brick, tilt-up, wood frame, reinforced concrete, light metal)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="construction-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <span class="finder-quick-label">Underwriting Rules:</span>
+          <button type="button" class="finder-quick-tag highlight-stone" data-target="construction" data-query="113" title="Mandatory Rule: STONE always maps to Code 113">⭐ 113 Stone (Mandatory ➔ 113)</button>
+          <button type="button" class="finder-quick-tag highlight-brick" data-target="construction" data-query="111" title="Mandatory Rule: BRICK always maps to Code 111">⭐ 111 Brick (Mandatory ➔ 111)</button>
+          <button type="button" class="finder-quick-tag" data-target="construction" data-query="101">101 Wood Frame</button>
+          <button type="button" class="finder-quick-tag" data-target="construction" data-query="136">136 Tilt-Up</button>
+          <button type="button" class="finder-quick-tag" data-target="construction" data-query="152">152 Light Metal / PEMB</button>
+          <button type="button" class="finder-quick-tag" data-target="construction" data-query="114">114 URM Bearing Wall</button>
+          <button type="button" class="finder-quick-tag" data-target="construction" data-query="116">116 Reinforced Masonry</button>
+          <button type="button" class="finder-quick-tag" data-target="construction" data-query="131">131 Reinforced Concrete</button>
+          <button type="button" class="finder-quick-tag" data-target="construction" data-query="151">151 Structural Steel</button>
+          <button type="button" class="finder-quick-tag" data-target="construction" data-query="191">191 Mobile Homes</button>
+        </div>
+        <!-- Live Results Drawer -->
+        <div class="finder-results-drawer" id="construction-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>UNICEDE® Construction Categories</span>
+            <span class="tab-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">224 Codes</span>
+          </div>
+          <div class="occ-badges-container">
+            <span class="occ-badge-pill" title="100: Unknown construction">100: Unknown</span>
+            <span class="occ-badge-pill" title="101-108: Wood construction">101-108: Wood</span>
+            <span class="occ-badge-pill" title="111-121: Masonry construction">111-121: Masonry (URM/RM/JM)</span>
+            <span class="occ-badge-pill" title="131-141: Concrete construction">131-141: Concrete (Tilt-Up/MRF)</span>
+            <span class="occ-badge-pill" title="151-160: Steel construction">151-160: Steel (Light Metal/MRF)</span>
+            <span class="occ-badge-pill" title="161-179: Japan composite construction">161-179: Japan Composite</span>
+            <span class="occ-badge-pill" title="181-187: Special construction">181-187: Special</span>
+            <span class="occ-badge-pill" title="191-194: Mobile home construction">191-194: Mobile Home</span>
+            <span class="occ-badge-pill" title="201-203+: Bridge construction">201-203: Bridge</span>
+            <span class="occ-badge-pill" title="221-226+: Storage tank construction">221-226: Tank</span>
+            <span class="occ-badge-pill" title="500-514: Solar construction">500-514: Solar</span>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Example 3-Column Inputs</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 11px; line-height: 1.8; color: var(--text-primary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            [101] RESIDENTIAL ➔ <span style="color: #fbbf24; font-weight: bold;">101</span> (Wood Frame Modern)<br>
+            [100] JOISTED MASONRY RETAIL ➔ <span style="color: #fbbf24; font-weight: bold;">119</span> (Resolved from 100!)<br>
+            [100] TILT-UP CONCRETE WAREHOUSE ➔ <span style="color: #fbbf24; font-weight: bold;">136</span> (Resolved from 100!)<br>
+            [152] PRE-ENGINEERED STEEL SHED ➔ <span style="color: #fbbf24; font-weight: bold;">152</span> (Light Metal / PEMB)<br>
+            [100] DUCTILE CONCRETE MOMENT FRAME ➔ <span style="color: #fbbf24; font-weight: bold;">134</span> (Reinforced Concrete MRF - Ductile)
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Settings</span>
+          </div>
+          <label class="checkbox-toggle">
+            <input type="checkbox" id="con-remove-empty-checkbox">
+            <span>Filter out blank rows</span>
+          </label>
+          <label class="checkbox-toggle" style="margin-top: 6px;">
+            <input type="checkbox" id="con-auto-header-checkbox" checked>
+            <span>Auto-detect column names from 1st row</span>
+          </label>
+          <div style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; line-height: 1.4;">
+            💡 <strong>Excel 3-Column Paste:</strong> Copy columns AR, AS, AT in Excel and click <em>"📋 Paste 3 Columns"</em> or paste into any box.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Year Built Rule Configuration Ribbon -->
+    <section class="rules-card" id="year-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2>📅 Year Built Range Validator &amp; Cleaner</h2>
+          <div class="protect-banner" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3); color: var(--accent-emerald-light);">
+            <span>🛡️ Validation Rule:</span>
+            <code>1753 &le; Year Built &le; Current Year (2026) • Multi-Year: Pick Older Year</code>
+          </div>
+        </div>
+        <div>
+          <button id="btn-year-ai" class="btn btn-ai btn-sm" title="Use Gemini 2.5 Flash to parse complex historical date descriptions">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Year Parser (Gemini 2.5)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Range Constraints &amp; Rules</span>
+            <span class="tab-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">Strict Filter</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            <div>• Minimum Year: <strong style="color: #fff;">1753</strong> (<span style="color: #f87171;">&lt; 1753 becomes blank</span>)</div>
+            <div>• Maximum Year: <strong style="color: #fff;">2026</strong> (<span style="color: #f87171;">&gt; Current Year becomes blank</span>)</div>
+            <div>• Multi-Year / Range: <strong style="color: var(--accent-emerald-light);">Older / Lesser Year</strong> (original construction year)</div>
+            <div>• Formats parsed: <code>1995/2005</code>, <code>2005/1995</code>, <code>2005-1995</code>, <code>Built 1985</code>, <code>1,999.0</code></div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Example Cleaned Records</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 11px; line-height: 1.8; color: var(--text-primary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            1995/2005 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">1995</span> (Older Year)<br>
+            2005/1995 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">1995</span> (Older Year)<br>
+            2005-1995 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">1995</span> (Older Year)<br>
+            1985 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">1985</span> (Valid)<br>
+            1680 ➔ <span style="color: #f87171; font-weight: bold;">[BLANK]</span> (&lt; 1753 out of range)<br>
+            2035 ➔ <span style="color: #f87171; font-weight: bold;">[BLANK]</span> (&gt; 2026 future year)
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Settings</span>
+          </div>
+          <label class="checkbox-toggle">
+            <input type="checkbox" id="year-remove-empty-checkbox">
+            <span>Filter out blank / invalid rows</span>
+          </label>
+          <div style="font-size: 11px; color: var(--text-secondary); margin-top: 8px; line-height: 1.4;">
+            💡 <strong>Excel Copy:</strong> Cleans messy strings and ensures all outputs are pure 4-digit years or clean blanks.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Roof Year Built Rule Configuration Ribbon -->
+    <section class="rules-card" id="roof-year-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2>🏚️ Roof Year Built Underwriting Validator</h2>
+          <div class="protect-banner" style="background: rgba(244, 63, 94, 0.12); border-color: rgba(244, 63, 94, 0.3); color: #fb7185;">
+            <span>🛡️ Underwriting Rule:</span>
+            <code>Without Year Built ➔ Blank • Roof Year is NEVER less than Year Built, but it can equal (Roof Year &ge; Year Built)</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Core Validation Rules</span>
+            <span class="tab-badge" style="background: rgba(244, 63, 94, 0.2); color: #fb7185;">Strict Underwriting</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            <div>• <strong>Multi-Year Roof (e.g. 2005/2006):</strong> Pick <strong>GREATER</strong> value (2006) and check Year Built not greater than Roof Year</div>
+            <div>• <strong>Year Comparison:</strong> Roof Year is <em>never less than Year Built</em>, but it can equal (e.g. YB: 2005, Roof: 2000 ➔ <span style="color: #f87171;">BLANK</span>; Roof &ge; 2005 ➔ <span style="color: var(--accent-emerald-light);">VALID</span>)</div>
+            <div>• <strong>Without Year Built:</strong> Roof Year cannot be accurate ➔ <span style="color: #f87171;">BLANK</span></div>
+            <div>• <strong>Missing Roof Year:</strong> When Year Built given but Roof Year missing ➔ <span style="color: #f87171;">BLANK</span></div>
+            <div>• <strong>Valid Range:</strong> <code>1753 &le; Year &le; 2026</code> (Current Year)</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Example Rule Outcomes</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 11px; line-height: 1.8; color: var(--text-primary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            YB: 2005, Roof: 2005/2006 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">2006</span> (Picks greater 2006, 2006 &ge; 2005)<br>
+            YB: 2008, Roof: 2005/2006 ➔ <span style="color: #f87171; font-weight: bold;">[BLANK]</span> (Picks 2006, but YB 2008 &gt; 2006)<br>
+            YB: 2005, Roof: 2005 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">2005</span> (Valid, Equal / Original Roof)<br>
+            YB: 2005, Roof: 2010 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">2010</span> (Valid, Re-roofed: 2010 &ge; 2005)<br>
+            YB: 2005, Roof: 2000 ➔ <span style="color: #f87171; font-weight: bold;">[BLANK]</span> (Never less than Year Built!)<br>
+            YB: 2005, Roof: [Blank] ➔ <span style="color: #f87171; font-weight: bold;">[BLANK]</span> (Roof Year Missing)<br>
+            YB: [Blank], Roof: 2005 ➔ <span style="color: #f87171; font-weight: bold;">[BLANK]</span> (Without Year Built)
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Validation Mode &amp; Settings</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label style="font-size: 12px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+              <span>Comparison Rule:</span>
+              <select id="roof-year-rule-mode" class="input-select" style="background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--border-subtle); border-radius: 4px; padding: 3px 8px; font-size: 11px;">
+                <option value="roof_ge_yb" selected>Roof Year &ge; Year Built (Never less, can equal)</option>
+                <option value="roof_le_yb">Roof Year &le; Year Built (Alternative rule)</option>
+              </select>
+            </label>
+            <label class="checkbox-toggle">
+              <input type="checkbox" id="roof-year-remove-empty-checkbox">
+              <span>Filter out blank / empty rows</span>
+            </label>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px; line-height: 1.4;">
+              💡 <strong>Copy for Excel:</strong> Copies both Year Built and Cleaned Roof Year directly aligned for Excel columns.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Roof Description Rule Configuration Ribbon -->
+    <section class="rules-card" id="roof-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2>🏠 Touchstone UNICEDE® Roof Detail Classifier</h2>
+          <div class="protect-banner" style="background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa;">
+            <span>🛡️ 4 Output Columns:</span>
+            <code>1. ROOF GEOMETRY | 2. ROOF PITCH | 3. ROOF COVERING | 4. ROOF DECK</code>
+          </div>
+        </div>
+        <div>
+          <a href="https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-roof-detail-fields.html?hl=roof" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View official Touchstone Roof Detail fields documentation">
+            <span>📖 UNICEDE® Specs</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Interactive Roof Detail Finder -->
+      <div class="code-finder-ribbon-bar" id="roof-finder-bar">
+        <div class="finder-header-row">
+          <div class="finder-title-tag">
+            <span class="finder-tag-icon">🔍</span>
+            <span class="finder-title-text">Roof UNICEDE® Code &amp; Material Finder</span>
+          </div>
+          <div class="finder-hint">Search Covering (1-12), Deck (1-8), Geometry (1-10), or Pitch (1-3)</div>
+          <button class="btn btn-xs btn-outline-cyan btn-open-universal-finder" data-tab="roof" type="button">
+            📖 Browse All Roof Codes
+          </button>
+        </div>
+        <div class="finder-search-input-wrap">
+          <span class="finder-input-icon">⚡</span>
+          <input type="text" class="finder-search-input" id="roof-finder-input" placeholder="Search Roof Details: enter code (e.g. 7, 1, 2, 8) or description (e.g. EPDM, single-ply, shingle, tile, gable, flat, hip, metal deck, plywood)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="roof-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <span class="finder-quick-label">Quick Lookup:</span>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="7">Covering 7 Single-Ply (EPDM/TPO)</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="1">Covering 1 Asphalt Shingles</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="9">Covering 9 Smooth BUR / Mod-Bit</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="8">Covering 8 Standing Seam Metal</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="3">Covering 3 Tile</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="gable">Geometry 2 Gable (Unbraced)</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="flat">Geometry 1 Flat</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="hip">Geometry 3 Hip</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="plywood">Deck 1 Plywood</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="metal deck">Deck 4 Metal Deck w/ Insulation</button>
+        </div>
+        <!-- Live Results Drawer -->
+        <div class="finder-results-drawer" id="roof-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>UNICEDE® Classification Engine</span>
+            <span class="tab-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">Multi-Component Parser</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            <div>• <strong>Geometry:</strong> Flat (1), Gable (2/8), Hip (3), Complex (4), Stepped (5), Shed (6), Mansard (7), Pyramid (9), Gambrel (10)</div>
+            <div>• <strong>Pitch:</strong> Low &lt;10° / &le;2:12 (1), Medium 10°–30° / 3:12–7:12 (2), High &gt;30° / &ge;8:12 (3)</div>
+            <div>• <strong>Covering:</strong> Asphalt Shingle (1), Wood Shake (2), Tile (3), Metal Panels (4), Slate (5), BUR (6/9), Single-ply EPDM/TPO (7/10), Solar (12)</div>
+            <div>• <strong>Deck:</strong> Plywood (1), Wood Planks (2), OSB (3), Metal Deck w/ Insulation (4), Concrete Deck (5/6/7), Light Metal (8)</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Underwriting Multi-Component Rules</span>
+            <span class="tab-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">Higher % &bull; Weaker Material</span>
+          </div>
+          <div style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            <div>&bull; <strong style="color: #60a5fa;">Rule 1 (With %):</strong> If percentages are specified, pick the <strong>higher %</strong> (e.g. <code>FLAT 20%, GABLE 80%</code> &rarr; Gable <code>2</code>).</div>
+            <div>&bull; <strong style="color: #fbbf24;">Rule 2 (No %):</strong> If no percentages, pick the <strong>weaker material</strong> (e.g. <code>Plywood &amp; Concrete</code> &rarr; Plywood <code>1</code>; <code>Gable &amp; Hip</code> &rarr; Gable <code>2</code>).</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Export &amp; Copy Format</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="roof-format-radio" value="code_only" checked>
+              <span>Code Only (e.g. <code>2</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="roof-format-radio" value="name_code">
+              <span>Standard Name &amp; Code (e.g. <code>Gable (2)</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="roof-format-radio" value="name_only">
+              <span>Description Only (e.g. <code>Gable end without bracing</code>)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Exterior Wall Finish Rule Configuration Ribbon -->
+    <section class="rules-card" id="wall-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2>🧱 Touchstone UNICEDE® Exterior Wall Detail Classifier</h2>
+          <div class="protect-banner" style="background: rgba(234, 88, 12, 0.12); border-color: rgba(234, 88, 12, 0.3); color: #fb923c;">
+            <span>🛡️ 2 Output Columns:</span>
+            <code>1. WallType (Backing / Structure) | 2. WallSiding (Weather Finish)</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btn-wall-ai" class="btn btn-ai btn-sm" title="Use Gemini 2.5 AI to analyze complex or ambiguous exterior wall descriptions">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Wall Analyzer (Gemini 2.5)</span>
+          </button>
+          <a href="https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-wall-detail-fields.html?hl=wall" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View official Touchstone Wall Detail fields documentation">
+            <span>📖 UNICEDE® Specs</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Interactive Wall Detail Finder -->
+      <div class="code-finder-ribbon-bar" id="wall-finder-bar">
+        <div class="finder-header-row">
+          <div class="finder-title-tag">
+            <span class="finder-tag-icon">🔍</span>
+            <span class="finder-title-text">Exterior Wall Finish &amp; Structure Finder</span>
+          </div>
+          <div class="finder-hint">Search WallSiding (1-8) or WallType (1-9) with vulnerability rankings &amp; rules</div>
+          <button class="btn btn-xs btn-outline-orange btn-open-universal-finder" data-tab="wall" type="button">
+            📖 Browse All Wall Codes
+          </button>
+        </div>
+        <div class="finder-search-input-wrap">
+          <span class="finder-input-icon">⚡</span>
+          <input type="text" class="finder-search-input" id="wall-finder-input" placeholder="Search Exterior Wall: enter code (e.g. 4, 1, 5, 7) or description (e.g. vinyl siding, brick veneer, stone panels, stucco, EIFS, plywood, concrete)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="wall-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <span class="finder-quick-label">Wall Siding &amp; Type:</span>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="4">Siding 4 Vinyl / Aluminum</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="1">Siding 1 Brick / Masonry Veneer</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="5">Siding 5 Stone Panels</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="7">Siding 7 Stucco</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="6">Siding 6 EIFS (Synthetic Stucco)</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="8">Siding 8 Fiber Cement (Hardie)</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="plywood">Type 3 Plywood Sheathing</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="reinforced masonry">Type 2 Reinforced Masonry</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="cast-in-place concrete">Type 8 Cast-in-Place Concrete</button>
+        </div>
+        <!-- Live Results Drawer -->
+        <div class="finder-results-drawer" id="wall-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>UNICEDE® Wall Taxonomy</span>
+            <span class="tab-badge" style="background: rgba(234, 88, 12, 0.2); color: #fb923c;">Dual-Component Parser</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            <div>• <strong>WallType:</strong> Brick/URM (1), Reinforced Masonry/CMU (2), Plywood (3), Wood Planks (4), OSB (5), Metal Panels (6), Pre-cast Concrete (7), Cast-in-place Concrete (8), Gypsum Board (9)</div>
+            <div>• <strong>WallSiding:</strong> Veneer Brick/Masonry (1), Wood Shingles (2), Clapboards (3), Aluminum/Vinyl Siding (4), Stone Panels (5), EIFS/Synthetic Stucco (6), Stucco (7), Fiber Cement Board (8)</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Underwriting Multi-Component Rules</span>
+            <span class="tab-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">Higher % • Weaker Material</span>
+          </div>
+          <div style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            <div>&bull; <strong style="color: #60a5fa;">Rule 1 (With %):</strong> If percentages are specified, pick the <strong>higher %</strong> (e.g. <code>70% Brick Veneer, 30% Vinyl</code> &rarr; Brick Veneer <code>1</code>).</div>
+            <div>&bull; <strong style="color: #fbbf24;">Rule 2 (No %):</strong> If no percentages, pick the <strong>weaker material</strong> (e.g. <code>Brick Veneer &amp; Vinyl Siding</code> &rarr; Vinyl Siding <code>4</code>; <code>Plywood &amp; Concrete</code> &rarr; Plywood <code>3</code>).</div>
+            <div>&bull; <strong style="color: var(--accent-emerald-light);">Rule 3 (50% / 50% Tie):</strong> If both are equal percentage, pick the <strong>weaker material</strong> (e.g. <code>50% Brick Veneer / 50% Vinyl Siding</code> &rarr; Vinyl Siding <code>4</code>).</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Export &amp; Copy Format</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="wall-format-radio" value="code_only" checked>
+              <span>Code Only (e.g. <code>1	4</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="wall-format-radio" value="name_code">
+              <span>Standard Name &amp; Code (e.g. <code>Brick (1)	Vinyl Siding (4)</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="wall-format-radio" value="name_only">
+              <span>Description Only (e.g. <code>Brick/unreinforced masonry	Aluminum/vinyl siding</code>)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Active Column Rule Configuration Ribbon -->
+    <section class="rules-card" id="street-rules-panel">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2>🏠 Street Address Cleaning Rules</h2>
+          <div class="protect-banner" id="protect-banner">
+            <span>🛡️ Number Range Hyphens Protected:</span>
+            <code>145-146 MIRAMAR BOULEVARD</code>
+          </div>
+        </div>
+        <div>
+          <button id="btn-street-ai" class="btn btn-ai btn-sm" title="Use Gemini 2.5 AI to clean streets, resolve prefixes, and extract primary addresses">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Clean Street (Gemini 2.5)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="rules-grid">
+        <!-- Symbols Being Stripped -->
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Symbols Removed</span>
+            <span class="tab-badge">29 Special Characters</span>
+          </div>
+          <div class="symbols-preview" id="symbols-preview" title="All specified noise punctuation">
+            , . / &lt; &gt; ? ; ' : \ " | [ ] { } = + - _ ( ) # % ^ * @ !
+          </div>
+          <label class="checkbox-toggle" style="margin-top: 4px;">
+            <input type="checkbox" id="preserve-hyphen-checkbox" checked>
+            <span>Protect hyphens in number ranges (e.g. 145-146)</span>
+          </label>
+          <label class="checkbox-toggle" style="margin-top: 4px;">
+            <input type="checkbox" id="extract-primary-checkbox" checked>
+            <span>Extract primary address (e.g. 8901 Meadowbrook Blvd, 500 Malabar Rd)</span>
+          </label>
+          <label class="checkbox-toggle" style="margin-top: 4px;">
+            <input type="checkbox" id="strip-bldg-checkbox" checked>
+            <span>Strip building prefixes (e.g. Bldg 1 - 1521 -> 521 Greens Rd)</span>
+          </label>
+        </div>
+
+        <!-- Words Being Removed -->
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Words Removed (Case-Insensitive)</span>
+            <span>Press Enter to add</span>
+          </div>
+          <div class="tags-list" id="words-tags-container">
+            <!-- Populated dynamically: street, builfin, building, unit, st, bldg -->
+          </div>
+          <div class="tag-input-wrapper">
+            <input type="text" id="new-word-input" class="tag-input" placeholder="+ Add word" />
+          </div>
+        </div>
+
+        <!-- Text Casing & Formatting -->
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Output Letter Casing</span>
+          </div>
+          <div class="casing-options">
+            <button class="radio-pill active" data-casing="uppercase" id="case-uppercase">UPPERCASE</button>
+            <button class="radio-pill" data-casing="titlecase" id="case-titlecase">Title Case</button>
+            <button class="radio-pill" data-casing="original" id="case-original">Original</button>
+          </div>
+          <label class="checkbox-toggle" style="margin-top: 8px;">
+            <input type="checkbox" id="remove-empty-checkbox">
+            <span>Filter out blank rows</span>
+          </label>
+        </div>
+      </div>
+    </section>
+    </div> <!-- /#rules-collapsible-wrapper -->
+
+    <!-- Dual Workspace: Raw Input vs Cleaned Output -->
+    <main class="workspace-grid">
+      
+      <!-- Left Pane: Raw Input -->
+      <section class="pane" id="raw-pane">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <h3 id="raw-pane-title">📥 Raw Excel Column Input</h3>
+            <span class="row-badge" id="raw-count-badge">0 rows</span>
+          </div>
+          <div class="pane-actions">
+            <button id="btn-paste-2col" class="btn btn-primary btn-sm" title="Paste 2 Excel columns (Year Built & Roof Year) directly from clipboard" style="display: none;">
+              📋 Paste 2 Columns
+            </button>
+            <button id="btn-paste-3col" class="btn btn-primary btn-sm" title="Paste 3 Excel columns (AR, AS, AT) directly from clipboard" style="display: none;">
+              📋 Paste 3 Columns
+            </button>
+            <button id="btn-paste-clipboard" class="btn btn-secondary btn-sm" title="Paste data directly from clipboard">
+              📋 Paste
+            </button>
+            <button id="btn-input-code-finder" class="btn btn-secondary btn-sm" title="Open Touchstone UNICEDE® Code &amp; Description Finder">
+              🔍 Code Finder
+            </button>
+            <label for="file-upload-input" class="btn btn-secondary btn-sm" style="cursor: pointer;" title="Upload Excel or CSV file">
+              📁 Import File
+            </label>
+            <input type="file" id="file-upload-input" accept=".xlsx,.xls,.csv,.txt" style="display: none;" />
+          </div>
+        </div>
+
+        <!-- Standard Single Column Input (Street, Split, etc.) -->
+        <div class="editor-container" id="input-editor-container">
+          <div class="line-numbers" id="line-numbers">1</div>
+          <textarea 
+            id="raw-input" 
+            class="code-textarea" 
+            spellcheck="false" 
+            placeholder="Paste your Excel column here (Ctrl+V / Cmd+V)...&#10;&#10;Examples:&#10;Bldg 1 - 1521 Greens Road&#10;8901 Meadowbrook Blvd, 1401, 1405... and 1421 Randol Crossing Lane&#10;500 Malabar Road SW,Magnolia Cove Drive&#10;145-146 MIRAMAR BOULEVARD&#10;Building 12, Unit #4, 789 Elm Street!"></textarea>
+          
+          <!-- Drag and Drop Overlay -->
+          <div class="dropzone-overlay" id="dropzone-overlay">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <span>Drop your Excel (.xlsx, .csv) file here</span>
+          </div>
+        </div>
+
+        <!-- 3-Column Separate Input Grid for Occupancy Code (AR, AS, AT) -->
+        <div class="occupancy-3col-editor" id="occupancy-3col-container" style="display: none;">
+          <!-- Column 1: OccupancyCode / ConstructionCode (AR) -->
+          <div class="occ-col-input-card occ-col-code">
+            <div class="occ-col-header">
+              <span class="occ-col-badge" title="Optional existing code (AR)">Col 1 • AR</span>
+              <div class="occ-col-title-wrapper" title="Click to rename Column 1">
+                <input type="text" id="occ-col-1-input" class="occ-col-name-input" value="Existing Code" placeholder="Col 1 Name..." spellcheck="false" title="Click to rename Column 1" />
+                <span class="occ-col-edit-icon" title="Click to rename">✏️</span>
+              </div>
+            </div>
+            <div class="occ-editor-box">
+              <div class="line-numbers occ-line-numbers" id="occ-lines-code">1</div>
+              <textarea 
+                id="occ-input-code" 
+                class="code-textarea occ-sub-textarea" 
+                spellcheck="false" 
+                placeholder=""></textarea>
+            </div>
+          </div>
+
+          <!-- Column 2: Building Description (AS) -->
+          <div class="occ-col-input-card occ-col-bldg">
+            <div class="occ-col-header">
+              <span class="occ-col-badge" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.4);">Col 2 • AS</span>
+              <div class="occ-col-title-wrapper" title="Click to rename Column 2">
+                <input type="text" id="occ-col-2-input" class="occ-col-name-input" value="Building Description" placeholder="Col 2 Name..." spellcheck="false" title="Click to rename Column 2" />
+                <span class="occ-col-edit-icon" title="Click to rename">✏️</span>
+              </div>
+            </div>
+            <div class="occ-editor-box">
+              <div class="line-numbers occ-line-numbers" id="occ-lines-bldg">1</div>
+              <textarea 
+                id="occ-input-bldg" 
+                class="code-textarea occ-sub-textarea" 
+                spellcheck="false" 
+                placeholder=""></textarea>
+            </div>
+          </div>
+
+          <!-- Column 3: Occupancy Description / Construction Description (AT) -->
+          <div class="occ-col-input-card occ-col-occ">
+            <div class="occ-col-header">
+              <span class="occ-col-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light); border-color: rgba(16, 185, 129, 0.4);">Col 3 • AT</span>
+              <div class="occ-col-title-wrapper" title="Click to rename Column 3">
+                <input type="text" id="occ-col-3-input" class="occ-col-name-input" value="Occupancy Description" placeholder="Col 3 Name..." spellcheck="false" title="Click to rename Column 3" />
+                <span class="occ-col-edit-icon" title="Click to rename">✏️</span>
+              </div>
+            </div>
+            <div class="occ-editor-box">
+              <div class="line-numbers occ-line-numbers" id="occ-lines-occ">1</div>
+              <textarea 
+                id="occ-input-occ" 
+                class="code-textarea occ-sub-textarea" 
+                spellcheck="false" 
+                placeholder=""></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2-Column Separate Input Grid for Roof Year Built (Year Built & Roof Year) -->
+        <div class="roof-year-2col-editor" id="roof-year-2col-container" style="display: none;">
+          <!-- Column 1: Year Built -->
+          <div class="occ-col-input-card">
+            <div class="occ-col-header">
+              <span class="occ-col-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light); border-color: rgba(16, 185, 129, 0.4);">Col 1 • Year Built</span>
+              <div class="occ-col-title-wrapper" title="Year Built (Required Base Year)">
+                <input type="text" id="roof-year-col-1-input" class="occ-col-name-input" value="Year Built" placeholder="Col 1 Name..." spellcheck="false" title="Column 1: Year Built" />
+              </div>
+            </div>
+            <div class="occ-editor-box">
+              <div class="line-numbers occ-line-numbers" id="roof-year-lines-yb">1</div>
+              <textarea 
+                id="roof-year-input-yb" 
+                class="code-textarea occ-sub-textarea" 
+                spellcheck="false" 
+                placeholder="Paste Year Built column here (e.g. 2005, 1990, 1985)..."></textarea>
+            </div>
+          </div>
+
+          <!-- Column 2: Roof Year Built -->
+          <div class="occ-col-input-card">
+            <div class="occ-col-header">
+              <span class="occ-col-badge" style="background: rgba(244, 63, 94, 0.2); color: #fb7185; border-color: rgba(244, 63, 94, 0.4);">Col 2 • Roof Year Built</span>
+              <div class="occ-col-title-wrapper" title="Roof Year Built">
+                <input type="text" id="roof-year-col-2-input" class="occ-col-name-input" value="Roof Year Built" placeholder="Col 2 Name..." spellcheck="false" title="Column 2: Roof Year Built" />
+              </div>
+            </div>
+            <div class="occ-editor-box">
+              <div class="line-numbers occ-line-numbers" id="roof-year-lines-ry">1</div>
+              <textarea 
+                id="roof-year-input-ry" 
+                class="code-textarea occ-sub-textarea" 
+                spellcheck="false" 
+                placeholder="Paste Roof Year Built column here (e.g. 2000, 2005, 2010)..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Active Line Code Inspector -->
+        <div class="live-code-inspector" id="live-code-inspector" style="display: none;">
+          <div class="inspector-badge-icon">⚡</div>
+          <div class="inspector-content">
+            <div class="inspector-headline">
+              <span class="inspector-label">Active Line Match:</span>
+              <span class="inspector-code-pill" id="inspector-code-badge">305</span>
+              <span class="inspector-title" id="inspector-title">Group Institutional Housing</span>
+              <span class="inspector-group" id="inspector-group">Residential</span>
+            </div>
+            <div class="inspector-desc" id="inspector-desc">Nursing homes, dormitories, assisted living facilities...</div>
+          </div>
+          <div class="inspector-actions">
+            <button class="btn btn-xs btn-outline-cyan" id="btn-inspector-view-details" type="button" title="View complete underwriting description and details">📖 Details</button>
+            <button class="btn btn-xs btn-outline-purple" id="btn-inspector-copy-code" type="button" title="Copy code number to clipboard">📋 Copy</button>
+          </div>
+        </div>
+
+        <div class="pane-footer">
+          <div class="footer-stats">
+            <span>Tip: Copy a column in Excel and paste directly here.</span>
+          </div>
+          <button id="btn-ai-process" class="btn btn-ai btn-sm" title="Process current data with Google Gemini AI">
+            <span class="ai-sparkle">✨</span>
+            <span id="btn-ai-process-label">Run Gemini AI</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Right Pane: Cleaned Output -->
+      <section class="pane" id="output-pane">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <h3>✨ Cleaned Output Column</h3>
+            <span class="row-badge" id="clean-count-badge">0 rows</span>
+          </div>
+          <div class="pane-actions">
+            <button id="btn-view-table" class="radio-pill active btn-sm" title="View as comparison table with row status">
+              📊 Diff Table
+            </button>
+            <button id="btn-view-text" class="radio-pill btn-sm" title="View as selectable multiline text">
+              📝 Text
+            </button>
+          </div>
+        </div>
+
+        <!-- Top Action & Export Bar (Right at the top of Cleaned Output Column) -->
+        <div class="output-top-bar" id="output-top-bar">
+          <div class="footer-stats">
+            <span>Modified: <strong class="stat-rows-cleaned" id="stat-rows-cleaned-top">0</strong> rows</span>
+            <span>•</span>
+            <span>Cleaned: <strong class="stat-chars-removed" id="stat-chars-removed-top">0</strong> symbols/chars</span>
+          </div>
+
+          <div class="footer-buttons">
+            <button id="btn-copy-excel-top" class="btn btn-primary btn-copy-excel pulse-glow" title="Copy column into clipboard. Ready to paste directly down Excel cells!">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy for Excel</span>
+            </button>
+            <button id="btn-download-xlsx-top" class="btn btn-excel btn-sm btn-download-xlsx" title="Download directly as Microsoft Excel spreadsheet (.xlsx)">
+              📥 Excel (.xlsx)
+            </button>
+            <button id="btn-download-csv-top" class="btn btn-secondary btn-sm btn-download-csv" title="Download as standard CSV file">
+              📄 CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Output Search & Filter Toolbar -->
+        <div class="output-toolbar" id="output-toolbar">
+          <div class="output-search-box">
+            <span class="output-search-icon">🔍</span>
+            <input 
+              type="text" 
+              id="output-search-input" 
+              class="output-search-input" 
+              placeholder="Filter / Search rows (code, building, description, keyword)..." 
+              autocomplete="off" />
+            <button id="btn-clear-search" class="btn-clear-search" title="Clear search" style="display: none;">✕</button>
+          </div>
+          <div class="output-filter-actions">
+            <select id="output-status-filter" class="filter-select" title="Filter by Status">
+              <option value="all">All Statuses</option>
+              <option value="match">✓ Confirmed</option>
+              <option value="upgraded">✨ Resolved</option>
+              <option value="assigned">✨ Assigned</option>
+              <option value="mismatch">⚠️ Review Differs</option>
+              <option value="cleaned">🧹 Cleaned</option>
+              <option value="unchanged">Unchanged</option>
+            </select>
+            <select id="output-code-filter" class="filter-select" title="Filter by Touchstone Code" style="display: none;">
+              <option value="all">All Codes</option>
+            </select>
+            <span class="filter-count-badge" id="filter-count-badge" style="display: none;"></span>
+          </div>
+        </div>
+
+        <div class="output-content-area" id="output-content-area">
+          <!-- React 18 High-Performance Output Root -->
+          <div id="output-react-root" style="height: 100%; width: 100%; display: flex; flex-direction: column;"></div>
+        </div>
+
+        <div class="pane-footer">
+          <div class="footer-stats">
+            <span>Modified: <strong class="stat-rows-cleaned" id="stat-rows-cleaned">0</strong> rows</span>
+            <span>•</span>
+            <span>Cleaned: <strong class="stat-chars-removed" id="stat-chars-removed">0</strong> symbols/chars</span>
+          </div>
+
+          <div class="footer-buttons">
+            <button id="btn-copy-excel" class="btn btn-primary btn-copy-excel pulse-glow" title="Copy column into clipboard. Ready to paste directly down Excel cells!">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy for Excel</span>
+            </button>
+            <button id="btn-download-xlsx" class="btn btn-excel btn-sm btn-download-xlsx" title="Download directly as Microsoft Excel spreadsheet (.xlsx)">
+              📥 Excel (.xlsx)
+            </button>
+            <button id="btn-download-csv" class="btn btn-secondary btn-sm btn-download-csv" title="Download as standard CSV file">
+              📄 CSV
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    </div> <!-- /#studio-view -->
+
+  </div> <!-- /.app-container -->
+
+  <!-- Gemini API Settings Modal -->
+  <div class="modal-backdrop" id="gemini-modal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="ai-sparkle">✨</span>
+          <h3>Google Gemini AI Settings</h3>
+        </div>
+        <button class="modal-close" id="btn-close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          CleanExcel Studio is integrated with <strong>Gemini 2.5 Flash</strong> for instant worldwide address intelligence (UK postcodes, Germany PLZ, Canadian provinces, US county appraisal records, etc.).
+        </p>
+        <div class="form-group">
+          <label>API Key Status</label>
+          <div class="api-key-status-box">
+            <div class="api-status-pill">
+              <span class="status-dot-pulse"></span>
+              <span id="gemini-key-status-text">🔒 Active &amp; Protected</span>
+            </div>
+            <span class="api-key-masked-display" id="gemini-key-masked-preview">••••••••••••••••••••••••••••••••••••</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="gemini-api-key-input">Update / Override API Key <span style="font-weight: normal; color: var(--text-muted);">(Optional)</span></label>
+          <div class="key-input-wrapper">
+            <input 
+              type="password" 
+              id="gemini-api-key-input" 
+              class="tag-input" 
+              placeholder="Enter new key to update (leave blank to keep active key)..." 
+              autocomplete="new-password"
+              style="width: 100%; font-family: var(--font-mono); font-size: 12px;" />
+            <button id="btn-clear-custom-key" class="btn btn-secondary btn-sm" type="button" title="Clear custom key and reset to system default">Reset</button>
+          </div>
+          <span class="form-help">Your secret key is never shown on screen or exposed in plain text.</span>
+        </div>
+        <div class="form-group">
+          <label>Active Engine</label>
+          <div class="model-badge">
+            <span class="status-dot-pulse"></span>
+            <span>gemini-2.5-flash (Fast, Worldwide Address Knowledge)</span>
+          </div>
+        </div>
+        <div id="gemini-test-status" class="test-status-area" style="display: none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-test-gemini" class="btn btn-secondary btn-sm">🧪 Test Connection</button>
+        <button id="btn-save-gemini-key" class="btn btn-primary btn-sm">Save &amp; Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Universal Touchstone UNICEDE® Code Explorer Modal -->
+  <div class="modal-backdrop" id="code-explorer-modal" style="display: none;">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="explorer-brand-icon">🔍</span>
+          <div>
+            <h3>Touchstone UNICEDE® Code &amp; Description Explorer</h3>
+            <p class="modal-sub">Search, verify &amp; insert official Touchstone UNICEDE® classification codes</p>
+          </div>
+        </div>
+        <button class="modal-close" id="btn-close-code-explorer">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Section Tabs -->
+        <div class="explorer-tabs-bar">
+          <button type="button" class="explorer-tab active" data-tab="occupancy">🏢 Occupancy Codes</button>
+          <button type="button" class="explorer-tab" data-tab="construction">🏗️ Construction Codes</button>
+          <button type="button" class="explorer-tab" data-tab="roof">🏠 Roof Details</button>
+          <button type="button" class="explorer-tab" data-tab="wall">🧱 Exterior Wall</button>
+        </div>
+
+        <!-- Search Bar & Controls -->
+        <div class="explorer-controls-bar">
+          <div class="finder-search-input-wrap" style="flex: 1;">
+            <span class="finder-input-icon">⚡</span>
+            <input type="text" class="finder-search-input" id="explorer-search-input" placeholder="Search codes, categories, aliases, or underwriting keywords..." autocomplete="off" spellcheck="false">
+            <button class="finder-clear-btn" id="explorer-clear-btn" style="display: none;">✕</button>
+          </div>
+          <div class="explorer-stats" id="explorer-stats">Showing 50 items</div>
+        </div>
+
+        <!-- Sub-Category Filter Tags -->
+        <div class="explorer-filter-pills" id="explorer-filter-pills">
+          <!-- Populated dynamically: All, Residential, Commercial, etc. -->
+        </div>
+
+        <!-- Underwriting Special Rule Alert Banner -->
+        <div class="explorer-rule-callout" id="explorer-rule-callout" style="display: none;"></div>
+
+        <!-- Scrollable Cards Grid -->
+        <div class="explorer-grid-container" id="explorer-grid-container">
+          <!-- Dynamic cards injected here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <span class="explorer-footer-hint">💡 Tip: Click <strong>"📋 Copy Code"</strong> or <strong>"➕ Insert"</strong> to populate your Excel inputs</span>
+        <button id="btn-close-code-explorer-footer" class="btn btn-secondary btn-sm" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Single Code Detailed Inspector Modal -->
+  <div class="modal-backdrop" id="code-detail-modal" style="display: none;">
+    <div class="modal-card" style="max-width: 560px;">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="detail-code-badge" id="modal-detail-code">305</span>
+          <div>
+            <h3 id="modal-detail-title">Group Institutional Housing</h3>
+            <span class="modal-sub" id="modal-detail-group">Residential &amp; Institutional</span>
+          </div>
+        </div>
+        <button class="modal-close" id="btn-close-code-detail">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-detail-body">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button id="btn-modal-detail-insert" class="btn btn-outline-cyan btn-sm" type="button">➕ Insert into Input</button>
+        <button id="btn-modal-detail-copy" class="btn btn-primary btn-sm" type="button">📋 Copy Code</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Processing Spinner Overlay -->
+  <div class="ai-loading-overlay" id="ai-loading-overlay" style="display: none;">
+    <div class="ai-loading-card">
+      <div class="ai-spinner"></div>
+      <h4 id="ai-loading-title">✨ Gemini AI is analyzing addresses...</h4>
+      <p id="ai-loading-subtitle">Applying worldwide country knowledge &amp; real estate schemas</p>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="vendor/react.production.min.js"></script>
+  <script src="vendor/react-dom.production.min.js"></script>
+  <script src="cleaner.js?v=3.0"></script>
+  <script src="code_finder.js?v=3.0"></script>
+  <script src="react_output.js?v=3.0"></script>
+  <script src="gemini.js?v=3.0"></script>
+  <script src="app.js?v=3.0"></script>
+</body>
+</html>
