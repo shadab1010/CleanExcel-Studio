@@ -2235,12 +2235,12 @@ async function copyForExcel() {
     excelText = tsvRows.join('\r\n');
     excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table>${htmlRows.join('')}</table></body></html>`;
   } else if (isRoof) {
-    const headers = ['1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck'];
+    const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck'];
     const tsvRows = [headers.join('\t')];
     const htmlRows = [`<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`];
 
     dataToCopy.forEach(r => {
-      const row = [r.geometryCode || '', r.pitchCode || '', r.coveringCode || '', r.deckCode || ''];
+      const row = [r.original || '', r.geometryCode || '', r.pitchCode || '', r.coveringCode || '', r.deckCode || ''];
       tsvRows.push(row.join('\t'));
       htmlRows.push(`<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`);
     });
@@ -2248,12 +2248,12 @@ async function copyForExcel() {
     excelText = tsvRows.join('\r\n');
     excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table>${htmlRows.join('')}</table></body></html>`;
   } else if (isWall) {
-    const headers = ['1. WallType', '2. WallSiding'];
+    const headers = ['Raw Wall Input', '1. WallType', '2. WallSiding'];
     const tsvRows = [headers.join('\t')];
     const htmlRows = [`<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`];
 
     dataToCopy.forEach(r => {
-      const row = [r.wallTypeCode || '', r.wallSidingCode || ''];
+      const row = [r.original || '', r.wallTypeCode || '', r.wallSidingCode || ''];
       tsvRows.push(row.join('\t'));
       htmlRows.push(`<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`);
     });
@@ -2593,11 +2593,12 @@ function downloadCsvFile() {
       csvLines.push(row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(','));
     });
   } else if (isRoof) {
-    const headers = ['1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', 'Status'];
+    const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', 'Status'];
     csvLines.push(headers.map(h => `"${h}"`).join(','));
 
     dataToExport.forEach(r => {
       const row = [
+        r.original || '',
         r.geometryCode || '',
         r.pitchCode || '',
         r.coveringCode || '',
@@ -2607,11 +2608,12 @@ function downloadCsvFile() {
       csvLines.push(row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(','));
     });
   } else if (isWall) {
-    const headers = ['1. WallType', '2. WallSiding', 'Status'];
+    const headers = ['Raw Wall Input', '1. WallType', '2. WallSiding', 'Status'];
     csvLines.push(headers.map(h => `"${h}"`).join(','));
 
     dataToExport.forEach(r => {
       const row = [
+        r.original || '',
         r.wallTypeCode || '',
         r.wallSidingCode || '',
         r.statusText || ''
