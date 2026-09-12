@@ -1887,7 +1887,7 @@ const YearBuiltCleaner = {
       let status = 'cleaned';
       let statusText = 'Cleaned';
 
-      if (!trimmed) {
+      if (!trimmed || /^(?:n\/?a|n\.a\.?|none|null|nil|not\s*applicable|-+|—+|\.)$/i.test(trimmed)) {
         status = 'empty';
         statusText = 'Blank';
       } else if (trimmed === cleaned) {
@@ -2408,9 +2408,12 @@ const RoofClassifier = {
     if (!s1 || !s2) return 0;
     if (s1 === s2) return 1.0;
 
-    // Direct containment
-    if (s1.includes(s2) || s2.includes(s1)) {
-      return Math.max(0.85, Math.min(s1.length, s2.length) / Math.max(s1.length, s2.length));
+    // Direct containment (only if shorter string is a meaningful token of length >= 4 and ratio >= 0.5)
+    if (Math.min(s1.length, s2.length) >= 4 && (s1.includes(s2) || s2.includes(s1))) {
+      const ratio = Math.min(s1.length, s2.length) / Math.max(s1.length, s2.length);
+      if (ratio >= 0.5) {
+        return Math.max(0.85, ratio);
+      }
     }
 
     const t1 = s1.split(/\s+/).filter(w => w.length > 1);
@@ -2998,7 +3001,7 @@ const RoofClassifier = {
   parseRoofRow(rawRow, options = {}) {
     if (!rawRow) rawRow = '';
     const str = String(rawRow).trim();
-    if (!str) {
+    if (!str || /^(?:n\/?a|n\.a\.?|none|null|nil|not\s*applicable|-+|—+|\.)$/i.test(str)) {
       return {
         original: rawRow,
         geometryCode: '',
@@ -3021,6 +3024,7 @@ const RoofClassifier = {
         anchorage: '',
         anchorageName: '',
         anchorageShort: '',
+        recognizedCount: 0,
         status: 'empty',
         statusText: 'Blank'
       };
@@ -3574,7 +3578,7 @@ const WallClassifier = {
   parseWallRow(rawRow, options = {}) {
     if (!rawRow) rawRow = '';
     const str = String(rawRow).trim();
-    if (!str) {
+    if (!str || /^(?:n\/?a|n\.a\.?|none|null|nil|not\s*applicable|-+|—+|\.)$/i.test(str)) {
       return {
         original: rawRow,
         wallTypeCode: '',
@@ -3585,6 +3589,7 @@ const WallClassifier = {
         wallSiding: '',
         wallSidingName: '',
         wallSidingShort: '',
+        recognizedCount: 0,
         status: 'empty',
         statusText: 'Blank'
       };
