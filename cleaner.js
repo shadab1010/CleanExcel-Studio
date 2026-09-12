@@ -2854,6 +2854,35 @@ const RoofClassifier = {
       };
     }
 
+    // Unknown / 0-unknown: any input that is purely "unknown" or "0-unknown" (or variants)
+    // maps all four roof fields to code 0 (Unknown/default).
+    if (/^(?:0\s*[-\/]\s*)?unknown\s*(?:[-\/]\s*0)?$/i.test(str) || /^0\s*[-\/]?\s*unknown$/i.test(str)) {
+      const unknownDisplay = (fmt) => fmt === 'code_only' ? '0' : fmt === 'name_only' ? 'Unknown/default' : fmt === 'short_code' ? 'Unknown (0)' : 'Unknown/default (0)';
+      const fmt = options.format || 'code_only';
+      return {
+        original: rawRow,
+        geometryCode: '0',
+        geometry: unknownDisplay(fmt),
+        geometryName: 'Unknown/default',
+        geometryShort: 'Unknown',
+        pitchCode: '0',
+        pitch: unknownDisplay(fmt),
+        pitchName: 'Unknown/default',
+        pitchShort: 'Unknown',
+        coveringCode: '0',
+        covering: unknownDisplay(fmt),
+        coveringName: 'Unknown/default',
+        coveringShort: 'Unknown',
+        deckCode: '0',
+        deck: unknownDisplay(fmt),
+        deckName: 'Unknown/default',
+        deckShort: 'Unknown',
+        recognizedCount: 4,
+        status: 'match',
+        statusText: '✓ Complete (All 4 Fields Identified)'
+      };
+    }
+
     // If input is tab-separated (from Excel multi-column copy)
     const columns = str.includes('\t') ? str.split('\t').map(c => c.trim()).filter(Boolean) : [str];
     const fullText = columns.join(', ');
@@ -3355,6 +3384,27 @@ const WallClassifier = {
         wallSidingShort: '',
         status: 'empty',
         statusText: 'Blank'
+      };
+    }
+
+    // Unknown / 0-unknown: any input that is purely "unknown" or "0-unknown" (or variants)
+    // maps both wall fields to code 0 (Unknown/default).
+    if (/^(?:0\s*[-\/]\s*)?unknown\s*(?:[-\/]\s*0)?$/i.test(str) || /^0\s*[-\/]?\s*unknown$/i.test(str)) {
+      const unknownDisplay = (fmt) => fmt === 'code_only' ? '0' : fmt === 'name_only' ? 'Unknown/default' : fmt === 'short_code' ? 'Unknown (0)' : 'Unknown/default (0)';
+      const fmt = options.format || 'code_only';
+      return {
+        original: rawRow,
+        wallTypeCode: '0',
+        wallType: unknownDisplay(fmt),
+        wallTypeName: 'Unknown/default',
+        wallTypeShort: 'Unknown',
+        wallSidingCode: '0',
+        wallSiding: unknownDisplay(fmt),
+        wallSidingName: 'Unknown/default',
+        wallSidingShort: 'Unknown',
+        recognizedCount: 2,
+        status: 'match',
+        statusText: '✓ Complete (Both Fields Identified)'
       };
     }
 
