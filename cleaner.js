@@ -3660,6 +3660,7 @@ if (typeof window !== 'undefined') {
   window.RoofClassifier = RoofClassifier;
   window.WallClassifier = WallClassifier;
   window.CleanersRegistry = CleanersRegistry;
+  window.parseExcelRows = parseExcelRows;
 }
 
 

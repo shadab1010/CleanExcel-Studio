@@ -559,7 +559,40 @@ function bindEvents() {
     debouncedProcessCleaning(80);
   });
 
-  // Scroll sync for line numbers
+  // Paste interception: Excel wraps cells containing Alt+Enter newlines in double-quotes.
+  // Without this handler the browser's default paste splits quoted cells into multiple
+  // textarea lines. We read the raw clipboard text, parse it respecting Excel quoting,
+  // and re-insert the correctly-joined content so one Excel cell = one textarea line.
+  rawInputEl.addEventListener('paste', (e) => {
+    const pasteText = (e.clipboardData || window.clipboardData)?.getData('text');
+    if (!pasteText) return; // let browser handle empty paste
+
+    // Only intervene when the clipboard text actually contains quoted content
+    // (i.e. it starts/contains a " before a newline — the Excel quoting pattern).
+    const hasQuotedCell = /^"|(?:\t|^)"/.test(pasteText) || /"[^"]*\n[^"]*"/.test(pasteText);
+    if (!hasQuotedCell) return; // plain text — browser handles fine
+
+    e.preventDefault();
+
+    const parser = window.parseExcelRows || (typeof parseExcelRows === 'function' ? parseExcelRows : null);
+    if (!parser) return;
+
+    const rows = parser(pasteText);
+    const joined = rows.join('\n');
+
+    // Insert at the current cursor position
+    const start = rawInputEl.selectionStart || 0;
+    const end = rawInputEl.selectionEnd || 0;
+    const before = rawInputEl.value.substring(0, start);
+    const after = rawInputEl.value.substring(end);
+    rawInputEl.value = before + joined + after;
+    rawInputEl.selectionStart = rawInputEl.selectionEnd = start + joined.length;
+
+    updateLineNumbers();
+    debouncedProcessCleaning(80);
+  });
+
+
   rawInputEl.addEventListener('scroll', () => {
     lineNumbersEl.scrollTop = rawInputEl.scrollTop;
   });
