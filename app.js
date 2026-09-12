@@ -559,37 +559,73 @@ function bindEvents() {
     debouncedProcessCleaning(80);
   });
 
-  // Paste interception: Excel wraps cells containing Alt+Enter newlines in double-quotes.
-  // Without this handler the browser's default paste splits quoted cells into multiple
-  // textarea lines. We read the raw clipboard text, parse it respecting Excel quoting,
-  // and re-insert the correctly-joined content so one Excel cell = one textarea line.
+  // Paste interception for Roof / Wall raw input:
+  // Excel always puts BOTH text/plain AND text/html in the clipboard.
+  // For a cell that contains Alt+Enter (embedded newline), text/plain shows two lines
+  // but the HTML table still has ONE <tr> with ONE <td> containing a <br>.
+  // Strategy:
+  //   1. Try text/html → parse the table → one <tr> = one row, <br> inside a <td> → space.
+  //   2. Fall back to parseExcelRows on text/plain (handles quoted TSV).
+  //   3. If neither applies, let the browser handle normally.
   rawInputEl.addEventListener('paste', (e) => {
-    const pasteText = (e.clipboardData || window.clipboardData)?.getData('text');
-    if (!pasteText) return; // let browser handle empty paste
+    const cd = e.clipboardData || window.clipboardData;
+    if (!cd) return;
 
-    // Only intervene when the clipboard text actually contains quoted content
-    // (i.e. it starts/contains a " before a newline — the Excel quoting pattern).
-    const hasQuotedCell = /^"|(?:\t|^)"/.test(pasteText) || /"[^"]*\n[^"]*"/.test(pasteText);
-    if (!hasQuotedCell) return; // plain text — browser handles fine
+    const htmlData = cd.getData('text/html');
+    const textData = cd.getData('text');
 
-    e.preventDefault();
+    // --- Strategy 1: HTML table parsing (most reliable for Excel) ---
+    if (htmlData && htmlData.includes('<td')) {
+      try {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = htmlData;
+        const trs = tmp.querySelectorAll('tr');
+        if (trs.length > 0) {
+          const rowTexts = [];
+          trs.forEach(tr => {
+            // Get first <td> or <th> text; replace <br> with space
+            const firstCell = tr.querySelector('td, th');
+            if (!firstCell) return;
+            // Replace <br> tags with a space before getting textContent
+            firstCell.querySelectorAll('br').forEach(br => br.replaceWith(' '));
+            const cellText = (firstCell.textContent || '').replace(/\s+/g, ' ').trim();
+            if (cellText) rowTexts.push(cellText);
+          });
+          if (rowTexts.length > 0) {
+            e.preventDefault();
+            const joined = rowTexts.join('\n');
+            const start = rawInputEl.selectionStart || 0;
+            const end = rawInputEl.selectionEnd || 0;
+            rawInputEl.value = rawInputEl.value.substring(0, start) + joined + rawInputEl.value.substring(end);
+            rawInputEl.selectionStart = rawInputEl.selectionEnd = start + joined.length;
+            updateLineNumbers();
+            debouncedProcessCleaning(80);
+            return;
+          }
+        }
+      } catch (_) { /* fall through to strategy 2 */ }
+    }
 
-    const parser = window.parseExcelRows || (typeof parseExcelRows === 'function' ? parseExcelRows : null);
-    if (!parser) return;
-
-    const rows = parser(pasteText);
-    const joined = rows.join('\n');
-
-    // Insert at the current cursor position
-    const start = rawInputEl.selectionStart || 0;
-    const end = rawInputEl.selectionEnd || 0;
-    const before = rawInputEl.value.substring(0, start);
-    const after = rawInputEl.value.substring(end);
-    rawInputEl.value = before + joined + after;
-    rawInputEl.selectionStart = rawInputEl.selectionEnd = start + joined.length;
-
-    updateLineNumbers();
-    debouncedProcessCleaning(80);
+    // --- Strategy 2: parseExcelRows on text/plain (handles quoted TSV) ---
+    if (textData) {
+      const hasQuotedCell = /^"/.test(textData.trim()) || /"[^"]*[\r\n][^"]*"/.test(textData);
+      if (hasQuotedCell) {
+        const parser = window.parseExcelRows || (typeof parseExcelRows === 'function' ? parseExcelRows : null);
+        if (parser) {
+          e.preventDefault();
+          const rows = parser(textData);
+          const joined = rows.join('\n');
+          const start = rawInputEl.selectionStart || 0;
+          const end = rawInputEl.selectionEnd || 0;
+          rawInputEl.value = rawInputEl.value.substring(0, start) + joined + rawInputEl.value.substring(end);
+          rawInputEl.selectionStart = rawInputEl.selectionEnd = start + joined.length;
+          updateLineNumbers();
+          debouncedProcessCleaning(80);
+          return;
+        }
+      }
+    }
+    // Strategy 3: browser default paste (plain text with no embedded newline issue)
   });
 
 
