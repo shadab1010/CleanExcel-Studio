@@ -67,8 +67,8 @@ function parseExcelRows(text) {
     i++;
   }
 
-  // Push the last (possibly unterminated) row
-  if (current || rows.length > 0) {
+  // Push the last unterminated row (if text didn't end with a newline)
+  if (current) {
     rows.push(current);
   }
 

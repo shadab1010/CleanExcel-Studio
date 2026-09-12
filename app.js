@@ -583,13 +583,22 @@ function bindEvents() {
         if (trs.length > 0) {
           const rowTexts = [];
           trs.forEach(tr => {
-            // Get first <td> or <th> text; replace <br> with space
-            const firstCell = tr.querySelector('td, th');
-            if (!firstCell) return;
-            // Replace <br> tags with a space before getting textContent
-            firstCell.querySelectorAll('br').forEach(br => br.replaceWith(' '));
-            const cellText = (firstCell.textContent || '').replace(/\s+/g, ' ').trim();
-            if (cellText) rowTexts.push(cellText);
+            const cells = tr.querySelectorAll('td, th');
+            if (cells.length === 0) {
+              rowTexts.push('');
+              return;
+            }
+            const cellValues = [];
+            cells.forEach(cell => {
+              cell.querySelectorAll('br').forEach(br => br.replaceWith(' '));
+              cellValues.push((cell.textContent || '').replace(/\s+/g, ' ').trim());
+            });
+            // Preserve blank rows as empty strings so row numbering exactly matches Excel
+            if (cellValues.every(c => !c)) {
+              rowTexts.push('');
+            } else {
+              rowTexts.push(cellValues.join('\t'));
+            }
           });
           if (rowTexts.length > 0) {
             e.preventDefault();
