@@ -2221,6 +2221,17 @@ const RoofTaxonomy = {
     6: { code: '6', name: 'Pre-cast concrete slabs', shortName: 'Pre-cast concrete slabs' },
     7: { code: '7', name: 'Reinforced concrete slabs', shortName: 'Reinforced concrete slabs' },
     8: { code: '8', name: 'Light metal', shortName: 'Light metal' }
+  },
+
+  ANCHORAGE: {
+    0: { code: '0', name: 'Unknown/default', shortName: 'Unknown' },
+    1: { code: '1', name: 'Hurricane Ties', shortName: 'Hurricane Ties' },
+    2: { code: '2', name: 'Nails/Screws', shortName: 'Nails/Screws' },
+    3: { code: '3', name: 'Anchor bolts', shortName: 'Anchor bolts' },
+    4: { code: '4', name: 'Gravity/friction', shortName: 'Gravity/friction' },
+    5: { code: '5', name: 'Adhesive epoxy', shortName: 'Adhesive epoxy' },
+    6: { code: '6', name: 'Structurally Connected', shortName: 'Structurally Connected' },
+    7: { code: '7', name: 'Clips', shortName: 'Clips' }
   }
 };
 
@@ -2277,6 +2288,17 @@ const RoofClassifier = {
     '0': 0
   },
 
+  ANCHORAGE_WEAKNESS: {
+    '4': 100, // Gravity/friction (weakest against wind uplift / dead load only)
+    '2': 80,  // Nails/Screws (toe-nailing)
+    '7': 60,  // Clips (framing clips)
+    '1': 40,  // Hurricane Ties (engineered hurricane ties/straps)
+    '3': 30,  // Anchor bolts
+    '5': 25,  // Adhesive epoxy
+    '6': 10,  // Structurally Connected (monolithic concrete tie beam / welded, strongest)
+    '0': 0
+  },
+
   // Comprehensive synonyms dictionary for fuzzy and similar name matching
   SYNONYMS: {
     GEOMETRY: {
@@ -2319,6 +2341,15 @@ const RoofClassifier = {
       '6': ['pre cast concrete slabs', 'precast concrete slabs', 'pre cast concrete', 'precast concrete', 'hollow core concrete', 'hollow core', 'precast slabs', 'prestressed concrete', 'precast planks', 'double tee', 'siporex', 'gypsum slabs'],
       '7': ['reinforced concrete slabs', 'reinforced concrete', 'cast in place concrete', 'cast in place', 'cip concrete', 'poured concrete', 'monolithic concrete', 'concrete slab', 'concrete deck', 'concrete roof deck', 'rc slab', 'poured concrete deck'],
       '8': ['light metal', 'light metal deck', 'light gauge steel deck', 'bare metal deck', 'bare steel deck', 'uninsulated metal deck', 'uninsulated steel deck', 'corrugated steel deck']
+    },
+    ANCHORAGE: {
+      '1': ['hurricane ties', 'hurricane ties 1', 'hurricane tie', 'hurricane straps', 'hurricane strap', 'hurricane clips', 'hurricane clip', 'seismic ties', 'seismic tie', 'seismic straps', 'uplift straps', 'truss ties', 'rafter ties', 'hurricane tie down'],
+      '2': ['nails screws', 'nails screws 2', 'nails', 'screws', 'nailed', 'screwed', 'toe nailing', 'toe nailed', 'toenailed', 'toe nail', 'toenail', 'screws nails'],
+      '3': ['anchor bolts', 'anchor bolts 3', 'anchor bolt', 'through bolts', 'through bolt', 'expansion bolts', 'expansion bolt', 'bolted connection', 'bolted', 'anchor bolted'],
+      '4': ['gravity friction', 'gravity friction 4', 'gravity', 'friction', 'gravity or friction', 'unanchored', 'no ties', 'dead load only', 'friction only', 'no anchorage'],
+      '5': ['adhesive epoxy', 'adhesive epoxy 5', 'epoxy', 'chemical anchor', 'resin anchor', 'epoxy anchor', 'structural adhesive', 'glued connection', 'epoxy anchored'],
+      '6': ['structurally connected', 'structurally connected 6', 'structural connection', 'structurally anchored', 'concrete tie beam', 'tie beam', 'monolithic tie', 'welded connection', 'embedded plates', 'bond beam'],
+      '7': ['clips', 'clips 7', 'framing clips', 'metal clips', 'roof clips', 'simpson clips', 'framing clip', 'metal clip', 'roof clip']
     }
   },
 
@@ -2817,6 +2848,71 @@ const RoofClassifier = {
   },
 
   /**
+   * Detect all roof anchorage candidates in a text segment
+   */
+  findAnchorageCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+
+    function getPct(regex) {
+      if (defaultPct !== null && defaultPct !== undefined) return defaultPct;
+      const mPrefix = text.match(new RegExp(`(\\d+(?:\\.\\d+)?)\\s*%\\s*${regex.source}`, 'i'));
+      if (mPrefix) return parseFloat(mPrefix[1]);
+      const mSuffix = text.match(new RegExp(`${regex.source}\\s*(?:\\(?\\s*(\\d+(?:\\.\\d+)?)\\s*%\\s*\\)?)`, 'i'));
+      if (mSuffix && mSuffix[1]) return parseFloat(mSuffix[1]);
+      return null;
+    }
+
+    // Explicit code mention check (e.g. "Anchorage: 1" or "Hurricane Ties (1)")
+    const explicitAnchorMatch = text.match(/(?:anchor(?:age)?|ties?|connection)[\s:]*(?:code\s*|#|\(\s*)?([0-7])(?:\s*\)|\b)/i);
+    if (explicitAnchorMatch && RoofTaxonomy.ANCHORAGE[explicitAnchorMatch[1]]) {
+      candidates.push({ code: explicitAnchorMatch[1], percent: defaultPct, isExplicitCode: true });
+    }
+
+    // 1. Hurricane Ties
+    if (/\b(?:hurricane\s*(?:ties?|straps?|clips?|anchors?|tie[\s-]down)|seismic\s*(?:ties?|straps?)|uplift\s*straps?|rafter\s*ties?|truss\s*ties?)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: getPct(/\b(?:hurricane\s*(?:ties?|straps?|clips?|anchors?|tie[\s-]down)|seismic\s*(?:ties?|straps?)|uplift\s*straps?|rafter\s*ties?|truss\s*ties?)\b/) });
+    }
+
+    // 2. Nails/Screws
+    if (/\b(?:nails?(?:\s*\/\s*screws?)?|screws?(?:\s*\/\s*nails?)?|toe[\s-]?nail(?:ed|ing)?|nailed|screwed|fasteners?)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: getPct(/\b(?:nails?(?:\s*\/\s*screws?)?|screws?(?:\s*\/\s*nails?)?|toe[\s-]?nail(?:ed|ing)?|nailed|screwed)\b/) });
+    }
+
+    // 3. Anchor bolts
+    if (/\b(?:anchor\s*bolts?|anchored\s*(?:by|with)?\s*bolts?|through[\s-]?bolts?|expansion\s*bolts?|bolted\s*(?:connection|anchorage)?)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: getPct(/\b(?:anchor\s*bolts?|through[\s-]?bolts?|expansion\s*bolts?|bolted)\b/) });
+    }
+
+    // 4. Gravity/friction
+    if (/\b(?:gravity\s*(?:\/|\s*or\s*|\s+)?friction|gravity(?:\s*load)?\s*only|friction\s*only|unanchored|no\s*(?:anchorage|ties|straps))\b/i.test(lower)) {
+      candidates.push({ code: '4', percent: getPct(/\b(?:gravity|friction|unanchored)\b/) });
+    }
+
+    // 5. Adhesive epoxy
+    if (/\b(?:adhesive\s*epoxy|epoxy\s*(?:anchors?|anchored|adhesive)?|chemical\s*anchors?|resin\s*anchors?|adhesives?\s*anchors?)\b/i.test(lower)) {
+      candidates.push({ code: '5', percent: getPct(/\b(?:adhesive|epoxy)\b/) });
+    }
+
+    // 6. Structurally Connected
+    if (/\b(?:structurally\s*connected|structural\s*connection|structurally\s*anchored|monolithic(?:ally)?\s*(?:connected|tied)?|concrete\s*tie[\s-]?beam|reinforced\s*tie[\s-]?beam|welded\s*(?:connection|anchorage)?|embedded\s*plates?)\b/i.test(lower)) {
+      candidates.push({ code: '6', percent: getPct(/\b(?:structurally\s*connected|structural\s*connection|tie[\s-]?beam|welded)\b/) });
+    }
+
+    // 7. Clips (when not hurricane clips)
+    if (/\b(?:clips?|framing\s*clips?|metal\s*clips?|roof\s*clips?|simpson\s*clips?)\b/i.test(lower) && !/\bhurricane\b/i.test(lower)) {
+      candidates.push({ code: '7', percent: getPct(/\b(?:clips?|framing\s*clips?|metal\s*clips?|roof\s*clips?|simpson\s*clips?)\b/) });
+    }
+
+    // Fuzzy matching fallback if regex didn't match
+    if (candidates.length === 0 && this.SYNONYMS.ANCHORAGE) {
+      candidates.push(...this.findFuzzyCandidates(text, this.SYNONYMS.ANCHORAGE, defaultPct, 0.70));
+    }
+
+    return candidates;
+  },
+
+  /**
    * Resolver function:
    * Rule 1: If percentage values exist, pick HIGHER %
    * Rule 2: If tied percentage or no percentage, pick WEAKER material
@@ -2921,13 +3017,17 @@ const RoofClassifier = {
         deck: '',
         deckName: '',
         deckShort: '',
+        anchorageCode: '',
+        anchorage: '',
+        anchorageName: '',
+        anchorageShort: '',
         status: 'empty',
         statusText: 'Blank'
       };
     }
 
     // Unknown / 0-unknown: any input that is purely "unknown" or "0-unknown" (or variants)
-    // maps all four roof fields to code 0 (Unknown/default).
+    // maps all five roof fields to code 0 (Unknown/default).
     if (/^(?:0\s*[-\/]\s*)?unknown\s*(?:[-\/]\s*0)?$/i.test(str) || /^0\s*[-\/]?\s*unknown$/i.test(str)) {
       const unknownDisplay = (fmt) => fmt === 'code_only' ? '0' : fmt === 'name_only' ? 'Unknown/default' : fmt === 'short_code' ? 'Unknown (0)' : 'Unknown/default (0)';
       const fmt = options.format || 'code_only';
@@ -2949,9 +3049,13 @@ const RoofClassifier = {
         deck: unknownDisplay(fmt),
         deckName: 'Unknown/default',
         deckShort: 'Unknown',
-        recognizedCount: 4,
+        anchorageCode: '0',
+        anchorage: unknownDisplay(fmt),
+        anchorageName: 'Unknown/default',
+        anchorageShort: 'Unknown',
+        recognizedCount: 5,
         status: 'match',
-        statusText: '✓ Complete (All 4 Fields Identified)'
+        statusText: '✓ Complete (All 5 Fields Identified)'
       };
     }
 
@@ -2969,12 +3073,14 @@ const RoofClassifier = {
     const pitchCandidates = [];
     const deckCandidates = [];
     const covCandidates = [];
+    const anchorCandidates = [];
 
     for (const seg of segments) {
       geomCandidates.push(...this.findGeometryCandidates(seg.text, seg.percent));
       pitchCandidates.push(...this.findPitchCandidates(seg.text, seg.percent));
       deckCandidates.push(...this.findDeckCandidates(seg.text, seg.percent));
       covCandidates.push(...this.findCoveringCandidates(seg.text, seg.percent));
+      anchorCandidates.push(...this.findAnchorageCandidates(seg.text, seg.percent));
     }
 
     // Fallback full-text scan if any field wasn't found via segments
@@ -2982,6 +3088,7 @@ const RoofClassifier = {
     if (pitchCandidates.length === 0) pitchCandidates.push(...this.findPitchCandidates(fullText, null));
     if (deckCandidates.length === 0) deckCandidates.push(...this.findDeckCandidates(fullText, null));
     if (covCandidates.length === 0) covCandidates.push(...this.findCoveringCandidates(fullText, null));
+    if (anchorCandidates.length === 0) anchorCandidates.push(...this.findAnchorageCandidates(fullText, null));
 
     // Resolve Geometry
     let geomCode = this.resolveCandidates(geomCandidates, this.GEOMETRY_WEAKNESS, 'geometry');
@@ -3008,15 +3115,17 @@ const RoofClassifier = {
       geomCode = str;
     }
 
-    // Resolve Covering & Deck
+    // Resolve Covering, Deck & Anchorage
     let covCode = this.resolveCandidates(covCandidates, this.COVERING_WEAKNESS, 'covering');
     let deckCode = this.resolveCandidates(deckCandidates, this.DECK_WEAKNESS, 'deck');
+    let anchorCode = this.resolveCandidates(anchorCandidates, this.ANCHORAGE_WEAKNESS, 'anchorage');
 
     // Resolve labels
     const geomObj = RoofTaxonomy.GEOMETRY[geomCode];
     const pitchObj = RoofTaxonomy.PITCH[pitchCode];
     const covObj = RoofTaxonomy.COVERING[covCode];
     const deckObj = RoofTaxonomy.DECK[deckCode];
+    const anchorObj = RoofTaxonomy.ANCHORAGE[anchorCode];
 
     const format = options.format || 'code_only';
 
@@ -3052,13 +3161,21 @@ const RoofClassifier = {
       else deckDisplay = `${deckObj.name} (${deckObj.code})`;
     }
 
-    const recognizedCount = (geomCode ? 1 : 0) + (pitchCode ? 1 : 0) + (covCode ? 1 : 0) + (deckCode ? 1 : 0);
+    let anchorDisplay = '';
+    if (anchorObj) {
+      if (format === 'code_only') anchorDisplay = anchorObj.code;
+      else if (format === 'name_only') anchorDisplay = anchorObj.name;
+      else if (format === 'short_code') anchorDisplay = `${anchorObj.shortName} (${anchorObj.code})`;
+      else anchorDisplay = `${anchorObj.name} (${anchorObj.code})`;
+    }
+
+    const recognizedCount = (geomCode ? 1 : 0) + (pitchCode ? 1 : 0) + (covCode ? 1 : 0) + (deckCode ? 1 : 0) + (anchorCode ? 1 : 0);
 
     let status = 'assigned';
-    let statusText = `Separated (${recognizedCount}/4 Fields)`;
-    if (recognizedCount === 4) {
+    let statusText = `Separated (${recognizedCount}/5 Fields)`;
+    if (recognizedCount === 5) {
       status = 'match';
-      statusText = '✓ Complete (All 4 Fields Identified)';
+      statusText = '✓ Complete (All 5 Fields Identified)';
     } else if (recognizedCount === 0) {
       status = 'mismatch';
       statusText = '⚠️ Unrecognized Roof Format';
@@ -3082,6 +3199,10 @@ const RoofClassifier = {
       deck: deckDisplay,
       deckName: deckObj ? deckObj.name : '',
       deckShort: deckObj ? deckObj.shortName : '',
+      anchorageCode: anchorCode || '',
+      anchorage: anchorDisplay,
+      anchorageName: anchorObj ? anchorObj.name : '',
+      anchorageShort: anchorObj ? anchorObj.shortName : '',
       recognizedCount,
       status,
       statusText
@@ -3100,8 +3221,14 @@ const RoofClassifier = {
       if (!trimmed && options.removeEmptyLines) return;
 
       const parsed = this.parseRoofRow(line, options);
-      // Cleaned output contains pure codes for direct Excel columns
-      const cleaned = [parsed.geometryCode || '', parsed.pitchCode || '', parsed.coveringCode || '', parsed.deckCode || ''].join('\t');
+      // Cleaned output contains pure codes for direct Excel columns (Geom\tPitch\tCov\tDeck\tAnchor)
+      const cleaned = [
+        parsed.geometryCode || '',
+        parsed.pitchCode || '',
+        parsed.coveringCode || '',
+        parsed.deckCode || '',
+        parsed.anchorageCode || ''
+      ].join('\t');
 
       results.push({
         lineNum: idx + 1,
@@ -3123,6 +3250,10 @@ const RoofClassifier = {
         deckCode: parsed.deckCode,
         deckName: parsed.deckName,
         deckShort: parsed.deckShort,
+        anchorage: parsed.anchorage,
+        anchorageCode: parsed.anchorageCode,
+        anchorageName: parsed.anchorageName,
+        anchorageShort: parsed.anchorageShort,
         recognizedCount: parsed.recognizedCount,
         changed: true,
         status: parsed.status,

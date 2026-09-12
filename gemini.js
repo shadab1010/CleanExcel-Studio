@@ -869,6 +869,7 @@ Output ONLY a JSON array of objects:
    * 2. Roof Pitch (0–3)
    * 3. Roof Covering (0–12)
    * 4. Roof Deck (0–8)
+   * 5. Roof Anchorage (0–7)
    */
   async classifyRoofWithAI(rawLines, options = {}) {
     if (!rawLines || rawLines.length === 0) return [];
@@ -876,11 +877,12 @@ Output ONLY a JSON array of objects:
     if (validLines.length === 0) return [];
 
     const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and catastrophe risk modeling analyst specialized in Verisk Touchstone UNICEDE® Roof Detail Fields.
-Your goal is to parse and classify each roof input line into four Touchstone fields:
+Your goal is to parse and classify each roof input line into five Touchstone fields:
 1. "geometryCode": Roof Geometry code (0 to 10)
 2. "pitchCode": Roof Pitch code (0 to 3)
 3. "coveringCode": Roof Covering code (0 to 12)
 4. "deckCode": Roof Deck code (0 to 8)
+5. "anchorageCode": Roof Anchorage code (0 to 7)
 
 TOUCHSTONE UNICEDE ROOF DETAIL SPECIFICATIONS:
 
@@ -929,6 +931,16 @@ Field 4: Roof Deck (Codes 0 to 8):
 - 7: Reinforced concrete slabs (cast-in-place concrete, CIP, poured concrete, monolithic concrete deck)
 - 8: Light metal (bare metal deck, light gauge steel deck, uninsulated corrugated metal deck)
 
+Field 5: Roof Anchorage (Codes 0 to 7):
+- 0: Unknown/default
+- 1: Hurricane Ties (hurricane straps, hurricane clips, seismic ties, uplift straps)
+- 2: Nails/Screws (toe-nailing, nails, screws)
+- 3: Anchor bolts (through bolts, expansion bolts, anchor bolted)
+- 4: Gravity/friction (unanchored, dead load only, friction only)
+- 5: Adhesive epoxy (chemical anchor, structural adhesive, epoxy)
+- 6: Structurally Connected (monolithic concrete tie beam, welded, bond beam)
+- 7: Clips (framing clips, metal clips, roof clips)
+
 UNDERWRITING RULES:
 1. With Percentages: If explicit percentages are provided (e.g. "SINGLE PLY MEMBRANE (50%); SHINGLES, ASPHALT (47%); STEEL (3%)"), pick the covering material with the HIGHER percentage (Single-ply 7 wins with 50%).
 2. Without Percentages: If multiple materials are listed without percentages, pick the WEAKER material according to cat modeling vulnerability.
@@ -939,10 +951,11 @@ Covering: Wood Shingles (2) > Asphalt Shingles (1) > Clay/Concrete Tiles (3) > S
 Geometry: Gable unbraced (2) > Gambrel (10) > Shed (6) > Flat (1) > Complex (4) > Stepped (5) > Mansard (7) > Gable braced (8) > Pyramid (9) > Hip (3)
 Pitch: Low (1) > Medium (2) > High (3)
 Deck: Light Metal (8) > OSB (3) > Wood Planks (2) > Plywood (1) > Metal Deck w/ Insulation (4) > Metal Deck w/ Concrete (5) > Pre-cast Concrete (6) > Reinforced Concrete (7)
+Anchorage: Gravity/friction (4) > Nails/Screws (2) > Clips (7) > Hurricane Ties (1) > Anchor bolts (3) > Adhesive epoxy (5) > Structurally Connected (6)
 
 OUTPUT FORMAT:
 Output ONLY a JSON array of objects:
-[{"lineNum": <int>, "geometryCode": "<0-10>", "pitchCode": "<0-3>", "coveringCode": "<0-12>", "deckCode": "<0-8>"}]`;
+[{"lineNum": <int>, "geometryCode": "<0-10>", "pitchCode": "<0-3>", "coveringCode": "<0-12>", "deckCode": "<0-8>", "anchorageCode": "<0-7>"}]`;
 
     const userLinesText = validLines.map(v => `${v.lineNum}. ${v.text}`).join('\n');
     let aiItems = [];
@@ -958,11 +971,13 @@ Output ONLY a JSON array of objects:
     }
 
     const aiMap = new Map();
-    aiItems.forEach(item => {
-      if (item && item.lineNum) {
-        aiMap.set(item.lineNum, item);
-      }
-    });
+    if (Array.isArray(aiItems)) {
+      aiItems.forEach(item => {
+        if (item && item.lineNum) {
+          aiMap.set(Number(item.lineNum), item);
+        }
+      });
+    }
 
     const RoofTaxonomy = window.RoofTaxonomy || (window.RoofClassifier && window.RoofClassifier.taxonomy);
     const format = options.format || 'code_only';
@@ -979,6 +994,7 @@ Output ONLY a JSON array of objects:
       let pitchCode = local.pitchCode || '';
       let covCode = local.coveringCode || '';
       let deckCode = local.deckCode || '';
+      let anchorCode = local.anchorageCode || '';
       let aiEnhanced = false;
 
       if (aiItem) {
@@ -998,12 +1014,17 @@ Output ONLY a JSON array of objects:
           deckCode = String(aiItem.deckCode).trim();
           aiEnhanced = true;
         }
+        if (aiItem.anchorageCode !== undefined && aiItem.anchorageCode !== null && aiItem.anchorageCode !== '0') {
+          anchorCode = String(aiItem.anchorageCode).trim();
+          aiEnhanced = true;
+        }
       }
 
       const geomObj = RoofTaxonomy?.GEOMETRY?.[geomCode];
       const pitchObj = RoofTaxonomy?.PITCH?.[pitchCode];
       const covObj = RoofTaxonomy?.COVERING?.[covCode];
       const deckObj = RoofTaxonomy?.DECK?.[deckCode];
+      const anchorObj = RoofTaxonomy?.ANCHORAGE?.[anchorCode];
 
       let geomDisplay = geomCode;
       if (geomObj) {
@@ -1033,12 +1054,19 @@ Output ONLY a JSON array of objects:
         else if (format === 'short_code') deckDisplay = `${deckObj.shortName} (${deckObj.code})`;
       }
 
-      const recCount = (geomCode ? 1 : 0) + (pitchCode ? 1 : 0) + (covCode ? 1 : 0) + (deckCode ? 1 : 0);
+      let anchorDisplay = anchorCode;
+      if (anchorObj) {
+        if (format === 'name_only') anchorDisplay = anchorObj.name;
+        else if (format === 'name_code') anchorDisplay = `${anchorObj.name} (${anchorObj.code})`;
+        else if (format === 'short_code') anchorDisplay = `${anchorObj.shortName} (${anchorObj.code})`;
+      }
+
+      const recCount = (geomCode ? 1 : 0) + (pitchCode ? 1 : 0) + (covCode ? 1 : 0) + (deckCode ? 1 : 0) + (anchorCode ? 1 : 0);
 
       return {
         lineNum,
         original: line,
-        cleaned: `${geomCode}\t${pitchCode}\t${covCode}\t${deckCode}`,
+        cleaned: `${geomCode}\t${pitchCode}\t${covCode}\t${deckCode}\t${anchorCode}`,
         geometry: geomDisplay,
         geometryCode: geomCode,
         geometryName: geomObj ? geomObj.name : '',
@@ -1055,9 +1083,13 @@ Output ONLY a JSON array of objects:
         deckCode: deckCode,
         deckName: deckObj ? deckObj.name : '',
         deckShort: deckObj ? deckObj.shortName : '',
+        anchorage: anchorDisplay,
+        anchorageCode: anchorCode,
+        anchorageName: anchorObj ? anchorObj.name : '',
+        anchorageShort: anchorObj ? anchorObj.shortName : '',
         recognizedCount: recCount,
-        status: recCount === 4 ? 'match' : (recCount > 0 ? 'assigned' : 'mismatch'),
-        statusText: recCount === 4 ? '✓ Complete (All 4 Fields Identified)' : (recCount > 0 ? `Separated (${recCount}/4 Fields)` : '⚠️ Unrecognized Roof Format'),
+        status: recCount === 5 ? 'match' : (recCount > 0 ? 'assigned' : 'empty'),
+        statusText: recCount === 5 ? '✓ Complete (All 5 Fields Identified)' : (recCount > 0 ? `Separated (${recCount}/5 Fields)` : 'Blank'),
         changed: true,
         aiEnhanced
       };

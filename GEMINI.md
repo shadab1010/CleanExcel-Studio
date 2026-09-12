@@ -15,6 +15,14 @@
 - **Covering 4**: Light metal panels (Steel, Copper, Aluminum, Corrugated)
 - **Covering 3**: Clay/concrete tiles
 - **Covering 1**: Asphalt shingles
+- **Anchorage 0**: Unknown/default
+- **Anchorage 1**: Hurricane Ties (straps/ties/seismic)
+- **Anchorage 2**: Nails/Screws (toe-nailing)
+- **Anchorage 3**: Anchor bolts (through/expansion bolts)
+- **Anchorage 4**: Gravity/friction (unanchored, dead load only)
+- **Anchorage 5**: Adhesive epoxy (structural epoxy/chemical adhesive)
+- **Anchorage 6**: Structurally Connected (monolithic tie beam/welded)
+- **Anchorage 7**: Clips (framing clips, metal clips)
 - Rule 1 (Percentages): Higher % wins.
 - Rule 2 (No % / Tie): Weaker material wins.
 

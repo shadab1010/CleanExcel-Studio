@@ -41,6 +41,16 @@ This document records persistent project memory, domain rules, and user underwri
 - **`11`**: Hurricane wind-rated roof coverings (Miami-Dade NOA, FM 1-90, FM 1-120)
 - **`12`**: Photovoltaic (solar roof, solar shingles, rooftop solar panels, BIPV)
 
+### Standard Roof Anchorage Codes:
+- **`0`**: Unknown/default (0)
+- **`1`**: Hurricane Ties (1) — hurricane straps, seismic ties, uplift straps
+- **`2`**: Nails/Screws (2) — toe-nailing, screws, nails
+- **`3`**: Anchor bolts (3) — through bolts, expansion bolts
+- **`4`**: Gravity/friction (4) — unanchored, dead load only
+- **`5`**: Adhesive epoxy (5) — chemical adhesive anchor, structural epoxy
+- **`6`**: Structurally Connected (6) — monolithic concrete tie beam, welded connection, bond beam
+- **`7`**: Clips (7) — framing clips, metal clips, roof clips
+
 ---
 
 ## 3. Year Built Underwriting & Classifier Rules

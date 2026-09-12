@@ -2313,12 +2313,12 @@ async function copyForExcel() {
     excelText = tsvRows.join('\r\n');
     excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table>${htmlRows.join('')}</table></body></html>`;
   } else if (isRoof) {
-    const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck'];
+    const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Anchorage'];
     const tsvRows = [headers.join('\t')];
     const htmlRows = [`<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`];
 
     dataToCopy.forEach(r => {
-      const row = [r.original || '', r.geometryCode || '', r.pitchCode || '', r.coveringCode || '', r.deckCode || ''];
+      const row = [r.original || '', r.geometryCode || '', r.pitchCode || '', r.coveringCode || '', r.deckCode || '', r.anchorageCode || ''];
       tsvRows.push(row.join('\t'));
       htmlRows.push(`<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`);
     });
@@ -2499,7 +2499,7 @@ function downloadExcelSpreadsheet() {
     triggerDownload(xml, `Construction_Codes_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
     showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}construction codes (.xls)!`, '📥');
   } else if (isRoof) {
-    const headers = ['#', 'Raw Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', 'Status'];
+    const headers = ['#', 'Raw Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Anchorage', 'Status'];
     const sheetRows = [headers];
     dataToExport.forEach((r, idx) => {
       sheetRows.push([
@@ -2509,6 +2509,7 @@ function downloadExcelSpreadsheet() {
         r.pitchCode || '',
         r.coveringCode || '',
         r.deckCode || '',
+        r.anchorageCode || '',
         r.statusText || ''
       ]);
     });
@@ -2671,7 +2672,7 @@ function downloadCsvFile() {
       csvLines.push(row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(','));
     });
   } else if (isRoof) {
-    const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', 'Status'];
+    const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Anchorage', 'Status'];
     csvLines.push(headers.map(h => `"${h}"`).join(','));
 
     dataToExport.forEach(r => {
@@ -2681,6 +2682,7 @@ function downloadCsvFile() {
         r.pitchCode || '',
         r.coveringCode || '',
         r.deckCode || '',
+        r.anchorageCode || '',
         r.statusText || ''
       ];
       csvLines.push(row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(','));
@@ -3175,9 +3177,9 @@ function initCodeFinderUI() {
   }
 
   // Global helper for opening badge details from React comparison table
-  window.openCodeDetailByBadge = function(code, section) {
+  window.openCodeDetailByBadge = function(code, section, subSection) {
     if (!window.CodeFinder || !code) return;
-    const found = window.CodeFinder.getByCode(code, section);
+    const found = window.CodeFinder.getByCode(code, section, subSection);
     if (found) {
       openDetailModal(found);
     } else {

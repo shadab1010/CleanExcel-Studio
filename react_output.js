@@ -273,10 +273,12 @@
               (r.pitch && r.pitch.toLowerCase().includes(query)) ||
               (r.covering && r.covering.toLowerCase().includes(query)) ||
               (r.deck && r.deck.toLowerCase().includes(query)) ||
+              (r.anchorage && r.anchorage.toLowerCase().includes(query)) ||
               (r.geometryCode && r.geometryCode.toLowerCase().includes(query)) ||
               (r.pitchCode && r.pitchCode.toLowerCase().includes(query)) ||
               (r.coveringCode && r.coveringCode.toLowerCase().includes(query)) ||
-              (r.deckCode && r.deckCode.toLowerCase().includes(query));
+              (r.deckCode && r.deckCode.toLowerCase().includes(query)) ||
+              (r.anchorageCode && r.anchorageCode.toLowerCase().includes(query));
           } else if (isWall) {
             return lineStr === query ||
               (r.original && r.original.toLowerCase().includes(query)) ||
@@ -383,11 +385,12 @@
                   e('th', { key: 'lookup', style: { width: '65px', textAlign: 'right' } }, 'Lookup')
                 ],
                 isRoof && [
-                  e('th', { key: 'raw', style: { width: '32%' } }, 'Raw Roof Input'),
-                  e('th', { key: 'geom', style: { width: '13%', textAlign: 'center' } }, '1. Roof Geometry'),
-                  e('th', { key: 'pitch', style: { width: '13%', textAlign: 'center' } }, '2. Roof Pitch'),
-                  e('th', { key: 'cov', style: { width: '13%', textAlign: 'center' } }, '3. Roof Covering'),
-                  e('th', { key: 'deck', style: { width: '13%', textAlign: 'center' } }, '4. Roof Deck'),
+                  e('th', { key: 'raw', style: { width: '25%' } }, 'Raw Roof Input'),
+                  e('th', { key: 'geom', style: { width: '11%', textAlign: 'center' } }, '1. Roof Geometry'),
+                  e('th', { key: 'pitch', style: { width: '11%', textAlign: 'center' } }, '2. Roof Pitch'),
+                  e('th', { key: 'cov', style: { width: '11%', textAlign: 'center' } }, '3. Roof Covering'),
+                  e('th', { key: 'deck', style: { width: '11%', textAlign: 'center' } }, '4. Roof Deck'),
+                  e('th', { key: 'anchor', style: { width: '11%', textAlign: 'center' } }, '5. Roof Anchor'),
                   e('th', { key: 'status', style: { width: '110px', textAlign: 'center' } }, 'Status'),
                   e('th', { key: 'lookup', style: { width: '65px', textAlign: 'right' } }, 'Info')
                 ],
@@ -424,7 +427,7 @@
               visibleRows.length === 0 ? (
                 e('tr', null,
                   e('td', {
-                    colSpan: isConstruction || isOccupancy ? 8 : (isRoof ? 8 : (isRoofYear ? 6 : (isWall ? 6 : (isSplit ? 6 : 5)))),
+                    colSpan: isConstruction || isOccupancy ? 8 : (isRoof ? 9 : (isRoofYear ? 6 : (isWall ? 6 : (isSplit ? 6 : 5)))),
                     style: { textAlign: 'center', padding: '48px 16px', color: 'var(--text-muted)' }
                   },
                     e('div', { style: { fontSize: '26px', marginBottom: '8px' } }, '🔍'),
@@ -520,7 +523,7 @@
                           className: 'occ-code-badge',
                           title: (r.geometryName ? `${r.geometryName} (Code ${r.geometryCode})` : `Code ${r.geometryCode}`) + ' - Click to inspect',
                           style: { background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', borderColor: 'rgba(59, 130, 246, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
-                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.geometryCode, 'roof')
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.geometryCode, 'roof', 'geometry')
                         }, r.geometryCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
                       e('td', { className: 'td-roof-pitch', style: { textAlign: 'center' } },
@@ -528,7 +531,7 @@
                           className: 'occ-code-badge',
                           title: (r.pitchName ? `${r.pitchName} (Code ${r.pitchCode})` : `Code ${r.pitchCode}`) + ' - Click to inspect',
                           style: { background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald-light)', borderColor: 'rgba(16, 185, 129, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
-                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.pitchCode, 'roof')
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.pitchCode, 'roof', 'pitch')
                         }, r.pitchCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
                       e('td', { className: 'td-roof-cov', style: { textAlign: 'center' } },
@@ -536,7 +539,7 @@
                           className: 'occ-code-badge',
                           title: (r.coveringName ? `${r.coveringName} (Code ${r.coveringCode})` : `Code ${r.coveringCode}`) + ' - Click to inspect',
                           style: { background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
-                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.coveringCode, 'roof')
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.coveringCode, 'roof', 'covering')
                         }, r.coveringCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
                       e('td', { className: 'td-roof-deck', style: { textAlign: 'center' } },
@@ -544,8 +547,16 @@
                           className: 'occ-code-badge',
                           title: (r.deckName ? `${r.deckName} (Code ${r.deckCode})` : `Code ${r.deckCode}`) + ' - Click to inspect',
                           style: { background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', borderColor: 'rgba(168, 85, 247, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
-                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.deckCode, 'roof')
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.deckCode, 'roof', 'deck')
                         }, r.deckCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
+                      ),
+                      e('td', { className: 'td-roof-anchor', style: { textAlign: 'center' } },
+                        r.anchorageCode ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.anchorageName ? `${r.anchorageName} (Code ${r.anchorageCode})` : `Code ${r.anchorageCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(236, 72, 153, 0.15)', color: '#f472b6', borderColor: 'rgba(236, 72, 153, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.anchorageCode, 'roof', 'anchorage')
+                        }, r.anchorageCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
                       e('td', { style: { textAlign: 'center' } },
                         getStatusBadge(r.status, r.statusText, r.statusText || 'Separated')
@@ -742,10 +753,10 @@
                 });
                 return lines.join('\n');
               } else if (isRoof) {
-                const header = ['1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck'].join('\t');
+                const header = ['1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Anchorage'].join('\t');
                 const lines = [header];
                 filteredRows.forEach(r => {
-                  lines.push([r.geometryCode || '', r.pitchCode || '', r.coveringCode || '', r.deckCode || ''].join('\t'));
+                  lines.push([r.geometryCode || '', r.pitchCode || '', r.coveringCode || '', r.deckCode || '', r.anchorageCode || ''].join('\t'));
                 });
                 return lines.join('\n');
               } else if (isWall) {

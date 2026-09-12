@@ -570,6 +570,27 @@
         }
       }
 
+      // 5. Roof Anchorage (Codes 0-7)
+      if (tax.ANCHORAGE) {
+        for (const [code, info] of Object.entries(tax.ANCHORAGE)) {
+          const item = {
+            code: String(code),
+            category: info.name,
+            shortName: info.shortName,
+            group: 'Roof Anchorage',
+            subSection: 'anchorage',
+            description: this.getRoofAnchorageDescription(code),
+            weaknessScore: (root.RoofClassifier && root.RoofClassifier.ANCHORAGE_WEAKNESS && root.RoofClassifier.ANCHORAGE_WEAKNESS[code]) || 0,
+            keywords: this.getRoofAnchorageKeywords(code),
+            rules: [
+              'Rule 1 (With %): Higher % wins.',
+              'Rule 2 (No %): Weaker anchorage connection wins (e.g. Gravity 4 over Hurricane Ties 1).'
+            ]
+          };
+          items.push(item);
+        }
+      }
+
       this._cachedRoofData = items;
       return items;
     },
@@ -746,6 +767,33 @@
         '1': ['low pitch', 'low slope', '<10', 'flat slope', '2:12', '1:12'],
         '2': ['medium pitch', '10-30', '4:12', '5:12', '6:12', 'standard pitch'],
         '3': ['high pitch', 'steep pitch', '>30', '8:12', '10:12', '12:12', 'steep slope']
+      };
+      return map[code] || [];
+    },
+
+    getRoofAnchorageDescription(code) {
+      const map = {
+        '0': 'Unknown/default roof anchorage.',
+        '1': 'Hurricane Ties: Engineered metal ties, straps, or clips connecting roof rafters/trusses directly to wall framing to resist severe wind uplift.',
+        '2': 'Nails/Screws: Standard nailed or screwed connections (including toe-nailing) securing roof rafters/trusses to top wall plates.',
+        '3': 'Anchor bolts: Through-bolts, threaded rods, or expansion anchor bolts securing roof structure to bearing walls.',
+        '4': 'Gravity/friction: Roof resting on walls by dead weight alone without mechanical uplift fasteners or ties.',
+        '5': 'Adhesive epoxy: Chemical epoxy or structural adhesive anchoring connecting roof members to substrate.',
+        '6': 'Structurally Connected: Monolithic cast-in-place reinforced concrete tie beam, welded structural steel connection, or fully integrated bond beam.',
+        '7': 'Clips: Standard metal framing clips or shear clips providing light-to-moderate uplift restraint.'
+      };
+      return map[code] || 'Touchstone UNICEDE roof anchorage.';
+    },
+
+    getRoofAnchorageKeywords(code) {
+      const map = {
+        '1': ['hurricane ties', 'hurricane straps', 'hurricane clips', 'seismic ties', 'uplift straps', 'truss ties', 'rafter ties'],
+        '2': ['nails', 'screws', 'toe-nailing', 'toe nailed', 'nailed', 'screwed', 'toenail'],
+        '3': ['anchor bolts', 'bolted', 'through bolts', 'expansion bolts', 'anchor bolted'],
+        '4': ['gravity', 'friction', 'gravity/friction', 'unanchored', 'no ties', 'dead load only'],
+        '5': ['adhesive epoxy', 'epoxy', 'chemical anchor', 'structural adhesive', 'glued'],
+        '6': ['structurally connected', 'monolithic', 'concrete tie beam', 'welded connection', 'tie beam', 'bond beam'],
+        '7': ['clips', 'framing clips', 'metal clips', 'roof clips', 'simpson clips']
       };
       return map[code] || [];
     },
@@ -1013,6 +1061,11 @@
             const deckCode = res.deckCode;
             if (deckCode && deckCode !== '0') {
               const item = this.getByCode(deckCode, 'roof', 'deck');
+              if (item) return item;
+            }
+            const anchorageCode = res.anchorageCode;
+            if (anchorageCode && anchorageCode !== '0') {
+              const item = this.getByCode(anchorageCode, 'roof', 'anchorage');
               if (item) return item;
             }
           }
