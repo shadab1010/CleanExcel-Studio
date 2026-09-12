@@ -3,6 +3,78 @@
  * Modular cleaning rules for different Excel column types.
  * Compatible with both ES Modules and standard browser globals.
  */
+/**
+ * parseExcelRows(text) — Excel-aware row splitter
+ *
+ * When you copy from Excel, cells that contain embedded newlines (Alt+Enter)
+ * are wrapped in double-quotes in the clipboard TSV, e.g.:
+ *   "3 - Hip roof\n7 - Braced gable roof"<TAB>next_col
+ *
+ * A naive split(/\r\n|\r|\n/) would break that one cell into two rows.
+ * This function respects RFC-4180 quoting so embedded newlines inside
+ * quoted cells do NOT produce extra rows.
+ *
+ * Returns an array of row strings (unquoted, with internal newlines preserved
+ * as spaces so downstream parsers continue to work correctly).
+ */
+function parseExcelRows(text) {
+  if (typeof text !== 'string') return [];
+  const rows = [];
+  let current = '';
+  let inQuotes = false;
+  let i = 0;
+  const len = text.length;
+
+  while (i < len) {
+    const ch = text[i];
+
+    if (ch === '"') {
+      if (inQuotes && i + 1 < len && text[i + 1] === '"') {
+        // Escaped double-quote inside a quoted field: ""
+        current += '"';
+        i += 2;
+        continue;
+      }
+      inQuotes = !inQuotes;
+      i++;
+      continue;
+    }
+
+    if (!inQuotes && (ch === '\r' || ch === '\n')) {
+      // Real row boundary
+      if (ch === '\r' && i + 1 < len && text[i + 1] === '\n') {
+        i++; // skip the \n of \r\n
+      }
+      rows.push(current);
+      current = '';
+      i++;
+      continue;
+    }
+
+    if (inQuotes && (ch === '\r' || ch === '\n')) {
+      // Embedded newline inside a quoted cell — treat as a space so the
+      // entire cell text stays on one logical row and downstream classifiers
+      // can still parse it as a single multi-description entry.
+      if (ch === '\r' && i + 1 < len && text[i + 1] === '\n') {
+        i++;
+      }
+      current += ' ';
+      i++;
+      continue;
+    }
+
+    current += ch;
+    i++;
+  }
+
+  // Push the last (possibly unterminated) row
+  if (current || rows.length > 0) {
+    rows.push(current);
+  }
+
+  return rows;
+}
+
 
 function escapeRegexClass(chars) {
   return chars.map(c => {
@@ -3020,7 +3092,7 @@ const RoofClassifier = {
    * Process a column of roof description data
    */
   cleanColumn(input, options = {}) {
-    const lines = typeof input === 'string' ? input.split(/\r\n|\r|\n/) : (Array.isArray(input) ? input : []);
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
     const results = [];
 
     lines.forEach((line, idx) => {
@@ -3537,7 +3609,7 @@ const WallClassifier = {
    * Process a column of exterior wall finish data
    */
   cleanColumn(input, options = {}) {
-    const lines = typeof input === 'string' ? input.split(/\r\n|\r|\n/) : (Array.isArray(input) ? input : []);
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
     const results = [];
 
     lines.forEach((line, idx) => {
