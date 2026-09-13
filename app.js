@@ -644,22 +644,67 @@ function bindEvents() {
 
   // Column tabs switching
   const SECTION_CONFIG = {
-    street: { name: 'Street Address', icon: '🏠', category: 'address' },
-    split: { name: 'Address Splitter', icon: '🔀', category: 'address' },
-    occupancy: { name: 'Occupancy Code', icon: '🏢', category: 'underwriting' },
-    construction: { name: 'ConstructionCode', icon: '🏗️', category: 'underwriting' },
-    year: { name: 'Year Built', icon: '📅', category: 'underwriting' },
-    roof_year: { name: 'Roof Year Built', icon: '🏚️', category: 'underwriting' },
-    roof: { name: 'Roof Description', icon: '🏠', category: 'underwriting' },
-    wall: { name: 'Exterior Wall Finish', icon: '🧱', category: 'underwriting' },
-    name: { name: 'Full Name', icon: '👤', category: 'contact' },
-    phone: { name: 'Phone Number', icon: '📞', category: 'contact' },
-    email: { name: 'Email Address', icon: '✉️', category: 'contact' }
+    street: { 
+      name: 'Street Address', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>', 
+      category: 'address' 
+    },
+    split: { 
+      name: 'Address Splitter', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M6 9v12"></path><path d="M18 15V9a9 9 0 0 0-9-9"></path></svg>', 
+      category: 'address' 
+    },
+    occupancy: { 
+      name: 'Occupancy Code', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="12" y1="6" x2="12.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="8" y1="11" x2="8.01" y2="11"></line><line x1="12" y1="11" x2="12.01" y2="11"></line><line x1="16" y1="11" x2="16.01" y2="11"></line></svg>', 
+      category: 'underwriting' 
+    },
+    construction: { 
+      name: 'ConstructionCode', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>', 
+      category: 'underwriting' 
+    },
+    year: { 
+      name: 'Year Built', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>', 
+      category: 'underwriting' 
+    },
+    roof_year: { 
+      name: 'Roof Year Built', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><circle cx="12" cy="13" r="3"></circle></svg>', 
+      category: 'underwriting' 
+    },
+    roof: { 
+      name: 'Roof Description', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></svg>', 
+      category: 'underwriting' 
+    },
+    wall: { 
+      name: 'Exterior Wall Finish', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg>', 
+      category: 'underwriting' 
+    },
+    name: { 
+      name: 'Full Name', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>', 
+      category: 'contact' 
+    },
+    phone: { 
+      name: 'Phone Number', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>', 
+      category: 'contact' 
+    },
+    email: { 
+      name: 'Email Address', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>', 
+      category: 'contact' 
+    }
   };
 
   function switchActiveSection(colId, opts = {}) {
     if (!colId) return;
-    const cfg = SECTION_CONFIG[colId] || { name: colId, icon: '📋', category: 'all' };
+    const defaultIcon = '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>';
+    const cfg = SECTION_CONFIG[colId] || { name: colId, icon: defaultIcon, category: 'all' };
 
     // Update AppState
     AppState.activeColumnId = colId;
@@ -689,7 +734,7 @@ function bindEvents() {
     // Update dropdown current section label
     const sectionCurrentLabelEl = document.getElementById('section-current-label');
     if (sectionCurrentLabelEl) {
-      sectionCurrentLabelEl.innerHTML = `${cfg.icon} ${cfg.name}`;
+      sectionCurrentLabelEl.innerHTML = `${cfg.icon} <span>${cfg.name}</span>`;
     }
 
     // Update dropdown items active state
@@ -815,6 +860,7 @@ function bindEvents() {
   const btnSectionDropdown = document.getElementById('btn-section-dropdown');
   const sectionDropdownMenu = document.getElementById('section-dropdown-menu');
   const sectionDropdownWrapper = document.getElementById('section-dropdown-wrapper');
+  const studioCommandBar = document.querySelector('.studio-command-bar');
 
   if (btnSectionDropdown && sectionDropdownMenu) {
     btnSectionDropdown.addEventListener('click', (e) => {
@@ -824,12 +870,18 @@ function bindEvents() {
       if (sectionDropdownWrapper) {
         sectionDropdownWrapper.classList.toggle('open', !isOpen);
       }
+      if (studioCommandBar) {
+        studioCommandBar.classList.toggle('dropdown-active', !isOpen);
+      }
     });
 
     document.addEventListener('click', (e) => {
       if (sectionDropdownWrapper && !sectionDropdownWrapper.contains(e.target)) {
         sectionDropdownMenu.style.display = 'none';
         sectionDropdownWrapper.classList.remove('open');
+        if (studioCommandBar) {
+          studioCommandBar.classList.remove('dropdown-active');
+        }
       }
     });
 
@@ -842,6 +894,9 @@ function bindEvents() {
           sectionDropdownMenu.style.display = 'none';
           if (sectionDropdownWrapper) {
             sectionDropdownWrapper.classList.remove('open');
+          }
+          if (studioCommandBar) {
+            studioCommandBar.classList.remove('dropdown-active');
           }
         }
       });
@@ -1265,10 +1320,24 @@ function bindEvents() {
   // Theme switcher
   const themeBtn = document.getElementById('btn-toggle-theme');
   if (themeBtn) {
+    const applyTheme = (theme) => {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('cleanexcel_theme', theme);
+      themeBtn.innerHTML = `<span class="veng-theme-icon">${theme === 'light' ? '☀️' : '🌙'}</span>`;
+      themeBtn.setAttribute('title', theme === 'light' ? 'Switch to Dark mode' : 'Switch to Light mode');
+      themeBtn.setAttribute('aria-label', theme === 'light' ? 'Switch to Dark mode' : 'Switch to Light mode');
+    };
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('cleanexcel_theme');
+    if (savedTheme) {
+      applyTheme(savedTheme);
+    }
+
     themeBtn.addEventListener('click', () => {
-      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-      document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
-      themeBtn.innerHTML = isDark ? '☀️ Light' : '🌙 Dark';
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+      applyTheme(nextTheme);
     });
   }
 
@@ -3302,6 +3371,9 @@ function initCodeFinderUI() {
     explorerTabs.forEach(t => {
       if (t.getAttribute('data-tab') === currentExplorerTab) {
         t.classList.add('active');
+        try {
+          t.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } catch (_) {}
       } else {
         t.classList.remove('active');
       }
@@ -3333,6 +3405,9 @@ function initCodeFinderUI() {
         currentExplorerCategoryFilter = cat;
         document.querySelectorAll('.explorer-filter-pill').forEach(p => p.classList.remove('active'));
         btn.classList.add('active');
+        try {
+          btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        } catch (_) {}
         renderExplorerCards();
       });
       pillsContainer.appendChild(btn);
@@ -3375,6 +3450,7 @@ function initCodeFinderUI() {
     const stats = document.getElementById('explorer-stats');
     if (!grid) return;
     grid.innerHTML = '';
+    grid.scrollTop = 0;
 
     const q = (explorerSearchInput && explorerSearchInput.value.trim()) || '';
     let items = window.CodeFinder ? window.CodeFinder.search(q, currentExplorerTab, { limit: 120 }) : [];
@@ -3667,12 +3743,14 @@ function initVengeanceNavigation() {
       if (studioViewEl) studioViewEl.style.display = 'none';
       if (navBtnHome) navBtnHome.classList.add('active');
       if (navBtnStudio) navBtnStudio.classList.remove('active');
+      if (btnLaunchHeader) btnLaunchHeader.style.display = 'inline-flex';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       if (landingViewEl) landingViewEl.style.display = 'none';
       if (studioViewEl) studioViewEl.style.display = 'flex';
       if (navBtnHome) navBtnHome.classList.remove('active');
       if (navBtnStudio) navBtnStudio.classList.add('active');
+      if (btnLaunchHeader) btnLaunchHeader.style.display = 'none';
       // Re-trigger layout alignment for multi-column inputs and output tables
       updateLineNumbers();
       updateOccLineNumbers();
@@ -3780,7 +3858,82 @@ function initVengeanceNavigation() {
       toggleRuleRibbon();
     });
   }
+
+  // Initialize SynapseX Hero mouse-scrubbed video and text scrambler
+  initSynapseHero();
 }
 
+/**
+ * SynapseX Hero Mouse Scrubbing Video & Scramble Text Controller
+ */
+function initSynapseHero() {
+  const heroVideo = document.getElementById('synapse-hero-video');
+  if (heroVideo) {
+    heroVideo.pause();
+    heroVideo.currentTime = 0;
 
+    let isSeeking = false;
+    let targetTime = 0;
+    let lastMouseX = null;
 
+    heroVideo.addEventListener('seeked', () => {
+      isSeeking = false;
+      if (Math.abs(heroVideo.currentTime - targetTime) > 0.05) {
+        isSeeking = true;
+        heroVideo.currentTime = targetTime;
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!heroVideo.duration || isNaN(heroVideo.duration)) return;
+      if (lastMouseX === null) {
+        lastMouseX = e.clientX;
+        return;
+      }
+      const deltaX = e.clientX - lastMouseX;
+      lastMouseX = e.clientX;
+
+      const scrubDelta = (deltaX / window.innerWidth) * heroVideo.duration * 0.8;
+      let newTime = targetTime + scrubDelta;
+      newTime = Math.max(0, Math.min(heroVideo.duration, newTime));
+      targetTime = newTime;
+
+      if (!isSeeking) {
+        isSeeking = true;
+        heroVideo.currentTime = newTime;
+      }
+    });
+  }
+
+  // Scramble In Animation for title words
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+~|}{[]:;?><';
+  const scrambleEls = document.querySelectorAll('.synapse-scramble');
+  scrambleEls.forEach((el, idx) => {
+    const text = el.getAttribute('data-text') || el.textContent;
+    setTimeout(() => {
+      let frame = 0;
+      const interval = setInterval(() => {
+        frame++;
+        const revealed = Math.floor(frame * 0.5);
+        if (revealed >= text.length) {
+          el.textContent = text;
+          clearInterval(interval);
+          return;
+        }
+        let result = '';
+        for (let i = 0; i < text.length; i++) {
+          if (i < revealed) {
+            result += text[i];
+          } else if (text[i] === ' ') {
+            result += ' ';
+          } else if (i < revealed + 3) {
+            result += CHARS[Math.floor(Math.random() * CHARS.length)];
+          } else {
+            result += '';
+          }
+        }
+        el.textContent = result;
+      }, 40);
+    }, 200 + idx * 300);
+  });
+}

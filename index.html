@@ -6,10 +6,13 @@
   <title>CleanExcel Studio | Intelligent Column Data Sanitizer</title>
   <meta name="description" content="Clean and standardize messy Excel columns instantly. Specially tailored Street Address cleaner preserving number ranges like 145-146 MIRAMAR BOULEVARD with 1-click Excel copy and export.">
   
-  <!-- Google Fonts: Space Grotesk, Plus Jakarta Sans, Orbitron, Inter & JetBrains Mono -->
+  <!-- Google Fonts: Space Mono, Anton SC, Space Grotesk, Plus Jakarta Sans, Orbitron, Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Anton+SC&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   
   <!-- Stylesheet -->
   <link rel="stylesheet" href="styles.css">
@@ -19,26 +22,34 @@
 </head>
 <body>
 
-  <!-- Cosmic Cybernetic Matrix & Glow Backdrop (Zerve Aesthetic) -->
-  <div class="cosmic-bg" aria-hidden="true">
-    <div class="cyber-grid-plane"></div>
-    <div class="cyber-grid-perspective"></div>
-    <div class="cosmic-glow-orb cosmic-glow-1"></div>
-    <div class="cosmic-glow-orb cosmic-glow-2"></div>
-    <div class="cosmic-glow-orb cosmic-glow-3"></div>
-    <div class="cyber-scanline"></div>
+  <!-- SynapseX Monochromatic Neural Backdrop with Ambient Video -->
+  <div class="synapse-bg" aria-hidden="true">
+    <video 
+      class="synapse-ambient-video" 
+      src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_095750_32a52ce0-2005-45c9-9093-41f03fde9530.mp4" 
+      autoplay 
+      muted 
+      loop 
+      playsinline>
+    </video>
+    <div class="synapse-video-overlay"></div>
+    <div class="synapse-dot-grid"></div>
+    <div class="synapse-scanline"></div>
+    <div class="synapse-glow-orb synapse-glow-1"></div>
+    <div class="synapse-glow-orb synapse-glow-2"></div>
   </div>
 
-  <!-- Full-Width Sticky Top Header (Vengeance UI Inspired) -->
+  <!-- SynapseX Top Fixed Header Navigation -->
   <header class="app-header">
     <div class="header-inner">
       <!-- Left: Brand Logo & Title -->
       <div class="brand-section" id="nav-brand-click" title="CleanExcel Studio">
         <div class="brand-logo" id="brand-logo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-            <polyline points="2 17 12 22 22 17"></polyline>
-            <polyline points="2 12 12 17 22 12"></polyline>
+          <svg viewBox="-50 -50 100 100" width="18" height="18" fill="currentColor">
+            <path d="M 1.5,23 L 1.5,33 C 1.5,38.5 6,43 11.5,43 L 16.5,43 C 22,43 26.5,38.5 26.5,33 Q 28,28 33,26.5 C 38.5,26.5 43,22 43,16.5 L 43,11.5 C 43,6 38.5,1.5 33,1.5 L 23,1.5 Q 12,12 1.5,23 Z" transform="rotate(0)" />
+            <path d="M 1.5,23 L 1.5,33 C 1.5,38.5 6,43 11.5,43 L 16.5,43 C 22,43 26.5,38.5 26.5,33 Q 28,28 33,26.5 C 38.5,26.5 43,22 43,16.5 L 43,11.5 C 43,6 38.5,1.5 33,1.5 L 23,1.5 Q 12,12 1.5,23 Z" transform="rotate(90)" />
+            <path d="M 1.5,23 L 1.5,33 C 1.5,38.5 6,43 11.5,43 L 16.5,43 C 22,43 26.5,38.5 26.5,33 Q 28,28 33,26.5 C 38.5,26.5 43,22 43,16.5 L 43,11.5 C 43,6 38.5,1.5 33,1.5 L 23,1.5 Q 12,12 1.5,23 Z" transform="rotate(180)" />
+            <path d="M 1.5,23 L 1.5,33 C 1.5,38.5 6,43 11.5,43 L 16.5,43 C 22,43 26.5,38.5 26.5,33 Q 28,28 33,26.5 C 38.5,26.5 43,22 43,16.5 L 43,11.5 C 43,6 38.5,1.5 33,1.5 L 23,1.5 Q 12,12 1.5,23 Z" transform="rotate(270)" />
           </svg>
         </div>
         <div class="brand-text">
@@ -50,7 +61,7 @@
         </div>
       </div>
 
-      <!-- Center: Vengeance Segmented Navigation Pill -->
+      <!-- Center: Navigation Links -->
       <nav class="veng-nav-center" role="navigation" aria-label="Main Navigation">
         <button id="nav-btn-home" class="veng-nav-link active" type="button">
           <span>Home</span>
@@ -59,13 +70,13 @@
           <span>Clean Studio</span>
         </button>
         <button id="nav-btn-finder" class="veng-nav-search-btn" type="button" title="Quick Search UNICEDE® Taxonomies (⌘K)">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <span class="nav-search-text">Search taxonomy...</span>
           <kbd class="veng-kbd">⌘K</kbd>
         </button>
       </nav>
 
-      <!-- Right: Actions & Status -->
+      <!-- Right: AI, Theme & Launch Studio -->
       <div class="veng-nav-right">
         <button id="btn-gemini-modal" class="veng-ai-pill" type="button" title="Google Gemini 2.5 Active. Click to customize API key.">
           <span class="ai-sparkle">✨</span>
@@ -73,7 +84,7 @@
           <span class="ai-badge-dot"></span>
         </button>
 
-        <button id="btn-toggle-theme" class="veng-theme-toggle" type="button" title="Toggle Dark/Light theme" aria-label="Toggle theme">
+        <button id="btn-toggle-theme" class="veng-theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
           <span id="theme-toggle-icon">🌙</span>
         </button>
 
@@ -88,56 +99,151 @@
   <div class="app-container">
 
     <!-- ====================================================================
-         HOMEPAGE / LANDING PAGE VIEW (Vengeance UI Inspired)
+         HOMEPAGE / LANDING PAGE VIEW (SynapseX Full Cinematic Design)
          ==================================================================== -->
     <div id="landing-page-view" class="landing-page-view">
       
-      <!-- 1. Hero Section -->
-      <section class="landing-hero-section">
-        <!-- Announcement Pill with animated glowing beam -->
-        <div class="hero-badge-wrapper">
-          <div class="hero-announcement-pill">
-            <span class="pill-dot"></span>
-            <span class="pill-text">Powered by Touchstone UNICEDE® &amp; AIR Catastrophe Model Engine</span>
-            <div class="pill-beam"></div>
+      <!-- 1. Full-Viewport Hero Section with Video Background & Mouse Scrubbing -->
+      <section class="synapse-hero-section" id="synapse-hero">
+        <!-- Hero Background Video -->
+        <video 
+          id="synapse-hero-video" 
+          class="synapse-hero-video" 
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_083515_290e5a10-0b95-41af-a5e2-32b6389baa4d.mp4" 
+          preload="auto" 
+          muted 
+          playsinline>
+        </video>
+
+        <!-- Subtle Dot Grid Overlay -->
+        <div class="synapse-hero-dotgrid"></div>
+
+        <!-- Anton SC Giant Watermark -->
+        <div class="synapse-hero-watermark">
+          <span>UNDERWRITING</span>
+        </div>
+
+        <!-- Hero Foreground Content Layer -->
+        <div class="synapse-hero-content">
+          <div class="synapse-hero-top-badge">
+            <div class="hero-announcement-pill">
+              <span class="pill-dot"></span>
+              <span class="pill-text">Touchstone UNICEDE® &bull; AIR Catastrophe Engine v3.0</span>
+            </div>
+          </div>
+
+          <!-- Bottom Row Split -->
+          <div class="synapse-hero-bottom-row">
+            <!-- Left Column: Title & Description -->
+            <div class="synapse-hero-col-left">
+              <h1 class="synapse-hero-title">
+                <span class="synapse-scramble" data-text="Neural">Neural</span><br>
+                <span class="synapse-scramble" data-text="Underwriting">Underwriting</span>
+              </h1>
+              <p class="synapse-hero-desc">
+                Built at the intersection of catastrophe modeling and machine intelligence. CleanExcel instantly transforms raw, chaotic broker schedules into standardized Touchstone UNICEDE® underwriting assets with 100% deterministic precision.
+              </p>
+              
+              <!-- CTAs -->
+              <div class="hero-cta-group">
+                <button id="hero-btn-launch" class="synapse-btn-primary" type="button">
+                  <span>Launch Clean Studio</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+                <button id="hero-btn-finder" class="synapse-btn-secondary" type="button">
+                  <span>Taxonomy Explorer</span>
+                  <kbd class="hero-kbd">⌘K</kbd>
+                </button>
+                <button id="hero-btn-sample" class="synapse-btn-ghost" type="button">
+                  <span>Try Live Demo</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Column: Subtitle & Quick Metric Capsule -->
+            <div class="synapse-hero-col-right">
+              <h1 class="synapse-hero-title synapse-hero-title-right">
+                <span class="synapse-scramble" data-text="One">One</span><br>
+                <span class="synapse-scramble" data-text="Engine">Engine</span>
+              </h1>
+              <div class="synapse-quick-metrics">
+                <div class="synapse-metric-chip">
+                  <span class="metric-val">0 ms</span>
+                  <span class="metric-lbl">Server Latency</span>
+                </div>
+                <div class="synapse-metric-chip">
+                  <span class="metric-val">100%</span>
+                  <span class="metric-lbl">Client-Side Privacy</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <h1 class="hero-headline">
-          Next-Gen Underwriting <br>
-          <span class="hero-gradient-text">Data Cleaning Studio</span>
-        </h1>
-
-        <p class="hero-subheadline">
-          Transform messy broker schedules into model-ready underwriting assets in seconds.
-          Deterministic rules, strict Touchstone UNICEDE® classification, and zero server latency with 100% private in-browser processing.
-        </p>
-
-        <!-- Hero CTAs -->
-        <div class="hero-cta-group">
-          <button id="hero-btn-launch" class="btn-hero-primary" type="button">
-            <span>🚀 Launch Clean Studio</span>
-          </button>
-          <button id="hero-btn-finder" class="btn-hero-secondary" type="button">
-            <span>🔍 Explore UNICEDE® Taxonomy</span>
-            <kbd class="hero-kbd">⌘K</kbd>
-          </button>
-          <button id="hero-btn-sample" class="btn-hero-ghost" type="button">
-            <span>✨ Try Live Underwriting Demo</span>
-          </button>
+      <!-- 2. Cinematic Section (3D Perspective Scroll & Video Background) -->
+      <section class="synapse-cinematic-section">
+        <video 
+          class="synapse-cinematic-video" 
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_092455_089c54f8-3b03-4966-9df1-e9746063d0ef.mp4" 
+          autoplay 
+          muted 
+          loop 
+          playsinline>
+        </video>
+        <div class="synapse-cinematic-overlay"></div>
+        <div class="synapse-cinematic-text-wrap">
+          <p class="synapse-cinematic-p">
+            An underwriting intelligence engine built to decode unstructured schedules. CleanExcel translates free-form text, multi-year renovations, and complex roof assemblies into strict Touchstone UNICEDE® parameters. Every record becomes structured, compliant, and catastrophe model ready.
+          </p>
         </div>
+      </section>
 
-        <!-- Hero Interactive Transformation Showcase Card -->
+      <!-- 3. Performance Metrics Section (Video Background) -->
+      <section class="synapse-metrics-section">
+        <video 
+          class="synapse-metrics-video" 
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_095810_ecea3dd2-fc5e-4e41-8696-4219290b6589.mp4" 
+          autoplay 
+          muted 
+          loop 
+          playsinline>
+        </video>
+        <div class="synapse-metrics-overlay"></div>
+        <div class="synapse-metrics-container">
+          <p class="synapse-section-label">PERFORMANCE METRICS</p>
+          <div class="synapse-metrics-grid">
+            <div class="synapse-metric-item">
+              <span class="synapse-metric-number">224+</span>
+              <span class="synapse-metric-title">Construction Codes</span>
+              <span class="synapse-metric-sub">Touchstone UNICEDE® 100–2720</span>
+            </div>
+            <div class="synapse-metric-item">
+              <span class="synapse-metric-number">55+</span>
+              <span class="synapse-metric-title">Occupancy Taxonomies</span>
+              <span class="synapse-metric-sub">Commercial, Industrial &amp; Residential</span>
+            </div>
+            <div class="synapse-metric-item">
+              <span class="synapse-metric-number">0.0ms</span>
+              <span class="synapse-metric-title">Processing Latency</span>
+              <span class="synapse-metric-sub">100% In-Browser In-Memory Execution</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Interactive Transformation Showcase Card (Sleek Monochromatic Glass) -->
+      <section class="synapse-showcase-section">
         <div class="hero-showcase-container">
           <div class="showcase-card">
             <div class="showcase-header">
               <div class="showcase-dots">
-                <span class="dot dot-red"></span>
-                <span class="dot dot-yellow"></span>
-                <span class="dot dot-green"></span>
+                <span class="dot dot-white"></span>
+                <span class="dot dot-white"></span>
+                <span class="dot dot-white"></span>
               </div>
-              <span class="showcase-title">Interactive Underwriting Transformation Showcase</span>
-              <span class="showcase-badge">Deterministic Touchstone Rules</span>
+              <span class="showcase-title">TOUCHSTONE UNICEDE® DETERMINISTIC TRANSFORMATION</span>
+              <span class="showcase-badge">Deterministic Engine</span>
             </div>
 
             <div class="showcase-content-grid">
@@ -145,7 +251,7 @@
               <div class="showcase-pane raw-pane-demo">
                 <div class="showcase-pane-header">
                   <span class="pane-tag">Raw Broker Excel Input</span>
-                  <span class="pane-sub">Messy &amp; Unstructured</span>
+                  <span class="pane-sub">Messy &bull; Unstructured</span>
                 </div>
                 <div class="code-preview-block">
                   <div class="code-line"><span class="line-num">1</span> <span class="tok-kw">SINGLE PLY MEMBRANE (50%); ASPHALT (47%)</span></div>
@@ -159,21 +265,21 @@
               <!-- Center Divider Flow -->
               <div class="showcase-divider">
                 <div class="flow-arrow-icon">➔</div>
-                <span class="flow-label">CleanExcel Engine</span>
+                <span class="flow-label">CLEANEXCEL</span>
               </div>
 
               <!-- Right: Model-Ready Output -->
               <div class="showcase-pane clean-pane-demo">
                 <div class="showcase-pane-header">
-                  <span class="pane-tag clean-tag">Standardized Touchstone Output</span>
-                  <span class="pane-sub">Catastrophe Model Ready</span>
+                  <span class="pane-tag clean-tag">Model-Ready Touchstone Asset</span>
+                  <span class="pane-sub">Standardized &bull; Verified</span>
                 </div>
                 <div class="code-preview-block clean-block">
-                  <div class="code-line"><span class="line-num">1</span> <span class="badge-code badge-cyan">Covering 7</span> <span class="tok-val">Single-ply membrane</span> <span class="tok-badge-rule">Higher % Wins</span></div>
-                  <div class="code-line"><span class="line-num">2</span> <span class="badge-code badge-emerald">1995</span> <span class="tok-val">Original Construction Year</span> <span class="tok-badge-rule">Older Year Picked</span></div>
-                  <div class="code-line"><span class="line-num">3</span> <span class="badge-code badge-rose">Roof: 2007</span> <span class="tok-val">Validated (2007 ≥ 2005)</span> <span class="tok-badge-rule">Rule Passed</span></div>
-                  <div class="code-line"><span class="line-num">4</span> <span class="badge-code badge-amber">Code 113</span> <span class="tok-val">Rubble Stone Masonry</span> <span class="tok-badge-rule">Mandatory Stone Rule</span></div>
-                  <div class="code-line"><span class="line-num">5</span> <span class="badge-code badge-indigo">Standard Address</span> <span class="tok-val">145-146 MIRAMAR BLVD STE 400</span> <span class="tok-badge-rule">Range Preserved</span></div>
+                  <div class="code-line"><span class="line-num">1</span> <span class="badge-code badge-synapse">Covering 7</span> <span class="tok-val">Single-ply membrane</span> <span class="tok-badge-rule">Higher % Wins</span></div>
+                  <div class="code-line"><span class="line-num">2</span> <span class="badge-code badge-synapse">1995</span> <span class="tok-val">Original Construction Year</span> <span class="tok-badge-rule">Older Year Picked</span></div>
+                  <div class="code-line"><span class="line-num">3</span> <span class="badge-code badge-synapse">Roof: 2007</span> <span class="tok-val">Validated (2007 ≥ 2005)</span> <span class="tok-badge-rule">Rule Passed</span></div>
+                  <div class="code-line"><span class="line-num">4</span> <span class="badge-code badge-synapse">Code 113</span> <span class="tok-val">Rubble Stone Masonry</span> <span class="tok-badge-rule">Mandatory Stone Rule</span></div>
+                  <div class="code-line"><span class="line-num">5</span> <span class="badge-code badge-synapse">Standard Address</span> <span class="tok-val">145-146 MIRAMAR BLVD STE 400</span> <span class="tok-badge-rule">Range Preserved</span></div>
                 </div>
               </div>
             </div>
@@ -181,12 +287,12 @@
         </div>
       </section>
 
-      <!-- 2. Feature Bento Grid (The 4 Core Power Engines) -->
+      <!-- 5. Feature Bento Grid (4 Core Engines) -->
       <section class="landing-bento-section">
         <div class="bento-header">
-          <span class="bento-header-badge">Core Capabilities</span>
-          <h2 class="bento-title">Purpose-Built for Commercial Risk Underwriters</h2>
-          <p class="bento-subtitle">Every feature is designed to automate hours of tedious schedule scrubbing with 100% deterministic accuracy.</p>
+          <span class="bento-header-badge">Core Engines</span>
+          <h2 class="bento-title">Engineered for Underwriting Precision</h2>
+          <p class="bento-subtitle">Deterministic rules, zero latency, and automated multi-column intelligence.</p>
         </div>
 
         <div class="bento-grid">
@@ -195,19 +301,19 @@
             <div class="bento-card-top">
               <div class="bento-card-header">
                 <div class="bento-icon">🏢</div>
-                <span class="bento-badge bento-badge-violet">3-Col Comparative</span>
+                <span class="bento-badge">3-Col Comparative</span>
               </div>
               <h3 class="bento-heading">Occupancy &amp; Construction Auto-Mapper</h3>
               <p class="bento-desc">Intelligently maps free-form descriptions to Touchstone UNICEDE® 300–3023 &amp; 100–2720 codes with multi-column comparative validation and automated header stripping.</p>
               
               <div class="bento-rule-pills">
-                <span class="bento-rule-chip gold-chip">⭐ STONE ➔ Code 113 (Rubble Stone Masonry)</span>
-                <span class="bento-rule-chip gold-chip">⭐ BRICK ➔ Code 111 (Masonry)</span>
+                <span class="bento-rule-chip highlight-chip">STONE ➔ Code 113 (Rubble Stone Masonry)</span>
+                <span class="bento-rule-chip highlight-chip">BRICK ➔ Code 111 (Masonry)</span>
                 <span class="bento-rule-chip">3-Col Ingestion</span>
               </div>
             </div>
             <button class="bento-cta-btn" type="button">
-              <span>Launch Occupancy &amp; Construction Studio</span>
+              <span>Launch Occupancy &amp; Construction</span>
               <span>&rarr;</span>
             </button>
           </div>
@@ -217,7 +323,7 @@
             <div class="bento-card-top">
               <div class="bento-card-header">
                 <div class="bento-icon">🏠</div>
-                <span class="bento-badge bento-badge-cyan">4-Attribute Parser</span>
+                <span class="bento-badge">4-Attribute Parser</span>
               </div>
               <h3 class="bento-heading">UNICEDE® Roof Detail Engine</h3>
               <p class="bento-desc">Parses Geometry (0–10), Pitch (1–3), Covering (1–12), and Deck (1–8) with multi-component percentage logic.</p>
@@ -228,7 +334,7 @@
               </div>
             </div>
             <button class="bento-cta-btn" type="button">
-              <span>Launch Roof Detail Studio</span>
+              <span>Launch Roof Detail</span>
               <span>&rarr;</span>
             </button>
           </div>
@@ -238,7 +344,7 @@
             <div class="bento-card-top">
               <div class="bento-card-header">
                 <div class="bento-icon">🏚️</div>
-                <span class="bento-badge bento-badge-rose">2-Column Strict</span>
+                <span class="bento-badge">2-Column Strict</span>
               </div>
               <h3 class="bento-heading">2-Column Roof Year Built Validation</h3>
               <p class="bento-desc">Strictly validates Roof Year Built against Year Built (<code>Roof Year Built ≥ Year Built</code>). Resolves multi-year ranges (e.g. <code>2006/2007 ➔ 2007</code>) and handles year built carry-forward.</p>
@@ -260,7 +366,7 @@
             <div class="bento-card-top">
               <div class="bento-card-header">
                 <div class="bento-icon">📍</div>
-                <span class="bento-badge bento-badge-emerald">Range-Protected</span>
+                <span class="bento-badge">Range-Protected</span>
               </div>
               <h3 class="bento-heading">Street Address &amp; Symbol Sanitizer</h3>
               <p class="bento-desc">Strips 29 illegal symbols while strictly safeguarding critical number ranges like <code>145-146 MIRAMAR BOULEVARD</code>. 1-click copy formatted directly for Microsoft Excel.</p>
@@ -272,74 +378,73 @@
               </div>
             </div>
             <button class="bento-cta-btn" type="button">
-              <span>Launch Street Address Sanitizer</span>
+              <span>Launch Street Sanitizer</span>
               <span>&rarr;</span>
             </button>
           </div>
         </div>
       </section>
 
-      <!-- 3. Stats & Trust Metrics Bar -->
-      <section class="landing-stats-bar">
-        <div class="stat-card-modern">
-          <span class="stat-number">224+</span>
-          <span class="stat-label">Construction Codes</span>
-          <span class="stat-sub">Touchstone UNICEDE® 100 to 2720</span>
-        </div>
-        <div class="stat-card-modern">
-          <span class="stat-number">55+</span>
-          <span class="stat-label">Occupancy Taxonomies</span>
-          <span class="stat-sub">Commercial &amp; Residential classes</span>
-        </div>
-        <div class="stat-card-modern">
-          <span class="stat-number">0 ms</span>
-          <span class="stat-label">Server Latency</span>
-          <span class="stat-sub">100% Client-Side In-Memory Engine</span>
-        </div>
-        <div class="stat-card-modern">
-          <span class="stat-number">100%</span>
-          <span class="stat-label">Deterministic Privacy</span>
-          <span class="stat-sub">Zero data leaves your browser</span>
-        </div>
-      </section>
-
-      <!-- 4. Bottom Call To Action Banner -->
+      <!-- 6. Bottom Call To Action Banner -->
       <section class="landing-cta-banner">
         <div class="cta-banner-content">
-          <h2 class="cta-banner-title">Ready to clean your schedule?</h2>
+          <h2 class="cta-banner-title">Ready to standardize your schedule?</h2>
           <p class="cta-banner-desc">Paste thousands of raw Excel rows directly into the studio and receive standardized Touchstone results in milliseconds.</p>
         </div>
         <div class="cta-banner-actions">
-          <button id="bento-btn-launch" class="btn-hero-primary" type="button">
-            <span>🚀 Launch Clean Studio Now</span>
+          <button id="bento-btn-launch" class="synapse-btn-primary" type="button">
+            <span>Launch Clean Studio</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </button>
         </div>
       </section>
 
-      <!-- 5. Modern Landing Footer -->
-      <footer class="landing-footer">
-        <div class="footer-top">
-          <div class="footer-brand">
-            <div class="brand-logo" style="width: 28px; height: 28px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+      <!-- 7. SynapseX Minimalist Video Footer -->
+      <footer class="synapse-footer">
+        <div class="synapse-footer-container">
+          <!-- Left: Video Panel -->
+          <div class="synapse-footer-video-wrap">
+            <video 
+              class="synapse-footer-video" 
+              src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_080203_fd7f4f85-3a86-4837-8192-85e7bfe68e75.mp4" 
+              autoplay 
+              muted 
+              loop 
+              playsinline>
+            </video>
+            <div class="synapse-footer-video-gradient"></div>
+          </div>
+
+          <!-- Right: Details & Links -->
+          <div class="synapse-footer-info">
+            <div>
+              <div class="synapse-footer-brand">
+                <svg viewBox="-50 -50 100 100" width="20" height="20" fill="currentColor">
+                  <path d="M 1.5,23 L 1.5,33 C 1.5,38.5 6,43 11.5,43 L 16.5,43 C 22,43 26.5,38.5 26.5,33 Q 28,28 33,26.5 C 38.5,26.5 43,22 43,16.5 L 43,11.5 C 43,6 38.5,1.5 33,1.5 L 23,1.5 Q 12,12 1.5,23 Z" transform="rotate(0)" />
+                  <path d="M 1.5,23 L 1.5,33 C 1.5,38.5 6,43 11.5,43 L 16.5,43 C 22,43 26.5,38.5 26.5,33 Q 28,28 33,26.5 C 38.5,26.5 43,22 43,16.5 L 43,11.5 C 43,6 38.5,1.5 33,1.5 L 23,1.5 Q 12,12 1.5,23 Z" transform="rotate(90)" />
+                  <path d="M 1.5,23 L 1.5,33 C 1.5,38.5 6,43 11.5,43 L 16.5,43 C 22,43 26.5,38.5 26.5,33 Q 28,28 33,26.5 C 38.5,26.5 43,22 43,16.5 L 43,11.5 C 43,6 38.5,1.5 33,1.5 L 23,1.5 Q 12,12 1.5,23 Z" transform="rotate(180)" />
+                  <path d="M 1.5,23 L 1.5,33 C 1.5,38.5 6,43 11.5,43 L 16.5,43 C 22,43 26.5,38.5 26.5,33 Q 28,28 33,26.5 C 38.5,26.5 43,22 43,16.5 L 43,11.5 C 43,6 38.5,1.5 33,1.5 L 23,1.5 Q 12,12 1.5,23 Z" transform="rotate(270)" />
+                </svg>
+                <span class="footer-brand-title">CleanExcel Studio</span>
+              </div>
+              <p class="synapse-footer-bio">
+                The next evolution of commercial underwriting data preparation. Built for risk professionals who demand precision, velocity, and zero deterministic compromise.
+              </p>
+              <div class="footer-links" style="margin-top: 24px;">
+                <button class="footer-link" id="footer-link-studio" type="button">Clean Studio</button>
+                <button class="footer-link" id="footer-link-finder" type="button">Taxonomy (⌘K)</button>
+                <button class="footer-link" id="footer-link-rules" type="button">Underwriting Rules</button>
+                <button class="footer-link" id="footer-link-ai" type="button">Gemini AI Settings</button>
+              </div>
             </div>
-            <span style="font-weight: 700; color: #fff; font-size: 0.95rem;">CleanExcel Studio</span>
-            <span class="brand-version-badge">v3.0 Vengeance</span>
-          </div>
 
-          <div class="footer-links">
-            <button class="footer-link" id="footer-link-studio" type="button">Clean Studio</button>
-            <button class="footer-link" id="footer-link-finder" type="button">Code Finder (⌘K)</button>
-            <button class="footer-link" id="footer-link-rules" type="button">Underwriting Rules</button>
-            <button class="footer-link" id="footer-link-ai" type="button">Gemini AI Settings</button>
-          </div>
-        </div>
-
-        <div class="footer-bottom">
-          <span>&copy; 2026 CleanExcel Studio • Built for Catastrophe Risk Modeling &amp; Underwriting Analysis</span>
-          <div class="footer-status-pill">
-            <span class="footer-status-dot"></span>
-            <span>All 10 Cleaning Engines Online &amp; Verified</span>
+            <div class="synapse-footer-bottom-bar">
+              <p>&copy; 2026 CleanExcel Studio. Touchstone UNICEDE® Engine.</p>
+              <div class="synapse-status-pill">
+                <span class="synapse-status-dot"></span>
+                <span>All 10 Engines Operational</span>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
@@ -351,6 +456,57 @@
          ==================================================================== -->
     <div id="studio-view" class="studio-view" style="display: none;">
 
+      <!-- SynapseX Giant Anton SC Watermark in Studio View -->
+      <div class="studio-bg-watermark" aria-hidden="true">
+        <span>STUDIO</span>
+      </div>
+
+      <!-- Studio Cinematic Video Atmosphere (From Home Section - Cyber Llama with Neon Visor) -->
+      <div class="studio-ambient-backdrop" aria-hidden="true">
+        <video 
+          class="studio-ambient-video" 
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_083515_290e5a10-0b95-41af-a5e2-32b6389baa4d.mp4" 
+          autoplay 
+          muted 
+          loop 
+          playsinline>
+        </video>
+        <div class="studio-video-overlay"></div>
+        <div class="studio-neon-visor-glow"></div>
+      </div>
+
+      <!-- Studio Hero Header Banner (Matching Home Page Aesthetic) -->
+      <div class="studio-hero-banner">
+        <div class="studio-hero-banner-left">
+          <div class="hero-announcement-pill">
+            <span class="pill-dot"></span>
+            <span>AUTONOMOUS EXCEL CLEANING CONSOLE</span>
+          </div>
+          <h1 class="studio-main-heading">
+            <span class="heading-accent">Neural</span> <span>Studio</span>
+          </h1>
+          <p class="studio-main-desc">
+            Client-side Touchstone UNICEDE® engine. Zero data upload, deterministic classification, and 1-click Excel export.
+          </p>
+        </div>
+        <div class="studio-hero-banner-right">
+          <div class="synapse-quick-metrics">
+            <div class="synapse-metric-chip">
+              <span class="metric-val">0.0 ms</span>
+              <span class="metric-lbl">Latency</span>
+            </div>
+            <div class="synapse-metric-chip">
+              <span class="metric-val">100%</span>
+              <span class="metric-lbl">Deterministic</span>
+            </div>
+            <div class="synapse-metric-chip">
+              <span class="metric-val">224+</span>
+              <span class="metric-lbl">Taxonomies</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Consolidated Studio Command & Navigation Console (Vengeance UI Inspired) -->
       <div class="studio-command-bar">
         <!-- Top Tier: Engine Selector, Category Filter Pills & Primary Actions -->
@@ -358,9 +514,9 @@
           <!-- Left: Active Engine Dropdown Selector -->
           <div class="section-dropdown-wrapper" id="section-dropdown-wrapper">
             <button id="btn-section-dropdown" class="section-dropdown-btn" type="button" aria-haspopup="true" aria-expanded="false" title="Quickly jump to any section">
-              <span class="dropdown-lightning">⚡</span>
+              <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
               <span class="dropdown-caption">Active Engine:</span>
-              <span id="section-current-label" class="section-current-badge">🏠 Street Address</span>
+              <span id="section-current-label" class="section-current-badge"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span>Street Address</span></span>
               <svg class="dropdown-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
@@ -369,7 +525,8 @@
           <!-- Dropdown Quick Menu -->
           <div id="section-dropdown-menu" class="section-dropdown-menu" style="display: none;">
             <div class="dropdown-menu-header">
-              <span>⚡ Jump Directly to Any Section</span>
+              <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <span>Jump Directly to Any Section</span>
               <span class="dropdown-menu-count">10 Engines</span>
             </div>
 
@@ -377,56 +534,57 @@
               <!-- Underwriting Group -->
               <div class="dropdown-section-group">
                 <div class="dropdown-group-title">
-                  <span>🏗️ Underwriting &amp; UNICEDE®</span>
+                  <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  <span>Underwriting &amp; UNICEDE®</span>
                 </div>
                 <div class="dropdown-group-items">
                   <button class="dropdown-item" data-target="wall" type="button">
-                    <span class="item-icon">🧱</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg></span>
                     <div class="item-details">
                       <span class="item-title">Exterior Wall Finish</span>
                       <span class="item-sub">WallType (0-9) &bull; WallSiding (0-8)</span>
                     </div>
-                    <span class="item-badge" style="background: rgba(234, 88, 12, 0.2); color: #fb923c;">Dual</span>
+                    <span class="item-badge">Dual</span>
                   </button>
                   <button class="dropdown-item" data-target="roof" type="button">
-                    <span class="item-icon">🏠</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></svg></span>
                     <div class="item-details">
                       <span class="item-title">Roof Description</span>
                       <span class="item-sub">Geometry &bull; Pitch &bull; Covering &bull; Deck</span>
                     </div>
-                    <span class="item-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">4 Fields</span>
+                    <span class="item-badge">4 Fields</span>
                   </button>
                   <button class="dropdown-item" data-target="occupancy" type="button">
-                    <span class="item-icon">🏢</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="12" y1="6" x2="12.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="8" y1="11" x2="8.01" y2="11"></line><line x1="12" y1="11" x2="12.01" y2="11"></line><line x1="16" y1="11" x2="16.01" y2="11"></line></svg></span>
                     <div class="item-details">
                       <span class="item-title">Occupancy Code</span>
                       <span class="item-sub">3-Col Compare &bull; UNICEDE® 300-384</span>
                     </div>
-                    <span class="item-badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc;">Touchstone</span>
+                    <span class="item-badge">Touchstone</span>
                   </button>
                   <button class="dropdown-item" data-target="construction" type="button">
-                    <span class="item-icon">🏗️</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></span>
                     <div class="item-details">
                       <span class="item-title">ConstructionCode</span>
                       <span class="item-sub">3-Col Compare &bull; UNICEDE® 100-514</span>
                     </div>
-                    <span class="item-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">Touchstone</span>
+                    <span class="item-badge">Touchstone</span>
                   </button>
                   <button class="dropdown-item" data-target="year" type="button">
-                    <span class="item-icon">📅</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
                     <div class="item-details">
                       <span class="item-title">Year Built</span>
                       <span class="item-sub">1753 – 2026 Strict Range Validator</span>
                     </div>
-                    <span class="item-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">Range</span>
+                    <span class="item-badge">Range</span>
                   </button>
                   <button class="dropdown-item" data-target="roof_year" type="button">
-                    <span class="item-icon">🏚️</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><circle cx="12" cy="13" r="3"></circle></svg></span>
                     <div class="item-details">
                       <span class="item-title">Roof Year Built</span>
                       <span class="item-sub">2-Col &bull; Year Built Validation</span>
                     </div>
-                    <span class="item-badge" style="background: rgba(244, 63, 94, 0.2); color: #fb7185;">2-Col</span>
+                    <span class="item-badge">2-Col</span>
                   </button>
                 </div>
               </div>
@@ -434,41 +592,42 @@
               <!-- Address & Contact Group -->
               <div class="dropdown-section-group">
                 <div class="dropdown-group-title">
-                  <span>📍 Address &amp; Contact Records</span>
+                  <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  <span>Address &amp; Contact Records</span>
                 </div>
                 <div class="dropdown-group-items">
                   <button class="dropdown-item active" data-target="street" type="button">
-                    <span class="item-icon">🏠</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
                     <div class="item-details">
                       <span class="item-title">Street Address</span>
                       <span class="item-sub">Strips 29 Symbols &bull; Range Protected</span>
                     </div>
-                    <span class="item-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">Active</span>
+                    <span class="item-badge">Active</span>
                   </button>
                   <button class="dropdown-item" data-target="split" type="button">
-                    <span class="item-icon">🔀</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M6 9v12"></path><path d="M18 15V9a9 9 0 0 0-9-9"></path></svg></span>
                     <div class="item-details">
                       <span class="item-title">Address Splitter</span>
                       <span class="item-sub">US, UK, Germany, Canada &bull; ISO-2</span>
                     </div>
-                    <span class="item-badge" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan);">Universal</span>
+                    <span class="item-badge">Universal</span>
                   </button>
                   <button class="dropdown-item" data-target="name" type="button">
-                    <span class="item-icon">👤</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
                     <div class="item-details">
                       <span class="item-title">Full Name</span>
                       <span class="item-sub">First, Middle, Last &bull; Title casing</span>
                     </div>
                   </button>
                   <button class="dropdown-item" data-target="phone" type="button">
-                    <span class="item-icon">📞</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></span>
                     <div class="item-details">
                       <span class="item-title">Phone Number</span>
                       <span class="item-sub">E.164, National formatting</span>
                     </div>
                   </button>
                   <button class="dropdown-item" data-target="email" type="button">
-                    <span class="item-icon">✉️</span>
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
                     <div class="item-details">
                       <span class="item-title">Email Address</span>
                       <span class="item-sub">RFC 5322 syntax validation</span>
@@ -483,19 +642,23 @@
         <!-- Category Filter Pills -->
         <div class="section-category-filters" role="tablist" aria-label="Filter sections">
           <button class="category-filter-pill active" data-filter="all" type="button" title="Show all 10 cleaner engines">
-            <span>🌟 All</span>
+            <svg class="studio-filter-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            <span>All</span>
             <span class="filter-num">10</span>
           </button>
           <button class="category-filter-pill" data-filter="underwriting" type="button" title="Touchstone UNICEDE Wall, Roof, Occupancy, Construction, Year">
-            <span>🏗️ Underwriting</span>
+            <svg class="studio-filter-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <span>Underwriting</span>
             <span class="filter-num">5</span>
           </button>
           <button class="category-filter-pill" data-filter="address" type="button" title="Street Address &amp; Universal Splitter">
-            <span>📍 Address</span>
+            <svg class="studio-filter-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span>Address</span>
             <span class="filter-num">2</span>
           </button>
           <button class="category-filter-pill" data-filter="contact" type="button" title="Name, Phone, Email">
-            <span>📇 Contact</span>
+            <svg class="studio-filter-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <span>Contact</span>
             <span class="filter-num">3</span>
           </button>
         </div>
@@ -503,10 +666,12 @@
         <!-- Primary Workspace Actions Group -->
         <div class="workspace-header-actions">
           <button id="btn-load-sample" class="btn-studio-action btn-sample-glow" type="button" title="Load sample records including 145-146 MIRAMAR BOULEVARD">
-            <span>✨ Load Sample</span>
+            <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <span>Load Sample</span>
           </button>
           <button id="btn-clear-all" class="btn-studio-action btn-clear-subtle" type="button" title="Clear all input text">
-            <span>🧹 Clear All</span>
+            <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span>Clear All</span>
           </button>
           <button id="btn-open-code-finder" class="btn-studio-action btn-finder-cyber" type="button" title="Universal Touchstone UNICEDE® Code Finder (Occupancy, Construction, Roof, Wall)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -521,55 +686,55 @@
         <div class="tabs-scroll-wrapper">
           <nav class="column-tabs-container" id="column-tabs-container" aria-label="Column Selection">
         <button class="column-tab active" data-column="street" data-category="address" data-name="Street Address" id="tab-street">
-          <span>🏠</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
           <span>Street Address</span>
-          <span class="tab-badge">Active Engine</span>
+          <span class="tab-badge"><span class="live-pulse-dot"></span> Active Engine</span>
         </button>
         <button class="column-tab" data-column="split" data-category="address" data-name="Address Splitter" id="tab-split">
-          <span>🔀</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M6 9v12"></path><path d="M18 15V9a9 9 0 0 0-9-9"></path></svg>
           <span>Address Splitter</span>
-          <span class="tab-badge" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan);">US, UK, Germany, Canada</span>
+          <span class="tab-badge">US, UK, Germany, Canada</span>
         </button>
         <button class="column-tab" data-column="occupancy" data-category="underwriting" data-name="Occupancy Code" id="tab-occupancy">
-          <span>🏢</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="12" y1="6" x2="12.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="8" y1="11" x2="8.01" y2="11"></line><line x1="12" y1="11" x2="12.01" y2="11"></line><line x1="16" y1="11" x2="16.01" y2="11"></line></svg>
           <span>Occupancy Code</span>
-          <span class="tab-badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc;">Touchstone UNICEDE®</span>
+          <span class="tab-badge">Touchstone UNICEDE®</span>
         </button>
         <button class="column-tab" data-column="construction" data-category="underwriting" data-name="Construction Code" id="tab-construction">
-          <span>🏗️</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
           <span>ConstructionCode</span>
-          <span class="tab-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">Touchstone UNICEDE®</span>
+          <span class="tab-badge">Touchstone UNICEDE®</span>
         </button>
         <button class="column-tab" data-column="year" data-category="underwriting" data-name="Year Built" id="tab-year">
-          <span>📅</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           <span>Year Built</span>
-          <span class="tab-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">1753 - 2026</span>
+          <span class="tab-badge">1753 - 2026</span>
         </button>
         <button class="column-tab" data-column="roof_year" data-category="underwriting" data-name="Roof Year Built" id="tab-roof-year">
-          <span>🏚️</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><circle cx="12" cy="13" r="3"></circle></svg>
           <span>Roof Year Built</span>
-          <span class="tab-badge" style="background: rgba(244, 63, 94, 0.2); color: #fb7185;">2-Col Underwriting</span>
+          <span class="tab-badge">2-Col Underwriting</span>
         </button>
         <button class="column-tab" data-column="roof" data-category="underwriting" data-name="Roof Description" id="tab-roof">
-          <span>🏠</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></svg>
           <span>Roof Description</span>
-          <span class="tab-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">Geometry • Pitch • Covering • Deck</span>
+          <span class="tab-badge">Geometry • Pitch • Covering • Deck</span>
         </button>
         <button class="column-tab" data-column="wall" data-category="underwriting" data-name="Exterior Wall Finish" id="tab-wall">
-          <span>🧱</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg>
           <span>Exterior Wall Finish</span>
-          <span class="tab-badge" style="background: rgba(234, 88, 12, 0.2); color: #fb923c;">WallType • WallSiding</span>
+          <span class="tab-badge">WallType • WallSiding</span>
         </button>
         <button class="column-tab" data-column="name" data-category="contact" data-name="Full Name" id="tab-name">
-          <span>👤</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           <span>Full Name</span>
         </button>
         <button class="column-tab" data-column="phone" data-category="contact" data-name="Phone Number" id="tab-phone">
-          <span>📞</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
           <span>Phone Number</span>
         </button>
         <button class="column-tab" data-column="email" data-category="contact" data-name="Email Address" id="tab-email">
-          <span>✉️</span>
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
           <span>Email Address</span>
         </button>
       </nav>
@@ -602,7 +767,8 @@
         <span id="ribbon-toggle-label">Section Rules &amp; UNICEDE® Finder</span>
       </button>
       <div class="ribbon-summary-preview" id="ribbon-summary-preview">
-        <span>💡 Real-time Underwriting Rules &amp; Taxonomy Quick Finder</span>
+        <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span>Real-time Underwriting Rules &amp; Taxonomy Quick Finder</span>
         <span class="ribbon-summary-pill">Collapsible Drawer</span>
       </div>
     </div>
@@ -613,9 +779,9 @@
     <section class="rules-card" id="split-rules-panel" style="display: none;">
       <div class="rules-header">
         <div class="rules-title-area">
-          <h2>🔀 Universal Address Column Splitter</h2>
-          <div class="protect-banner" style="background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.3); color: var(--accent-cyan);">
-            <span>📊 Universal Format (US, UK, Germany, Canada):</span>
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M6 9v12"></path><path d="M18 15V9a9 9 0 0 0-9-9"></path></svg><span>Universal Address Column Splitter</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg> Universal Format (US, UK, Germany, Canada):</span>
             <code>STREET | City | State | County | Postal | Country</code>
           </div>
         </div>
@@ -689,9 +855,9 @@
     <section class="rules-card" id="occupancy-rules-panel" style="display: none;">
       <div class="rules-header">
         <div class="rules-title-area">
-          <h2>🏢 Touchstone / UNICEDE® Occupancy Class Classifier</h2>
-          <div class="protect-banner" style="background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.3); color: #c084fc;">
-            <span>📋 3-Column Excel Compare Mode:</span>
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="12" y1="6" x2="12.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="8" y1="11" x2="8.01" y2="11"></line><line x1="12" y1="11" x2="12.01" y2="11"></line><line x1="16" y1="11" x2="16.01" y2="11"></line></svg><span>Touchstone / UNICEDE® Occupancy Class Classifier</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg> 3-Column Excel Compare Mode:</span>
             <code>OccupancyCode [AR] | Building Description [AS] | Occupancy Description [AT]</code>
           </div>
         </div>
@@ -740,7 +906,7 @@
         <div class="rule-group">
           <div class="rule-label">
             <span>UNICEDE® Code Ranges</span>
-            <span class="tab-badge" style="background: rgba(139, 92, 246, 0.2); color: #c084fc;">Official Schema</span>
+            <span class="tab-badge">Official Schema</span>
           </div>
           <div class="occ-badges-container">
             <span class="occ-badge-pill" title="300: Unknown occupancy">300: Unknown</span>
@@ -794,9 +960,9 @@
     <section class="rules-card" id="construction-rules-panel" style="display: none;">
       <div class="rules-header">
         <div class="rules-title-area">
-          <h2>🏗️ Touchstone / UNICEDE® Construction Class Classifier</h2>
-          <div class="protect-banner" style="background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); color: #fbbf24;">
-            <span>📋 3-Column Excel Compare Mode:</span>
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg><span>Touchstone / UNICEDE® Construction Class Classifier</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg> 3-Column Excel Compare Mode:</span>
             <code>Existing ConstructionCode [AR] | Building / Structure Type [AS] | Construction / Material Description [AT]</code>
           </div>
         </div>
@@ -846,7 +1012,7 @@
         <div class="rule-group">
           <div class="rule-label">
             <span>UNICEDE® Construction Categories</span>
-            <span class="tab-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">224 Codes</span>
+            <span class="tab-badge">224 Codes</span>
           </div>
           <div class="occ-badges-container">
             <span class="occ-badge-pill" title="100: Unknown construction">100: Unknown</span>
@@ -899,9 +1065,9 @@
     <section class="rules-card" id="year-rules-panel" style="display: none;">
       <div class="rules-header">
         <div class="rules-title-area">
-          <h2>📅 Year Built Range Validator &amp; Cleaner</h2>
-          <div class="protect-banner" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3); color: var(--accent-emerald-light);">
-            <span>🛡️ Validation Rule:</span>
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>Year Built Range Validator &amp; Cleaner</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Validation Rule:</span>
             <code>1753 &le; Year Built &le; Current Year (2026) • Multi-Year: Pick Older Year</code>
           </div>
         </div>
@@ -917,7 +1083,7 @@
         <div class="rule-group">
           <div class="rule-label">
             <span>Range Constraints &amp; Rules</span>
-            <span class="tab-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">Strict Filter</span>
+            <span class="tab-badge">Strict Filter</span>
           </div>
           <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
             <div>• Minimum Year: <strong style="color: #fff;">1753</strong> (<span style="color: #f87171;">&lt; 1753 becomes blank</span>)</div>
@@ -960,9 +1126,9 @@
     <section class="rules-card" id="roof-year-rules-panel" style="display: none;">
       <div class="rules-header">
         <div class="rules-title-area">
-          <h2>🏚️ Roof Year Built Underwriting Validator</h2>
-          <div class="protect-banner" style="background: rgba(244, 63, 94, 0.12); border-color: rgba(244, 63, 94, 0.3); color: #fb7185;">
-            <span>🛡️ Underwriting Rule:</span>
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><circle cx="12" cy="13" r="3"></circle></svg><span>Roof Year Built Underwriting Validator</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Underwriting Rule:</span>
             <code>Without Year Built ➔ Blank • Roof Year is NEVER less than Year Built, but it can equal (Roof Year &ge; Year Built)</code>
           </div>
         </div>
@@ -972,7 +1138,7 @@
         <div class="rule-group">
           <div class="rule-label">
             <span>Core Validation Rules</span>
-            <span class="tab-badge" style="background: rgba(244, 63, 94, 0.2); color: #fb7185;">Strict Underwriting</span>
+            <span class="tab-badge">Strict Underwriting</span>
           </div>
           <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
             <div>• <strong>Multi-Year Roof (e.g. 2005/2006):</strong> Pick <strong>GREATER</strong> value (2006) and check Year Built not greater than Roof Year</div>
@@ -1026,9 +1192,9 @@
     <section class="rules-card" id="roof-rules-panel" style="display: none;">
       <div class="rules-header">
         <div class="rules-title-area">
-          <h2>🏠 Touchstone UNICEDE® Roof Detail Classifier</h2>
-          <div class="protect-banner" style="background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa;">
-            <span>🛡️ 4 Output Columns:</span>
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></svg><span>Touchstone UNICEDE® Roof Detail Classifier</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> 4 Output Columns:</span>
             <code>1. ROOF GEOMETRY | 2. ROOF PITCH | 3. ROOF COVERING | 4. ROOF DECK</code>
           </div>
         </div>
@@ -1077,7 +1243,7 @@
         <div class="rule-group">
           <div class="rule-label">
             <span>UNICEDE® Classification Engine</span>
-            <span class="tab-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">Multi-Component Parser</span>
+            <span class="tab-badge">Multi-Component Parser</span>
           </div>
           <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
             <div>• <strong>Geometry:</strong> Flat (1), Gable (2/8), Hip (3), Complex (4), Stepped (5), Shed (6), Mansard (7), Pyramid (9), Gambrel (10)</div>
@@ -1090,7 +1256,7 @@
         <div class="rule-group">
           <div class="rule-label">
             <span>Underwriting Multi-Component Rules</span>
-            <span class="tab-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">Higher % &bull; Weaker Material</span>
+            <span class="tab-badge">Higher % &bull; Weaker Material</span>
           </div>
           <div style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
             <div>&bull; <strong style="color: #60a5fa;">Rule 1 (With %):</strong> If percentages are specified, pick the <strong>higher %</strong> (e.g. <code>FLAT 20%, GABLE 80%</code> &rarr; Gable <code>2</code>).</div>
@@ -1124,9 +1290,9 @@
     <section class="rules-card" id="wall-rules-panel" style="display: none;">
       <div class="rules-header">
         <div class="rules-title-area">
-          <h2>🧱 Touchstone UNICEDE® Exterior Wall Detail Classifier</h2>
-          <div class="protect-banner" style="background: rgba(234, 88, 12, 0.12); border-color: rgba(234, 88, 12, 0.3); color: #fb923c;">
-            <span>🛡️ 2 Output Columns:</span>
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg><span>Touchstone UNICEDE® Exterior Wall Detail Classifier</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> 2 Output Columns:</span>
             <code>1. WallType (Backing / Structure) | 2. WallSiding (Weather Finish)</code>
           </div>
         </div>
@@ -1178,7 +1344,7 @@
         <div class="rule-group">
           <div class="rule-label">
             <span>UNICEDE® Wall Taxonomy</span>
-            <span class="tab-badge" style="background: rgba(234, 88, 12, 0.2); color: #fb923c;">Dual-Component Parser</span>
+            <span class="tab-badge">Dual-Component Parser</span>
           </div>
           <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
             <div>• <strong>WallType:</strong> Brick/URM (1), Reinforced Masonry/CMU (2), Plywood (3), Wood Planks (4), OSB (5), Metal Panels (6), Pre-cast Concrete (7), Cast-in-place Concrete (8), Gypsum Board (9)</div>
@@ -1189,7 +1355,7 @@
         <div class="rule-group">
           <div class="rule-label">
             <span>Underwriting Multi-Component Rules</span>
-            <span class="tab-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light);">Higher % • Weaker Material</span>
+            <span class="tab-badge">Higher % • Weaker Material</span>
           </div>
           <div style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
             <div>&bull; <strong style="color: #60a5fa;">Rule 1 (With %):</strong> If percentages are specified, pick the <strong>higher %</strong> (e.g. <code>70% Brick Veneer, 30% Vinyl</code> &rarr; Brick Veneer <code>1</code>).</div>
@@ -1224,9 +1390,9 @@
     <section class="rules-card" id="street-rules-panel">
       <div class="rules-header">
         <div class="rules-title-area">
-          <h2>🏠 Street Address Cleaning Rules</h2>
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg><span>Street Address Cleaning Rules</span></h2>
           <div class="protect-banner" id="protect-banner">
-            <span>🛡️ Number Range Hyphens Protected:</span>
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Number Range Hyphens Protected:</span>
             <code>145-146 MIRAMAR BOULEVARD</code>
           </div>
         </div>
@@ -1302,24 +1468,29 @@
       <section class="pane" id="raw-pane">
         <div class="pane-header">
           <div class="pane-title-group">
-            <h3 id="raw-pane-title">📥 Raw Excel Column Input</h3>
+            <h3 id="raw-pane-title"><svg class="studio-pane-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg><span>Raw Excel Column Input</span></h3>
             <span class="row-badge" id="raw-count-badge">0 rows</span>
           </div>
           <div class="pane-actions">
             <button id="btn-paste-2col" class="btn btn-primary btn-sm" title="Paste 2 Excel columns (Year Built & Roof Year) directly from clipboard" style="display: none;">
-              📋 Paste 2 Columns
+              <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Paste 2 Columns</span>
             </button>
             <button id="btn-paste-3col" class="btn btn-primary btn-sm" title="Paste 3 Excel columns (AR, AS, AT) directly from clipboard" style="display: none;">
-              📋 Paste 3 Columns
+              <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Paste 3 Columns</span>
             </button>
             <button id="btn-paste-clipboard" class="btn btn-secondary btn-sm" title="Paste data directly from clipboard">
-              📋 Paste
+              <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+              <span>Paste</span>
             </button>
             <button id="btn-input-code-finder" class="btn btn-secondary btn-sm" title="Open Touchstone UNICEDE® Code &amp; Description Finder">
-              🔍 Code Finder
+              <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <span>Code Finder</span>
             </button>
             <label for="file-upload-input" class="btn btn-secondary btn-sm" style="cursor: pointer;" title="Upload Excel or CSV file">
-              📁 Import File
+              <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <span>Import File</span>
             </label>
             <input type="file" id="file-upload-input" accept=".xlsx,.xls,.csv,.txt" style="display: none;" />
           </div>
@@ -1369,7 +1540,7 @@
           <!-- Column 2: Building Description (AS) -->
           <div class="occ-col-input-card occ-col-bldg">
             <div class="occ-col-header">
-              <span class="occ-col-badge" style="background: rgba(6, 182, 212, 0.2); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.4);">Col 2 • AS</span>
+              <span class="occ-col-badge">Col 2 • AS</span>
               <div class="occ-col-title-wrapper" title="Click to rename Column 2">
                 <input type="text" id="occ-col-2-input" class="occ-col-name-input" value="Building Description" placeholder="Col 2 Name..." spellcheck="false" title="Click to rename Column 2" />
                 <span class="occ-col-edit-icon" title="Click to rename">✏️</span>
@@ -1388,7 +1559,7 @@
           <!-- Column 3: Occupancy Description / Construction Description (AT) -->
           <div class="occ-col-input-card occ-col-occ">
             <div class="occ-col-header">
-              <span class="occ-col-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light); border-color: rgba(16, 185, 129, 0.4);">Col 3 • AT</span>
+              <span class="occ-col-badge">Col 3 • AT</span>
               <div class="occ-col-title-wrapper" title="Click to rename Column 3">
                 <input type="text" id="occ-col-3-input" class="occ-col-name-input" value="Occupancy Description" placeholder="Col 3 Name..." spellcheck="false" title="Click to rename Column 3" />
                 <span class="occ-col-edit-icon" title="Click to rename">✏️</span>
@@ -1410,7 +1581,7 @@
           <!-- Column 1: Year Built -->
           <div class="occ-col-input-card">
             <div class="occ-col-header">
-              <span class="occ-col-badge" style="background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald-light); border-color: rgba(16, 185, 129, 0.4);">Col 1 • Year Built</span>
+              <span class="occ-col-badge">Col 1 • Year Built</span>
               <div class="occ-col-title-wrapper" title="Year Built (Required Base Year)">
                 <input type="text" id="roof-year-col-1-input" class="occ-col-name-input" value="Year Built" placeholder="Col 1 Name..." spellcheck="false" title="Column 1: Year Built" />
               </div>
@@ -1428,7 +1599,7 @@
           <!-- Column 2: Roof Year Built -->
           <div class="occ-col-input-card">
             <div class="occ-col-header">
-              <span class="occ-col-badge" style="background: rgba(244, 63, 94, 0.2); color: #fb7185; border-color: rgba(244, 63, 94, 0.4);">Col 2 • Roof Year Built</span>
+              <span class="occ-col-badge">Col 2 • Roof Year Built</span>
               <div class="occ-col-title-wrapper" title="Roof Year Built">
                 <input type="text" id="roof-year-col-2-input" class="occ-col-name-input" value="Roof Year Built" placeholder="Col 2 Name..." spellcheck="false" title="Column 2: Roof Year Built" />
               </div>
@@ -1477,15 +1648,17 @@
       <section class="pane" id="output-pane">
         <div class="pane-header">
           <div class="pane-title-group">
-            <h3>✨ Cleaned Output Column</h3>
+            <h3><svg class="studio-pane-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg><span>Cleaned Output Column</span></h3>
             <span class="row-badge" id="clean-count-badge">0 rows</span>
           </div>
           <div class="pane-actions">
             <button id="btn-view-table" class="radio-pill active btn-sm" title="View as comparison table with row status">
-              📊 Diff Table
+              <svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+              <span>Diff Table</span>
             </button>
             <button id="btn-view-text" class="radio-pill btn-sm" title="View as selectable multiline text">
-              📝 Text
+              <svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+              <span>Text</span>
             </button>
           </div>
         </div>
@@ -1507,10 +1680,12 @@
               <span>Copy for Excel</span>
             </button>
             <button id="btn-download-xlsx-top" class="btn btn-excel btn-sm btn-download-xlsx" title="Download directly as Microsoft Excel spreadsheet (.xlsx)">
-              📥 Excel (.xlsx)
+              <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg>
+              <span>Excel (.xlsx)</span>
             </button>
             <button id="btn-download-csv-top" class="btn btn-secondary btn-sm btn-download-csv" title="Download as standard CSV file">
-              📄 CSV
+              <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              <span>CSV</span>
             </button>
           </div>
         </div>
@@ -1565,10 +1740,12 @@
               <span>Copy for Excel</span>
             </button>
             <button id="btn-download-xlsx" class="btn btn-excel btn-sm btn-download-xlsx" title="Download directly as Microsoft Excel spreadsheet (.xlsx)">
-              📥 Excel (.xlsx)
+              <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg>
+              <span>Excel (.xlsx)</span>
             </button>
             <button id="btn-download-csv" class="btn btn-secondary btn-sm btn-download-csv" title="Download as standard CSV file">
-              📄 CSV
+              <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+              <span>CSV</span>
             </button>
           </div>
         </div>
@@ -1650,10 +1827,10 @@
       <div class="modal-body">
         <!-- Section Tabs -->
         <div class="explorer-tabs-bar">
-          <button type="button" class="explorer-tab active" data-tab="occupancy">🏢 Occupancy Codes</button>
-          <button type="button" class="explorer-tab" data-tab="construction">🏗️ Construction Codes</button>
-          <button type="button" class="explorer-tab" data-tab="roof">🏠 Roof Details</button>
-          <button type="button" class="explorer-tab" data-tab="wall">🧱 Exterior Wall</button>
+          <button type="button" class="explorer-tab active" data-tab="occupancy"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="12" y1="6" x2="12.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="8" y1="11" x2="8.01" y2="11"></line><line x1="12" y1="11" x2="12.01" y2="11"></line><line x1="16" y1="11" x2="16.01" y2="11"></line></svg><span>Occupancy Codes</span></button>
+          <button type="button" class="explorer-tab" data-tab="construction"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg><span>Construction Codes</span></button>
+          <button type="button" class="explorer-tab" data-tab="roof"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></svg><span>Roof Details</span></button>
+          <button type="button" class="explorer-tab" data-tab="wall"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg><span>Exterior Wall</span></button>
         </div>
 
         <!-- Search Bar & Controls -->

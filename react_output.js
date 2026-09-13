@@ -332,9 +332,27 @@
     // Handle empty state
     if (results.length === 0) {
       return e('div', { className: 'empty-state-card', id: 'empty-placeholder' },
-        e('div', { className: 'empty-icon' }, '📋'),
-        e('h3', null, 'Awaiting Schedule Data'),
-        e('p', null, 'Paste raw Excel column data on the left or click "Load Sample" above to run the active cleaning engine.'),
+        e('div', { className: 'empty-state-visual' },
+          e('div', { className: 'empty-state-halo' }),
+          e('svg', {
+            className: 'empty-state-svg',
+            viewBox: '0 0 64 64',
+            width: 64,
+            height: 64,
+            fill: 'none',
+            stroke: 'currentColor'
+          },
+            e('rect', { x: 10, y: 8, width: 44, height: 48, rx: 8, stroke: 'rgba(255, 255, 255, 0.4)', strokeWidth: '1.5', fill: 'rgba(255, 255, 255, 0.03)' }),
+            e('line', { x1: 18, y1: 20, x2: 46, y2: 20, stroke: 'rgba(255, 255, 255, 0.9)', strokeWidth: '2', strokeLinecap: 'round' }),
+            e('line', { x1: 18, y1: 28, x2: 38, y2: 28, stroke: 'rgba(255, 255, 255, 0.55)', strokeWidth: '1.5', strokeLinecap: 'round' }),
+            e('line', { x1: 18, y1: 36, x2: 42, y2: 36, stroke: 'rgba(255, 255, 255, 0.55)', strokeWidth: '1.5', strokeLinecap: 'round' }),
+            e('line', { x1: 18, y1: 44, x2: 32, y2: 44, stroke: 'rgba(255, 255, 255, 0.35)', strokeWidth: '1.5', strokeLinecap: 'round' }),
+            e('line', { className: 'empty-svg-scanner', x1: 14, y1: 16, x2: 50, y2: 16, stroke: '#ffffff', strokeWidth: '2', strokeLinecap: 'round' }),
+            e('circle', { cx: 46, cy: 46, r: 4, fill: '#ffffff', stroke: 'rgba(255, 255, 255, 0.5)', strokeWidth: '2' })
+          )
+        ),
+        e('h3', { className: 'empty-state-title' }, 'Awaiting Schedule Data'),
+        e('p', { className: 'empty-state-desc' }, 'Paste raw Excel column data on the left or click "Load Sample" above to run the active cleaning engine.'),
         e('div', { className: 'empty-chips' },
           e('span', { className: 'empty-state-chip' }, '⚡ 0ms In-Memory Processing'),
           e('span', { className: 'empty-state-chip' }, '🎯 Touchstone UNICEDE® Codes'),
