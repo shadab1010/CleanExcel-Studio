@@ -1409,12 +1409,19 @@
         <div class="rule-group">
           <div class="rule-label">
             <span>Symbols Removed</span>
-            <span class="tab-badge">29 Special Characters</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="tab-badge" id="symbols-count-badge">29 Special Characters</span>
+              <button type="button" class="btn-reset-symbols" id="btn-reset-symbols" title="Reset symbols to standard 29 punctuation characters">↺ Reset</button>
+            </div>
           </div>
-          <div class="symbols-preview" id="symbols-preview" title="All specified noise punctuation">
-            , . / &lt; &gt; ? ; ' : \ " | [ ] { } = + - _ ( ) # % ^ * @ !
+          <div class="symbols-chips-container" id="symbols-chips-container" title="Click × on any symbol to keep it, or type below to add new symbols">
+            <!-- Populated dynamically as interactive chips -->
           </div>
-          <label class="checkbox-toggle" style="margin-top: 4px;">
+          <div class="tag-input-wrapper symbol-input-wrapper" style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+            <input type="text" id="new-symbol-input" class="tag-input symbol-tag-input" placeholder="+ Add symbol(s)" maxlength="30" title="Type any symbol(s) and press Enter to add" />
+            <span style="font-size: 11px; color: var(--text-muted);">Press Enter to add</span>
+          </div>
+          <label class="checkbox-toggle" style="margin-top: 8px;">
             <input type="checkbox" id="preserve-hyphen-checkbox" checked>
             <span>Protect hyphens in number ranges (e.g. 145-146)</span>
           </label>

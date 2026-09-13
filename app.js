@@ -7,7 +7,7 @@ const AppState = {
   activeColumnId: 'street',
   // Street cleaner options
   wordsToRemove: JSON.parse(localStorage.getItem('cleanexcel_words_to_remove') || 'null') || ['street', 'builfin', 'building', 'unit', 'st', 'bldg'],
-  symbolsToRemove: String.raw`,./<>?;'\:"|[]{}=+-_()#$%^&*@!`.split(''),
+  symbolsToRemove: JSON.parse(localStorage.getItem('cleanexcel_symbols_to_remove') || 'null') || (window.StreetCleaner ? window.StreetCleaner.defaultSymbols.slice() : [',', '.', '/', '<', '>', '?', ';', "'", '\\', ':', '"', '|', '[', ']', '{', '}', '=', '+', '-', '_', '(', ')', '#', '$', '%', '^', '&', '*', '@', '!']),
   preserveNumberHyphen: true,
   extractPrimaryAddress: true,
   stripBldgPrefix: true,
@@ -59,6 +59,7 @@ const AppState = {
   codeFilter: 'all',
   lastCleanedData: []
 };
+window.AppState = AppState;
 
 // Sample datasets for testing
 const SampleDatasets = {
@@ -280,6 +281,10 @@ let charsRemovedEl;
 let rowsCleanedEl;
 let wordsTagsContainerEl;
 let newWordInputEl;
+let symbolsChipsContainerEl;
+let newSymbolInputEl;
+let symbolsCountBadgeEl;
+let btnResetSymbolsEl;
 let preserveHyphenCheckboxEl;
 let extractPrimaryCheckboxEl;
 let stripBldgCheckboxEl;
@@ -353,6 +358,10 @@ document.addEventListener('DOMContentLoaded', () => {
   rowsCleanedEl = document.getElementById('stat-rows-cleaned');
   wordsTagsContainerEl = document.getElementById('words-tags-container');
   newWordInputEl = document.getElementById('new-word-input');
+  symbolsChipsContainerEl = document.getElementById('symbols-chips-container');
+  newSymbolInputEl = document.getElementById('new-symbol-input');
+  symbolsCountBadgeEl = document.getElementById('symbols-count-badge');
+  btnResetSymbolsEl = document.getElementById('btn-reset-symbols');
   preserveHyphenCheckboxEl = document.getElementById('preserve-hyphen-checkbox');
   extractPrimaryCheckboxEl = document.getElementById('extract-primary-checkbox');
   stripBldgCheckboxEl = document.getElementById('strip-bldg-checkbox');
@@ -416,6 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize UI
   renderWordTags();
+  renderSymbolChips();
   bindEvents();
   updateLineNumbers();
   updateStatusFilterOptions();
@@ -1245,6 +1255,27 @@ function bindEvents() {
     });
   }
 
+  // Add new symbol(s) to remove on Enter or blur
+  if (newSymbolInputEl) {
+    newSymbolInputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addSymbolsFromInput();
+      }
+    });
+  }
+
+  // Reset symbols to default characters
+  if (btnResetSymbolsEl) {
+    btnResetSymbolsEl.addEventListener('click', () => {
+      AppState.symbolsToRemove = (window.StreetCleaner ? window.StreetCleaner.defaultSymbols.slice() : [',', '.', '/', '<', '>', '?', ';', "'", '\\', ':', '"', '|', '[', ']', '{', '}', '=', '+', '-', '_', '(', ')', '#', '$', '%', '^', '&', '*', '@', '!']);
+      saveSymbolsToStorage();
+      renderSymbolChips();
+      processCleaning();
+      showToast('Reset to default symbols', '↺');
+    });
+  }
+
   // Load sample button
   const loadSampleBtn = document.getElementById('btn-load-sample');
   if (loadSampleBtn) {
@@ -1807,6 +1838,88 @@ function saveWordsToStorage() {
   try {
     localStorage.setItem('cleanexcel_words_to_remove', JSON.stringify(AppState.wordsToRemove));
   } catch (e) { /* storage not available */ }
+}
+
+function saveSymbolsToStorage() {
+  try {
+    localStorage.setItem('cleanexcel_symbols_to_remove', JSON.stringify(AppState.symbolsToRemove));
+  } catch (e) { /* storage not available */ }
+}
+
+function renderSymbolChips() {
+  if (!symbolsChipsContainerEl) return;
+  symbolsChipsContainerEl.innerHTML = '';
+
+  const symbols = AppState.symbolsToRemove || [];
+  if (symbolsCountBadgeEl) {
+    symbolsCountBadgeEl.textContent = `${symbols.length} Special Character${symbols.length === 1 ? '' : 's'}`;
+  }
+
+  if (symbols.length === 0) {
+    const emptySpan = document.createElement('span');
+    emptySpan.style.cssText = 'color: var(--text-muted); font-size: 11px; font-style: italic; padding: 4px;';
+    emptySpan.textContent = 'No symbols configured. Punctuation will not be stripped.';
+    symbolsChipsContainerEl.appendChild(emptySpan);
+    return;
+  }
+
+  symbols.forEach((sym) => {
+    const chip = document.createElement('span');
+    chip.className = 'symbol-chip';
+    chip.title = `Symbol: '${sym}' (Click × to remove)`;
+
+    const charSpan = document.createElement('span');
+    charSpan.className = 'symbol-char';
+    charSpan.textContent = sym;
+
+    const removeSpan = document.createElement('span');
+    removeSpan.className = 'remove-symbol';
+    removeSpan.title = `Remove '${sym}' from stripping list`;
+    removeSpan.textContent = '×';
+
+    removeSpan.addEventListener('click', (e) => {
+      e.stopPropagation();
+      AppState.symbolsToRemove = AppState.symbolsToRemove.filter(s => s !== sym);
+      saveSymbolsToStorage();
+      renderSymbolChips();
+      processCleaning();
+      showToast(`Removed symbol '${sym}'`, '🗑️');
+    });
+
+    chip.appendChild(charSpan);
+    chip.appendChild(removeSpan);
+    symbolsChipsContainerEl.appendChild(chip);
+  });
+}
+
+function addSymbolsFromInput() {
+  if (!newSymbolInputEl) return;
+  const raw = newSymbolInputEl.value;
+  if (!raw) return;
+
+  // Split into unique non-whitespace characters
+  const chars = raw.split('').filter(c => !/\s/.test(c));
+  if (chars.length === 0) return;
+
+  let addedCount = 0;
+  const current = new Set(AppState.symbolsToRemove || []);
+  chars.forEach(c => {
+    if (!current.has(c)) {
+      current.add(c);
+      addedCount++;
+    }
+  });
+
+  if (addedCount > 0) {
+    AppState.symbolsToRemove = Array.from(current);
+    saveSymbolsToStorage();
+    renderSymbolChips();
+    processCleaning();
+    showToast(`Added ${addedCount} symbol${addedCount === 1 ? '' : 's'} to removal list`, '✨');
+  } else {
+    showToast('Symbol(s) already in the removal list', 'ℹ️');
+  }
+  newSymbolInputEl.value = '';
 }
 
 function renderWordTags() {
