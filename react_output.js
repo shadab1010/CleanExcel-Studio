@@ -160,6 +160,48 @@
       occupancy: { col1: 'Existing Code', col2: 'Building Description', col3: 'Occupancy Description' },
       construction: { col1: 'Existing Code', col2: 'Building Type', col3: 'Construction Description' }
     });
+    const [copiedRowId, setCopiedRowId] = useState(null);
+
+    // Individual copy helper with toast notification & button feedback
+    const handleCopyValue = useCallback((val, rowId, label = '') => {
+      if (val === undefined || val === null) return;
+      const str = String(val).trim();
+      if (!str) return;
+
+      const onSuccess = () => {
+        if (window.showToast) {
+          window.showToast(`Copied ${label ? label + ' ' : ''}"${str}" to clipboard!`, '📋');
+        }
+        setCopiedRowId(rowId);
+        setTimeout(() => {
+          setCopiedRowId(prev => prev === rowId ? null : prev);
+        }, 1800);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(str).then(onSuccess).catch(() => {
+          fallbackCopy(str, onSuccess);
+        });
+      } else {
+        fallbackCopy(str, onSuccess);
+      }
+    }, []);
+
+    const fallbackCopy = (str, cb) => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = str;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (cb) cb();
+      } catch (e) {
+        if (window.showToast) window.showToast(`${str}`, 'ℹ️');
+      }
+    };
 
     // Expose React update triggers globally
     useEffect(() => {
@@ -400,7 +442,7 @@
                   e('th', { key: 'code', style: { width: '115px', textAlign: 'center' } }, 'Touchstone Code'),
                   e('th', { key: 'cat' }, 'Touchstone Category'),
                   e('th', { key: 'status', style: { width: '110px', textAlign: 'center' } }, 'Status'),
-                  e('th', { key: 'lookup', style: { width: '65px', textAlign: 'right' } }, 'Lookup')
+                  e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
                 ],
                 isRoof && [
                   e('th', { key: 'raw', style: { width: '25%' } }, 'Raw Roof Input'),
@@ -410,34 +452,60 @@
                   e('th', { key: 'deck', style: { width: '11%', textAlign: 'center' } }, '4. Roof Deck'),
                   e('th', { key: 'anchor', style: { width: '11%', textAlign: 'center' } }, '5. Roof Anchor'),
                   e('th', { key: 'status', style: { width: '110px', textAlign: 'center' } }, 'Status'),
-                  e('th', { key: 'lookup', style: { width: '65px', textAlign: 'right' } }, 'Info')
+                  e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
                 ],
                 isWall && [
                   e('th', { key: 'raw', style: { width: '38%' } }, 'Raw Exterior Wall Input'),
                   e('th', { key: 'wallType', style: { width: '22%', textAlign: 'center' } }, '1. WallType (Backing / Structure)'),
                   e('th', { key: 'wallSiding', style: { width: '22%', textAlign: 'center' } }, '2. WallSiding (Weather Finish)'),
                   e('th', { key: 'status', style: { width: '110px', textAlign: 'center' } }, 'Status'),
-                  e('th', { key: 'lookup', style: { width: '65px', textAlign: 'right' } }, 'Info')
+                  e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
                 ],
                 isRoofYear && [
                   e('th', { key: 'yb', style: { width: '20%' } }, '1. Year Built (Input)'),
                   e('th', { key: 'ry', style: { width: '20%' } }, '2. Roof Year Built (Input)'),
-                  e('th', { key: 'clean', style: { width: '25%' } }, 'Cleaned Roof Year (Excel Column)'),
-                  e('th', { key: 'status', style: { width: '160px', textAlign: 'center' } }, 'Validation Status'),
-                  e('th', { key: 'lookup', style: { width: '75px', textAlign: 'right' } }, 'Info')
+                  e('th', { key: 'clean', style: { width: '26%' } },
+                    e('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' } },
+                      e('span', null, 'Cleaned Roof Year'),
+                      e('button', {
+                        type: 'button',
+                        className: 'btn-col-header-copy',
+                        title: 'Copy Cleaned Roof Year column for Excel',
+                        onClick: (evt) => {
+                          evt.stopPropagation();
+                          if (window.copyForExcel) window.copyForExcel();
+                        }
+                      }, '📋 Copy Column')
+                    )
+                  ),
+                  e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                  e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
                 ],
                 isSplit && [
                   e('th', { key: 'st', style: { width: '32%' } }, 'STREET'),
                   e('th', { key: 'city' }, 'City'),
                   e('th', { key: 'state', style: { width: '55px', textAlign: 'center' } }, 'State'),
                   e('th', { key: 'postal', style: { width: '75px' } }, 'Postal'),
-                  e('th', { key: 'maps', style: { width: '75px', textAlign: 'right' } }, 'Maps')
+                  e('th', { key: 'actions', style: { width: '125px', textAlign: 'right' } }, 'Actions')
                 ],
                 (!isConstruction && !isOccupancy && !isSplit && !isRoof && !isWall && !isRoofYear) && [
-                  e('th', { key: 'raw', style: { width: '40%' } }, activeColumnId === 'year' ? 'Raw Input Year' : 'Raw Input'),
-                  e('th', { key: 'clean' }, activeColumnId === 'year' ? 'Cleaned Year (1753–2026)' : 'Cleaned Result (Excel Column)'),
+                  e('th', { key: 'raw', style: { width: '38%' } }, activeColumnId === 'year' ? 'Raw Input Year' : 'Raw Input'),
+                  e('th', { key: 'clean' },
+                    e('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' } },
+                      e('span', null, activeColumnId === 'year' ? 'Cleaned Year (1753–2026)' : 'Cleaned Result (Excel Column)'),
+                      e('button', {
+                        type: 'button',
+                        className: 'btn-col-header-copy',
+                        title: activeColumnId === 'year' ? 'Copy all Cleaned Years for Excel' : 'Copy cleaned column for Excel',
+                        onClick: (evt) => {
+                          evt.stopPropagation();
+                          if (window.copyForExcel) window.copyForExcel();
+                        }
+                      }, '📋 Copy Column')
+                    )
+                  ),
                   e('th', { key: 'st', style: { width: '115px', textAlign: 'center' } }, 'Status'),
-                  e('th', { key: 'maps', style: { width: '75px', textAlign: 'right' } }, activeColumnId === 'year' ? 'Lookup' : 'Maps')
+                  e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
                 ]
               )
             ),
@@ -483,14 +551,22 @@
                       e('td', { style: { textAlign: 'center' } },
                         getStatusBadge(r.comparisonStatus, r.comparisonMessage, 'Assigned')
                       ),
-                      e('td', { className: 'td-actions' },
-                        fullSearch && e('a', {
-                          href: searchUrl,
-                          target: '_blank',
-                          rel: 'noopener noreferrer',
-                          className: 'btn-maps',
-                          title: 'Lookup Construction Definition'
-                        }, '🔍 Info')
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          r.conCode && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `con-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy Construction Code "${r.conCode}" to clipboard`,
+                            onClick: () => handleCopyValue(r.conCode, `con-${rowNum}`, 'Code')
+                          }, copiedRowId === `con-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          fullSearch && e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'Lookup Construction Definition'
+                          }, '🔍 Info')
+                        )
                       )
                     );
                   } else if (isOccupancy) {
@@ -520,14 +596,22 @@
                       e('td', { style: { textAlign: 'center' } },
                         getStatusBadge(r.comparisonStatus, r.comparisonMessage, 'Assigned')
                       ),
-                      e('td', { className: 'td-actions' },
-                        fullSearch && e('a', {
-                          href: searchUrl,
-                          target: '_blank',
-                          rel: 'noopener noreferrer',
-                          className: 'btn-maps',
-                          title: 'Lookup Occupancy Definition'
-                        }, '🔍 Info')
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          r.occCode && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `occ-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy Occupancy Code "${r.occCode}" to clipboard`,
+                            onClick: () => handleCopyValue(r.occCode, `occ-${rowNum}`, 'Code')
+                          }, copiedRowId === `occ-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          fullSearch && e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'Lookup Occupancy Definition'
+                          }, '🔍 Info')
+                        )
                       )
                     );
                   } else if (isRoof) {
@@ -579,14 +663,22 @@
                       e('td', { style: { textAlign: 'center' } },
                         getStatusBadge(r.status, r.statusText, r.statusText || 'Separated')
                       ),
-                      e('td', { className: 'td-actions' },
-                        e('a', {
-                          href: searchUrl,
-                          target: '_blank',
-                          rel: 'noopener noreferrer',
-                          className: 'btn-maps',
-                          title: 'View Touchstone UNICEDE® Roof Specifications'
-                        }, '🔍 Info')
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          (r.geometryCode || r.pitchCode || r.coveringCode || r.deckCode || r.anchorageCode) && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `rf-${rowNum}` ? 'copied' : ''}`,
+                            title: 'Copy 5 Roof Codes to clipboard',
+                            onClick: () => handleCopyValue([r.geometryCode || '0', r.pitchCode || '0', r.coveringCode || '0', r.deckCode || '0', r.anchorageCode || '0'].join('\t'), `rf-${rowNum}`, 'Roof Codes')
+                          }, copiedRowId === `rf-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'View Touchstone UNICEDE® Roof Specifications'
+                          }, '🔍 Info')
+                        )
                       )
                     );
                   } else if (isWall) {
@@ -614,14 +706,22 @@
                       e('td', { style: { textAlign: 'center' } },
                         getStatusBadge(r.status, r.statusText, r.statusText || 'Separated')
                       ),
-                      e('td', { className: 'td-actions' },
-                        e('a', {
-                          href: searchUrl,
-                          target: '_blank',
-                          rel: 'noopener noreferrer',
-                          className: 'btn-maps',
-                          title: 'View Touchstone UNICEDE® Wall Specifications'
-                        }, '🔍 Info')
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          (r.wallTypeCode || r.wallSidingCode) && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `wl-${rowNum}` ? 'copied' : ''}`,
+                            title: 'Copy Wall Codes (Type & Siding)',
+                            onClick: () => handleCopyValue([r.wallTypeCode || '0', r.wallSidingCode || '0'].join('\t'), `wl-${rowNum}`, 'Wall Codes')
+                          }, copiedRowId === `wl-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'View Touchstone UNICEDE® Wall Specifications'
+                          }, '🔍 Info')
+                        )
                       )
                     );
                   } else if (isRoofYear) {
@@ -672,18 +772,34 @@
                           fontSize: '13px',
                           color: r.cleaned ? 'var(--accent-emerald-light)' : 'var(--text-muted)'
                         }
-                      }, r.cleaned ? r.cleaned : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '11px' } }, '— (Blank)')),
+                      }, r.cleaned ? e('div', { style: { display: 'inline-flex', alignItems: 'center', gap: '6px' } },
+                        e('span', null, r.cleaned),
+                        e('button', {
+                          type: 'button',
+                          className: `btn-inline-copy ${copiedRowId === `ry-cell-${rowNum}` ? 'copied' : ''}`,
+                          title: `Copy roof year "${r.cleaned}"`,
+                          onClick: () => handleCopyValue(r.cleaned, `ry-cell-${rowNum}`, 'Roof Year')
+                        }, copiedRowId === `ry-cell-${rowNum}` ? '✓' : '📋')
+                      ) : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '11px' } }, '— (Blank)')),
                       e('td', { style: { textAlign: 'center' } },
                         getStatusBadge(badgeCls, r.statusText, badgeText)
                       ),
-                      e('td', { className: 'td-actions' },
-                        (r.yearBuilt || r.roofYearBuilt) && e('a', {
-                          href: searchUrl,
-                          target: '_blank',
-                          rel: 'noopener noreferrer',
-                          className: 'btn-maps',
-                          title: 'Search Property Year Info'
-                        }, '🔍 Info')
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          r.cleaned && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `ry-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy Cleaned Roof Year "${r.cleaned}" to clipboard`,
+                            onClick: () => handleCopyValue(r.cleaned, `ry-${rowNum}`, 'Roof Year')
+                          }, copiedRowId === `ry-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          (r.yearBuilt || r.roofYearBuilt) && e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'Search Property Year Info'
+                          }, '🔍 Info')
+                        )
                       )
                     );
                   } else if (isSplit) {
@@ -696,8 +812,16 @@
                       e('td', { className: 'td-city' }, r.city || '—'),
                       e('td', { className: 'td-state' }, r.state || '—'),
                       e('td', { className: 'td-postal' }, r.postal || '—'),
-                      e('td', { className: 'td-actions' },
-                        e('a', { href: mapsUrl, target: '_blank', rel: 'noopener noreferrer', className: 'btn-maps', title: 'View on Maps' }, '🗺️ Maps')
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          fullAddr && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `sp-${rowNum}` ? 'copied' : ''}`,
+                            title: 'Copy split address row to clipboard',
+                            onClick: () => handleCopyValue([r.street || '', r.city || '', r.state || '', r.postal || ''].join('\t'), `sp-${rowNum}`, 'Address')
+                          }, copiedRowId === `sp-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', { href: mapsUrl, target: '_blank', rel: 'noopener noreferrer', className: 'btn-maps', title: 'View on Maps' }, '🗺️ Maps')
+                        )
                       )
                     );
                   } else {
@@ -734,12 +858,40 @@
                           fontWeight: 'bold',
                           color: r.cleaned ? 'var(--accent-emerald-light)' : 'var(--text-muted)'
                         } : {}
-                      }, isYear ? (r.cleaned ? r.cleaned : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '11px' } }, '— (Blank)')) : (r.cleaned || '—')),
+                      }, isYear ? (
+                        r.cleaned ? e('div', { style: { display: 'inline-flex', alignItems: 'center', gap: '6px' } },
+                          e('span', null, r.cleaned),
+                          e('button', {
+                            type: 'button',
+                            className: `btn-inline-copy ${copiedRowId === `cell-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy year "${r.cleaned}"`,
+                            onClick: () => handleCopyValue(r.cleaned, `cell-${rowNum}`, 'Year')
+                          }, copiedRowId === `cell-${rowNum}` ? '✓' : '📋')
+                        ) : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '11px' } }, '— (Blank)')
+                      ) : (
+                        r.cleaned ? e('div', { style: { display: 'inline-flex', alignItems: 'center', gap: '6px' } },
+                          e('span', null, r.cleaned),
+                          e('button', {
+                            type: 'button',
+                            className: `btn-inline-copy ${copiedRowId === `cell-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy "${r.cleaned}"`,
+                            onClick: () => handleCopyValue(r.cleaned, `cell-${rowNum}`)
+                          }, copiedRowId === `cell-${rowNum}` ? '✓' : '📋')
+                        ) : (r.cleaned || '—')
+                      )),
                       e('td', { style: { textAlign: 'center' } }, getStatusBadge(statusKey, r.statusText || '', defaultText)),
-                      e('td', { className: 'td-actions' },
-                        r.cleaned && (isYear
-                          ? e('a', { href: searchUrl, target: '_blank', rel: 'noopener noreferrer', className: 'btn-maps', title: 'Search Year' }, '🔍 Info')
-                          : e('a', { href: mapsUrl, target: '_blank', rel: 'noopener noreferrer', className: 'btn-maps', title: 'View on Maps' }, '🗺️ Maps')
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          r.cleaned && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === rowNum ? 'copied' : ''}`,
+                            title: `Copy "${r.cleaned}" to clipboard`,
+                            onClick: () => handleCopyValue(r.cleaned, rowNum, isYear ? 'Year' : '')
+                          }, copiedRowId === rowNum ? '✓ Copied' : '📋 Copy'),
+                          r.cleaned && (isYear
+                            ? e('a', { href: searchUrl, target: '_blank', rel: 'noopener noreferrer', className: 'btn-maps', title: 'Search Year' }, '🔍 Info')
+                            : e('a', { href: mapsUrl, target: '_blank', rel: 'noopener noreferrer', className: 'btn-maps', title: 'View on Maps' }, '🗺️ Maps')
+                          )
                         )
                       )
                     );
