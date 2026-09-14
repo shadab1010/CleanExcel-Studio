@@ -279,6 +279,66 @@ const AddressSplitter = {
     "QUEBEC": "QC", "SASKATCHEWAN": "SK", "YUKON": "YT"
   },
 
+  AU_STATES: {
+    "NSW": "NSW", "NEW SOUTH WALES": "NSW",
+    "VIC": "VIC", "VICTORIA": "VIC",
+    "QLD": "QLD", "QUEENSLAND": "QLD",
+    "WA": "WA", "WESTERN AUSTRALIA": "WA",
+    "SA": "SA", "SOUTH AUSTRALIA": "SA",
+    "TAS": "TAS", "TASMANIA": "TAS",
+    "ACT": "ACT", "AUSTRALIAN CAPITAL TERRITORY": "ACT",
+    "NT": "NT", "NORTHERN TERRITORY": "NT"
+  },
+
+  UK_COUNTIES: [
+    // England Ceremonial & Historic
+    "Bedfordshire", "Berkshire", "Bristol", "Buckinghamshire", "Cambridgeshire",
+    "Cheshire", "City of London", "Cornwall", "Cumbria", "Derbyshire", "Devon",
+    "Dorset", "Durham", "County Durham", "East Riding of Yorkshire", "East Sussex",
+    "Essex", "Gloucestershire", "Greater London", "Greater Manchester", "Hampshire",
+    "Herefordshire", "Hertfordshire", "Isle of Wight", "Kent", "Lancashire",
+    "Leicestershire", "Lincolnshire", "Merseyside", "Norfolk", "North Yorkshire",
+    "Northamptonshire", "Northumberland", "Nottinghamshire", "Oxfordshire", "Rutland",
+    "Shropshire", "Somerset", "South Yorkshire", "Staffordshire", "Suffolk",
+    "Surrey", "Tyne and Wear", "Warwickshire", "West Midlands", "West Sussex",
+    "West Yorkshire", "Wiltshire", "Worcestershire", "Yorkshire",
+    // Scotland
+    "Aberdeenshire", "Angus", "Argyll", "Argyll and Bute", "Ayrshire", "East Ayrshire",
+    "North Ayrshire", "South Ayrshire", "Banffshire", "Berwickshire", "Bute",
+    "Caithness", "Clackmannanshire", "Dumfriesshire", "Dumfries and Galloway",
+    "Dunbartonshire", "East Dunbartonshire", "West Dunbartonshire", "East Lothian",
+    "Falkirk", "Fife", "Highland", "Inverness-shire", "Inverclyde", "Kincardineshire",
+    "Kinross-shire", "Kirkcudbrightshire", "Lanarkshire", "North Lanarkshire",
+    "South Lanarkshire", "Midlothian", "Moray", "Nairnshire", "Orkney", "Peeblesshire",
+    "Perthshire", "Perth and Kinross", "Renfrewshire", "East Renfrewshire",
+    "Ross and Cromarty", "Roxburghshire", "Scottish Borders", "Selkirkshire",
+    "Shetland", "Stirlingshire", "Sutherland", "West Lothian", "Western Isles",
+    // Wales
+    "Anglesey", "Isle of Anglesey", "Blaenau Gwent", "Bridgend", "Caerphilly",
+    "Cardiff", "Carmarthenshire", "Ceredigion", "Cardiganshire", "Conwy",
+    "Denbighshire", "Flintshire", "Glamorgan", "South Glamorgan", "Mid Glamorgan",
+    "West Glamorgan", "Gwynedd", "Merthyr Tydfil", "Monmouthshire", "Gwent",
+    "Neath Port Talbot", "Newport", "Pembrokeshire", "Powys", "Rhondda Cynon Taf",
+    "Swansea", "Torfaen", "Vale of Glamorgan", "Wrexham", "Clwyd", "Dyfed",
+    // Northern Ireland
+    "Antrim", "County Antrim", "Armagh", "County Armagh", "Down", "County Down",
+    "Fermanagh", "County Fermanagh", "Londonderry", "Derry", "County Londonderry",
+    "Tyrone", "County Tyrone"
+  ],
+
+  STREET_SUFFIXES: [
+    "Street", "St", "Road", "Rd", "Avenue", "Ave", "Lane", "Ln", "Drive", "Dr",
+    "Way", "Close", "Cl", "Court", "Ct", "Crescent", "Cres", "Place", "Pl",
+    "Terrace", "Ter", "Gardens", "Gdns", "Garden", "Gdn", "Hill", "Park", "Pk",
+    "Row", "Square", "Sq", "Mews", "Walk", "Yard", "Parade", "Rise", "Vale",
+    "Grove", "Gr", "Wharf", "Gate", "End", "Bank", "Alley", "Broadway", "Circus",
+    "Highway", "Hwy", "Boulevard", "Blvd", "View", "Villas", "Villa", "Mead",
+    "Meadow", "Meadows", "Green", "Grange", "Quay", "Ridge", "Approach", "Brae",
+    "Bypass", "Chase", "Common", "Corner", "Croft", "Cross", "Dell", "Field",
+    "Fields", "Fold", "Heath", "Heights", "Isle", "Mount", "Orchard", "Path",
+    "Reach", "Ride", "Side", "Track", "Water", "Wynd", "Broad", "Passage"
+  ],
+
   US_STATES: {
     "AL": "AL", "AK": "AK", "AZ": "AZ", "AR": "AR", "CA": "CA", "CO": "CO", "CT": "CT", "DE": "DE",
     "FL": "FL", "GA": "GA", "HI": "HI", "ID": "ID", "IL": "IL", "IN": "IN", "IA": "IA", "KS": "KS",
@@ -346,14 +406,16 @@ const AddressSplitter = {
     "MX": "Mexico", "MEXICO": "Mexico"
   },
 
-  formatCountry(countryStr, format = 'iso2') {
-    if (!countryStr) return '';
-    const upper = String(countryStr).trim().toUpperCase();
+  formatCountry(countryStr, format = 'iso2', rawCountry = '') {
+    if (!countryStr && !rawCountry) return '';
+    if (format === 'original' && rawCountry) return rawCountry;
+    const target = countryStr || rawCountry;
+    const upper = String(target).trim().toUpperCase();
     if (format === 'fullname') {
-      return this.FULLNAME_MAP[upper] || countryStr;
+      return this.FULLNAME_MAP[upper] || target;
     }
     if (format === 'iso2-uk') {
-      if (upper === 'GB' || upper === 'UK' || upper === 'UNITED KINGDOM' || upper === 'GREAT BRITAIN' || upper === 'ENGLAND' || upper === 'SCOTLAND' || upper === 'WALES') {
+      if (['GB', 'UK', 'UNITED KINGDOM', 'GREAT BRITAIN', 'ENGLAND', 'SCOTLAND', 'WALES'].includes(upper)) {
         return 'UK';
       }
     }
@@ -361,12 +423,54 @@ const AddressSplitter = {
       return (format === 'iso2-uk' && this.ISO2_MAP[upper] === 'GB') ? 'UK' : this.ISO2_MAP[upper];
     }
     if (upper.length === 2) return upper;
-    return countryStr;
+    return target;
   },
 
   // Regex patterns for international postal codes
   UK_POSTCODE_REGEX: /\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/i,
   CA_POSTCODE_REGEX: /\b([A-Z]\d[A-Z]\s*\d[A-Z]\d)\b/i,
+
+  // Helper to split street and city using street suffix boundary and structural rules
+  splitStreetAndCity(str) {
+    str = String(str || '').trim();
+    if (!str) return { s: '', c: '' };
+    const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const suffixPattern = this.STREET_SUFFIXES.map(s => escapeRegExp(s)).join('|');
+    
+    // 1. Suffix boundary followed by city words (e.g. "742 Evergreen Terrace Springfield", "22 High Street WITNEY")
+    const streetSplitRegex = new RegExp(`^(.*?\\b(?:${suffixPattern})\\b(?:\\s+(?:SW|SE|NW|NE|North|South|East|West))?)(?:\\s+(.+))$`, 'i');
+    const m = str.match(streetSplitRegex);
+    if (m && m[2]) {
+      return { s: m[1].trim(), c: m[2].trim() };
+    }
+
+    const hasStreetNumber = /^\d+[a-zA-Z]?(?:[-\/]\d+)?\s+/i.test(str) || /^(?:apt|unit|suite|ste|#|p\.?o\.?\s*box)\b/i.test(str);
+    const endsWithSuffix = new RegExp(`\\b(?:${suffixPattern})(?:\\s+(?:SW|SE|NW|NE|North|South|East|West))?$`, 'i').test(str);
+    const hasAnySuffix = new RegExp(`\\b(?:${suffixPattern})\\b`, 'i').test(str);
+
+    // 2. If it ends with a street suffix (e.g. "742 Evergreen Terrace", "123 Main St", "22 High Street")
+    if (endsWithSuffix) {
+      return { s: str, c: '' };
+    }
+
+    // 3. If it has NEITHER house number NOR any street suffix -> It is pure City! (e.g. "Springfield", "Los Angeles", "WITNEY", "Salt Lake City")
+    if (!hasStreetNumber && !hasAnySuffix) {
+      return { s: '', c: str };
+    }
+
+    // 4. If it has a house number but no suffix, with multiple words (e.g. "742 Evergreen Springfield")
+    const words = str.split(/\s+/);
+    if (hasStreetNumber && words.length > 2) {
+      const c = words.pop();
+      return { s: words.join(' '), c: c };
+    }
+
+    if (hasStreetNumber) {
+      return { s: str, c: '' };
+    }
+
+    return { s: '', c: str };
+  },
 
   parseAddress(raw, options = {}) {
     let text = String(raw || '').trim();
@@ -374,13 +478,14 @@ const AddressSplitter = {
 
     const opts = {
       defaultCountry: options.defaultCountry !== undefined ? options.defaultCountry : 'US',
-      countryFormat: options.countryFormat || 'iso2', // iso2 | iso2-uk | fullname
+      countryFormat: options.countryFormat || 'iso2', // iso2 | iso2-uk | fullname | original
       casing: options.casing || 'titlecase', // titlecase | uppercase | original
       cleanStreetRules: options.cleanStreetRules !== false,
       ...options
     };
 
     let country = '';
+    let rawCountry = '';
     let postal = '';
     let state = '';
     let county = '';
@@ -392,43 +497,90 @@ const AddressSplitter = {
     const countryRegex = new RegExp(`(?:,\\s*|\\s+)\\b(${countryKeys.join('|')})\\b\\.?$`, 'i');
     const cm = text.match(countryRegex);
     if (cm) {
+      rawCountry = cm[1];
       country = this.COUNTRIES[cm[1].toUpperCase()];
       text = text.slice(0, cm.index).trim();
     }
 
-    // 2. Check for UK (Postcode like "SW1A 2AA" or explicit United Kingdom)
-    if (country === 'United Kingdom' || this.UK_POSTCODE_REGEX.test(text)) {
+    const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const sortedUkCounties = [...this.UK_COUNTIES].sort((a, b) => b.length - a.length);
+    const ukCountyPattern = sortedUkCounties.map(c => escapeRegExp(c)).join('|');
+
+    // 2. Check for UK (Postcode like "SW1A 2AA" / "OX28 6RB", explicit United Kingdom, or ends with UK county)
+    const isUkCountyEnd = new RegExp(`(?:,\\s*|\\s+)\\b(${ukCountyPattern})\\b\\.?$`, 'i').test(text);
+    if (country === 'United Kingdom' || this.UK_POSTCODE_REGEX.test(text) || (isUkCountyEnd && (opts.defaultCountry === 'GB' || opts.defaultCountry === 'UK'))) {
       country = country || 'United Kingdom';
       const pm = text.match(this.UK_POSTCODE_REGEX);
       if (pm) {
         postal = pm[1].toUpperCase().replace(/\s+/g, ' ');
         text = text.replace(pm[0], '').replace(/,\s*,/g, ',').trim();
       }
+
       if (text.includes(',')) {
         const parts = text.split(',').map(p => p.trim()).filter(Boolean);
-        if (parts.length >= 3) {
-          county = parts[parts.length - 1];
-          city = parts[parts.length - 2];
-          street = parts.slice(0, parts.length - 2).join(', ');
-        } else if (parts.length === 2) {
-          city = parts[1];
-          street = parts[0];
-        } else {
-          street = text;
+        // Check if last part is a known UK county
+        if (parts.length >= 2) {
+          const lastPart = parts[parts.length - 1];
+          const isCounty = new RegExp(`^(${ukCountyPattern})$`, 'i').test(lastPart);
+          if (isCounty) {
+            county = parts.pop();
+          }
+        }
+        if (parts.length >= 2) {
+          city = parts.pop();
+          street = parts.join(', ');
+        } else if (parts.length === 1) {
+          const res = this.splitStreetAndCity(parts[0]);
+          street = res.s;
+          city = res.c;
         }
       } else {
-        const words = text.split(/\s+/);
-        if (words.length > 2) {
-          city = words.pop();
-          street = words.join(' ');
-        } else {
-          street = text;
+        // Space-separated UK address, e.g. "22 High Street WITNEY Oxfordshire"
+        const countyMatch = text.match(new RegExp(`(?:,\\s*|\\s+)\\b(${ukCountyPattern})\\b\\.?$`, 'i'));
+        if (countyMatch) {
+          county = countyMatch[1];
+          text = text.slice(0, countyMatch.index).trim();
         }
+        // Now text is "22 High Street WITNEY"
+        const res = this.splitStreetAndCity(text);
+        street = res.s;
+        city = res.c;
       }
-      return this.formatResult(street, city, state, county, postal, country, opts);
+
+      return this.formatResult(street, city, state, county, postal, country, rawCountry, opts, true);
     }
 
-    // 3. Check for Canada (Postal code like "M5V 3X5" or explicit Canada)
+    // 3. Check for Australia (AU state + 4-digit postcode or explicit Australia)
+    const auStateKeys = Object.keys(this.AU_STATES).sort((a, b) => b.length - a.length);
+    const auStateRegex = new RegExp(`(?:,\\s*|\\s+)\\b(${auStateKeys.join('|')})\\b(?:\\s+(\\d{4}))?\\.?$`, 'i');
+    const auMatch = (country === 'Australia' || auStateRegex.test(text)) ? text.match(auStateRegex) : null;
+
+    if (country === 'Australia' || auMatch) {
+      country = country || 'Australia';
+      const auPostMatch = text.match(/\b(\d{4})\b/);
+      if (auPostMatch) {
+        postal = auPostMatch[1];
+        text = text.replace(auPostMatch[0], '').trim();
+      }
+      const sm = text.match(new RegExp(`(?:,\\s*|\\s+)\\b(${auStateKeys.join('|')})\\b\\.?$`, 'i'));
+      if (sm) {
+        state = this.AU_STATES[sm[1].toUpperCase()];
+        text = text.slice(0, sm.index).trim();
+      }
+
+      if (text.includes(',')) {
+        const parts = text.split(',').map(p => p.trim()).filter(Boolean);
+        city = parts.pop();
+        street = parts.join(', ');
+      } else {
+        const res = this.splitStreetAndCity(text);
+        street = res.s;
+        city = res.c;
+      }
+      return this.formatResult(street, city, state, county, postal, country, rawCountry, opts);
+    }
+
+    // 4. Check for Canada (Postal code like "M5V 3X5" or explicit Canada)
     if (country === 'Canada' || this.CA_POSTCODE_REGEX.test(text)) {
       country = country || 'Canada';
       const pm = text.match(this.CA_POSTCODE_REGEX);
@@ -448,14 +600,14 @@ const AddressSplitter = {
         city = parts.pop();
         street = parts.join(', ');
       } else {
-        const words = text.split(/\s+/);
-        city = words.pop();
-        street = words.join(' ');
+        const res = this.splitStreetAndCity(text);
+        street = res.s;
+        city = res.c;
       }
-      return this.formatResult(street, city, state, county, postal, country, opts);
+      return this.formatResult(street, city, state, county, postal, country, rawCountry, opts);
     }
 
-    // 4. Check for Germany (e.g. "Friedrichstraße 43, 10117 Berlin, Germany")
+    // 5. Check for Germany (e.g. "Friedrichstraße 43, 10117 Berlin, Germany")
     if (country === 'Germany') {
       const plzMatch = text.match(/\b(\d{5})\b/);
       if (plzMatch) {
@@ -471,10 +623,10 @@ const AddressSplitter = {
         city = words.pop();
         street = words.join(' ');
       }
-      return this.formatResult(street, city, state, county, postal, country, opts);
+      return this.formatResult(street, city, state, county, postal, country, rawCountry, opts);
     }
 
-    // 5. Default / United States (US)
+    // 6. Default / United States (US)
     country = country || opts.defaultCountry || 'US';
 
     if (text.includes(',')) {
@@ -514,13 +666,13 @@ const AddressSplitter = {
       }
 
       if (stateIdx !== -1) {
-        // City is immediately before state
-        if (stateIdx > 0) {
-          city = parts[stateIdx - 1];
-        }
-        // Street is everything before city
         if (stateIdx > 1) {
+          city = parts[stateIdx - 1];
           street = parts.slice(0, stateIdx - 1).join(', ');
+        } else if (stateIdx === 1) {
+          const res = this.splitStreetAndCity(parts[0]);
+          street = res.s;
+          city = res.c;
         }
         // County is between state and postal (e.g. "DAVIDSON" in "...,TN,DAVIDSON,37212")
         if (parts.length > stateIdx + 1) {
@@ -533,54 +685,51 @@ const AddressSplitter = {
         street = text;
       }
     } else {
-      // Space-separated US address: e.g. "1908 Grand Avenue Nashville TN37212"
-      const gluedMatch = text.match(/(?:,\s*|\s+)\b([A-Za-z]{2})\s*(\d{5}(?:-\d{4})?)\b\.?$/i);
+      // Space-separated or flexible order US address
+      // 1. Check glued state + zip anywhere: e.g. "IL 62704" or "TN37212"
+      const gluedMatch = text.match(/\b([A-Za-z]{2})\s*(\d{5}(?:-\d{4})?)\b/);
       if (gluedMatch && this.US_STATES[gluedMatch[1].toUpperCase()]) {
         state = this.US_STATES[gluedMatch[1].toUpperCase()];
         postal = gluedMatch[2];
-        text = text.slice(0, gluedMatch.index).trim();
+        text = text.replace(gluedMatch[0], ' ').trim();
       } else {
-        const zipMatch = text.match(/(?:,\s*|\s+)\b(\d{5}(?:-\d{4})?)\b\.?$/);
-        if (zipMatch) {
+        // 2. Postal code anywhere (5 digits or 5+4)
+        const allZips = [...text.matchAll(/\b(\d{5}(?:-\d{4})?)\b/g)];
+        if (allZips.length > 0) {
+          const zipMatch = allZips[allZips.length - 1];
           postal = zipMatch[1];
-          text = text.slice(0, zipMatch.index).trim();
-          const stateKeys = Object.keys(this.US_STATES).filter(k => k.length === 2);
-          const stateRegex = new RegExp(`(?:,\\s*|\\s+)\\b(${stateKeys.join('|')})\\b\\.?$`, 'i');
-          const stateMatch = text.match(stateRegex);
-          if (stateMatch) {
-            state = this.US_STATES[stateMatch[1].toUpperCase()];
-            text = text.slice(0, stateMatch.index).trim();
+          text = text.slice(0, zipMatch.index) + ' ' + text.slice(zipMatch.index + zipMatch[0].length);
+        }
+
+        // 3. State anywhere (full names first, then 2-letter codes)
+        const sortedStates = Object.keys(this.US_STATES).sort((a, b) => b.length - a.length);
+        for (const stKey of sortedStates) {
+          const stRegex = new RegExp(`\\b${stKey}\\b`, 'i');
+          const m = text.match(stRegex);
+          if (m) {
+            state = this.US_STATES[stKey.toUpperCase()];
+            text = text.replace(m[0], ' ').trim();
+            break;
           }
         }
       }
 
-      if (state) {
-        const suffixes = StreetCleaner.streetSuffixes;
-        const dirs = StreetCleaner.directionals;
-        const streetRegex = new RegExp(`^(.*?\\b(?:${suffixes})\\b(?:\\s+(?:${dirs}))?(?:\\s+(?:apt|unit|suite|ste|#)\\s*[^\\s]+)?)(?:\\s+(.*))?$`, 'i');
-        const m = text.match(streetRegex);
-        if (m && m[2]) {
-          street = m[1].trim();
-          city = m[2].trim();
-        } else {
-          const words = text.split(/\s+/);
-          if (words.length > 1) {
-            city = words.pop();
-            street = words.join(' ');
-          } else {
-            street = text;
-          }
-        }
+      text = text.replace(/\s+/g, ' ').replace(/,\s*,/g, ',').replace(/^,\s*|,\s*$/g, '').trim();
+
+      if (state || postal) {
+        const res = this.splitStreetAndCity(text);
+        street = res.s;
+        city = res.c;
       } else {
         street = text;
       }
     }
 
-    return this.formatResult(street, city, state, county, postal, country, opts);
+    return this.formatResult(street, city, state, county, postal, country, rawCountry, opts);
   },
 
-  formatResult(street, city, state, county, postal, country, opts) {
-    if (street && opts.cleanStreetRules) {
+  formatResult(street, city, state, county, postal, country, rawCountry = '', opts = {}, isUk = false) {
+    if (street && opts.cleanStreetRules !== false) {
       street = street.replace(/^(?:unit\s*#?\d+[a-zA-Z]?|no\s*\d+\s*bldg|bldg\s*#?\d+[a-zA-Z]?)[, -]+/i, '');
       street = street.replace(/,\s*[a-zA-Z0-9]+\s+(?:bldg|building)\.?/gi, '');
       street = street.replace(/['"]+/g, '');
@@ -588,10 +737,16 @@ const AddressSplitter = {
       street = street.replace(/\s+/g, ' ').trim();
     }
 
-    const formatCase = (str) => {
+    const formatCase = (str, isUkPostTown = false) => {
       if (!str) return '';
       if (opts.casing === 'uppercase') return str.toUpperCase();
+      if (opts.casing === 'original') return str;
       if (opts.casing === 'titlecase' || !opts.casing) {
+        // In UK Royal Mail standards, post town is officially printed in UPPERCASE
+        // If raw was all-caps (e.g. WITNEY), preserve uppercase
+        if (isUkPostTown && str === str.toUpperCase() && str.length > 1) {
+          return str;
+        }
         let titled = str.toLowerCase().replace(/(^|\s|-|\/)([a-z])/g, (_, boundary, char) => boundary + char.toUpperCase());
         titled = titled.replace(/\b(sw|nw|se|ne)\b/gi, m => m.toUpperCase());
         return titled;
@@ -600,13 +755,16 @@ const AddressSplitter = {
     };
 
     let finalCountry = country;
-    if (finalCountry) {
-      finalCountry = this.formatCountry(finalCountry, opts.countryFormat || 'iso2');
+    if (finalCountry || rawCountry) {
+      finalCountry = this.formatCountry(finalCountry, opts.countryFormat || 'iso2', rawCountry);
+      if (opts.casing === 'uppercase' && finalCountry) {
+        finalCountry = finalCountry.toUpperCase();
+      }
     }
 
     return {
       street: formatCase(street),
-      city: formatCase(city),
+      city: formatCase(city, isUk),
       state: state ? state.toUpperCase() : '',
       county: formatCase(county),
       postal: postal,
@@ -797,10 +955,11 @@ const OccupancyClassifier = {
   /**
    * Compares 3 data fields and classifies into Touchstone UNICEDE Occupancy Code
    */
-  classifyRow(existingCode, bldgDesc, occDesc) {
+  classifyRow(existingCode, bldgDesc, occDesc, extraDescs = []) {
     const ex = String(existingCode || '').trim();
     const bldg = String(bldgDesc || '').trim();
     const occ = String(occDesc || '').trim();
+    const extras = Array.isArray(extraDescs) ? extraDescs.map(e => String(e || '').trim()) : [];
 
     // If occDesc has multiple components separated by semicolon (e.g. "NURSING HOME (97%); CHURCH (2%)"),
     // the dominant/primary occupancy is the first part!
@@ -814,8 +973,21 @@ const OccupancyClassifier = {
     if (!matchedCode || matchedCode === '300') {
       matchedCode = this.matchTextToCode(primaryOcc);
     }
+    // Check extra columns (Col 4, Col 5...)
     if (!matchedCode || matchedCode === '300') {
-      matchedCode = this.matchTextToCode(`${bldg} ${occ}`.trim());
+      for (const extra of extras) {
+        if (extra) {
+          const m = this.matchTextToCode(extra);
+          if (m && m !== '300') {
+            matchedCode = m;
+            break;
+          }
+        }
+      }
+    }
+    if (!matchedCode || matchedCode === '300') {
+      const combined = [bldg, occ, ...extras].filter(Boolean).join(' ');
+      matchedCode = this.matchTextToCode(combined);
     }
 
     // Fallback: If nothing matched but an existing code was present and valid in Touchstone schema
@@ -871,37 +1043,46 @@ const OccupancyClassifier = {
    * Clean/Classify multiple lines
    * Supports:
    * 1. Multi-line string or array of strings
-   * 2. Object with 3 column arrays: { existingCodes: [...], bldgDescs: [...], occDescs: [...] }
+   * 2. Object with column arrays: { existingCodes: [...], bldgDescs: [...], occDescs: [...], extraCols: [...] }
    */
   cleanColumn(input, options = {}) {
     const results = [];
 
-    if (input && typeof input === 'object' && !Array.isArray(input) && (input.bldgDescs || input.occDescs)) {
+    if (input && typeof input === 'object' && !Array.isArray(input) && (input.bldgDescs || input.occDescs || input.extraCols)) {
       const codes = input.existingCodes || [];
       const bldgs = input.bldgDescs || [];
       const occs = input.occDescs || [];
-      const maxLen = Math.max(codes.length, bldgs.length, occs.length);
+      const extraCols = input.extraCols || [];
+      const maxLen = Math.max(codes.length, bldgs.length, occs.length, ...(extraCols.map(c => c.length)));
 
       for (let i = 0; i < maxLen; i++) {
         const ex = (codes[i] || '').trim();
         const bldg = (bldgs[i] || '').trim();
         const occ = (occs[i] || '').trim();
-        if (!ex && !bldg && !occ && options.removeEmptyLines) continue;
+        const rowExtra = extraCols.map(colArr => (colArr[i] || '').trim());
 
-        const res = this.classifyRow(ex, bldg, occ);
+        const isAllBlank = !ex && !bldg && !occ && rowExtra.every(e => !e);
+        if (isAllBlank && options.removeEmptyLines) continue;
+
+        const res = this.classifyRow(ex, bldg, occ, rowExtra);
+        const originalParts = [ex, bldg, occ, ...rowExtra];
+        const cleanedParts = [res.existingCode, res.bldgDesc, res.occDesc, ...rowExtra, res.occCode, res.category].filter(c => c !== undefined && c !== '');
+
         results.push({
           lineNum: i + 1,
-          original: `${ex}\t${bldg}\t${occ}`.trim(),
+          original: originalParts.join('\t').trim(),
           existingCode: res.existingCode,
           bldgDesc: res.bldgDesc,
           occDesc: res.occDesc,
+          extraCols: rowExtra,
+          allCols: originalParts,
           occCode: res.occCode,
           category: res.category,
           status: res.status,
           statusText: res.statusText,
           comparisonStatus: res.status,
           comparisonMessage: res.statusText,
-          cleaned: `${res.existingCode ? res.existingCode + '\t' : ''}${res.bldgDesc}\t${res.occDesc}\t${res.occCode}\t${res.category}`,
+          cleaned: cleanedParts.join('\t'),
           changed: true
         });
       }
@@ -946,7 +1127,36 @@ const ConstructionClassifier = {
     return (td && td.CONSTRUCTION) || {};
   },
 
+  // ISO Commercial Fire Rating / Construction Classes (ISO 1–6)
+  ISO_CLASSES: {
+    "1": { iso: "ISO 1", name: "Frame", code: "101", touchstoneCategory: "Wood Frame (Modern)", description: "Combustible walls, floors, and roofs (wood stud, stick built)." },
+    "2": { iso: "ISO 2", name: "Joisted Masonry", code: "119", touchstoneCategory: "Joisted Masonry", description: "Exterior masonry walls with combustible (wood) floors and roof." },
+    "3": { iso: "ISO 3", name: "Noncombustible", code: "152", touchstoneCategory: "Light Metal / Non-Combustible", description: "Exterior walls, floors, and roofs of noncombustible or light gauge steel materials." },
+    "4": { iso: "ISO 4", name: "Masonry Noncombustible", code: "111", touchstoneCategory: "Masonry Non-Combustible", description: "Exterior masonry walls (≥4 in) with noncombustible or steel floor and roof." },
+    "5": { iso: "ISO 5", name: "Modified Fire Resistive", code: "131", touchstoneCategory: "Reinforced Concrete / MFR", description: "Exterior walls, floors, and roof of masonry/concrete with 1 to 2-hour fire rating." },
+    "6": { iso: "ISO 6", name: "Fire Resistive", code: "131", touchstoneCategory: "Reinforced Concrete / FR", description: "Exterior walls, floors, and roof of reinforced concrete or protected structural steel (≥2 hr fire rating)." }
+  },
+
   RULES: [
+    // === ISO Commercial Fire Rating / Construction Classes (ISO 1–6) ===
+    // ISO 1: Frame (101)
+    { code: "101", patterns: [/\biso\s*[-_]?\s*(?:class\s*)?1\s*[-_:]?\s*frame\b/i, /\biso\s*[-_]?\s*(?:class\s*)?1\b/i] },
+
+    // ISO 2: Joisted Masonry (119)
+    { code: "119", patterns: [/\biso\s*[-_]?\s*(?:class\s*)?2\s*[-_:]?\s*joisted\s+masonry\b/i, /\biso\s*[-_]?\s*(?:class\s*)?2\b/i] },
+
+    // ISO 4: Masonry Noncombustible (111) - more specific than general noncombustible
+    { code: "111", patterns: [/\biso\s*[-_]?\s*(?:class\s*)?4\s*[-_:]?\s*masonry\s+non[- ]?combust[ia]ble\b/i, /\biso\s*[-_]?\s*(?:class\s*)?4\b/i, /masonry\s+non[- ]?combust[ia]ble/i, /non[- ]?combust[ia]ble\s+masonry/i, /\bmnc\b/i, /masonry\s+nc\b/i] },
+
+    // ISO 3: Noncombustible (152) - Light metal / unprotected steel noncombustible
+    { code: "152", patterns: [/\biso\s*[-_]?\s*(?:class\s*)?3\s*[-_:]?\s*non[- ]?combust[ia]ble\b/i, /\biso\s*[-_]?\s*(?:class\s*)?3\b/i, /(?<!masonry\s+)non[- ]?combust[ia]ble(?!\s*masonry)/i, /(?<!masonry\s+)noncombust[ia]ble(?!\s*masonry)/i] },
+
+    // ISO 5: Modified Fire Resistive (131)
+    { code: "131", patterns: [/\biso\s*[-_]?\s*(?:class\s*)?5\s*[-_:]?\s*mod(?:ified)?\s+fire\s+resistive\b/i, /\biso\s*[-_]?\s*(?:class\s*)?5\b/i, /modified\s+fire\s+resistive/i, /\bmfr\b/i] },
+
+    // ISO 6: Fire Resistive (131)
+    { code: "131", patterns: [/\biso\s*[-_]?\s*(?:class\s*)?6\s*[-_:]?\s*fire\s+resistive\b/i, /\biso\s*[-_]?\s*(?:class\s*)?6\b/i, /fire\s+resistive/i, /\bfr\b/i] },
+
     // 1. Joisted Masonry (119) - exterior masonry walls with wood floor/roof joists (ISO Class 2)
     { code: "119", patterns: [/joisted\s+masonry/i, /\bjm\b/i, /masonry\s+joist(?:ed)?/i, /brick\s+joisted/i, /masonry.*wood\s+roof/i, /masonry.*wood\s+joist/i, /masonry.*wood\s+deck/i, /block\s+joisted/i, /masonry.*joist/i, /\biso\s*(?:class\s*)?2\b/i] },
 
@@ -963,7 +1173,7 @@ const ConstructionClassifier = {
     { code: "113", patterns: [/\bstone\b/i, /rubble\s+stone/i, /stone\s+masonry/i, /stone\s+finish/i, /stone\s+exterior/i, /stone\s+facade/i, /stone\s+wall/i, /fieldstone/i, /coursed\s+rubble/i, /uncoursed\s+rubble/i] },
 
     // 5. Masonry Non-Combustible, Noncombustible & General Masonry (111) - Underwriting Rule: BRICK in exterior wall finish/construction -> 111
-    { code: "111", patterns: [/masonry\s+non[- ]?combust[ia]ble/i, /\bnon[- ]?combust[ia]ble\b/i, /\bnoncombust[ia]ble\b/i, /\bmnc\b/i, /non[- ]?combust[ia]ble\s+masonry/i, /masonry\s+nc\b/i, /\biso\s*(?:class\s*)?4\b/i, /\bmasonry\b/i, /\bbrick\b/i, /exterior\s+brick/i, /brick\s+finish/i, /brick\s+exterior/i, /brick\s+facade/i, /brick\s+wall/i, /concrete\s+block/i, /\bcmu\b/i, /hollow\s+block/i] },
+    { code: "111", patterns: [/masonry\s+non[- ]?combust[ia]ble/i, /non[- ]?combust[ia]ble\s+masonry/i, /\bmnc\b/i, /masonry\s+nc\b/i, /\biso\s*(?:class\s*)?4\b/i, /\bmasonry\b/i, /\bbrick\b/i, /exterior\s+brick/i, /brick\s+finish/i, /brick\s+exterior/i, /brick\s+facade/i, /brick\s+wall/i, /concrete\s+block/i, /\bcmu\b/i, /hollow\s+block/i] },
 
     // 6. Tilt-Up Concrete (136)
     { code: "136", patterns: [/tilt[- ]?up/i, /tilt[- ]?up\s+concrete/i, /concrete\s+tilt[- ]?up/i, /precast\s+tilt[- ]?up/i, /tilted\s+wall/i] },
@@ -1202,55 +1412,36 @@ const ConstructionClassifier = {
     return { existingCode: '', bldgDesc: '', conDesc: text };
   },
 
-  classifyRow(existingCode, bldgDesc, conDesc) {
+  classifyRow(existingCode, bldgDesc, conDesc, extraDescs = []) {
     let ex = String(existingCode || '').trim();
     if (ex === '—' || ex === '-' || ex.toLowerCase() === 'n/a') ex = '';
     const bldg = String(bldgDesc || '').trim();
     const con = String(conDesc || '').trim();
+    const extras = Array.isArray(extraDescs) ? extraDescs.map(e => String(e || '').trim()) : [];
 
-    // 1. Rule 1: Check first column (existingCode). Retain for verification against resolved code.
+    // Gather percentage components across all description columns (Col 2, Col 3, Col 4, Col 5...)
+    const descCols = [bldg, con, ...extras].filter(Boolean);
+    let allComponents = [];
+    descCols.forEach(colText => {
+      const comps = this.parsePercentageComponents(colText);
+      allComponents = allComponents.concat(comps);
+    });
 
-    // 2. Rule 2: Check 2nd column (Building Type/Framing) for percentage values.
-    // If multiple percentage components exist in Col 2, extract the one with highest percentage.
-    const bldgComponents = this.parsePercentageComponents(bldg);
-    const topBldg = this.getHighestComponent(bldgComponents);
-
-    // 3. Rule 3: Check 3rd column (Construction Description) and verify both columns.
-    // Compare percentages between Col 2 and Col 3 and select the dominant component with the higher percentage.
-    const conComponents = this.parsePercentageComponents(con);
-    const topCon = this.getHighestComponent(conComponents);
+    const validPctComps = allComponents.filter(c => c && c.percent !== null);
+    validPctComps.sort((a, b) => b.percent - a.percent);
 
     let dominantText = '';
     let secondaryText = '';
 
-    const bldgPct = (topBldg && topBldg.percent !== null) ? topBldg.percent : null;
-    const conPct = (topCon && topCon.percent !== null) ? topCon.percent : null;
-
-    if (bldgPct !== null && conPct !== null) {
-      // Both columns contain explicit percentages: higher percentage takes precedence
-      if (conPct > bldgPct) {
-        dominantText = topCon.text;
-        secondaryText = topBldg.text;
-      } else if (bldgPct > conPct) {
-        dominantText = topBldg.text;
-        secondaryText = topCon.text;
-      } else {
-        // Equal percentage: Col 3 (material description) prioritized, secondary Col 2
-        dominantText = topCon.text || topBldg.text;
-        secondaryText = topBldg.text;
+    if (validPctComps.length > 0) {
+      dominantText = validPctComps[0].text;
+      if (validPctComps.length > 1) {
+        secondaryText = validPctComps[1].text;
       }
-    } else if (conPct !== null) {
-      // Col 3 specifies explicit percentage (e.g. MASONRY NON COMBUSTIBLE (100%)): Col 3 wins
-      dominantText = topCon.text;
-      secondaryText = topBldg ? topBldg.text : bldg;
-    } else if (bldgPct !== null) {
-      // Col 2 specifies explicit percentage (e.g. Wood Frame (100%)): Col 2 wins
-      dominantText = topBldg.text;
-      secondaryText = topCon ? topCon.text : con;
     } else {
-      // Neither column specifies percentages: check Col 3 first, then Col 2
-      dominantText = (topCon && topCon.text) ? topCon.text : con;
-      secondaryText = (topBldg && topBldg.text) ? topBldg.text : bldg;
+      // Neither column specifies percentages: check Col 3 first, then Col 2, then extras
+      dominantText = con || bldg || (extras[0] || '');
+      secondaryText = bldg || con;
     }
 
     // A. Match dominant description first
@@ -1263,7 +1454,7 @@ const ConstructionClassifier = {
       }
     }
 
-    // C. If still unresolved, try full raw descriptions
+    // C. Try each description column individually
     if (!matchedCode || matchedCode === '100') {
       if (con) matchedCode = this.matchTextToCode(con);
     }
@@ -1271,11 +1462,23 @@ const ConstructionClassifier = {
       if (bldg) matchedCode = this.matchTextToCode(bldg);
     }
     if (!matchedCode || matchedCode === '100') {
-      const combined = (bldg + ' ' + con).trim();
+      for (const extra of extras) {
+        if (extra) {
+          const m = this.matchTextToCode(extra);
+          if (m && m !== '100') {
+            matchedCode = m;
+            break;
+          }
+        }
+      }
+    }
+    // D. Try combined descriptions
+    if (!matchedCode || matchedCode === '100') {
+      const combined = [bldg, con, ...extras].filter(Boolean).join(' ');
       if (combined) matchedCode = this.matchTextToCode(combined);
     }
 
-    // D. Fallback to existing code if descriptions yielded unknown and existing code is valid
+    // E. Fallback to existing code if descriptions yielded unknown and existing code is valid
     if ((!matchedCode || matchedCode === '100') && ex && this.CODES[ex] && ex !== '100') {
       matchedCode = ex;
     }
@@ -1324,25 +1527,34 @@ const ConstructionClassifier = {
   cleanColumn(input, options = {}) {
     const results = [];
 
-    if (input && typeof input === 'object' && !Array.isArray(input) && (input.bldgDescs || input.conDescs)) {
+    if (input && typeof input === 'object' && !Array.isArray(input) && (input.bldgDescs || input.conDescs || input.extraCols)) {
       const codes = input.existingCodes || [];
       const bldgs = input.bldgDescs || [];
       const cons = input.conDescs || [];
-      const maxLen = Math.max(codes.length, bldgs.length, cons.length);
+      const extraCols = input.extraCols || [];
+      const maxLen = Math.max(codes.length, bldgs.length, cons.length, ...(extraCols.map(c => c.length)));
 
       for (let i = 0; i < maxLen; i++) {
         const ex = (codes[i] || '').trim();
         const bldg = (bldgs[i] || '').trim();
         const con = (cons[i] || '').trim();
-        if (!ex && !bldg && !con && options.removeEmptyLines) continue;
+        const rowExtra = extraCols.map(colArr => (colArr[i] || '').trim());
 
-        const res = this.classifyRow(ex, bldg, con);
+        const isAllBlank = !ex && !bldg && !con && rowExtra.every(e => !e);
+        if (isAllBlank && options.removeEmptyLines) continue;
+
+        const res = this.classifyRow(ex, bldg, con, rowExtra);
+        const originalParts = [ex, bldg, con, ...rowExtra];
+        const cleanedParts = [res.existingCode, res.bldgDesc, res.conDesc, ...rowExtra, res.conCode, res.category].filter(c => c !== undefined && c !== '');
+
         results.push({
           lineNum: i + 1,
-          original: (ex + '\t' + bldg + '\t' + con).trim(),
+          original: originalParts.join('\t').trim(),
           existingCode: res.existingCode,
           bldgDesc: res.bldgDesc,
           conDesc: res.conDesc,
+          extraCols: rowExtra,
+          allCols: originalParts,
           conCode: res.conCode,
           category: res.category,
           group: res.group,
@@ -1350,7 +1562,7 @@ const ConstructionClassifier = {
           statusText: res.statusText,
           comparisonStatus: res.status,
           comparisonMessage: res.statusText,
-          cleaned: (res.existingCode ? res.existingCode + '\t' : '') + res.bldgDesc + '\t' + res.conDesc + '\t' + res.conCode + '\t' + res.category,
+          cleaned: cleanedParts.join('\t'),
           changed: true
         });
       }
@@ -1520,6 +1732,14 @@ const CleanersRegistry = {
     icon: '🧱',
     badge: 'UNICEDE® 2-Col',
     description: 'Touchstone / UNICEDE Location Wall Detail Fields: Analyzes exterior wall finishes into 1) WallType (structural/backing) and 2) WallSiding (weather protection), applying higher-% and weaker-material rules.',
+    cleaner: null // Attached below
+  },
+  stores: {
+    id: 'stores',
+    name: 'No of Stores',
+    icon: '🏢',
+    badge: 'Positive Whole No',
+    description: 'Underwriting Stories / Floors Engine: Decimals round UP (3.5➔4, 4.2➔5), multi-values/ranges pick max (2&3➔3, 1,2➔2, 2/3➔3), always positive integer, none/blank leaves blank.',
     cleaner: null // Attached below
   }
 };
@@ -3443,9 +3663,155 @@ const WallClassifier = {
 // Wire up wall cleaner reference
 CleanersRegistry.wall.cleaner = WallClassifier;
 
+/**
+ * CleanExcel - Number of Stories / Stores Underwriting Cleaner Engine
+ * 
+ * Rules:
+ *  1. Always positive: Output is strictly positive integers (>= 1, e.g. -2 -> 2, 0 -> blank).
+ *  2. Always whole number (hole no): Decimals round UP (Math.ceil, e.g. 3.5 -> 4, 4.2 -> 5, 1.1 -> 2).
+ *  3. Multiple values / Ranges pick Maximum:
+ *     - "2 & 3" -> 3
+ *     - "1,2" -> 2
+ *     - "2/3" -> 3
+ *     - "2-4" -> 4
+ *     - "2 and 3" -> 3
+ *     - "1 to 3" -> 3
+ *  4. Blank leaves blank: Empty string or whitespace -> blank ("").
+ *  5. "non" / "none" / "n/a" -> blank:
+ *     "non", "none", "no", "n/a", "na", "null", "nil", "-", "—", "unknown", "unk", "tbd", "0", "zero" -> blank ("").
+ */
+const NoOfStoresCleaner = {
+  cleanStores(raw, options = {}) {
+    if (raw === undefined || raw === null) return '';
+    const str = String(raw).trim();
+    if (!str) return '';
+
+    // Handle "non", "none", "n/a", "-", "0", etc.
+    if (/^(?:non|none|no|n\/?a|n\.a\.?|null|nil|not\s*applicable|unknown|unk|tbd|—+|-+|\.|\/|0|zero)$/i.test(str)) {
+      return '';
+    }
+
+    // Common number words dictionary
+    const wordMap = {
+      'single': '1', 'one': '1', 'first': '1',
+      'double': '2', 'two': '2', 'second': '2',
+      'three': '3', 'third': '3',
+      'four': '4', 'fourth': '4',
+      'five': '5', 'fifth': '5',
+      'six': '6', 'sixth': '6',
+      'seven': '7', 'seventh': '7',
+      'eight': '8', 'eighth': '8',
+      'nine': '9', 'ninth': '9',
+      'ten': '10', 'tenth': '10'
+    };
+
+    let processed = str;
+
+    // Convert range hyphens between numbers so '-' isn't mistaken for a negative sign
+    // e.g. "2-3" -> "2 & 3", "2 - 3" -> "2 & 3"
+    processed = processed.replace(/(\d+(?:\.\d+)?)\s*[-–—]\s*(\d+(?:\.\d+)?)/g, '$1 & $2');
+
+    // Replace word numbers when bounded by word boundaries
+    Object.keys(wordMap).forEach(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      processed = processed.replace(regex, wordMap[word]);
+    });
+
+    // Extract all numbers (integers, floats, negative numbers)
+    // Matches: 3.5, 4.2, -2, 2, 3
+    const numberMatches = processed.match(/-?\d+(?:\.\d+)?/g);
+    if (!numberMatches || numberMatches.length === 0) {
+      return '';
+    }
+
+    // Process each candidate:
+    // Rule: Always positive -> Math.abs
+    // Rule: Always whole number -> Math.ceil
+    const validCandidates = numberMatches
+      .map(m => {
+        const parsed = parseFloat(m);
+        if (isNaN(parsed)) return null;
+        // Always positive
+        const positiveVal = Math.abs(parsed);
+        // If 0, not a valid positive story count in underwriting
+        if (positiveVal === 0) return null;
+        // Always whole number (round up)
+        return Math.ceil(positiveVal);
+      })
+      .filter(n => n !== null && n > 0);
+
+    if (validCandidates.length === 0) {
+      return '';
+    }
+
+    // Rule: Multiple values / ranges pick maximum
+    const maxVal = Math.max(...validCandidates);
+    return String(maxVal);
+  },
+
+  cleanColumn(input, options = {}) {
+    const lines = typeof input === 'string' ? input.split(/\r\n|\r|\n/) : input;
+    const results = [];
+
+    lines.forEach((line, idx) => {
+      const trimmed = (line !== undefined && line !== null) ? String(line).trim() : '';
+      if (options.removeEmptyLines && !trimmed) {
+        return;
+      }
+
+      const cleaned = this.cleanStores(trimmed, options);
+
+      let status = 'unchanged';
+      let statusText = '✓ Valid';
+
+      if (!trimmed || /^(?:non|none|no|n\/?a|n\.a\.?|null|nil|not\s*applicable|unknown|unk|tbd|—+|-+|\.|\/|0|zero)$/i.test(trimmed)) {
+        status = 'empty';
+        statusText = 'Blank';
+      } else if (!cleaned) {
+        status = 'mismatch';
+        statusText = '⚠️ Invalid / Blank';
+      } else if (trimmed === cleaned) {
+        status = 'unchanged';
+        statusText = '✓ Valid Stories';
+      } else {
+        status = 'assigned';
+        const hasMultiple = (trimmed.match(/-?\d+(?:\.\d+)?/g) || []).length > 1 || /[/\\&,]|(?:to|and|or)/i.test(trimmed);
+        const hadDecimal = /\d+\.\d+/.test(trimmed);
+        const hadNegative = /-\d/.test(trimmed);
+
+        if (hasMultiple) {
+          statusText = `✨ Max (${cleaned})`;
+        } else if (hadDecimal) {
+          statusText = `✨ Ceil (${cleaned})`;
+        } else if (hadNegative) {
+          statusText = `✨ Abs (${cleaned})`;
+        } else {
+          statusText = `✨ Cleaned (${cleaned})`;
+        }
+      }
+
+      results.push({
+        lineNum: idx + 1,
+        original: line,
+        cleaned: cleaned,
+        stores: cleaned,
+        changed: trimmed !== cleaned,
+        status: status,
+        statusText: statusText
+      });
+    });
+
+    return results;
+  }
+};
+
+// Wire up stores cleaner reference and alias
+CleanersRegistry.stores.cleaner = NoOfStoresCleaner;
+CleanersRegistry.stories = CleanersRegistry.stores;
+
 // Export for module systems or attach to global window
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { StreetCleaner, AddressSplitter, OccupancyClassifier, ConstructionClassifier, YearBuiltCleaner, RoofYearCleaner, RoofClassifier, WallClassifier, CleanersRegistry };
+  module.exports = { StreetCleaner, AddressSplitter, OccupancyClassifier, ConstructionClassifier, YearBuiltCleaner, RoofYearCleaner, RoofClassifier, WallClassifier, NoOfStoresCleaner, CleanersRegistry };
 }
 if (typeof window !== 'undefined') {
   window.StreetCleaner = StreetCleaner;
@@ -3456,6 +3822,7 @@ if (typeof window !== 'undefined') {
   window.RoofYearCleaner = RoofYearCleaner;
   window.RoofClassifier = RoofClassifier;
   window.WallClassifier = WallClassifier;
+  window.NoOfStoresCleaner = NoOfStoresCleaner;
   window.CleanersRegistry = CleanersRegistry;
   window.parseExcelRows = parseExcelRows;
 }

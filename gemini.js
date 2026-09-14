@@ -9,10 +9,14 @@ const GeminiService = {
   API_BASE: 'https://generativelanguage.googleapis.com/v1beta/models',
 
   getApiKey() {
-    return localStorage.getItem('cleanexcel_gemini_api_key') || this.DEFAULT_API_KEY;
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem('cleanexcel_gemini_api_key') || this.DEFAULT_API_KEY;
+    }
+    return this.DEFAULT_API_KEY;
   },
 
   setApiKey(key) {
+    if (typeof localStorage === 'undefined') return;
     if (key && key.trim()) {
       localStorage.setItem('cleanexcel_gemini_api_key', key.trim());
     } else {
@@ -21,24 +25,30 @@ const GeminiService = {
   },
 
   isConfigured() {
-    return !!this.getApiKey();
+    const key = this.getApiKey();
+    return !!(key && key.trim().length > 5);
   },
 
   hasCustomKey() {
-    return !!localStorage.getItem('cleanexcel_gemini_api_key');
+    if (typeof localStorage === 'undefined') return false;
+    const key = localStorage.getItem('cleanexcel_gemini_api_key');
+    return !!(key && key.trim().length > 5);
   },
 
   getMaskedKeyDisplay() {
     const key = this.getApiKey();
-    if (!key) return 'Not Configured';
-    return '••••••••••••••••••••••••••••••••••••';
+    if (!key || key.trim().length === 0) return 'Not Configured';
+    const trimmed = key.trim();
+    if (trimmed.length <= 8) return '••••••••••••••••••••••••••••••••••••';
+    return `${trimmed.slice(0, 4)}••••••••••••••••••••••••••••${trimmed.slice(-4)}`;
   },
 
   /**
-   * Internal helper: Base API endpoint (keeps secret keys out of URL query parameters)
+   * Internal helper: Base API endpoint
    */
-  _getEndpoint() {
-    return `${this.API_BASE}/${this.MODEL_NAME}:generateContent`;
+  _getEndpoint(modelName) {
+    const model = modelName || this.MODEL_NAME;
+    return `${this.API_BASE}/${model}:generateContent`;
   },
 
   /**
@@ -54,37 +64,120 @@ const GeminiService = {
   },
 
   /**
-   * Test API key connectivity
+   * Robust JSON extractor: safely handles markdown code fences (```json ... ```)
+   * and extracts arrays or objects without throwing syntax errors.
    */
-  async testConnection() {
-    const key = this.getApiKey();
-    if (!key) throw new Error('No Gemini API Key provided.');
+  _extractJSON(text) {
+    if (!text || typeof text !== 'string') return null;
+    let clean = text.trim();
+    if (clean.startsWith('```')) {
+      clean = clean.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+    }
+    try {
+      return JSON.parse(clean);
+    } catch (e) {
+      const arrayMatch = clean.match(/\[[\s\S]*\]/);
+      if (arrayMatch) {
+        try {
+          return JSON.parse(arrayMatch[0]);
+        } catch (e2) {}
+      }
+      const objMatch = clean.match(/\{[\s\S]*\}/);
+      if (objMatch) {
+        try {
+          return JSON.parse(objMatch[0]);
+        } catch (e3) {}
+      }
+      throw new Error(`Failed to parse AI response as JSON. Response preview: ${text.slice(0, 120)}...`);
+    }
+  },
 
-    const url = this._getEndpoint();
-    const payload = {
-      generationConfig: {
-        thinkingConfig: { thinkingBudget: 0 }
-      },
-      contents: [{ parts: [{ text: 'Hello, confirm you are Gemini' }] }]
-    };
+  /**
+   * Internal resilient HTTP request helper:
+   * - Validates key presence
+   * - Retries with URL query param if custom header is blocked
+   * - Retries without thinkingConfig if unsupported
+   * - Falls back to alternative models if 404
+   */
+  async _makeRequest(payload, customKey, modelOverride) {
+    const key = (customKey || this.getApiKey() || '').trim();
+    if (!key) {
+      throw new Error('No Gemini API Key provided. Please enter your Google Gemini API key in Gemini AI Settings.');
+    }
 
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: this._getHeaders(key),
-      body: JSON.stringify(payload)
-    });
+    const currentModel = modelOverride || this.MODEL_NAME;
+    const url = this._getEndpoint(currentModel);
+    let res;
+
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: this._getHeaders(key),
+        body: JSON.stringify(payload)
+      });
+    } catch (netErr) {
+      // Fallback with key query parameter if headers are stripped by proxies/extensions
+      const fallbackUrl = `${url}?key=${encodeURIComponent(key)}`;
+      try {
+        res = await fetch(fallbackUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (fallbackErr) {
+        throw new Error(`Network connection to Google Gemini failed: ${netErr.message || fallbackErr.message}. Check your internet connection or browser security extensions.`);
+      }
+    }
 
     if (!res.ok) {
       const errJson = await res.json().catch(() => ({}));
-      const msg = errJson.error ? errJson.error.message : `HTTP ${res.status}`;
-      throw new Error(msg);
+      const errMsg = errJson.error ? errJson.error.message : `HTTP ${res.status}`;
+
+      // If error is related to thinkingConfig, retry without it
+      if (payload.generationConfig && payload.generationConfig.thinkingConfig && (res.status === 400 || errMsg.toLowerCase().includes('thinking'))) {
+        const cleanPayload = JSON.parse(JSON.stringify(payload));
+        delete cleanPayload.generationConfig.thinkingConfig;
+        return this._makeRequest(cleanPayload, key, currentModel);
+      }
+
+      // If model not found (404), fallback to alternative Flash models
+      if (res.status === 404 && currentModel !== 'gemini-1.5-flash') {
+        const altModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+        for (const alt of altModels) {
+          if (alt === currentModel) continue;
+          try {
+            return await this._makeRequest(payload, key, alt);
+          } catch (e) {}
+        }
+      }
+
+      throw new Error(errMsg);
     }
 
     const data = await res.json();
+    const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!textOutput) {
+      throw new Error('Gemini returned an empty response. Content may have been filtered.');
+    }
+    return textOutput;
+  },
+
+  /**
+   * Test API key connectivity
+   */
+  async testConnection(customKey) {
+    const key = (customKey || this.getApiKey() || '').trim();
+    if (!key) throw new Error('No Gemini API Key provided. Please paste your API key above.');
+
+    const payload = {
+      contents: [{ parts: [{ text: 'Respond with exactly: "Google Gemini 2.5 Flash is connected."' }] }]
+    };
+
+    const text = await this._makeRequest(payload, key);
     return {
       success: true,
-      model: data.modelVersion || this.MODEL_NAME,
-      message: data.candidates?.[0]?.content?.parts?.[0]?.text || 'Connected'
+      model: this.MODEL_NAME,
+      message: text.trim()
     };
   },
 
@@ -92,14 +185,10 @@ const GeminiService = {
    * Helper to invoke Gemini with a system prompt and user text, expecting JSON
    */
   async callGemini(systemPrompt, userText) {
-    const key = this.getApiKey();
-    if (!key) throw new Error('Please configure a Gemini API key.');
-
-    const url = this._getEndpoint();
     const payload = {
       generationConfig: {
-        response_mime_type: 'application/json',
-        thinkingConfig: { thinkingBudget: 0 }
+        responseMimeType: 'application/json',
+        response_mime_type: 'application/json'
       },
       system_instruction: {
         parts: [{ text: systemPrompt }]
@@ -109,34 +198,17 @@ const GeminiService = {
       ]
     };
 
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: this._getHeaders(key),
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const errJson = await res.json().catch(() => ({}));
-      throw new Error(errJson.error?.message || `Gemini API error (${res.status})`);
-    }
-
-    const json = await res.json();
-    const textOutput = json.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!textOutput) throw new Error('Gemini returned an empty response.');
-    return textOutput;
+    return this._makeRequest(payload);
   },
 
   /**
    * Use Gemini AI to parse and split addresses across any country (US, UK, Germany, Canada, etc.)
    */
   async parseAddressesWithAI(rawLines, options = {}) {
-    const key = this.getApiKey();
-    if (!key) throw new Error('Please configure a Gemini API key.');
+    if (!this.isConfigured()) throw new Error('Please configure a Gemini API key in Gemini AI Settings.');
 
     const nonBlankLines = rawLines.map((line, idx) => ({ idx, line: String(line || '').trim() })).filter(item => item.line.length > 0);
     if (nonBlankLines.length === 0) return [];
-
-    const url = this._getEndpoint();
 
     const systemPrompt = `You are CleanExcel Studio AI, an expert address parser with worldwide international knowledge (US, UK, Germany, Canada, France, Australia, Japan, etc.).
 Parse each input address into an array of JSON objects matching this exact structure:
@@ -153,45 +225,33 @@ Parse each input address into an array of JSON objects matching this exact struc
 ]
 
 Strict Rules:
-1. For country, ALWAYS output standard 2-letter ISO 3166-1 alpha-2 codes (e.g. US for United States, GB for United Kingdom, DE for Germany, CA for Canada).
+1. For country, ALWAYS output standard 2-letter ISO 3166-1 alpha-2 codes (e.g. US for United States, GB for United Kingdom, DE for Germany, CA for Canada, AU for Australia).
 2. For US appraisal records with [Street], [City], [State], [County], [Postal], extract County into the "county" field (e.g. DAVIDSON in "1908 Grand Avenue,NASHVILLE,TN,DAVIDSON,37212").
-3. For UK addresses, extract the alphanumeric postcode (e.g. SW1A 2AA) into "postal", "London" into "city", and "GB" into "country".
+3. For UK addresses, extract the building & street into "street" (e.g. "22 High Street"), the post town into "city" (e.g. "WITNEY", "London"), the county into "county" (e.g. "Oxfordshire", "Surrey"), the alphanumeric postcode into "postal" (e.g. "OX28 6RB", "SW1A 2AA"), and "GB" into "country".
 4. For Germany addresses, extract the 5-digit PLZ (e.g. 10117) into "postal" and "DE" into "country".
 5. For Canada addresses, extract the postal code (e.g. M5V 3X5) into "postal", province into "state", and "CA" into "country".
-6. Remove noise prefixes like "Unit 4, ", "No1 bldg, ", or trailing "#" from the street address.
-7. Preserve number ranges with hyphens like "145-146 MIRAMAR BOULEVARD".`;
+6. For Australia addresses, extract suburb into "city", state (NSW, VIC, QLD, WA, SA, TAS, ACT, NT) into "state", 4-digit postcode into "postal", and "AU" into "country".
+7. Remove noise prefixes like "Unit 4, ", "No1 bldg, ", or trailing "#" from the street address.
+8. Preserve number ranges with hyphens like "145-146 MIRAMAR BOULEVARD".`;
 
-    const userText = nonBlankLines.map(item => `Line ${item.idx + 1}: ${item.line}`).join('\n');
+    const BATCH_SIZE = 50;
+    const parsedArray = [];
 
-    const payload = {
-      generationConfig: {
-        response_mime_type: 'application/json',
-        thinkingConfig: { thinkingBudget: 0 }
-      },
-      system_instruction: {
-        parts: [{ text: systemPrompt }]
-      },
-      contents: [
-        { parts: [{ text: userText }] }
-      ]
-    };
+    for (let i = 0; i < nonBlankLines.length; i += BATCH_SIZE) {
+      const batch = nonBlankLines.slice(i, i + BATCH_SIZE);
+      const userText = batch.map(item => `Line ${item.idx + 1}: ${item.line}`).join('\n');
+      
+      const textOutput = await this.callGemini(systemPrompt, userText);
+      const batchParsed = this._extractJSON(textOutput) || [];
+      if (Array.isArray(batchParsed)) {
+        parsedArray.push(...batchParsed);
+      }
 
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: this._getHeaders(key),
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const errJson = await res.json().catch(() => ({}));
-      throw new Error(errJson.error?.message || `Gemini API error (${res.status})`);
+      // Delay between batches to respect Gemini Free Tier rate limits (15 requests/min)
+      if (i + BATCH_SIZE < nonBlankLines.length) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
     }
-
-    const json = await res.json();
-    const textOutput = json.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!textOutput) throw new Error('Gemini returned an empty response.');
-
-    const parsedArray = JSON.parse(textOutput);
 
     // Map back to original line order
     const casing = options.casing || 'titlecase';
@@ -246,13 +306,10 @@ Strict Rules:
    * Use Gemini AI to clean street column following user rules
    */
   async cleanStreetsWithAI(rawLines, options = {}) {
-    const key = this.getApiKey();
-    if (!key) throw new Error('Please configure a Gemini API key.');
+    if (!this.isConfigured()) throw new Error('Please configure a Gemini API key in Gemini AI Settings.');
 
     const nonBlankLines = rawLines.map((line, idx) => ({ idx, line: String(line || '').trim() })).filter(item => item.line.length > 0);
     if (nonBlankLines.length === 0) return [];
-
-    const url = this._getEndpoint();
 
     const systemPrompt = `You are CleanExcel Studio AI Street Cleaner.
 Clean each address according to these strict rules:
@@ -265,36 +322,8 @@ Clean each address according to these strict rules:
 Output ONLY a JSON array: [{"lineNum": <int>, "cleaned": "<UPPERCASE cleaned street address>"}]`;
 
     const userText = nonBlankLines.map(item => `Line ${item.idx + 1}: ${item.line}`).join('\n');
-
-    const payload = {
-      generationConfig: {
-        response_mime_type: 'application/json',
-        thinkingConfig: { thinkingBudget: 0 }
-      },
-      system_instruction: {
-        parts: [{ text: systemPrompt }]
-      },
-      contents: [
-        { parts: [{ text: userText }] }
-      ]
-    };
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: this._getHeaders(key),
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const errJson = await res.json().catch(() => ({}));
-      throw new Error(errJson.error?.message || `Gemini API error (${res.status})`);
-    }
-
-    const json = await res.json();
-    const textOutput = json.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!textOutput) throw new Error('Gemini returned an empty response.');
-
-    const parsedArray = JSON.parse(textOutput);
+    const textOutput = await this.callGemini(systemPrompt, userText);
+    const parsedArray = this._extractJSON(textOutput) || [];
     const resultsMap = new Map();
     parsedArray.forEach(item => {
       resultsMap.set(item.lineNum, item.cleaned);
@@ -317,20 +346,24 @@ Output ONLY a JSON array: [{"lineNum": <int>, "cleaned": "<UPPERCASE cleaned str
    * Classify Occupancy Description and Building Description into UNICEDE Touchstone Occupancy Class Code using Gemini 2.5
    */
   async classifyOccupancyWithAI(inputData, options = {}) {
+    if (!this.isConfigured()) throw new Error('Please configure a Gemini API key in Gemini AI Settings.');
     let rowsToProcess = [];
 
-    if (inputData && typeof inputData === 'object' && !Array.isArray(inputData) && (inputData.bldgDescs || inputData.occDescs)) {
+    if (inputData && typeof inputData === 'object' && !Array.isArray(inputData) && (inputData.bldgDescs || inputData.occDescs || inputData.extraCols)) {
       const codes = inputData.existingCodes || [];
       const bldgs = inputData.bldgDescs || [];
       const occs = inputData.occDescs || [];
-      const maxLen = Math.max(codes.length, bldgs.length, occs.length);
+      const extraCols = inputData.extraCols || [];
+      const maxLen = Math.max(codes.length, bldgs.length, occs.length, ...(extraCols.map(c => c.length)));
 
       for (let i = 0; i < maxLen; i++) {
+        const rowExtra = extraCols.map(col => (col[i] || '').trim());
         rowsToProcess.push({
           idx: i,
           existingCode: (codes[i] || '').trim(),
           bldgDesc: (bldgs[i] || '').trim(),
-          occDesc: (occs[i] || '').trim()
+          occDesc: (occs[i] || '').trim(),
+          extraCols: rowExtra
         });
       }
     } else {
@@ -343,18 +376,17 @@ Output ONLY a JSON array: [{"lineNum": <int>, "cleaned": "<UPPERCASE cleaned str
           idx,
           existingCode: parsed.existingCode,
           bldgDesc: parsed.bldgDesc,
-          occDesc: parsed.occDesc
+          occDesc: parsed.occDesc,
+          extraCols: []
         };
       });
     }
 
-    const nonBlankRows = rowsToProcess.filter(r => r.existingCode || r.bldgDesc || r.occDesc);
+    const nonBlankRows = rowsToProcess.filter(r => r.existingCode || r.bldgDesc || r.occDesc || (r.extraCols && r.extraCols.some(Boolean)));
 
     if (nonBlankRows.length === 0) {
       return [];
     }
-
-    const url = this._getEndpoint();
 
     const systemPrompt = `You are CleanExcel Studio AI Insurance Occupancy Classifier.
 You analyze commercial, residential, industrial, and institutional occupancy and building descriptions to assign the official UNICEDE® / AIR-Worldwide Touchstone Occupancy Class Code.
@@ -429,35 +461,8 @@ Instructions:
       `Line ${item.idx + 1}: ExistingCode="${item.existingCode}" | BuildingDesc="${item.bldgDesc}" | OccupancyDesc="${item.occDesc}"`
     ).join('\n');
 
-    const payload = {
-      generationConfig: {
-        response_mime_type: 'application/json',
-        thinkingConfig: { thinkingBudget: 0 }
-      },
-      system_instruction: {
-        parts: [{ text: systemPrompt }]
-      },
-      contents: [
-        { parts: [{ text: userText }] }
-      ]
-    };
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: this._getHeaders(),
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const errJson = await res.json().catch(() => ({}));
-      throw new Error(errJson.error?.message || `Gemini API error (${res.status})`);
-    }
-
-    const json = await res.json();
-    const textOutput = json.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!textOutput) throw new Error('Gemini returned an empty response.');
-
-    const parsedArray = JSON.parse(textOutput);
+    const textOutput = await this.callGemini(systemPrompt, userText);
+    const parsedArray = this._extractJSON(textOutput) || [];
     const resultsMap = new Map();
     parsedArray.forEach(item => {
       resultsMap.set(item.lineNum, {
@@ -490,37 +495,53 @@ Instructions:
           statusText = `✨ Assigned (${aiItem.occCode})`;
         }
 
+        const extraCols = row.extraCols || [];
+        const origParts = [row.existingCode, row.bldgDesc, row.occDesc, ...extraCols];
+        const cleanParts = [row.existingCode, row.bldgDesc, row.occDesc, ...extraCols, aiItem.occCode, aiItem.category].filter(Boolean);
+
         return {
           lineNum,
-          original: `${row.existingCode}\t${row.bldgDesc}\t${row.occDesc}`.trim(),
+          original: origParts.join('\t').trim(),
           existingCode: row.existingCode,
           bldgDesc: row.bldgDesc,
           occDesc: row.occDesc,
+          extraCols: extraCols,
+          allCols: origParts,
           occCode: aiItem.occCode,
           category: aiItem.category,
           status: statusKey,
           statusText: statusText,
-          cleaned: `${row.existingCode ? row.existingCode + '\t' : ''}${row.bldgDesc}\t${row.occDesc}\t${aiItem.occCode}\t${aiItem.category}`,
+          comparisonStatus: statusKey,
+          comparisonMessage: statusText,
+          cleaned: cleanParts.join('\t'),
           changed: true,
           aiEnhanced: true
         };
       }
 
+      const extraCols = row.extraCols || [];
+      const origParts = [row.existingCode, row.bldgDesc, row.occDesc, ...extraCols];
       const local = (typeof window !== 'undefined' && window.OccupancyClassifier)
-        ? window.OccupancyClassifier.classifyRow(row.existingCode, row.bldgDesc, row.occDesc)
-        : { existingCode: row.existingCode, bldgDesc: row.bldgDesc, occDesc: row.occDesc, occCode: '300', category: 'Unknown occupancy', status: 'assigned', statusText: 'Assigned' };
+        ? window.OccupancyClassifier.classifyRow(row.existingCode, row.bldgDesc, row.occDesc, extraCols)
+        : { existingCode: row.existingCode, bldgDesc: row.bldgDesc, occDesc: row.occDesc, occCode: '300', category: 'Unknown occupancy', status: 'assigned', statusText: 'Assigned', comparisonStatus: 'assigned', comparisonMessage: 'Assigned' };
+
+      const cleanParts = [local.existingCode, local.bldgDesc, local.occDesc, ...extraCols, local.occCode, local.category].filter(Boolean);
 
       return {
         lineNum,
-        original: `${row.existingCode}\t${row.bldgDesc}\t${row.occDesc}`.trim(),
+        original: origParts.join('\t').trim(),
         existingCode: local.existingCode,
         bldgDesc: local.bldgDesc,
         occDesc: local.occDesc,
+        extraCols: extraCols,
+        allCols: origParts,
         occCode: local.occCode,
         category: local.category,
         status: local.status,
         statusText: local.statusText,
-        cleaned: `${local.existingCode ? local.existingCode + '\t' : ''}${local.bldgDesc}\t${local.occDesc}\t${local.occCode}\t${local.category}`,
+        comparisonStatus: local.status,
+        comparisonMessage: local.statusText,
+        cleaned: cleanParts.join('\t'),
         changed: true,
         aiEnhanced: false
       };
@@ -531,21 +552,23 @@ Instructions:
    * Use Gemini AI to accurately classify structural engineering / construction descriptions into Touchstone UNICEDE Construction Codes
    */
   async classifyConstructionWithAI(inputPayload) {
-    const key = this.getApiKey();
-    if (!key) throw new Error('Please configure a Gemini API key.');
+    if (!this.isConfigured()) throw new Error('Please configure a Gemini API key in Gemini AI Settings.');
 
     let rowsToProcess = [];
-    if (typeof inputPayload === 'object' && !Array.isArray(inputPayload) && (inputPayload.bldgDescs || inputPayload.conDescs)) {
+    if (inputPayload && typeof inputPayload === 'object' && !Array.isArray(inputPayload) && (inputPayload.bldgDescs || inputPayload.conDescs || inputPayload.extraCols)) {
       const codes = inputPayload.existingCodes || [];
       const bldgs = inputPayload.bldgDescs || [];
       const cons = inputPayload.conDescs || [];
-      const maxLen = Math.max(codes.length, bldgs.length, cons.length);
+      const extraCols = inputPayload.extraCols || [];
+      const maxLen = Math.max(codes.length, bldgs.length, cons.length, ...(extraCols.map(c => c.length)));
       for (let i = 0; i < maxLen; i++) {
+        const rowExtra = extraCols.map(col => (col[i] || '').trim());
         rowsToProcess.push({
           idx: i,
           existingCode: (codes[i] || '').trim(),
           bldgDesc: (bldgs[i] || '').trim(),
-          conDesc: (cons[i] || '').trim()
+          conDesc: (cons[i] || '').trim(),
+          extraCols: rowExtra
         });
       }
     } else {
@@ -558,15 +581,14 @@ Instructions:
           idx,
           existingCode: row.existingCode,
           bldgDesc: row.bldgDesc,
-          conDesc: row.conDesc
+          conDesc: row.conDesc,
+          extraCols: []
         };
       });
     }
 
-    const nonBlankRows = rowsToProcess.filter(r => r.existingCode || r.bldgDesc || r.conDesc);
+    const nonBlankRows = rowsToProcess.filter(r => r.existingCode || r.bldgDesc || r.conDesc || (r.extraCols && r.extraCols.some(Boolean)));
     if (nonBlankRows.length === 0) return [];
-
-    const url = this._getEndpoint();
 
     const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and property appraisal analyst specialized in Verisk Touchstone UNICEDE® Construction Class Codes.
 Map each building and construction description to its official Verisk Touchstone construction code:
@@ -632,43 +654,24 @@ Instructions:
 3. UNDERWRITING RULE FOR EXTERIOR WALL FINISH / WALL MATERIALS:
    - If Exterior Wall Finish is STONE (or stone facade, stone finish, stone wall, stone masonry, fieldstone) -> ALWAYS assign Construction Code 113 (Rubble Stone Masonry).
    - If Exterior Wall Finish is BRICK (or brick finish, exterior brick, brick wall, general brick/masonry) -> ALWAYS assign Construction Code 111 (Masonry).
-4. If existingCode was 100 (Unknown) or differed: provide the accurate code, category, and group.
-5. Output ONLY a JSON array with one object per input line:
+4. ISO COMMERCIAL FIRE / CONSTRUCTION CLASS UNDERWRITING RULES:
+   - ISO 1 (Frame) -> ALWAYS assign Construction Code 101 (Wood Frame Modern).
+   - ISO 2 (Joisted Masonry) -> ALWAYS assign Construction Code 119 (Joisted Masonry).
+   - ISO 3 (Noncombustible) -> ALWAYS assign Construction Code 152 (Light Metal / Non-Combustible).
+   - ISO 4 (Masonry Noncombustible) -> ALWAYS assign Construction Code 111 (Masonry).
+   - ISO 5 (Modified Fire Resistive) -> ALWAYS assign Construction Code 131 (Reinforced Concrete / MFR).
+   - ISO 6 (Fire Resistive) -> ALWAYS assign Construction Code 131 (Reinforced Concrete / FR).
+5. If existingCode was 100 (Unknown) or differed: provide the accurate code, category, and group.
+6. Output ONLY a JSON array with one object per input line:
 [{"lineNum": <int>, "conCode": "<string>", "category": "<string>", "group": "<string>"}]`;
 
-    const userText = nonBlankRows.map(item => 
-      `Line ${item.idx + 1}: ExistingCode="${item.existingCode}" | BuildingDesc="${item.bldgDesc}" | ConstructionDesc="${item.conDesc}"`
-    ).join('\n');
+    const userText = nonBlankRows.map(item => {
+      const extraStr = (item.extraCols && item.extraCols.length > 0 && item.extraCols.some(Boolean)) ? ` | ExtraCols="${item.extraCols.join('; ')}"` : '';
+      return `Line ${item.idx + 1}: ExistingCode="${item.existingCode}" | BuildingDesc="${item.bldgDesc}" | ConstructionDesc="${item.conDesc}"${extraStr}`;
+    }).join('\n');
 
-    const payload = {
-      generationConfig: {
-        response_mime_type: 'application/json',
-        thinkingConfig: { thinkingBudget: 0 }
-      },
-      system_instruction: {
-        parts: [{ text: systemPrompt }]
-      },
-      contents: [
-        { parts: [{ text: userText }] }
-      ]
-    };
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: this._getHeaders(key),
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const errJson = await res.json().catch(() => ({}));
-      throw new Error(errJson.error?.message || `Gemini API error (${res.status})`);
-    }
-
-    const json = await res.json();
-    const textOutput = json.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!textOutput) throw new Error('Gemini returned an empty response.');
-
-    const parsedArray = JSON.parse(textOutput);
+    const textOutput = await this.callGemini(systemPrompt, userText);
+    const parsedArray = this._extractJSON(textOutput) || [];
     const resultsMap = new Map();
     parsedArray.forEach(item => {
       resultsMap.set(item.lineNum, {
@@ -682,6 +685,8 @@ Instructions:
       const lineNum = i + 1;
       const aiItem = resultsMap.get(lineNum);
       const ex = row.existingCode;
+      const extraCols = row.extraCols || [];
+      const origParts = [row.existingCode, row.bldgDesc, row.conDesc, ...extraCols];
 
       if (aiItem) {
         let statusKey = 'assigned';
@@ -702,12 +707,16 @@ Instructions:
           statusText = `✨ Assigned (${aiItem.conCode})`;
         }
 
+        const cleanParts = [row.existingCode, row.bldgDesc, row.conDesc, ...extraCols, aiItem.conCode, aiItem.category].filter(Boolean);
+
         return {
           lineNum,
-          original: `${row.existingCode}\t${row.bldgDesc}\t${row.conDesc}`.trim(),
+          original: origParts.join('\t').trim(),
           existingCode: row.existingCode,
           bldgDesc: row.bldgDesc,
           conDesc: row.conDesc,
+          extraCols: extraCols,
+          allCols: origParts,
           conCode: aiItem.conCode,
           category: aiItem.category,
           group: aiItem.group,
@@ -715,22 +724,26 @@ Instructions:
           statusText: statusText,
           comparisonStatus: statusKey,
           comparisonMessage: statusText,
-          cleaned: `${row.existingCode ? row.existingCode + '\t' : ''}${row.bldgDesc}\t${row.conDesc}\t${aiItem.conCode}\t${aiItem.category}`,
+          cleaned: cleanParts.join('\t'),
           changed: true,
           aiEnhanced: true
         };
       }
 
       const local = (typeof window !== 'undefined' && window.ConstructionClassifier)
-        ? window.ConstructionClassifier.classifyRow(row.existingCode, row.bldgDesc, row.conDesc)
+        ? window.ConstructionClassifier.classifyRow(row.existingCode, row.bldgDesc, row.conDesc, extraCols)
         : { existingCode: row.existingCode, bldgDesc: row.bldgDesc, conDesc: row.conDesc, conCode: '100', category: 'Unknown', group: 'Unknown construction', status: 'assigned', statusText: 'Assigned', comparisonStatus: 'assigned', comparisonMessage: 'Assigned' };
+
+      const cleanParts = [local.existingCode, local.bldgDesc, local.conDesc, ...extraCols, local.conCode, local.category].filter(Boolean);
 
       return {
         lineNum,
-        original: `${row.existingCode}\t${row.bldgDesc}\t${row.conDesc}`.trim(),
+        original: origParts.join('\t').trim(),
         existingCode: local.existingCode,
         bldgDesc: local.bldgDesc,
         conDesc: local.conDesc,
+        extraCols: extraCols,
+        allCols: origParts,
         conCode: local.conCode,
         category: local.category,
         group: local.group,
@@ -738,7 +751,7 @@ Instructions:
         statusText: local.statusText,
         comparisonStatus: local.status,
         comparisonMessage: local.statusText,
-        cleaned: `${local.existingCode ? local.existingCode + '\t' : ''}${local.bldgDesc}\t${local.conDesc}\t${local.conCode}\t${local.category}`,
+        cleaned: cleanParts.join('\t'),
         changed: true,
         aiEnhanced: false
       };
@@ -752,6 +765,7 @@ Instructions:
     if (!rawLines || rawLines.length === 0) return [];
     const validLines = rawLines.map((l, idx) => ({ lineNum: idx + 1, text: l })).filter(x => x.text.trim().length > 0);
     if (validLines.length === 0) return [];
+    if (!this.isConfigured()) throw new Error('Please configure a Gemini API key in Gemini AI Settings.');
 
     const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and property cat modeling analyst specialized in Verisk Touchstone UNICEDE® Wall Detail Fields.
 Your goal is to parse and classify each exterior wall input line into two Touchstone fields:
@@ -797,17 +811,8 @@ Output ONLY a JSON array of objects:
 [{"lineNum": <int>, "wallTypeCode": "<code 0-9>", "wallSidingCode": "<code 0-8>"}]`;
 
     const userLinesText = validLines.map(v => `${v.lineNum}. ${v.text}`).join('\n');
-    let aiItems = [];
-
-    try {
-      const responseText = await this.callGemini(systemPrompt, userLinesText);
-      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        aiItems = JSON.parse(jsonMatch[0]);
-      }
-    } catch (err) {
-      console.warn('Gemini Wall AI failed or returned invalid JSON. Falling back to local classifier.', err);
-    }
+    const responseText = await this.callGemini(systemPrompt, userLinesText);
+    const aiItems = this._extractJSON(responseText) || [];
 
     const aiMap = new Map();
     aiItems.forEach(item => {
@@ -894,6 +899,7 @@ Output ONLY a JSON array of objects:
     if (!rawLines || rawLines.length === 0) return [];
     const validLines = rawLines.map((l, idx) => ({ lineNum: idx + 1, text: l })).filter(x => x.text.trim().length > 0);
     if (validLines.length === 0) return [];
+    if (!this.isConfigured()) throw new Error('Please configure a Gemini API key in Gemini AI Settings.');
 
     const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and catastrophe risk modeling analyst specialized in Verisk Touchstone UNICEDE® Roof Detail Fields.
 Your goal is to parse and classify each roof input line into five Touchstone fields:
@@ -977,17 +983,8 @@ Output ONLY a JSON array of objects:
 [{"lineNum": <int>, "geometryCode": "<0-10>", "pitchCode": "<0-3>", "coveringCode": "<0-12>", "deckCode": "<0-8>", "anchorageCode": "<0-7>"}]`;
 
     const userLinesText = validLines.map(v => `${v.lineNum}. ${v.text}`).join('\n');
-    let aiItems = [];
-
-    try {
-      const responseText = await this.callGemini(systemPrompt, userLinesText);
-      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        aiItems = JSON.parse(jsonMatch[0]);
-      }
-    } catch (err) {
-      console.warn('Gemini Roof AI failed or returned invalid JSON. Falling back to local classifier.', err);
-    }
+    const responseText = await this.callGemini(systemPrompt, userLinesText);
+    const aiItems = this._extractJSON(responseText) || [];
 
     const aiMap = new Map();
     if (Array.isArray(aiItems)) {
@@ -1120,8 +1117,7 @@ Output ONLY a JSON array of objects:
    * Enforces 1753 <= Year <= Current Year and selects older/lesser year for multi-year entries
    */
   async parseYearWithAI(rawLines, options = {}) {
-    const key = this.getApiKey();
-    if (!key) throw new Error('Please configure a Gemini API key.');
+    if (!this.isConfigured()) throw new Error('Please configure a Gemini API key in Gemini AI Settings.');
 
     const minYear = typeof options.minYear === 'number' && !isNaN(options.minYear) ? options.minYear : 1753;
     const maxYear = typeof options.maxYear === 'number' && !isNaN(options.maxYear) ? options.maxYear : new Date().getFullYear();
@@ -1144,17 +1140,8 @@ Output ONLY a valid JSON array of objects:
 ]`;
 
     const userLinesText = validLines.map(v => `${v.lineNum}. ${v.text}`).join('\n');
-    let aiItems = [];
-
-    try {
-      const responseText = await this.callGemini(systemPrompt, userLinesText);
-      const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        aiItems = JSON.parse(jsonMatch[0]);
-      }
-    } catch (err) {
-      console.warn('Gemini Year AI failed or returned invalid JSON. Falling back to local validator.', err);
-    }
+    const responseText = await this.callGemini(systemPrompt, userLinesText);
+    const aiItems = this._extractJSON(responseText) || [];
 
     const aiMap = new Map();
     aiItems.forEach(item => {

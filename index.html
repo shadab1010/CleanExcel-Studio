@@ -366,6 +366,28 @@
             </button>
           </div>
 
+          <!-- Bento: No of Stores (Span 6) -->
+          <div class="bento-card bento-span-6" data-target-section="stores">
+            <div class="bento-card-top">
+              <div class="bento-card-header">
+                <div class="bento-icon">🏢</div>
+                <span class="bento-badge">Underwriting Stories</span>
+              </div>
+              <h3 class="bento-heading">No of Stores (Stories &amp; Floors)</h3>
+              <p class="bento-desc">Standardizes building story heights: always positive integers, decimals rounded up (<code>3.5 ➔ 4</code>, <code>4.2 ➔ 5</code>), multi-values/ranges pick max (<code>2 &amp; 3 ➔ 3</code>, <code>2/3 ➔ 3</code>), and <code>non</code>/blank left blank.</p>
+              
+              <div class="bento-rule-pills">
+                <span class="bento-rule-chip">Round UP (3.5➔4, 4.2➔5)</span>
+                <span class="bento-rule-chip">Range Max (2 &amp; 3➔3)</span>
+                <span class="bento-rule-chip">Positive Whole No</span>
+              </div>
+            </div>
+            <button class="bento-cta-btn" type="button">
+              <span>Launch No of Stores Engine</span>
+              <span>&rarr;</span>
+            </button>
+          </div>
+
           <!-- Bento 4: Street Address (Span 6) -->
           <div class="bento-card bento-span-6" data-target-section="street">
             <div class="bento-card-top">
@@ -593,6 +615,14 @@
                     </div>
                     <span class="item-badge">2-Col</span>
                   </button>
+                  <button class="dropdown-item" data-target="stores" type="button">
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M9 7h1"></path><path d="M9 11h1"></path><path d="M9 15h1"></path><path d="M14 7h1"></path><path d="M14 11h1"></path><path d="M14 15h1"></path></svg></span>
+                    <div class="item-details">
+                      <span class="item-title">No of Stores</span>
+                      <span class="item-sub">Whole Number &bull; Round Up &bull; Range Max</span>
+                    </div>
+                    <span class="item-badge">Stories</span>
+                  </button>
                 </div>
               </div>
 
@@ -732,6 +762,11 @@
           <span>Exterior Wall Finish</span>
           <span class="tab-badge">WallType • WallSiding</span>
         </button>
+        <button class="column-tab" data-column="stores" data-category="underwriting" data-name="No of Stores" id="tab-stores">
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M9 7h1"></path><path d="M9 11h1"></path><path d="M9 15h1"></path><path d="M14 7h1"></path><path d="M14 11h1"></path><path d="M14 15h1"></path></svg>
+          <span>No of Stores</span>
+          <span class="tab-badge">Positive Whole No</span>
+        </button>
         <button class="column-tab" data-column="name" data-category="contact" data-name="Full Name" id="tab-name">
           <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           <span>Full Name</span>
@@ -832,6 +867,10 @@
             <span>Columns & Export</span>
           </div>
           <label class="checkbox-toggle">
+            <input type="checkbox" id="split-include-raw-checkbox" checked>
+            <span>Include Raw Address column (Raw Input)</span>
+          </label>
+          <label class="checkbox-toggle" style="margin-top: 4px;">
             <input type="checkbox" id="split-include-county-checkbox" checked>
             <span>Include County column (e.g. Davidson)</span>
           </label>
@@ -849,6 +888,7 @@
             <button class="radio-pill active" data-country-format="iso2" id="country-format-iso2" title="ISO 3166-1 alpha-2 standard (US, GB, DE, CA)">ISO-2 (US, GB)</button>
             <button class="radio-pill" data-country-format="iso2-uk" id="country-format-iso2-uk" title="ISO-2 with UK (US, UK, DE, CA)">ISO-2 (UK)</button>
             <button class="radio-pill" data-country-format="fullname" id="country-format-fullname" title="Full country names">Full Name</button>
+            <button class="radio-pill" data-country-format="original" id="country-format-original" title="Keep country text exactly as in input (e.g. UNITED KINGDOM)">Original</button>
           </div>
           <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
             <span style="font-size: 11px; color: var(--text-secondary);">Default ISO-2 code:</span>
@@ -1011,6 +1051,15 @@
           <button type="button" class="finder-quick-tag" data-target="construction" data-query="151">151 Structural Steel</button>
           <button type="button" class="finder-quick-tag" data-target="construction" data-query="191">191 Mobile Homes</button>
         </div>
+        <div class="finder-quick-tags" style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.08);">
+          <span class="finder-quick-label">ISO Construction Classes:</span>
+          <button type="button" class="finder-quick-tag highlight-iso" data-target="construction" data-query="ISO 1 Frame" title="ISO 1: Frame ➔ Touchstone 101">ISO 1 Frame (➔ 101)</button>
+          <button type="button" class="finder-quick-tag highlight-iso" data-target="construction" data-query="ISO 2 Joisted Masonry" title="ISO 2: Joisted Masonry ➔ Touchstone 119">ISO 2 Joisted Masonry (➔ 119)</button>
+          <button type="button" class="finder-quick-tag highlight-iso" data-target="construction" data-query="ISO 3 Noncombustible" title="ISO 3: Noncombustible ➔ Touchstone 152">ISO 3 Noncombustible (➔ 152)</button>
+          <button type="button" class="finder-quick-tag highlight-iso" data-target="construction" data-query="ISO 4 Masonry Noncombustible" title="ISO 4: Masonry Noncombustible ➔ Touchstone 111">ISO 4 Masonry NC (➔ 111)</button>
+          <button type="button" class="finder-quick-tag highlight-iso" data-target="construction" data-query="ISO 5 Modified Fire Resistive" title="ISO 5: Modified Fire Resistive ➔ Touchstone 131">ISO 5 Mod Fire Resistive (➔ 131)</button>
+          <button type="button" class="finder-quick-tag highlight-iso" data-target="construction" data-query="ISO 6 Fire Resistive" title="ISO 6: Fire Resistive ➔ Touchstone 131">ISO 6 Fire Resistive (➔ 131)</button>
+        </div>
         <!-- Live Results Drawer -->
         <div class="finder-results-drawer" id="construction-finder-results" style="display: none;"></div>
       </div>
@@ -1033,6 +1082,21 @@
             <span class="occ-badge-pill" title="201-203+: Bridge construction">201-203: Bridge</span>
             <span class="occ-badge-pill" title="221-226+: Storage tank construction">221-226: Tank</span>
             <span class="occ-badge-pill" title="500-514: Solar construction">500-514: Solar</span>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>ISO Construction Classes (ISO 1–6)</span>
+            <span class="tab-badge" style="background: rgba(59, 130, 246, 0.18); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.35);">ISO Standards</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 11px; line-height: 1.8; color: var(--text-primary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            ISO 1 Frame ➔ <span style="color: #60a5fa; font-weight: bold;">101</span> (Wood Frame Modern)<br>
+            ISO 2 Joisted Masonry ➔ <span style="color: #60a5fa; font-weight: bold;">119</span> (Joisted Masonry)<br>
+            ISO 3 Noncombustible ➔ <span style="color: #60a5fa; font-weight: bold;">152</span> (Light Metal / PEMB)<br>
+            ISO 4 Masonry Noncombustible ➔ <span style="color: #60a5fa; font-weight: bold;">111</span> (Masonry NC)<br>
+            ISO 5 Modified Fire Resistive ➔ <span style="color: #60a5fa; font-weight: bold;">131</span> (Reinforced Concrete)<br>
+            ISO 6 Fire Resistive ➔ <span style="color: #60a5fa; font-weight: bold;">131</span> (Reinforced Concrete)
           </div>
         </div>
 
@@ -1205,7 +1269,11 @@
             <code>1. ROOF GEOMETRY | 2. ROOF PITCH | 3. ROOF COVERING | 4. ROOF DECK</code>
           </div>
         </div>
-        <div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btn-roof-ai" class="btn btn-ai btn-sm" type="button" title="Use Gemini 2.5 Flash to accurately classify roof descriptions">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Roof Classifier (Gemini 2.5)</span>
+          </button>
           <a href="https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-roof-detail-fields.html?hl=roof" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View official Touchstone Roof Detail fields documentation">
             <span>📖 UNICEDE® Specs</span>
           </a>
@@ -1393,6 +1461,73 @@
       </div>
     </section>
 
+    <!-- No of Stores Rule Configuration Ribbon -->
+    <section class="rules-card" id="stores-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M9 7h1"></path><path d="M9 11h1"></path><path d="M9 15h1"></path><path d="M14 7h1"></path><path d="M14 11h1"></path><path d="M14 15h1"></path></svg><span>No of Stores Underwriting Engine</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Underwriting Rule:</span>
+            <code>Always Positive • Always Whole No (3.5➔4, 4.2➔5) • Ranges/Multi-values Pick Max (2 &amp; 3➔3, 1,2➔2, 2/3➔3) • Non/Blank➔Blank</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Core Normalization Rules</span>
+            <span class="tab-badge">Strict Underwriting</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            <div>• <strong>Always Positive Integer:</strong> Story count is strictly positive (&ge; 1). Negative values convert to positive (e.g. <code>-2 ➔ 2</code>).</div>
+            <div>• <strong>Always Whole Number (Round UP):</strong> Any decimal rounds up to the next integer (<code>3.5 ➔ 4</code>, <code>4.2 ➔ 5</code>, <code>1.1 ➔ 2</code>).</div>
+            <div>• <strong>Ranges &amp; Multiple Numbers:</strong> Always pick the <strong>higher / maximum</strong> number (<code>2 &amp; 3 ➔ 3</code>, <code>1,2 ➔ 2</code>, <code>2/3 ➔ 3</code>, <code>2-4 ➔ 4</code>).</div>
+            <div>• <strong>Blanks &amp; "non":</strong> Empty lines, whitespace, <code>non</code>, <code>none</code>, <code>n/a</code>, and <code>0</code> leave blank.</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Rule Outcome Matrix</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 11px; line-height: 1.8; color: var(--text-primary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            3.5 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">4</span> (Round UP / Ceil)<br>
+            4.2 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">5</span> (Round UP / Ceil)<br>
+            2 &amp; 3 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">3</span> (Max candidate selected)<br>
+            1,2 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">2</span> (Max candidate selected)<br>
+            2/3 ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">3</span> (Max candidate selected)<br>
+            non / none ➔ <span style="color: #f87171; font-weight: bold;">[BLANK]</span> (Non-applicable)<br>
+            [Blank] ➔ <span style="color: #f87171; font-weight: bold;">[BLANK]</span> (Leaves blank)
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Engine Configuration</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <label class="checkbox-toggle">
+              <input type="checkbox" id="stores-round-up-checkbox" checked>
+              <span>Round up all decimals (e.g. 3.5 ➔ 4, 4.2 ➔ 5)</span>
+            </label>
+            <label class="checkbox-toggle">
+              <input type="checkbox" id="stores-pick-max-checkbox" checked>
+              <span>Pick maximum on ranges (e.g. 2 &amp; 3 ➔ 3, 2/3 ➔ 3)</span>
+            </label>
+            <label class="checkbox-toggle">
+              <input type="checkbox" id="stores-positive-checkbox" checked>
+              <span>Always enforce positive integers (&ge; 1)</span>
+            </label>
+            <label class="checkbox-toggle">
+              <input type="checkbox" id="stores-remove-empty-checkbox">
+              <span>Filter out blank rows from results</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Active Column Rule Configuration Ribbon -->
     <section class="rules-card" id="street-rules-panel">
       <div class="rules-header">
@@ -1490,9 +1625,13 @@
               <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
               <span>Paste 2 Columns</span>
             </button>
-            <button id="btn-paste-3col" class="btn btn-primary btn-sm" title="Paste 3 Excel columns (AR, AS, AT) directly from clipboard" style="display: none;">
+            <button id="btn-paste-3col" class="btn btn-primary btn-sm" title="Paste Excel columns directly from clipboard" style="display: none;">
               <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              <span>Paste 3 Columns</span>
+              <span id="btn-paste-3col-text">Paste 3 Columns</span>
+            </button>
+            <button id="btn-add-column" class="btn btn-secondary btn-sm" title="Add another column (Col 4, Col 5...) for Occupancy &amp; Construction" style="display: none;">
+              <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>+ Add Column</span>
             </button>
             <button id="btn-paste-clipboard" class="btn btn-secondary btn-sm" title="Paste data directly from clipboard">
               <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
@@ -1530,12 +1669,12 @@
           </div>
         </div>
 
-        <!-- 3-Column Separate Input Grid for Occupancy Code (AR, AS, AT) -->
+        <!-- Multi-Column Separate Input Grid for Occupancy & Construction Code (AR, AS, AT, AU...) -->
         <div class="occupancy-3col-editor" id="occupancy-3col-container" style="display: none;">
           <!-- Column 1: OccupancyCode / ConstructionCode (AR) -->
-          <div class="occ-col-input-card occ-col-code">
+          <div class="occ-col-input-card occ-col-code" data-col-index="1">
             <div class="occ-col-header">
-              <span class="occ-col-badge" title="Optional existing code (AR)">Col 1 • AR</span>
+              <span class="occ-col-badge" id="occ-badge-col-1" title="Optional existing code (AR)">Col 1 • AR</span>
               <div class="occ-col-title-wrapper" title="Click to rename Column 1">
                 <input type="text" id="occ-col-1-input" class="occ-col-name-input" value="Existing Code" placeholder="Col 1 Name..." spellcheck="false" title="Click to rename Column 1" />
                 <span class="occ-col-edit-icon" title="Click to rename">✏️</span>
@@ -1552,9 +1691,9 @@
           </div>
 
           <!-- Column 2: Building Description (AS) -->
-          <div class="occ-col-input-card occ-col-bldg">
+          <div class="occ-col-input-card occ-col-bldg" data-col-index="2">
             <div class="occ-col-header">
-              <span class="occ-col-badge">Col 2 • AS</span>
+              <span class="occ-col-badge" id="occ-badge-col-2">Col 2 • AS</span>
               <div class="occ-col-title-wrapper" title="Click to rename Column 2">
                 <input type="text" id="occ-col-2-input" class="occ-col-name-input" value="Building Description" placeholder="Col 2 Name..." spellcheck="false" title="Click to rename Column 2" />
                 <span class="occ-col-edit-icon" title="Click to rename">✏️</span>
@@ -1571,9 +1710,9 @@
           </div>
 
           <!-- Column 3: Occupancy Description / Construction Description (AT) -->
-          <div class="occ-col-input-card occ-col-occ">
+          <div class="occ-col-input-card occ-col-occ" data-col-index="3">
             <div class="occ-col-header">
-              <span class="occ-col-badge">Col 3 • AT</span>
+              <span class="occ-col-badge" id="occ-badge-col-3">Col 3 • AT</span>
               <div class="occ-col-title-wrapper" title="Click to rename Column 3">
                 <input type="text" id="occ-col-3-input" class="occ-col-name-input" value="Occupancy Description" placeholder="Col 3 Name..." spellcheck="false" title="Click to rename Column 3" />
                 <span class="occ-col-edit-icon" title="Click to rename">✏️</span>
@@ -1785,6 +1924,22 @@
         <p class="modal-desc">
           CleanExcel Studio is integrated with <strong>Gemini 2.5 Flash</strong> for instant worldwide address intelligence (UK postcodes, Germany PLZ, Canadian provinces, US county appraisal records, etc.).
         </p>
+
+        <!-- Google AI Studio Free Key Helper Box -->
+        <div class="ai-key-guide-box">
+          <div class="ai-key-guide-content">
+            <span class="ai-key-guide-icon">🔑</span>
+            <div>
+              <div class="ai-key-guide-title">Need a Free Google Gemini API Key?</div>
+              <div class="ai-key-guide-desc">Google AI Studio provides a free API key with generous daily usage. No credit card required.</div>
+            </div>
+          </div>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-cyan ai-key-guide-btn">
+            <span>Get Free Key</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          </a>
+        </div>
+
         <div class="form-group">
           <label>API Key Status</label>
           <div class="api-key-status-box">
@@ -1796,18 +1951,18 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="gemini-api-key-input">Update / Override API Key <span style="font-weight: normal; color: var(--text-muted);">(Optional)</span></label>
+          <label for="gemini-api-key-input">Enter / Update Gemini API Key</label>
           <div class="key-input-wrapper">
             <input 
               type="password" 
               id="gemini-api-key-input" 
               class="tag-input" 
-              placeholder="Enter new key to update (leave blank to keep active key)..." 
+              placeholder="Paste your Google Gemini API key (e.g. AIzaSy...)..." 
               autocomplete="new-password"
               style="width: 100%; font-family: var(--font-mono); font-size: 12px;" />
-            <button id="btn-clear-custom-key" class="btn btn-secondary btn-sm" type="button" title="Clear custom key and reset to system default">Reset</button>
+            <button id="btn-clear-custom-key" class="btn btn-secondary btn-sm" type="button" title="Clear saved key and remove from browser">Remove</button>
           </div>
-          <span class="form-help">Your secret key is never shown on screen or exposed in plain text.</span>
+          <span class="form-help">Your secret key is stored locally in your browser and is never sent to any third party.</span>
         </div>
         <div class="form-group">
           <label>Active Engine</label>
@@ -1819,8 +1974,8 @@
         <div id="gemini-test-status" class="test-status-area" style="display: none;"></div>
       </div>
       <div class="modal-footer">
-        <button id="btn-test-gemini" class="btn btn-secondary btn-sm">🧪 Test Connection</button>
-        <button id="btn-save-gemini-key" class="btn btn-primary btn-sm">Save &amp; Close</button>
+        <button id="btn-test-gemini" class="btn btn-secondary btn-sm" type="button">🧪 Test Connection</button>
+        <button id="btn-save-gemini-key" class="btn btn-primary btn-sm" type="button">Save &amp; Close</button>
       </div>
     </div>
   </div>

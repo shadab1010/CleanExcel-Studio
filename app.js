@@ -15,6 +15,7 @@ const AppState = {
   removeEmptyLines: false,
   // Address Splitter options
   splitCasing: 'titlecase', // 'titlecase' | 'uppercase' | 'original'
+  splitIncludeRaw: true,
   splitIncludeCounty: true,
   splitIncludeCountry: true,
   splitCountryFormat: 'iso2', // 'iso2' | 'iso2-uk' | 'fullname'
@@ -39,7 +40,11 @@ const AppState = {
   // Exterior Wall Finish options
   wallFormat: 'code_only',
   wallRemoveEmpty: false,
-  // Custom User Column Names per 3-column engine
+  // Custom User Column Counts & Names per multi-column engine
+  colCounts: {
+    occupancy: 3,
+    construction: 3
+  },
   colNames: {
     occupancy: {
       col1: 'Existing Code',
@@ -242,6 +247,31 @@ const SampleDatasets = {
     "2\t7"
   ].join('\n'),
 
+  stores: [
+    "3.5",          // -> 4 (Round UP / Ceil)
+    "4.2",          // -> 5 (Round UP / Ceil)
+    "2 & 3",        // -> 3 (Max candidate selected)
+    "1,2",          // -> 2 (Max candidate selected)
+    "2/3",          // -> 3 (Max candidate selected)
+    "non",          // -> blank
+    "none",         // -> blank
+    "",             // -> blank
+    "1",            // -> 1
+    "5",            // -> 5
+    "2-4 stories",  // -> 4 (Max candidate selected)
+    "3 stories",    // -> 3
+    "1.25 floors",  // -> 2 (Round UP / Ceil)
+    "N/A",          // -> blank
+    "-2",           // -> 2 (Always positive)
+    "0",            // -> blank
+    "2 and 4",      // -> 4
+    "3/4/5",        // -> 5
+    "4.1",          // -> 5
+    "Level 6",      // -> 6
+    "two",          // -> 2
+    "three stories" // -> 3
+  ].join('\n'),
+
   name: [
     "Mr. Johnathan R. Doe, Esq.",
     "Dr. Jane A. Smith-Taylor",
@@ -289,6 +319,7 @@ let preserveHyphenCheckboxEl;
 let extractPrimaryCheckboxEl;
 let stripBldgCheckboxEl;
 let removeEmptyCheckboxEl;
+let splitIncludeRawCheckboxEl;
 let splitIncludeCountyCheckboxEl;
 let splitIncludeCountryCheckboxEl;
 let splitDefaultCountryInputEl;
@@ -310,8 +341,8 @@ let occInputBldgEl;
 let occInputOccEl;
 let occLinesCodeEl;
 let occLinesBldgEl;
-let occLinesOccEl;
 let btnPaste3ColEl;
+let btnAddColEl;
 let rawPaneTitleEl;
 let occCol1InputEl;
 let occCol2InputEl;
@@ -366,6 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
   extractPrimaryCheckboxEl = document.getElementById('extract-primary-checkbox');
   stripBldgCheckboxEl = document.getElementById('strip-bldg-checkbox');
   removeEmptyCheckboxEl = document.getElementById('remove-empty-checkbox');
+  splitIncludeRawCheckboxEl = document.getElementById('split-include-raw-checkbox');
   splitIncludeCountyCheckboxEl = document.getElementById('split-include-county-checkbox');
   splitIncludeCountryCheckboxEl = document.getElementById('split-include-country-checkbox');
   splitDefaultCountryInputEl = document.getElementById('split-default-country-input');
@@ -389,6 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
   occLinesBldgEl = document.getElementById('occ-lines-bldg');
   occLinesOccEl = document.getElementById('occ-lines-occ');
   btnPaste3ColEl = document.getElementById('btn-paste-3col');
+  btnAddColEl = document.getElementById('btn-add-column');
   rawPaneTitleEl = document.getElementById('raw-pane-title');
   occCol1InputEl = document.getElementById('occ-col-1-input');
   occCol2InputEl = document.getElementById('occ-col-2-input');
@@ -449,15 +482,54 @@ document.addEventListener('DOMContentLoaded', () => {
 function updateGeminiModalUI() {
   if (!window.GeminiService) return;
   if (geminiApiKeyInputEl) geminiApiKeyInputEl.value = ''; // NEVER populate secret key in DOM
+  const isConfigured = window.GeminiService.isConfigured();
   const hasCustom = window.GeminiService.hasCustomKey();
+
+  const statusPill = document.querySelector('.api-status-pill');
+  const statusDot = statusPill ? statusPill.querySelector('.status-dot-pulse') : null;
+  const navPill = document.getElementById('btn-gemini-modal');
+  const navText = navPill ? navPill.querySelector('.ai-pill-text') : null;
+
   if (geminiKeyStatusTextEl) {
-    geminiKeyStatusTextEl.textContent = hasCustom ? '🔒 Custom Key Active' : '🔒 Pre-Configured System Key Active';
+    if (hasCustom) {
+      geminiKeyStatusTextEl.textContent = '🔒 Custom Key Active';
+      if (statusPill) statusPill.className = 'api-status-pill';
+      if (statusDot) statusDot.className = 'status-dot-pulse';
+    } else if (isConfigured) {
+      geminiKeyStatusTextEl.textContent = '🔒 System Key Active';
+      if (statusPill) statusPill.className = 'api-status-pill';
+      if (statusDot) statusDot.className = 'status-dot-pulse';
+    } else {
+      geminiKeyStatusTextEl.textContent = '⚠️ No API Key Configured';
+      if (statusPill) statusPill.className = 'api-status-pill unconfigured';
+      if (statusDot) statusDot.className = 'status-dot-pulse warning';
+    }
   }
+
   if (geminiKeyMaskedPreviewEl) {
     geminiKeyMaskedPreviewEl.textContent = window.GeminiService.getMaskedKeyDisplay();
   }
+
+  if (geminiApiKeyInputEl) {
+    geminiApiKeyInputEl.placeholder = isConfigured
+      ? 'Enter new key to update (leave blank to keep current key)...'
+      : 'Paste your Google Gemini API key here (AIzaSy...)...';
+  }
+
   if (btnClearCustomKeyEl) {
     btnClearCustomKeyEl.style.display = hasCustom ? 'inline-flex' : 'none';
+  }
+
+  if (navPill) {
+    if (isConfigured) {
+      navPill.className = 'veng-ai-pill active-key';
+      navPill.title = 'Google Gemini 2.5 Active. Click to manage API key.';
+      if (navText) navText.textContent = 'Gemini 2.5';
+    } else {
+      navPill.className = 'veng-ai-pill needs-key';
+      navPill.title = 'Gemini API key required. Click to enter your free key.';
+      if (navText) navText.textContent = 'Setup Gemini AI';
+    }
   }
 }
 
@@ -476,29 +548,308 @@ function getActiveSectionColNames() {
 }
 
 /**
- * Get user column name for column 1, 2, or 3
+ * Calculate Excel column letter starting from index 1 -> AR (44)
+ * 1: AR, 2: AS, 3: AT, 4: AU, 5: AV, 6: AW, 7: AX, 8: AY, 9: AZ, 10: BA...
+ */
+function getExcelColLetterFromIndex(colIndex) {
+  let n = 43 + colIndex;
+  let letter = '';
+  while (n > 0) {
+    let rem = (n - 1) % 26;
+    letter = String.fromCharCode(65 + rem) + letter;
+    n = Math.floor((n - 1) / 26);
+  }
+  return letter;
+}
+
+/**
+ * Get user column name for column 1, 2, 3, 4, 5...
  */
 function getColumnHeaderName(colIndex) {
   const names = getActiveSectionColNames();
-  const section = (AppState.activeColumnId === 'construction') ? 'construction' : 'occupancy';
-  const defaults = (section === 'construction')
-    ? { col1: 'Existing Code', col2: 'Building Type', col3: 'Construction Description' }
-    : { col1: 'Existing Code', col2: 'Building Description', col3: 'Occupancy Description' };
+  const key = `col${colIndex}`;
+  if (names && names[key] && names[key].trim()) return names[key].trim();
 
-  if (colIndex === 1) return (names.col1 || defaults.col1).trim();
-  if (colIndex === 2) return (names.col2 || defaults.col2).trim();
-  if (colIndex === 3) return (names.col3 || defaults.col3).trim();
-  return `Column ${colIndex}`;
+  const section = (AppState.activeColumnId === 'construction') ? 'construction' : 'occupancy';
+  if (section === 'construction') {
+    if (colIndex === 1) return 'Existing Code';
+    if (colIndex === 2) return 'Building Type';
+    if (colIndex === 3) return 'Construction Description';
+    if (colIndex === 4) return 'Exterior Finish / Wall';
+    if (colIndex === 5) return 'Roof / Framing Details';
+    return `Column ${colIndex}`;
+  } else {
+    if (colIndex === 1) return 'Existing Code';
+    if (colIndex === 2) return 'Building Description';
+    if (colIndex === 3) return 'Occupancy Description';
+    if (colIndex === 4) return 'Secondary Occupancy / Notes';
+    if (colIndex === 5) return 'Operations / Tenant';
+    return `Column ${colIndex}`;
+  }
 }
+
+/**
+ * Retrieve all textarea elements inside the multi-column container
+ */
+function getAllColumnTextareas() {
+  if (!occupancy3ColContainerEl) return [];
+  return Array.from(occupancy3ColContainerEl.querySelectorAll('textarea.occ-sub-textarea'));
+}
+
+/**
+ * Retrieve all text values from the multi-column textareas
+ */
+function getAllColumnValues() {
+  return getAllColumnTextareas().map(ta => ta.value);
+}
+
+/**
+ * Render and synchronize multi-column inputs in the DOM
+ */
+function renderMultiColumnInputs() {
+  const section = (AppState.activeColumnId === 'construction') ? 'construction' : 'occupancy';
+  if (!AppState.colCounts) AppState.colCounts = { occupancy: 3, construction: 3 };
+  const count = AppState.colCounts[section] || 3;
+
+  if (occupancy3ColContainerEl) {
+    occupancy3ColContainerEl.style.setProperty('--occ-col-count', count);
+  }
+
+  // Generate column letters list: e.g. "AR, AS, AT, AU"
+  const letters = [];
+  for (let i = 1; i <= count; i++) {
+    letters.push(getExcelColLetterFromIndex(i));
+  }
+  const lettersStr = letters.join(', ');
+
+  // Update Pane Title
+  if (rawPaneTitleEl) {
+    const titleName = section === 'construction' ? 'Construction' : 'Occupancy';
+    rawPaneTitleEl.innerHTML = `📥 ${count}-Column ${titleName} Input <span style="font-size:11px;font-weight:normal;opacity:0.75;">(${lettersStr})</span>`;
+  }
+
+  // Update Paste button text & title
+  if (btnPaste3ColEl) {
+    const pasteLabel = document.getElementById('btn-paste-3col-text');
+    if (pasteLabel) {
+      pasteLabel.textContent = `Paste ${count} Columns`;
+    }
+    btnPaste3ColEl.title = `Paste ${count} Excel columns (${lettersStr}) directly from clipboard`;
+  }
+
+  if (!occupancy3ColContainerEl) return;
+
+  // Manage dynamic cards in container
+  const existingCards = Array.from(occupancy3ColContainerEl.querySelectorAll('.occ-col-input-card'));
+  const currentDomCount = existingCards.length;
+
+  if (count > currentDomCount) {
+    for (let i = currentDomCount + 1; i <= count; i++) {
+      const card = createDynamicColumnCard(i, section);
+      occupancy3ColContainerEl.appendChild(card);
+    }
+  } else if (count < currentDomCount) {
+    for (let i = currentDomCount; i > count; i--) {
+      const cardToRemove = occupancy3ColContainerEl.querySelector(`.occ-col-input-card[data-col-index="${i}"]`);
+      if (cardToRemove) cardToRemove.remove();
+    }
+  }
+
+  // Sync labels & values for all cards
+  for (let i = 1; i <= count; i++) {
+    const card = occupancy3ColContainerEl.querySelector(`.occ-col-input-card[data-col-index="${i}"]`);
+    if (card) {
+      const letter = getExcelColLetterFromIndex(i);
+      const badge = card.querySelector('.occ-col-badge');
+      if (badge) badge.textContent = `Col ${i} • ${letter}`;
+
+      const nameInput = card.querySelector('.occ-col-name-input');
+      if (nameInput) {
+        nameInput.value = getColumnHeaderName(i);
+        nameInput.placeholder = `Col ${i} Name...`;
+      }
+    }
+  }
+
+  updateOccLineNumbers();
+}
+
+/**
+ * Create a new dynamic column card element (for Column 4+)
+ */
+function createDynamicColumnCard(index, section) {
+  const letter = getExcelColLetterFromIndex(index);
+  const colName = getColumnHeaderName(index);
+
+  const card = document.createElement('div');
+  card.className = 'occ-col-input-card occ-col-dynamic';
+  card.setAttribute('data-col-index', String(index));
+
+  card.innerHTML = `
+    <div class="occ-col-header">
+      <span class="occ-col-badge">Col ${index} • ${letter}</span>
+      <div class="occ-col-title-wrapper" title="Click to rename Column ${index}">
+        <input type="text" id="occ-col-${index}-input" class="occ-col-name-input" value="${escapeHtml(colName)}" placeholder="Col ${index} Name..." spellcheck="false" title="Click to rename Column ${index}" />
+        <span class="occ-col-edit-icon" title="Click to rename">✏️</span>
+      </div>
+      <button class="occ-col-remove-btn" title="Remove Column ${index}" type="button">✕</button>
+    </div>
+    <div class="occ-editor-box">
+      <div class="line-numbers occ-line-numbers" id="occ-lines-${index}">1</div>
+      <textarea 
+        id="occ-input-col-${index}" 
+        class="code-textarea occ-sub-textarea" 
+        spellcheck="false" 
+        placeholder=""></textarea>
+    </div>
+  `;
+
+  // Bind remove button
+  const removeBtn = card.querySelector('.occ-col-remove-btn');
+  if (removeBtn) {
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeColumn(index);
+    });
+  }
+
+  // Bind column rename input
+  const nameInput = card.querySelector('.occ-col-name-input');
+  if (nameInput) {
+    nameInput.addEventListener('input', () => {
+      const activeSec = (AppState.activeColumnId === 'construction') ? 'construction' : 'occupancy';
+      if (!AppState.colNames) AppState.colNames = {};
+      if (!AppState.colNames[activeSec]) AppState.colNames[activeSec] = {};
+      AppState.colNames[activeSec]['col' + index] = nameInput.value;
+      refreshOutputView();
+    });
+  }
+
+  const wrapper = card.querySelector('.occ-col-title-wrapper');
+  if (wrapper && nameInput) {
+    wrapper.addEventListener('click', (e) => {
+      if (e.target !== nameInput) {
+        nameInput.focus();
+        nameInput.select();
+      }
+    });
+  }
+
+  // Bind textarea
+  const textarea = card.querySelector('.occ-sub-textarea');
+  const lineNumbers = card.querySelector('.occ-line-numbers');
+
+  if (textarea) {
+    textarea.addEventListener('input', () => {
+      updateOccLineNumbers();
+      debouncedProcessCleaning(80);
+    });
+
+    textarea.addEventListener('paste', (e) => {
+      const pasteText = (e.clipboardData || window.clipboardData)?.getData('text');
+      if (pasteText && pasteText.includes('\t')) {
+        e.preventDefault();
+        distributeMultiColumnText(pasteText);
+        showToast('Pasted into columns!', '📋');
+      }
+    });
+
+    textarea.addEventListener('scroll', () => {
+      if (lineNumbers) lineNumbers.scrollTop = textarea.scrollTop;
+    });
+  }
+
+  return card;
+}
+
+/**
+ * Add a new column to the active engine (Occupancy or Construction)
+ */
+function addColumn() {
+  if (AppState.activeColumnId !== 'occupancy' && AppState.activeColumnId !== 'construction') {
+    showToast('Add Column is available for Occupancy & Construction modes', 'ℹ️');
+    return;
+  }
+  const section = AppState.activeColumnId;
+  if (!AppState.colCounts) AppState.colCounts = { occupancy: 3, construction: 3 };
+  const currentCount = AppState.colCounts[section] || 3;
+  const newCount = currentCount + 1;
+  AppState.colCounts[section] = newCount;
+
+  const defName = getColumnHeaderName(newCount);
+  if (!AppState.colNames) AppState.colNames = {};
+  if (!AppState.colNames[section]) AppState.colNames[section] = {};
+  AppState.colNames[section]['col' + newCount] = defName;
+
+  renderMultiColumnInputs();
+  processCleaning();
+
+  const letter = getExcelColLetterFromIndex(newCount);
+  const sectionName = section === 'construction' ? 'Construction' : 'Occupancy';
+  showToast(`Added Column ${newCount} (${letter}) to ${sectionName}!`, '➕');
+
+  setTimeout(() => {
+    if (occupancy3ColContainerEl) {
+      const newCard = occupancy3ColContainerEl.querySelector(`.occ-col-input-card[data-col-index="${newCount}"]`);
+      if (newCard) {
+        const ta = newCard.querySelector('textarea');
+        if (ta) ta.focus();
+      }
+    }
+  }, 60);
+}
+window.addColumn = addColumn;
+
+/**
+ * Remove an added column from the active engine
+ */
+function removeColumn(index) {
+  const section = (AppState.activeColumnId === 'construction') ? 'construction' : 'occupancy';
+  if (!AppState.colCounts) AppState.colCounts = { occupancy: 3, construction: 3 };
+  const currentCount = AppState.colCounts[section] || 3;
+
+  if (index <= 3) {
+    showToast('Columns 1 to 3 are primary columns and cannot be removed', '⚠️');
+    return;
+  }
+
+  const textareas = getAllColumnTextareas();
+  const values = textareas.map(ta => ta.value);
+
+  // Remove the value at index-1
+  values.splice(index - 1, 1);
+
+  // Shift column names
+  if (AppState.colNames && AppState.colNames[section]) {
+    for (let i = index; i < currentCount; i++) {
+      AppState.colNames[section]['col' + i] = AppState.colNames[section]['col' + (i + 1)];
+    }
+    delete AppState.colNames[section]['col' + currentCount];
+  }
+
+  AppState.colCounts[section] = currentCount - 1;
+
+  renderMultiColumnInputs();
+
+  // Restore values to textareas
+  const newTextareas = getAllColumnTextareas();
+  newTextareas.forEach((ta, idx) => {
+    if (values[idx] !== undefined) {
+      ta.value = values[idx];
+    }
+  });
+
+  updateOccLineNumbers();
+  processCleaning();
+  showToast(`Removed Column ${index}`, '🗑️');
+}
+window.removeColumn = removeColumn;
 
 /**
  * Sync column name input fields from AppState
  */
 function updateColumnNameInputsFromState() {
-  const names = getActiveSectionColNames();
-  if (occCol1InputEl) occCol1InputEl.value = names.col1 || '';
-  if (occCol2InputEl) occCol2InputEl.value = names.col2 || '';
-  if (occCol3InputEl) occCol3InputEl.value = names.col3 || '';
+  renderMultiColumnInputs();
 }
 
 /**
@@ -513,18 +864,16 @@ function isHeaderRow(cells, section) {
   // If all cells are blank, not a header
   if (!col0 && !col1 && !col2) return false;
 
-  const headerRegex = /^(code|existing\s*code|bldg|building|type|occupancy|construction|desc|description|class|use|details|col\s*\d|ar|as|at|property|category|name|header)/i;
+  const headerRegex = /^(code|existing\s*code|bldg|building|type|occupancy|construction|desc|description|class|use|details|col\s*\d|ar|as|at|au|av|property|category|name|header)/i;
 
   const isFirstCellHeader = headerRegex.test(col0) || (col0.length > 0 && isNaN(Number(col0)) && /code|ar/i.test(col0));
   const isSecondCellHeader = headerRegex.test(col1);
   const isThirdCellHeader = headerRegex.test(col2);
 
-  // If at least 2 cells match header patterns
   if ((isFirstCellHeader && isSecondCellHeader) || (isSecondCellHeader && isThirdCellHeader) || (isFirstCellHeader && isThirdCellHeader)) {
     return true;
   }
 
-  // Any explicit keyword in cell 0, 1, or 2 while cell 0 is non-numeric
   const explicitWords = [col0, col1, col2].some(c => /^(existing\s*code|building(\s*description|\s*type)?|occupancy(\s*description)?|construction(\s*description)?|code|description|building)$/i.test(c));
   if (explicitWords && isNaN(Number(col0))) {
     return true;
@@ -537,18 +886,19 @@ function isHeaderRow(cells, section) {
  * Apply auto-detected headers from row
  */
 function applyDetectedHeaders(rowCells, section) {
-  const defaults = (section === 'construction')
-    ? { col1: 'Existing Code', col2: 'Building Type', col3: 'Construction Description' }
-    : { col1: 'Existing Code', col2: 'Building Description', col3: 'Occupancy Description' };
-
-  const name1 = (rowCells[0] !== undefined && String(rowCells[0]).trim()) || defaults.col1;
-  const name2 = (rowCells[1] !== undefined && String(rowCells[1]).trim()) || defaults.col2;
-  const name3 = (rowCells[2] !== undefined && String(rowCells[2]).trim()) || defaults.col3;
-
   if (!AppState.colNames) AppState.colNames = {};
-  AppState.colNames[section] = { col1: name1, col2: name2, col3: name3 };
-  updateColumnNameInputsFromState();
-  showToast(`Auto-detected column names: "${name1}", "${name2}", "${name3}"`, '🏷️');
+  if (!AppState.colNames[section]) AppState.colNames[section] = {};
+
+  const count = Math.max(rowCells.length, AppState.colCounts[section] || 3);
+  for (let i = 1; i <= count; i++) {
+    const detected = rowCells[i - 1] !== undefined ? String(rowCells[i - 1]).trim() : '';
+    if (detected) {
+      AppState.colNames[section]['col' + i] = detected;
+    }
+  }
+
+  renderMultiColumnInputs();
+  showToast(`Auto-detected column names from header row!`, '🏷️');
 }
 
 /**
@@ -694,6 +1044,16 @@ function bindEvents() {
       icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg>', 
       category: 'underwriting' 
     },
+    stores: { 
+      name: 'No of Stores', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M9 7h1"></path><path d="M9 11h1"></path><path d="M9 15h1"></path><path d="M14 7h1"></path><path d="M14 11h1"></path><path d="M14 15h1"></path></svg>', 
+      category: 'underwriting' 
+    },
+    stories: { 
+      name: 'No of Stores', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M9 7h1"></path><path d="M9 11h1"></path><path d="M9 15h1"></path><path d="M14 7h1"></path><path d="M14 11h1"></path><path d="M14 15h1"></path></svg>', 
+      category: 'underwriting' 
+    },
     name: { 
       name: 'Full Name', 
       icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>', 
@@ -765,6 +1125,7 @@ function bindEvents() {
     const roofYearRulesEl = document.getElementById('roof-year-rules-panel');
     const roofRulesEl = document.getElementById('roof-rules-panel');
     const wallRulesEl = document.getElementById('wall-rules-panel');
+    const storesRulesEl = document.getElementById('stores-rules-panel');
     if (streetRulesEl) streetRulesEl.style.display = colId === 'street' ? 'flex' : 'none';
     if (splitRulesEl) splitRulesEl.style.display = colId === 'split' ? 'flex' : 'none';
     if (occRulesEl) occRulesEl.style.display = colId === 'occupancy' ? 'flex' : 'none';
@@ -773,6 +1134,7 @@ function bindEvents() {
     if (roofYearRulesEl) roofYearRulesEl.style.display = colId === 'roof_year' ? 'flex' : 'none';
     if (roofRulesEl) roofRulesEl.style.display = colId === 'roof' ? 'flex' : 'none';
     if (wallRulesEl) wallRulesEl.style.display = colId === 'wall' ? 'flex' : 'none';
+    if (storesRulesEl) storesRulesEl.style.display = (colId === 'stores' || colId === 'stories') ? 'flex' : 'none';
 
     // Update live inspector on section switch
     const liveInspectorEl = document.getElementById('live-code-inspector');
@@ -787,6 +1149,7 @@ function bindEvents() {
       if (inputEditorContainerEl) inputEditorContainerEl.style.display = 'none';
       if (btnPaste2ColEl) btnPaste2ColEl.style.display = 'inline-flex';
       if (btnPaste3ColEl) btnPaste3ColEl.style.display = 'none';
+      if (btnAddColEl) btnAddColEl.style.display = 'none';
       if (rawPaneTitleEl) rawPaneTitleEl.innerHTML = '📥 2-Column Roof Year Built Input <span style="font-size:11px;font-weight:normal;opacity:0.75;">(Year Built &amp; Roof Year)</span>';
       updateRoofYearLineNumbers();
     } else if (colId === 'occupancy' || colId === 'construction') {
@@ -795,20 +1158,9 @@ function bindEvents() {
       if (inputEditorContainerEl) inputEditorContainerEl.style.display = 'none';
       if (btnPaste2ColEl) btnPaste2ColEl.style.display = 'none';
       if (btnPaste3ColEl) btnPaste3ColEl.style.display = 'inline-flex';
+      if (btnAddColEl) btnAddColEl.style.display = 'inline-flex';
 
-      updateColumnNameInputsFromState();
-
-      if (colId === 'construction') {
-        if (rawPaneTitleEl) rawPaneTitleEl.innerHTML = '📥 3-Column Construction Input <span style="font-size:11px;font-weight:normal;opacity:0.75;">(AR, AS, AT)</span>';
-        if (occInputCodeEl) occInputCodeEl.placeholder = '';
-        if (occInputBldgEl) occInputBldgEl.placeholder = '';
-        if (occInputOccEl) occInputOccEl.placeholder = '';
-      } else {
-        if (rawPaneTitleEl) rawPaneTitleEl.innerHTML = '📥 3-Column Occupancy Input <span style="font-size:11px;font-weight:normal;opacity:0.75;">(AR, AS, AT)</span>';
-        if (occInputCodeEl) occInputCodeEl.placeholder = '';
-        if (occInputBldgEl) occInputBldgEl.placeholder = '';
-        if (occInputOccEl) occInputOccEl.placeholder = '';
-      }
+      renderMultiColumnInputs();
       updateOccLineNumbers();
     } else {
       if (roofYear2ColContainerEl) roofYear2ColContainerEl.style.display = 'none';
@@ -816,6 +1168,7 @@ function bindEvents() {
       if (inputEditorContainerEl) inputEditorContainerEl.style.display = 'flex';
       if (btnPaste2ColEl) btnPaste2ColEl.style.display = 'none';
       if (btnPaste3ColEl) btnPaste3ColEl.style.display = 'none';
+      if (btnAddColEl) btnAddColEl.style.display = 'none';
       if (rawPaneTitleEl) {
         if (colId === 'year') {
           rawPaneTitleEl.textContent = '📥 Raw Year Built Input (1753 – 2026)';
@@ -823,6 +1176,8 @@ function bindEvents() {
           rawPaneTitleEl.textContent = '📥 Raw Roof Description Input';
         } else if (colId === 'wall') {
           rawPaneTitleEl.textContent = '📥 Raw Exterior Wall Finish Input';
+        } else if (colId === 'stores' || colId === 'stories') {
+          rawPaneTitleEl.textContent = '📥 Raw No of Stores / Stories Input';
         } else {
           rawPaneTitleEl.textContent = '📥 Raw Excel Column Input';
         }
@@ -834,6 +1189,8 @@ function bindEvents() {
           rawInputEl.placeholder = 'Paste exterior wall finish data here (e.g. "50% Brick / 50% Vinyl Siding", "Stucco on Concrete Block")...\nCleanExcel will automatically separate into:\n1. WallType (Backing / Structure)\n2. WallSiding (Weather Finish)\nApplying Underwriting Rules: Higher % • Weaker Material Tie-Breaker';
         } else if (colId === 'year') {
           rawInputEl.placeholder = 'Paste Year Built column here (e.g. "1994", "Built in 1985", "1680", "2030")...\nCleanExcel will validate between 1753 and 2026, blanking out-of-range rows.';
+        } else if (colId === 'stores' || colId === 'stories') {
+          rawInputEl.placeholder = 'Paste No of Stores / Stories data here (e.g. "3.5", "4.2", "2 & 3", "1,2", "2/3", "non", "none", "5")...\nCleanExcel enforces Underwriting Rules:\n• Decimals round UP (3.5 ➔ 4, 4.2 ➔ 5)\n• Multi-values/ranges pick MAX (2 & 3 ➔ 3, 1,2 ➔ 2, 2/3 ➔ 3)\n• Always positive whole numbers\n• Non / none / blank ➔ Blank';
         } else {
           rawInputEl.placeholder = 'Paste your raw Excel column here (one record per line)...\n\nExample:\n123 MAIN ST STE 400\nAPT #5B 456 ELM AVE\nPO BOX 789 BLDG 2';
         }
@@ -1037,20 +1394,29 @@ function bindEvents() {
     });
   }
 
-  // Paste 3 Columns button
+  // Paste Multi-Column button
   if (btnPaste3ColEl) {
     btnPaste3ColEl.addEventListener('click', async () => {
       try {
         const text = await navigator.clipboard.readText();
         if (text) {
-          distribute3ColumnText(text);
-          showToast('Pasted 3 Excel columns from clipboard!', '📋');
+          distributeMultiColumnText(text);
+          const sec = (AppState.activeColumnId === 'construction') ? 'construction' : 'occupancy';
+          const cnt = (AppState.colCounts && AppState.colCounts[sec]) || 3;
+          showToast(`Pasted ${cnt} Excel columns from clipboard!`, '📋');
         } else {
           showToast('Clipboard is empty', '⚠️');
         }
       } catch (err) {
         showToast('Please press Ctrl+V / Cmd+V into any column box to paste', 'ℹ️');
       }
+    });
+  }
+
+  // Add Column button (+ Add Column)
+  if (btnAddColEl) {
+    btnAddColEl.addEventListener('click', () => {
+      addColumn();
     });
   }
 
@@ -1147,6 +1513,36 @@ function bindEvents() {
     });
   });
 
+  // No of Stores options
+  const storesRoundUpEl = document.getElementById('stores-round-up-checkbox');
+  if (storesRoundUpEl) {
+    storesRoundUpEl.addEventListener('change', (e) => {
+      AppState.storesRoundUp = e.target.checked;
+      processCleaning();
+    });
+  }
+  const storesPickMaxEl = document.getElementById('stores-pick-max-checkbox');
+  if (storesPickMaxEl) {
+    storesPickMaxEl.addEventListener('change', (e) => {
+      AppState.storesPickMax = e.target.checked;
+      processCleaning();
+    });
+  }
+  const storesPositiveEl = document.getElementById('stores-positive-checkbox');
+  if (storesPositiveEl) {
+    storesPositiveEl.addEventListener('change', (e) => {
+      AppState.storesPositive = e.target.checked;
+      processCleaning();
+    });
+  }
+  const storesRemoveEmptyEl = document.getElementById('stores-remove-empty-checkbox');
+  if (storesRemoveEmptyEl) {
+    storesRemoveEmptyEl.addEventListener('change', (e) => {
+      AppState.storesRemoveEmpty = e.target.checked;
+      processCleaning();
+    });
+  }
+
   // Street options
   if (preserveHyphenCheckboxEl) {
     preserveHyphenCheckboxEl.addEventListener('change', (e) => {
@@ -1186,6 +1582,13 @@ function bindEvents() {
   });
 
   // Address Splitter options
+  if (splitIncludeRawCheckboxEl) {
+    splitIncludeRawCheckboxEl.addEventListener('change', (e) => {
+      AppState.splitIncludeRaw = e.target.checked;
+      processCleaning();
+    });
+  }
+
   if (splitIncludeCountyCheckboxEl) {
     splitIncludeCountyCheckboxEl.addEventListener('change', (e) => {
       AppState.splitIncludeCounty = e.target.checked;
@@ -1290,6 +1693,7 @@ function bindEvents() {
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
       if (AppState.activeColumnId === 'occupancy' || AppState.activeColumnId === 'construction') {
+        getAllColumnTextareas().forEach(ta => { ta.value = ''; });
         if (occInputCodeEl) occInputCodeEl.value = '';
         if (occInputBldgEl) occInputBldgEl.value = '';
         if (occInputOccEl) occInputOccEl.value = '';
@@ -1449,7 +1853,7 @@ function bindEvents() {
       if (window.GeminiService) {
         window.GeminiService.setApiKey('');
         updateGeminiModalUI();
-        showToast('Reset to default pre-configured key', '🔄');
+        showToast('Custom API key removed', '🗑️');
       }
     });
   }
@@ -1462,9 +1866,12 @@ function bindEvents() {
         const val = geminiApiKeyInputEl.value.trim();
         if (val) {
           window.GeminiService.setApiKey(val);
+          updateGeminiModalUI();
           showToast('Custom Gemini API key saved & active!', '✨');
-        } else {
+        } else if (window.GeminiService.isConfigured()) {
           showToast('Active API key retained & protected', '🔒');
+        } else {
+          showToast('No API key entered', '⚠️');
         }
         geminiApiKeyInputEl.value = '';
       }
@@ -1493,7 +1900,7 @@ function bindEvents() {
         updateGeminiModalUI();
         if (geminiTestStatusEl) {
           geminiTestStatusEl.className = 'test-status-area success';
-          geminiTestStatusEl.textContent = `✓ Connected! Model: ${res.model} is active.`;
+          geminiTestStatusEl.textContent = `✓ Connected! Model: ${res.model} is active. Response: "${res.message}"`;
         }
       } catch (err) {
         if (geminiTestStatusEl) {
@@ -1531,6 +1938,11 @@ function bindEvents() {
   const conAiBtn = document.getElementById('btn-construction-ai');
   if (conAiBtn) {
     conAiBtn.addEventListener('click', () => triggerGeminiAI());
+  }
+
+  const roofAiBtn = document.getElementById('btn-roof-ai');
+  if (roofAiBtn) {
+    roofAiBtn.addEventListener('click', () => triggerGeminiAI());
   }
 
   const wallAiBtn = document.getElementById('btn-wall-ai');
@@ -1614,36 +2026,48 @@ function handleUploadedFile(file) {
               }
             }
 
-            const codes = [];
-            const bldgs = [];
-            const occs = [];
+            let maxColsInFile = 1;
+            dataRows.forEach(r => {
+              if (r.length > maxColsInFile) maxColsInFile = r.length;
+            });
+            if (!AppState.colCounts) AppState.colCounts = { occupancy: 3, construction: 3 };
+            if (maxColsInFile > (AppState.colCounts[section] || 3)) {
+              AppState.colCounts[section] = maxColsInFile;
+              renderMultiColumnInputs();
+            }
+            const activeCount = AppState.colCounts[section] || 3;
+            const colArrays = Array.from({ length: activeCount }, () => []);
+
             dataRows.forEach(row => {
               if (row.length >= 3) {
-                codes.push(row[0] !== undefined ? String(row[0]) : '');
-                bldgs.push(row[1] !== undefined ? String(row[1]) : '');
-                occs.push(row[2] !== undefined ? String(row[2]) : '');
+                for (let k = 0; k < activeCount; k++) {
+                  colArrays[k].push(row[k] !== undefined ? String(row[k]) : '');
+                }
               } else if (row.length === 2) {
                 if (/^\d{1,4}$/.test(String(row[0]).trim())) {
-                  codes.push(String(row[0]));
-                  bldgs.push(row[1] !== undefined ? String(row[1]) : '');
-                  occs.push('');
+                  colArrays[0].push(String(row[0]));
+                  colArrays[1].push(row[1] !== undefined ? String(row[1]) : '');
+                  for (let k = 2; k < activeCount; k++) colArrays[k].push('');
                 } else {
-                  codes.push('');
-                  bldgs.push(String(row[0]));
-                  occs.push(row[1] !== undefined ? String(row[1]) : '');
+                  colArrays[0].push('');
+                  colArrays[1].push(String(row[0]));
+                  colArrays[2].push(row[1] !== undefined ? String(row[1]) : '');
+                  for (let k = 3; k < activeCount; k++) colArrays[k].push('');
                 }
               } else {
-                codes.push('');
-                bldgs.push(String(row[0]));
-                occs.push('');
+                colArrays[0].push('');
+                colArrays[1].push(row[0] !== undefined ? String(row[0]) : '');
+                for (let k = 2; k < activeCount; k++) colArrays[k].push('');
               }
             });
-            if (occInputCodeEl) occInputCodeEl.value = codes.join('\n');
-            if (occInputBldgEl) occInputBldgEl.value = bldgs.join('\n');
-            if (occInputOccEl) occInputOccEl.value = occs.join('\n');
+
+            const textareas = getAllColumnTextareas();
+            textareas.forEach((ta, idx) => {
+              if (colArrays[idx]) ta.value = colArrays[idx].join('\n');
+            });
             updateOccLineNumbers();
             processCleaning();
-            showToast(`Imported ${Math.max(codes.length, bldgs.length, occs.length)} rows into 3 columns!`, '📊');
+            showToast(`Imported ${dataRows.length} rows into ${activeCount} columns!`, '📊');
             return;
           }
 
@@ -1671,8 +2095,9 @@ function handleUploadedFile(file) {
     reader.onload = (e) => {
       const text = e.target.result;
       if (AppState.activeColumnId === 'occupancy' || AppState.activeColumnId === 'construction') {
-        distribute3ColumnText(text);
-        showToast(`Loaded ${file.name} into 3 columns!`, '📄');
+        distributeMultiColumnText(text);
+        const activeCnt = (AppState.colCounts && AppState.colCounts[AppState.activeColumnId]) || 3;
+        showToast(`Loaded ${file.name} into ${activeCnt} columns!`, '📄');
       } else {
         rawInputEl.value = text;
         updateLineNumbers();
@@ -1696,31 +2121,45 @@ function updateLineNumbers() {
 }
 
 function updateOccLineNumbers() {
-  const codeVal = occInputCodeEl ? occInputCodeEl.value : '';
-  const bldgVal = occInputBldgEl ? occInputBldgEl.value : '';
-  const occVal = occInputOccEl ? occInputOccEl.value : '';
+  const textareas = getAllColumnTextareas();
+  let maxLines = 1;
+  let isAllBlank = true;
 
-  const codeLines = codeVal.split('\n');
-  const bldgLines = bldgVal.split('\n');
-  const occLines = occVal.split('\n');
-  const maxLines = Math.max(codeLines.length, bldgLines.length, occLines.length, 1);
+  if (textareas.length === 0) {
+    const codeVal = occInputCodeEl ? occInputCodeEl.value : '';
+    const bldgVal = occInputBldgEl ? occInputBldgEl.value : '';
+    const occVal = occInputOccEl ? occInputOccEl.value : '';
+    if (codeVal.trim() || bldgVal.trim() || occVal.trim()) isAllBlank = false;
+    maxLines = Math.max(codeVal.split('\n').length, bldgVal.split('\n').length, occVal.split('\n').length, 1);
+  } else {
+    textareas.forEach(ta => {
+      if (ta.value.trim()) isAllBlank = false;
+      const lines = ta.value.split('\n');
+      if (lines.length > maxLines) maxLines = lines.length;
+    });
+  }
 
   const numArr = [];
   for (let i = 1; i <= maxLines; i++) {
     numArr.push(i);
   }
   const numbersText = numArr.join('\n');
+
+  if (occupancy3ColContainerEl) {
+    occupancy3ColContainerEl.querySelectorAll('.occ-line-numbers').forEach(ln => {
+      ln.textContent = numbersText;
+    });
+  }
   if (occLinesCodeEl) occLinesCodeEl.textContent = numbersText;
   if (occLinesBldgEl) occLinesBldgEl.textContent = numbersText;
   if (occLinesOccEl) occLinesOccEl.textContent = numbersText;
 
-  const isAllBlank = !codeVal.trim() && !bldgVal.trim() && !occVal.trim();
   if (rawCountBadgeEl) {
     rawCountBadgeEl.textContent = `${isAllBlank ? 0 : maxLines} rows`;
   }
 }
 
-function distribute3ColumnText(text) {
+function distributeMultiColumnText(text) {
   if (!text) return;
   const rows = text.split(/\r\n|\r|\n/);
   if (rows.length > 1 && rows[rows.length - 1].trim() === '') {
@@ -1740,40 +2179,63 @@ function distribute3ColumnText(text) {
     }
   }
 
-  const codes = [];
-  const bldgs = [];
-  const occs = [];
+  // Detect max column count across all pasted rows
+  let maxColsInPaste = 1;
+  rows.forEach(r => {
+    const count = r.split('\t').length;
+    if (count > maxColsInPaste) maxColsInPaste = count;
+  });
+
+  // Auto-expand column count if user pasted more than current columns
+  if (!AppState.colCounts) AppState.colCounts = { occupancy: 3, construction: 3 };
+  const curCount = AppState.colCounts[section] || 3;
+  if (maxColsInPaste > curCount) {
+    AppState.colCounts[section] = maxColsInPaste;
+    renderMultiColumnInputs();
+  }
+
+  const activeCount = AppState.colCounts[section] || 3;
+  const colArrays = Array.from({ length: activeCount }, () => []);
 
   rows.forEach(r => {
     const cols = r.split('\t');
     if (cols.length >= 3) {
-      codes.push(cols[0].trim());
-      bldgs.push(cols[1].trim());
-      occs.push(cols.slice(2).join('\t').trim());
+      for (let k = 0; k < activeCount; k++) {
+        if (k === activeCount - 1 && cols.length > activeCount) {
+          colArrays[k].push(cols.slice(k).join('\t').trim());
+        } else {
+          colArrays[k].push((cols[k] !== undefined ? cols[k] : '').trim());
+        }
+      }
     } else if (cols.length === 2) {
       if (/^\d{1,4}$/.test(cols[0].trim())) {
-        codes.push(cols[0].trim());
-        bldgs.push(cols[1].trim());
-        occs.push('');
+        colArrays[0].push(cols[0].trim());
+        colArrays[1].push(cols[1].trim());
+        for (let k = 2; k < activeCount; k++) colArrays[k].push('');
       } else {
-        codes.push('');
-        bldgs.push(cols[0].trim());
-        occs.push(cols[1].trim());
+        colArrays[0].push('');
+        colArrays[1].push(cols[0].trim());
+        colArrays[2].push(cols[1].trim());
+        for (let k = 3; k < activeCount; k++) colArrays[k].push('');
       }
     } else {
-      codes.push('');
-      bldgs.push(r.trim());
-      occs.push('');
+      colArrays[0].push('');
+      colArrays[1].push(r.trim());
+      for (let k = 2; k < activeCount; k++) colArrays[k].push('');
     }
   });
 
-  if (occInputCodeEl) occInputCodeEl.value = codes.join('\n');
-  if (occInputBldgEl) occInputBldgEl.value = bldgs.join('\n');
-  if (occInputOccEl) occInputOccEl.value = occs.join('\n');
+  const textareas = getAllColumnTextareas();
+  textareas.forEach((ta, idx) => {
+    if (colArrays[idx]) {
+      ta.value = colArrays[idx].join('\n');
+    }
+  });
 
   updateOccLineNumbers();
   processCleaning();
 }
+const distribute3ColumnText = distributeMultiColumnText;
 
 function updateRoofYearLineNumbers() {
   const ybVal = roofYearInputYbEl ? roofYearInputYbEl.value : '';
@@ -2256,12 +2718,14 @@ function processCleaning() {
   }
 
   if (isOccupancy || isConstruction) {
-    const codeVal = occInputCodeEl ? occInputCodeEl.value : '';
-    const bldgVal = occInputBldgEl ? occInputBldgEl.value : '';
-    const conOrOccVal = occInputOccEl ? occInputOccEl.value : '';
+    const allValues = getAllColumnValues();
+    const codeVal = allValues[0] !== undefined ? allValues[0] : (occInputCodeEl ? occInputCodeEl.value : '');
+    const bldgVal = allValues[1] !== undefined ? allValues[1] : (occInputBldgEl ? occInputBldgEl.value : '');
+    const conOrOccVal = allValues[2] !== undefined ? allValues[2] : (occInputOccEl ? occInputOccEl.value : '');
+    const extraValArrays = allValues.slice(3).map(v => (v || '').split(/\r\n|\r|\n/));
     const rawVal = rawText;
 
-    const hasData = codeVal.trim() || bldgVal.trim() || conOrOccVal.trim() || rawVal.trim();
+    const hasData = allValues.some(v => v && v.trim()) || rawVal.trim();
     if (!hasData) {
       AppState.lastCleanedData = [];
       updateCodeFilterDropdown([]);
@@ -2270,18 +2734,24 @@ function processCleaning() {
     }
 
     let inputPayload;
-    if (codeVal.trim() || bldgVal.trim() || conOrOccVal.trim()) {
+    if (allValues.some(v => v && v.trim())) {
       if (isConstruction) {
         inputPayload = {
           existingCodes: codeVal.split(/\r\n|\r|\n/),
           bldgDescs: bldgVal.split(/\r\n|\r|\n/),
-          conDescs: conOrOccVal.split(/\r\n|\r|\n/)
+          conDescs: conOrOccVal.split(/\r\n|\r|\n/),
+          extraCols: extraValArrays,
+          extraDescs: extraValArrays,
+          allCols: allValues.map(v => (v || '').split(/\r\n|\r|\n/))
         };
       } else {
         inputPayload = {
           existingCodes: codeVal.split(/\r\n|\r|\n/),
           bldgDescs: bldgVal.split(/\r\n|\r|\n/),
-          occDescs: conOrOccVal.split(/\r\n|\r|\n/)
+          occDescs: conOrOccVal.split(/\r\n|\r|\n/),
+          extraCols: extraValArrays,
+          extraDescs: extraValArrays,
+          allCols: allValues.map(v => (v || '').split(/\r\n|\r|\n/))
         };
       }
     } else {
@@ -2341,6 +2811,14 @@ function processCleaning() {
     options = {
       format: AppState.wallFormat || 'code_only',
       removeEmptyLines: AppState.wallRemoveEmpty
+    };
+  } else if (AppState.activeColumnId === 'stores' || AppState.activeColumnId === 'stories') {
+    cleanerObj = window.NoOfStoresCleaner || (window.CleanersRegistry && window.CleanersRegistry.stores && window.CleanersRegistry.stores.cleaner);
+    options = {
+      roundUpDecimals: AppState.storesRoundUp !== false,
+      pickMax: AppState.storesPickMax !== false,
+      alwaysPositive: AppState.storesPositive !== false,
+      removeEmptyLines: AppState.storesRemoveEmpty
     };
   } else {
     cleanerObj = (window.CleanersRegistry && window.CleanersRegistry[AppState.activeColumnId])
@@ -2443,7 +2921,9 @@ async function copyForExcel() {
   let excelHtml = '';
 
   if (isSplit) {
-    const headers = ['STREET', 'City', 'State'];
+    const headers = [];
+    if (AppState.splitIncludeRaw) headers.push('Raw Address');
+    headers.push('STREET', 'City', 'State');
     if (AppState.splitIncludeCounty) headers.push('County');
     headers.push('Postal');
     if (AppState.splitIncludeCountry) headers.push('Country');
@@ -2452,7 +2932,9 @@ async function copyForExcel() {
     const htmlRows = [`<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`];
 
     dataToCopy.forEach(r => {
-      const row = [r.street, r.city, r.state];
+      const row = [];
+      if (AppState.splitIncludeRaw) row.push(r.original || '');
+      row.push(r.street, r.city, r.state);
       if (AppState.splitIncludeCounty) row.push(r.county);
       row.push(r.postal);
       if (AppState.splitIncludeCountry) row.push(r.country);
@@ -2462,32 +2944,40 @@ async function copyForExcel() {
 
     excelText = tsvRows.join('\r\n');
     excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table>${htmlRows.join('')}</table></body></html>`;
-  } else if (isOccupancy) {
-    const col1Title = `${getColumnHeaderName(1)} (AR)`;
-    const col2Title = `${getColumnHeaderName(2)} (AS)`;
-    const col3Title = `${getColumnHeaderName(3)} (AT)`;
-    const headers = [col1Title, col2Title, col3Title, 'Touchstone Code', 'Touchstone Category', 'Status'];
-    const tsvRows = [headers.join('\t')];
-    const htmlRows = [`<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`];
-
+  } else if (isOccupancy || isConstruction) {
+    const section = isConstruction ? 'construction' : 'occupancy';
+    let maxCols = AppState.colCounts && AppState.colCounts[section] ? AppState.colCounts[section] : 3;
     dataToCopy.forEach(r => {
-      const row = [r.existingCode || '', r.bldgDesc || '', r.occDesc || '', r.occCode || '300', r.category || 'Unknown occupancy', r.comparisonMessage || ''];
-      tsvRows.push(row.join('\t'));
-      htmlRows.push(`<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`);
+      if (r.allCols && r.allCols.length > maxCols) maxCols = r.allCols.length;
+      if (r.extraCols && (r.extraCols.length + 3) > maxCols) maxCols = r.extraCols.length + 3;
     });
 
-    excelText = tsvRows.join('\r\n');
-    excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table>${htmlRows.join('')}</table></body></html>`;
-  } else if (isConstruction) {
-    const col1Title = `${getColumnHeaderName(1)} (AR)`;
-    const col2Title = `${getColumnHeaderName(2)} (AS)`;
-    const col3Title = `${getColumnHeaderName(3)} (AT)`;
-    const headers = [col1Title, col2Title, col3Title, 'Touchstone Code', 'Touchstone Category', 'Status'];
+    const headers = [];
+    for (let i = 1; i <= maxCols; i++) {
+      const letter = getExcelColLetterFromIndex(i);
+      headers.push(`${getColumnHeaderName(i)} (${letter})`);
+    }
+    headers.push('Touchstone Code', 'Touchstone Category', 'Status');
+
     const tsvRows = [headers.join('\t')];
     const htmlRows = [`<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`];
 
     dataToCopy.forEach(r => {
-      const row = [r.existingCode || '', r.bldgDesc || '', r.conDesc || '', r.conCode || '100', r.category || 'Unknown', r.comparisonMessage || ''];
+      const rowInputs = [];
+      if (r.allCols && r.allCols.length >= maxCols) {
+        for (let i = 0; i < maxCols; i++) rowInputs.push(r.allCols[i] || '');
+      } else {
+        rowInputs.push(r.existingCode || '', r.bldgDesc || '', (isConstruction ? r.conDesc : r.occDesc) || '');
+        const extras = r.extraCols || [];
+        for (let i = 3; i < maxCols; i++) {
+          rowInputs.push(extras[i - 3] || '');
+        }
+      }
+      const code = isConstruction ? (r.conCode || '100') : (r.occCode || '300');
+      const category = r.category || (isConstruction ? 'Unknown' : 'Unknown occupancy');
+      const statusMsg = r.comparisonMessage || '';
+      const row = [...rowInputs, code, category, statusMsg];
+
       tsvRows.push(row.join('\t'));
       htmlRows.push(`<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`);
     });
@@ -2599,14 +3089,18 @@ function downloadExcelSpreadsheet() {
   const isFiltered = dataToExport.length < totalCount;
 
   if (isSplit) {
-    const headers = ['STREET', 'City', 'State'];
+    const headers = [];
+    if (AppState.splitIncludeRaw) headers.push('Raw Address');
+    headers.push('STREET', 'City', 'State');
     if (AppState.splitIncludeCounty) headers.push('County');
     headers.push('Postal');
     if (AppState.splitIncludeCountry) headers.push('Country');
 
     const sheetRows = [headers];
     dataToExport.forEach(r => {
-      const row = [r.street, r.city, r.state];
+      const row = [];
+      if (AppState.splitIncludeRaw) row.push(r.original || '');
+      row.push(r.street, r.city, r.state);
       if (AppState.splitIncludeCounty) row.push(r.county);
       row.push(r.postal);
       if (AppState.splitIncludeCountry) row.push(r.country);
@@ -2630,22 +3124,48 @@ function downloadExcelSpreadsheet() {
     const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Addresses"><Table>${rowsXml}</Table></Worksheet></Workbook>`;
     triggerDownload(xml, `Separated_Addresses_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
     showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}addresses (.xls)!`, '📥');
-  } else if (isOccupancy) {
-    const col1Title = `${getColumnHeaderName(1)} (AR)`;
-    const col2Title = `${getColumnHeaderName(2)} (AS)`;
-    const col3Title = `${getColumnHeaderName(3)} (AT)`;
-    const headers = [col1Title, col2Title, col3Title, 'Touchstone Code', 'Touchstone Category', 'Status'];
-    const sheetRows = [headers];
+  } else if (isOccupancy || isConstruction) {
+    const section = isConstruction ? 'construction' : 'occupancy';
+    let maxCols = AppState.colCounts && AppState.colCounts[section] ? AppState.colCounts[section] : 3;
     dataToExport.forEach(r => {
-      sheetRows.push([r.existingCode || '', r.bldgDesc || '', r.occDesc || '', r.occCode || '300', r.category || 'Unknown occupancy', r.comparisonMessage || '']);
+      if (r.allCols && r.allCols.length > maxCols) maxCols = r.allCols.length;
+      if (r.extraCols && (r.extraCols.length + 3) > maxCols) maxCols = r.extraCols.length + 3;
     });
+
+    const headers = [];
+    for (let i = 1; i <= maxCols; i++) {
+      const letter = getExcelColLetterFromIndex(i);
+      headers.push(`${getColumnHeaderName(i)} (${letter})`);
+    }
+    headers.push('Touchstone Code', 'Touchstone Category', 'Status');
+    const sheetRows = [headers];
+
+    dataToExport.forEach(r => {
+      const rowInputs = [];
+      if (r.allCols && r.allCols.length >= maxCols) {
+        for (let i = 0; i < maxCols; i++) rowInputs.push(r.allCols[i] || '');
+      } else {
+        rowInputs.push(r.existingCode || '', r.bldgDesc || '', (isConstruction ? r.conDesc : r.occDesc) || '');
+        const extras = r.extraCols || [];
+        for (let i = 3; i < maxCols; i++) {
+          rowInputs.push(extras[i - 3] || '');
+        }
+      }
+      const code = isConstruction ? (r.conCode || '100') : (r.occCode || '300');
+      const category = r.category || (isConstruction ? 'Unknown' : 'Unknown occupancy');
+      const statusMsg = r.comparisonMessage || '';
+      sheetRows.push([...rowInputs, code, category, statusMsg]);
+    });
+
+    const sheetName = isConstruction ? "Construction Codes" : "Occupancy Codes";
+    const filePrefix = isConstruction ? "Construction_Codes" : "Occupancy_Codes";
 
     if (typeof XLSX !== 'undefined') {
       const ws = XLSX.utils.aoa_to_sheet(sheetRows);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Occupancy Codes");
-      XLSX.writeFile(wb, `Occupancy_Codes_${getTimestamp()}.xlsx`);
-      showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}occupancy codes (.xlsx)!`, '📥');
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+      XLSX.writeFile(wb, `${filePrefix}_${getTimestamp()}.xlsx`);
+      showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}${isConstruction ? 'construction' : 'occupancy'} codes (.xlsx)!`, '📥');
       return;
     }
 
@@ -2653,35 +3173,9 @@ function downloadExcelSpreadsheet() {
       `<Row>${row.map(c => `<Cell><Data ss:Type="String">${escapeXml(c)}</Data></Cell>`).join('')}</Row>`
     ).join('');
 
-    const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="OccupancyCodes"><Table>${rowsXml}</Table></Worksheet></Workbook>`;
-    triggerDownload(xml, `Occupancy_Codes_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
-    showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}occupancy codes (.xls)!`, '📥');
-  } else if (isConstruction) {
-    const col1Title = `${getColumnHeaderName(1)} (AR)`;
-    const col2Title = `${getColumnHeaderName(2)} (AS)`;
-    const col3Title = `${getColumnHeaderName(3)} (AT)`;
-    const headers = [col1Title, col2Title, col3Title, 'Touchstone Code', 'Touchstone Category', 'Status'];
-    const sheetRows = [headers];
-    dataToExport.forEach(r => {
-      sheetRows.push([r.existingCode || '', r.bldgDesc || '', r.conDesc || '', r.conCode || '100', r.category || 'Unknown', r.comparisonMessage || '']);
-    });
-
-    if (typeof XLSX !== 'undefined') {
-      const ws = XLSX.utils.aoa_to_sheet(sheetRows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Construction Codes");
-      XLSX.writeFile(wb, `Construction_Codes_${getTimestamp()}.xlsx`);
-      showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}construction codes (.xlsx)!`, '📥');
-      return;
-    }
-
-    const rowsXml = sheetRows.map(row =>
-      `<Row>${row.map(c => `<Cell><Data ss:Type="String">${escapeXml(c)}</Data></Cell>`).join('')}</Row>`
-    ).join('');
-
-    const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="ConstructionCodes"><Table>${rowsXml}</Table></Worksheet></Workbook>`;
-    triggerDownload(xml, `Construction_Codes_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
-    showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}construction codes (.xls)!`, '📥');
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="${isConstruction ? 'ConstructionCodes' : 'OccupancyCodes'}"><Table>${rowsXml}</Table></Worksheet></Workbook>`;
+    triggerDownload(xml, `${filePrefix}_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
+    showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}${isConstruction ? 'construction' : 'occupancy'} codes (.xls)!`, '📥');
   } else if (isRoof) {
     const headers = ['#', 'Raw Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Anchorage', 'Status'];
     const sheetRows = [headers];
@@ -2774,16 +3268,21 @@ function downloadExcelSpreadsheet() {
     triggerDownload(xml, `Exterior_Wall_Details_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
     showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}wall details (.xls)!`, '📥');
   } else {
-    const colName = (window.CleanersRegistry && window.CleanersRegistry[AppState.activeColumnId])
-      ? window.CleanersRegistry[AppState.activeColumnId].name
-      : 'Cleaned_Street';
+    const isStores = AppState.activeColumnId === 'stores' || AppState.activeColumnId === 'stories';
+    const colName = isStores
+      ? 'No of Stores'
+      : ((window.CleanersRegistry && window.CleanersRegistry[AppState.activeColumnId])
+          ? window.CleanersRegistry[AppState.activeColumnId].name
+          : 'Cleaned_Street');
+    const sheetName = isStores ? 'No of Stores' : 'Cleaned Data';
+    const fileName = isStores ? `No_of_Stores_${getTimestamp()}.xlsx` : `Cleaned_${AppState.activeColumnId}_${getTimestamp()}.xlsx`;
 
     if (typeof XLSX !== 'undefined') {
       const sheetData = [[colName], ...dataToExport.map(r => [r.cleaned])];
       const ws = XLSX.utils.aoa_to_sheet(sheetData);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Cleaned Data");
-      XLSX.writeFile(wb, `Cleaned_${AppState.activeColumnId}_${getTimestamp()}.xlsx`);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+      XLSX.writeFile(wb, fileName);
       showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}rows (.xlsx)!`, '📥');
       return;
     }
@@ -2792,9 +3291,9 @@ function downloadExcelSpreadsheet() {
       `<Row><Cell><Data ss:Type="String">${escapeXml(r.cleaned)}</Data></Cell></Row>`
     ).join('');
 
-    const xmlContent = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Cleaned"><Table><Row><Cell><Data ss:Type="String">${colName}</Data></Cell></Row>${rowsXml}</Table></Worksheet></Workbook>`;
+    const xmlContent = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="${isStores ? 'NoOfStores' : 'Cleaned'}"><Table><Row><Cell><Data ss:Type="String">${colName}</Data></Cell></Row>${rowsXml}</Table></Worksheet></Workbook>`;
 
-    triggerDownload(xmlContent, `Cleaned_${AppState.activeColumnId}_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
+    triggerDownload(xmlContent, isStores ? `No_of_Stores_${getTimestamp()}.xls` : `Cleaned_${AppState.activeColumnId}_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
     showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}rows (.xls)!`, '📥');
   }
 }
@@ -2830,39 +3329,54 @@ function downloadCsvFile() {
   };
 
   if (isSplit) {
-    const headers = ['STREET', 'City', 'State'];
+    const headers = [];
+    if (AppState.splitIncludeRaw) headers.push('Raw Address');
+    headers.push('STREET', 'City', 'State');
     if (AppState.splitIncludeCounty) headers.push('County');
     headers.push('Postal');
     if (AppState.splitIncludeCountry) headers.push('Country');
     csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
 
     dataToExport.forEach(r => {
-      const row = [r.street, r.city, r.state];
+      const row = [];
+      if (AppState.splitIncludeRaw) row.push(r.original || '');
+      row.push(r.street, r.city, r.state);
       if (AppState.splitIncludeCounty) row.push(r.county);
       row.push(r.postal);
       if (AppState.splitIncludeCountry) row.push(r.country);
       csvLines.push(row.map(c => formatCsvCell(c)).join(','));
     });
-  } else if (isOccupancy) {
-    const col1Title = `${getColumnHeaderName(1)} (AR)`;
-    const col2Title = `${getColumnHeaderName(2)} (AS)`;
-    const col3Title = `${getColumnHeaderName(3)} (AT)`;
-    const headers = [col1Title, col2Title, col3Title, 'Touchstone Code', 'Touchstone Category', 'Status'];
-    csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
-
+  } else if (isOccupancy || isConstruction) {
+    const section = isConstruction ? 'construction' : 'occupancy';
+    let maxCols = AppState.colCounts && AppState.colCounts[section] ? AppState.colCounts[section] : 3;
     dataToExport.forEach(r => {
-      const row = [r.existingCode || '', r.bldgDesc || '', r.occDesc || '', r.occCode || '300', r.category || 'Unknown occupancy', r.comparisonMessage || ''];
-      csvLines.push(row.map(c => formatCsvCell(c)).join(','));
+      if (r.allCols && r.allCols.length > maxCols) maxCols = r.allCols.length;
+      if (r.extraCols && (r.extraCols.length + 3) > maxCols) maxCols = r.extraCols.length + 3;
     });
-  } else if (isConstruction) {
-    const col1Title = `${getColumnHeaderName(1)} (AR)`;
-    const col2Title = `${getColumnHeaderName(2)} (AS)`;
-    const col3Title = `${getColumnHeaderName(3)} (AT)`;
-    const headers = [col1Title, col2Title, col3Title, 'Touchstone Code', 'Touchstone Category', 'Status'];
+
+    const headers = [];
+    for (let i = 1; i <= maxCols; i++) {
+      const letter = getExcelColLetterFromIndex(i);
+      headers.push(`${getColumnHeaderName(i)} (${letter})`);
+    }
+    headers.push('Touchstone Code', 'Touchstone Category', 'Status');
     csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
 
     dataToExport.forEach(r => {
-      const row = [r.existingCode || '', r.bldgDesc || '', r.conDesc || '', r.conCode || '100', r.category || 'Unknown', r.comparisonMessage || ''];
+      const rowInputs = [];
+      if (r.allCols && r.allCols.length >= maxCols) {
+        for (let i = 0; i < maxCols; i++) rowInputs.push(r.allCols[i] || '');
+      } else {
+        rowInputs.push(r.existingCode || '', r.bldgDesc || '', (isConstruction ? r.conDesc : r.occDesc) || '');
+        const extras = r.extraCols || [];
+        for (let i = 3; i < maxCols; i++) {
+          rowInputs.push(extras[i - 3] || '');
+        }
+      }
+      const code = isConstruction ? (r.conCode || '100') : (r.occCode || '300');
+      const category = r.category || (isConstruction ? 'Unknown' : 'Unknown occupancy');
+      const statusMsg = r.comparisonMessage || '';
+      const row = [...rowInputs, code, category, statusMsg];
       csvLines.push(row.map(c => formatCsvCell(c)).join(','));
     });
   } else if (isRoof) {
@@ -2908,9 +3422,12 @@ function downloadCsvFile() {
       csvLines.push(row.map(c => formatCsvCell(c)).join(','));
     });
   } else {
-    const colName = (window.CleanersRegistry && window.CleanersRegistry[AppState.activeColumnId])
-      ? window.CleanersRegistry[AppState.activeColumnId].name
-      : 'Cleaned_Street';
+    const isStores = AppState.activeColumnId === 'stores' || AppState.activeColumnId === 'stories';
+    const colName = isStores
+      ? 'No of Stores'
+      : ((window.CleanersRegistry && window.CleanersRegistry[AppState.activeColumnId])
+          ? window.CleanersRegistry[AppState.activeColumnId].name
+          : 'Cleaned_Street');
 
     csvLines.push(formatCsvCell(colName));
     dataToExport.forEach(r => {
@@ -2919,7 +3436,8 @@ function downloadCsvFile() {
   }
 
   const csvContent = '\uFEFF' + csvLines.join('\r\n');
-  const filenamePrefix = isSplit ? 'Separated_Addresses' : isOccupancy ? 'Occupancy_Codes' : isConstruction ? 'Construction_Codes' : isRoofYear ? 'Roof_Year_Built' : isRoof ? 'Roof_Details' : isWall ? 'Exterior_Wall_Details' : 'Cleaned_' + AppState.activeColumnId;
+  const isStores = AppState.activeColumnId === 'stores' || AppState.activeColumnId === 'stories';
+  const filenamePrefix = isSplit ? 'Separated_Addresses' : isOccupancy ? 'Occupancy_Codes' : isConstruction ? 'Construction_Codes' : isRoofYear ? 'Roof_Year_Built' : isRoof ? 'Roof_Details' : isWall ? 'Exterior_Wall_Details' : isStores ? 'No_of_Stores' : 'Cleaned_' + AppState.activeColumnId;
   triggerDownload(csvContent, `${filenamePrefix}_${getTimestamp()}.csv`, 'text/csv;charset=utf-8');
   showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}rows (.csv)!`, '📄');
 }
@@ -2937,6 +3455,14 @@ function triggerDownload(content, filename, mimeType) {
 }
 
 function loadSample(columnId) {
+  if (columnId === 'stores' || columnId === 'stories') {
+    const sample = SampleDatasets.stores;
+    rawInputEl.value = sample;
+    updateLineNumbers();
+    processCleaning();
+    showToast('Loaded 22 No of Stores underwriting sample records!', '🏢');
+    return;
+  }
   if (columnId === 'roof_year') {
     const sample = SampleDatasets.roof_year;
     distribute2ColumnText(sample);
@@ -3049,6 +3575,14 @@ async function triggerGeminiAI() {
     return;
   }
 
+  if (!window.GeminiService.isConfigured()) {
+    showToast('Please enter your Google Gemini API key to use AI features', '🔑');
+    updateGeminiModalUI();
+    if (geminiModalEl) geminiModalEl.style.display = 'flex';
+    if (geminiApiKeyInputEl) geminiApiKeyInputEl.focus();
+    return;
+  }
+
   const lines = rawText.split(/\r\n|\r|\n/).filter(l => l.trim().length > 0);
   const isSplit = AppState.activeColumnId === 'split';
   const isOccupancy = AppState.activeColumnId === 'occupancy';
@@ -3105,15 +3639,19 @@ async function triggerGeminiAI() {
       });
     } else if (isOccupancy) {
       let inputPayload;
-      const codeVal = occInputCodeEl ? occInputCodeEl.value : '';
-      const bldgVal = occInputBldgEl ? occInputBldgEl.value : '';
-      const occVal = occInputOccEl ? occInputOccEl.value : '';
+      const allValues = getAllColumnValues();
+      const codeVal = allValues[0] !== undefined ? allValues[0] : (occInputCodeEl ? occInputCodeEl.value : '');
+      const bldgVal = allValues[1] !== undefined ? allValues[1] : (occInputBldgEl ? occInputBldgEl.value : '');
+      const occVal = allValues[2] !== undefined ? allValues[2] : (occInputOccEl ? occInputOccEl.value : '');
+      const extraCols = allValues.slice(3).map(v => (v || '').split(/\r\n|\r|\n/));
 
-      if (codeVal.trim() || bldgVal.trim() || occVal.trim()) {
+      if (allValues.some(v => v && v.trim())) {
         inputPayload = {
           existingCodes: codeVal.split(/\r\n|\r|\n/),
           bldgDescs: bldgVal.split(/\r\n|\r|\n/),
-          occDescs: occVal.split(/\r\n|\r|\n/)
+          occDescs: occVal.split(/\r\n|\r|\n/),
+          extraCols: extraCols,
+          allCols: allValues.map(v => (v || '').split(/\r\n|\r|\n/))
         };
       } else {
         inputPayload = lines;
@@ -3121,15 +3659,19 @@ async function triggerGeminiAI() {
       results = await window.GeminiService.classifyOccupancyWithAI(inputPayload);
     } else if (isConstruction) {
       let inputPayload;
-      const codeVal = occInputCodeEl ? occInputCodeEl.value : '';
-      const bldgVal = occInputBldgEl ? occInputBldgEl.value : '';
-      const conVal = occInputOccEl ? occInputOccEl.value : '';
+      const allValues = getAllColumnValues();
+      const codeVal = allValues[0] !== undefined ? allValues[0] : (occInputCodeEl ? occInputCodeEl.value : '');
+      const bldgVal = allValues[1] !== undefined ? allValues[1] : (occInputBldgEl ? occInputBldgEl.value : '');
+      const conVal = allValues[2] !== undefined ? allValues[2] : (occInputOccEl ? occInputOccEl.value : '');
+      const extraCols = allValues.slice(3).map(v => (v || '').split(/\r\n|\r|\n/));
 
-      if (codeVal.trim() || bldgVal.trim() || conVal.trim()) {
+      if (allValues.some(v => v && v.trim())) {
         inputPayload = {
           existingCodes: codeVal.split(/\r\n|\r|\n/),
           bldgDescs: bldgVal.split(/\r\n|\r|\n/),
-          conDescs: conVal.split(/\r\n|\r|\n/)
+          conDescs: conVal.split(/\r\n|\r|\n/),
+          extraCols: extraCols,
+          allCols: allValues.map(v => (v || '').split(/\r\n|\r|\n/))
         };
       } else {
         inputPayload = lines;
@@ -3427,23 +3969,18 @@ function initCodeFinderUI() {
 
     let lineText = '';
     if (activeSec === 'occupancy' || activeSec === 'construction') {
-      const codeVal = (occInputCodeEl && occInputCodeEl.value) || '';
-      const bldgVal = (occInputBldgEl && occInputBldgEl.value) || '';
-      const occVal = (occInputOccEl && occInputOccEl.value) || '';
-
+      const allTextareas = getAllColumnTextareas();
       const activeEl = document.activeElement;
       let lineIdx = 0;
-      if (activeEl === occInputCodeEl || activeEl === occInputBldgEl || activeEl === occInputOccEl) {
+      if (allTextareas.includes(activeEl)) {
         const selStart = activeEl.selectionStart || 0;
         lineIdx = activeEl.value.substring(0, selStart).split('\n').length - 1;
       }
-      const codeLines = codeVal.split('\n');
-      const bldgLines = bldgVal.split('\n');
-      const occLines = occVal.split('\n');
-      const curCode = (codeLines[lineIdx] || '').trim();
-      const curBldg = (bldgLines[lineIdx] || '').trim();
-      const curOcc = (occLines[lineIdx] || '').trim();
-      lineText = `${curCode} ${curBldg} ${curOcc}`.trim();
+      const lineParts = allTextareas.map(ta => {
+        const lines = (ta.value || '').split('\n');
+        return (lines[lineIdx] || '').trim();
+      }).filter(Boolean);
+      lineText = lineParts.join(' ');
     } else {
       const val = (rawInputEl && rawInputEl.value) || '';
       const selStart = (rawInputEl && rawInputEl.selectionStart) || 0;

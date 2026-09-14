@@ -895,8 +895,8 @@
     "code": "101",
     "category": "Wood Frame (Modern)",
     "group": "Wood construction",
-    "description": "Wood frame (modern) structures tend to be mostly low rise (one to three stories, occasionally four). Stud walls are typically constructed of 2x4 or 2x6 inch wood members vertically set 16 or 24 inches apart. These walls are braced by plywood or by diagonals made of wood or steel. Many detached single and low-rise multiple family residences in the United States are of stud wall wood frame construction.",
-    "keywords": []
+    "description": "Wood frame (modern) structures tend to be mostly low rise (one to three stories, occasionally four). Stud walls are typically constructed of 2x4 or 2x6 inch wood members vertically set 16 or 24 inches apart. These walls are braced by plywood or by diagonals made of wood or steel. Many detached single and low-rise multiple family residences in the United States are of stud wall wood frame construction. Corresponds to ISO Class 1 (Frame).",
+    "keywords": ["iso 1", "iso 1 frame", "iso frame", "frame", "wood frame", "stud wall", "stick built"]
   },
   "102": {
     "code": "102",
@@ -937,8 +937,8 @@
     "code": "111",
     "category": "Masonry",
     "group": "Masonry construction",
-    "description": "Use this option when the exterior walls are constructed of masonry materials, but detailed construction information is unavailable or unknown.",
-    "keywords": []
+    "description": "Use this option when the exterior walls are constructed of masonry materials, but detailed construction information is unavailable or unknown. Corresponds to ISO Class 4 (Masonry Noncombustible). Underwriting Rule: BRICK in Exterior Wall Finish always maps to Code 111.",
+    "keywords": ["iso 4", "iso 4 masonry noncombustible", "masonry noncombustible", "mnc", "masonry nc", "brick", "masonry", "cmu", "concrete block"]
   },
   "112": {
     "code": "112",
@@ -993,8 +993,8 @@
     "code": "119",
     "category": "Joisted Masonry",
     "group": "Masonry construction",
-    "description": "Masonry exterior walls with roof of combustible materials on non-combustible supports.",
-    "keywords": []
+    "description": "Masonry exterior walls with roof of combustible materials on non-combustible supports. Corresponds to ISO Class 2 (Joisted Masonry).",
+    "keywords": ["iso 2", "iso 2 joisted masonry", "joisted masonry", "jm", "masonry joist", "brick joisted"]
   },
   "120": {
     "code": "120",
@@ -1014,8 +1014,8 @@
     "code": "131",
     "category": "Reinforced Concrete",
     "group": "Concrete construction",
-    "description": "Reinforced concrete buildings consist of reinforced concrete columns and beams. Use this if the other technical characteristics of the building are unknown.",
-    "keywords": []
+    "description": "Reinforced concrete buildings consist of reinforced concrete columns and beams. Use this if the other technical characteristics of the building are unknown. Includes ISO Class 5 (Modified Fire Resistive, 1-2 hr rating) and ISO Class 6 (Fire Resistive, ≥2 hr rating).",
+    "keywords": ["iso 5", "iso 5 modified fire resistive", "modified fire resistive", "mfr", "iso 6", "iso 6 fire resistive", "fire resistive", "fr", "reinforced concrete", "rc"]
   },
   "132": {
     "code": "132",
@@ -1098,8 +1098,8 @@
     "code": "152",
     "category": "Light Metal",
     "group": "Steel construction",
-    "description": "Light metal buildings are made of light gauge steel frame and are usually clad with lightweight metal or asbestos siding and roof, often corrugated. They typically are low-rise structures.",
-    "keywords": []
+    "description": "Light metal buildings are made of light gauge steel frame and are usually clad with lightweight metal or asbestos siding and roof, often corrugated. They typically are low-rise structures. Corresponds to ISO Class 3 (Noncombustible).",
+    "keywords": ["iso 3", "iso 3 noncombustible", "noncombustible", "light metal", "pemb", "pre-engineered metal", "steel siding"]
   },
   "153": {
     "code": "153",

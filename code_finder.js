@@ -80,27 +80,33 @@
           rules: []
         };
 
-        // Enrich with mandatory underwriting memory rules
+        // Enrich with mandatory underwriting memory rules & ISO standards
         if (code === '113') {
           item.rules.push('⭐ MANDATORY UNDERWRITING RULE: STONE in Exterior Wall Finish / Construction MUST ALWAYS map to Code 113 (Rubble Stone Masonry).');
           item.keywords.push('stone', 'stone facade', 'stone wall', 'stone finish', 'stone masonry', 'fieldstone', 'rubble');
         } else if (code === '111') {
           item.rules.push('⭐ MANDATORY UNDERWRITING RULE: BRICK in Exterior Wall Finish / Construction MUST ALWAYS map to Code 111 (Masonry).');
-          item.keywords.push('brick', 'brick facade', 'brick wall', 'brick finish', 'exterior brick', 'general masonry');
+          item.rules.push('🏢 ISO Class 4: Masonry Noncombustible ➔ Code 111 (Masonry).');
+          item.keywords.push('iso 4', 'iso 4 masonry noncombustible', 'masonry noncombustible', 'mnc', 'masonry nc', 'brick', 'brick facade', 'brick wall', 'brick finish', 'exterior brick', 'general masonry');
         } else if (code === '101') {
-          item.keywords.push('wood frame', 'stud wall', 'timber frame', '2x4', 'plywood sheathing');
+          item.rules.push('🏢 ISO Class 1: Frame ➔ Code 101 (Wood Frame Modern).');
+          item.keywords.push('iso 1', 'iso 1 frame', 'iso frame', 'frame', 'wood frame', 'stud wall', 'timber frame', '2x4', 'plywood sheathing');
         } else if (code === '136') {
           item.keywords.push('tilt-up', 'tilt up', 'precast panel', 'concrete wall panel');
         } else if (code === '152') {
-          item.keywords.push('light metal', 'corrugated metal', 'pre-engineered metal', 'butler building', 'steel siding');
+          item.rules.push('🏢 ISO Class 3: Noncombustible ➔ Code 152 (Light Metal / Non-Combustible).');
+          item.keywords.push('iso 3', 'iso 3 noncombustible', 'noncombustible', 'light metal', 'corrugated metal', 'pre-engineered metal', 'butler building', 'steel siding', 'pemb');
         } else if (code === '114') {
           item.keywords.push('unreinforced masonry', 'urm', 'bearing wall', 'unreinforced brick');
         } else if (code === '116') {
           item.keywords.push('reinforced masonry', 'rm', 'concrete block', 'cmu', 'grouted masonry');
         } else if (code === '119') {
-          item.keywords.push('joisted masonry', 'jm', 'wood floor masonry', 'combustible roof');
+          item.rules.push('🏢 ISO Class 2: Joisted Masonry ➔ Code 119 (Joisted Masonry).');
+          item.keywords.push('iso 2', 'iso 2 joisted masonry', 'joisted masonry', 'jm', 'wood floor masonry', 'combustible roof');
         } else if (code === '131') {
-          item.keywords.push('reinforced concrete', 'rc frame', 'concrete column', 'concrete beam');
+          item.rules.push('🏢 ISO Class 5: Modified Fire Resistive ➔ Code 131 (Reinforced Concrete / MFR).');
+          item.rules.push('🏢 ISO Class 6: Fire Resistive ➔ Code 131 (Reinforced Concrete / FR).');
+          item.keywords.push('iso 5', 'iso 5 modified fire resistive', 'modified fire resistive', 'mfr', 'iso 6', 'iso 6 fire resistive', 'fire resistive', 'fr', 'reinforced concrete', 'rc frame', 'concrete column', 'concrete beam');
         } else if (code === '151') {
           item.keywords.push('structural steel', 'steel frame', 'steel column', 'i-beam');
         } else if (code === '191') {
@@ -448,12 +454,20 @@
           score += 100;
         }
 
-        // Special rule boosts for user underwriting memory
+        // Special rule boosts for user underwriting memory & ISO standards
         if (section === 'construction' || section === 'all') {
           if (code === '113' && (qLower.includes('stone') || qLower.includes('fieldstone') || qLower.includes('rubble'))) {
             score += 800; // Mandatory Stone -> 113 rule
-          } else if (code === '111' && (qLower.includes('brick') || qLower.includes('masonry'))) {
-            score += 800; // Mandatory Brick -> 111 rule
+          } else if (code === '111' && (qLower.includes('brick') || qLower.includes('masonry') || qLower.includes('iso 4') || qLower.includes('masonry noncombustible') || qLower.includes('mnc'))) {
+            score += 800; // Mandatory Brick / ISO 4 -> 111 rule
+          } else if (code === '101' && (qLower.includes('iso 1') || qLower.includes('frame'))) {
+            score += 700; // ISO 1 Frame
+          } else if (code === '119' && (qLower.includes('iso 2') || qLower.includes('joisted masonry'))) {
+            score += 700; // ISO 2 Joisted Masonry
+          } else if (code === '152' && (qLower.includes('iso 3') || (qLower.includes('noncombustible') && !qLower.includes('masonry')))) {
+            score += 700; // ISO 3 Noncombustible
+          } else if (code === '131' && (qLower.includes('iso 5') || qLower.includes('iso 6') || qLower.includes('modified fire resistive') || qLower.includes('fire resistive') || qLower.includes('mfr'))) {
+            score += 700; // ISO 5 & 6 Fire Resistive
           }
         }
 

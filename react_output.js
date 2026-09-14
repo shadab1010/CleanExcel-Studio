@@ -237,13 +237,27 @@
       };
     }, [results, activeColumnId, colNames, searchQuery, statusFilter, codeFilter]);
 
-    // Compute user column headers
+    const getExcelLetter = (idx) => {
+      let n = 43 + idx;
+      let letter = '';
+      while (n > 0) {
+        let rem = (n - 1) % 26;
+        letter = String.fromCharCode(65 + rem) + letter;
+        n = Math.floor((n - 1) / 26);
+      }
+      return letter;
+    };
+
     const getColHeader = useCallback((colNum) => {
       const section = activeColumnId === 'construction' ? 'construction' : 'occupancy';
       const map = colNames[section] || {};
-      if (colNum === 1) return map.col1 || 'Existing Code';
-      if (colNum === 2) return map.col2 || (section === 'construction' ? 'Building Type' : 'Building Description');
-      if (colNum === 3) return map.col3 || (section === 'construction' ? 'Construction Description' : 'Occupancy Description');
+      const key = 'col' + colNum;
+      if (map[key] && map[key].trim()) return map[key].trim();
+      if (colNum === 1) return 'Existing Code';
+      if (colNum === 2) return (section === 'construction' ? 'Building Type' : 'Building Description');
+      if (colNum === 3) return (section === 'construction' ? 'Construction Description' : 'Occupancy Description');
+      if (colNum === 4) return (section === 'construction' ? 'Exterior Finish / Wall' : 'Secondary Occupancy / Notes');
+      if (colNum === 5) return (section === 'construction' ? 'Roof / Framing Details' : 'Operations / Tenant');
       return `Column ${colNum}`;
     }, [activeColumnId, colNames]);
 
@@ -261,40 +275,35 @@
       return results.filter(r => {
         // Status filter
         if (statusFilter !== 'all') {
-          if (isRoofYear) {
-            if (statusFilter === 'assigned' && !(r.status === 'assigned' || r.status === 'unchanged' || r.status === 'match' || (r.cleaned && r.status !== 'mismatch'))) return false;
-            if (statusFilter === 'mismatch' && r.status !== 'mismatch') return false;
-            if (statusFilter === 'missing_yb' && r.status !== 'missing_yb') return false;
-            if (statusFilter === 'missing_roof' && r.status !== 'missing_roof') return false;
-            if (statusFilter === 'empty' && r.status !== 'empty') return false;
-          } else if (isRoof || isWall) {
-            if (statusFilter === 'confirmed' && r.status !== 'match') return false;
-            if (statusFilter === 'assigned' && r.status !== 'assigned') return false;
-            if (statusFilter === 'differs' && r.status !== 'mismatch') return false;
-            if (statusFilter === 'empty' && r.status !== 'empty') return false;
+          if (isRoof) {
+            if (r.status !== statusFilter) return false;
+          } else if (isWall) {
+            if (r.status !== statusFilter) return false;
+          } else if (isRoofYear) {
+            if (r.status !== statusFilter && r.statusText !== statusFilter) return false;
           } else if (isCodeEngine) {
-            if (statusFilter === 'confirmed' && r.comparisonStatus !== 'match') return false;
-            if (statusFilter === 'resolved' && r.comparisonStatus !== 'upgraded') return false;
-            if (statusFilter === 'assigned' && r.comparisonStatus !== 'assigned') return false;
-            if (statusFilter === 'differs' && r.comparisonStatus !== 'mismatch') return false;
+            if (r.comparisonStatus !== statusFilter) return false;
           } else {
-            if (statusFilter === 'cleaned' && !r.changed) return false;
-            if (statusFilter === 'unchanged' && (r.changed || !r.original?.trim())) return false;
-            if (statusFilter === 'empty' && r.original?.trim()) return false;
+            if (statusFilter === 'modified' && !r.changed) return false;
+            if (statusFilter === 'unmodified' && r.changed) return false;
           }
         }
 
-        // Code filter
-        if (isCodeEngine && codeFilter !== 'all') {
-          const targetCode = String(isConstruction ? (r.conCode || '') : (r.occCode || '')).trim();
-          if (targetCode !== codeFilter) return false;
+        // Code filter (category code dropdown)
+        if (codeFilter !== 'all') {
+          if (activeColumnId === 'construction' && r.conCode !== codeFilter) return false;
+          if (activeColumnId === 'occupancy' && r.occCode !== codeFilter) return false;
+          if (isRoof && r.coveringCode !== codeFilter && r.geometryCode !== codeFilter) return false;
+          if (isWall && r.wallTypeCode !== codeFilter && r.wallSidingCode !== codeFilter) return false;
         }
 
-        // Search Query filter
+        // Search text filter
         if (query) {
-          const lineStr = String(r.lineNum || '');
-          if (isConstruction) {
+          const lineStr = String(r.lineNum);
+          if (activeColumnId === 'construction') {
+            const extraMatch = (r.extraCols || []).some(c => c && c.toLowerCase().includes(query));
             return lineStr === query ||
+              extraMatch ||
               (r.existingCode && r.existingCode.toLowerCase().includes(query)) ||
               (r.bldgDesc && r.bldgDesc.toLowerCase().includes(query)) ||
               (r.conDesc && r.conDesc.toLowerCase().includes(query)) ||
@@ -302,7 +311,9 @@
               (r.category && r.category.toLowerCase().includes(query)) ||
               (r.group && r.group.toLowerCase().includes(query));
           } else if (activeColumnId === 'occupancy') {
+            const extraMatch = (r.extraCols || []).some(c => c && c.toLowerCase().includes(query));
             return lineStr === query ||
+              extraMatch ||
               (r.existingCode && r.existingCode.toLowerCase().includes(query)) ||
               (r.bldgDesc && r.bldgDesc.toLowerCase().includes(query)) ||
               (r.occDesc && r.occDesc.toLowerCase().includes(query)) ||
@@ -403,10 +414,6 @@
       );
     }
 
-    const col1Title = `${getColHeader(1)} (AR)`;
-    const col2Title = `${getColHeader(2)} (AS)`;
-    const col3Title = `${getColHeader(3)} (AT)`;
-
     const firstRow = results && results.length > 0 ? results[0] : null;
     const isConstruction = activeColumnId === 'construction' || (firstRow && firstRow.conCode !== undefined);
     const isOccupancy = activeColumnId === 'occupancy' || (firstRow && firstRow.occCode !== undefined);
@@ -414,6 +421,30 @@
     const isRoof = activeColumnId === 'roof' || (firstRow && firstRow.geometry !== undefined);
     const isWall = activeColumnId === 'wall' || (firstRow && firstRow.wallType !== undefined);
     const isRoofYear = activeColumnId === 'roof_year' || (firstRow && (firstRow.roofYearBuilt !== undefined || firstRow.rawRoofYearBuilt !== undefined || firstRow.yearBuilt !== undefined));
+
+    // Address Splitter column visibility (Raw Address, County and Country)
+    const hasAnyCounty = results && results.some(r => Boolean(r.county));
+    const hasAnyCountry = results && results.some(r => Boolean(r.country));
+    const showRaw = (window.AppState && window.AppState.splitIncludeRaw !== undefined)
+      ? window.AppState.splitIncludeRaw
+      : true;
+    const showCounty = (window.AppState && window.AppState.splitIncludeCounty !== undefined)
+      ? window.AppState.splitIncludeCounty
+      : (hasAnyCounty || true);
+    const showCountry = (window.AppState && window.AppState.splitIncludeCountry !== undefined)
+      ? window.AppState.splitIncludeCountry
+      : (hasAnyCountry || true);
+
+    // Dynamic Multi-Column Headers for Occupancy & Construction (3, 4, 5+ columns)
+    const extraColsCount = (firstRow && Array.isArray(firstRow.extraCols)) ? firstRow.extraCols.length : 0;
+    const totalInputCols = Math.max(3, 3 + extraColsCount);
+    const dynamicColHeaders = [];
+    for (let i = 1; i <= totalInputCols; i++) {
+      dynamicColHeaders.push({
+        num: i,
+        title: `${getColHeader(i)} (${getExcelLetter(i)})`
+      });
+    }
 
     return e('div', { className: 'react-results-wrapper' },
       // Top Pagination Bar
@@ -424,108 +455,141 @@
         startIndex: startIndex,
         endIndex: endIndex,
         pageSize: pageSize,
-        onPageChange: (p) => setCurrentPage(p),
+        onPageChange: (p) => {
+          setCurrentPage(p);
+        },
         onPageSizeChange: (s) => { setPageSize(s); setCurrentPage(1); }
       }),
 
       // Output Table or Text View
       viewMode === 'table' ? (
         e('div', { className: 'table-responsive' },
-          e('table', { className: 'output-table' },
-            e('thead', null,
-              e('tr', null,
-                e('th', { style: { width: '44px', textAlign: 'right', paddingRight: '10px' } }, '#'),
-                (isConstruction || isOccupancy) && [
-                  e('th', { key: 'c1', style: { width: '120px', textAlign: 'center' } }, col1Title),
-                  e('th', { key: 'c2', style: { width: '25%' } }, col2Title),
-                  e('th', { key: 'c3', style: { width: '26%' } }, col3Title),
-                  e('th', { key: 'code', style: { width: '115px', textAlign: 'center' } }, 'Touchstone Code'),
-                  e('th', { key: 'cat' }, 'Touchstone Category'),
-                  e('th', { key: 'status', style: { width: '110px', textAlign: 'center' } }, 'Status'),
-                  e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
-                ],
-                isRoof && [
-                  e('th', { key: 'raw', style: { width: '25%' } }, 'Raw Roof Input'),
-                  e('th', { key: 'geom', style: { width: '11%', textAlign: 'center' } }, '1. Roof Geometry'),
-                  e('th', { key: 'pitch', style: { width: '11%', textAlign: 'center' } }, '2. Roof Pitch'),
-                  e('th', { key: 'cov', style: { width: '11%', textAlign: 'center' } }, '3. Roof Covering'),
-                  e('th', { key: 'deck', style: { width: '11%', textAlign: 'center' } }, '4. Roof Deck'),
-                  e('th', { key: 'anchor', style: { width: '11%', textAlign: 'center' } }, '5. Roof Anchor'),
-                  e('th', { key: 'status', style: { width: '110px', textAlign: 'center' } }, 'Status'),
-                  e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
-                ],
-                isWall && [
-                  e('th', { key: 'raw', style: { width: '38%' } }, 'Raw Exterior Wall Input'),
-                  e('th', { key: 'wallType', style: { width: '22%', textAlign: 'center' } }, '1. WallType (Backing / Structure)'),
-                  e('th', { key: 'wallSiding', style: { width: '22%', textAlign: 'center' } }, '2. WallSiding (Weather Finish)'),
-                  e('th', { key: 'status', style: { width: '110px', textAlign: 'center' } }, 'Status'),
-                  e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
-                ],
-                isRoofYear && [
-                  e('th', { key: 'yb', style: { width: '20%' } }, '1. Year Built (Input)'),
-                  e('th', { key: 'ry', style: { width: '20%' } }, '2. Roof Year Built (Input)'),
-                  e('th', { key: 'clean', style: { width: '26%' } },
-                    e('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' } },
-                      e('span', null, 'Cleaned Roof Year'),
-                      e('button', {
-                        type: 'button',
-                        className: 'btn-col-header-copy',
-                        title: 'Copy Cleaned Roof Year column for Excel',
-                        onClick: (evt) => {
-                          evt.stopPropagation();
-                          if (window.copyForExcel) window.copyForExcel();
-                        }
-                      }, '📋 Copy Column')
-                    )
-                  ),
-                  e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
-                  e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
-                ],
-                isSplit && [
-                  e('th', { key: 'st', style: { width: '32%' } }, 'STREET'),
-                  e('th', { key: 'city' }, 'City'),
-                  e('th', { key: 'state', style: { width: '55px', textAlign: 'center' } }, 'State'),
-                  e('th', { key: 'postal', style: { width: '75px' } }, 'Postal'),
-                  e('th', { key: 'actions', style: { width: '125px', textAlign: 'right' } }, 'Actions')
-                ],
-                (!isConstruction && !isOccupancy && !isSplit && !isRoof && !isWall && !isRoofYear) && [
-                  e('th', { key: 'raw', style: { width: '38%' } }, activeColumnId === 'year' ? 'Raw Input Year' : 'Raw Input'),
-                  e('th', { key: 'clean' },
-                    e('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' } },
-                      e('span', null, activeColumnId === 'year' ? 'Cleaned Year (1753–2026)' : 'Cleaned Result (Excel Column)'),
-                      e('button', {
-                        type: 'button',
-                        className: 'btn-col-header-copy',
-                        title: activeColumnId === 'year' ? 'Copy all Cleaned Years for Excel' : 'Copy cleaned column for Excel',
-                        onClick: (evt) => {
-                          evt.stopPropagation();
-                          if (window.copyForExcel) window.copyForExcel();
-                        }
-                      }, '📋 Copy Column')
-                    )
-                  ),
-                  e('th', { key: 'st', style: { width: '115px', textAlign: 'center' } }, 'Status'),
-                  e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
-                ]
-              )
-            ),
-            e('tbody', null,
-              visibleRows.length === 0 ? (
-                e('tr', null,
-                  e('td', {
-                    colSpan: isConstruction || isOccupancy ? 8 : (isRoof ? 9 : (isRoofYear ? 6 : (isWall ? 6 : (isSplit ? 6 : 5)))),
-                    style: { textAlign: 'center', padding: '48px 16px', color: 'var(--text-muted)' }
-                  },
-                    e('div', { style: { fontSize: '26px', marginBottom: '8px' } }, '🔍'),
-                    'No rows match the search query or active filter.'
+        e('table', { className: 'output-table' },
+          e('thead', null,
+            e('tr', null,
+              e('th', { key: 'num', style: { width: '48px', textAlign: 'center' } }, '#'),
+              isConstruction && [
+                dynamicColHeaders.map(col =>
+                  e('th', { key: `con-in-${col.num}`, style: { width: `${Math.round(48 / totalInputCols)}%` } }, col.title)
+                ),
+                e('th', { key: 'con-code', style: { width: '90px', textAlign: 'center' } }, 'Touchstone Code'),
+                e('th', { key: 'con-desc' }, 'Construction Class Description'),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
+              ],
+              isOccupancy && [
+                dynamicColHeaders.map(col =>
+                  e('th', { key: `occ-in-${col.num}`, style: { width: `${Math.round(48 / totalInputCols)}%` } }, col.title)
+                ),
+                e('th', { key: 'occ-code', style: { width: '90px', textAlign: 'center' } }, 'Touchstone Code'),
+                e('th', { key: 'occ-desc' }, 'Occupancy Description'),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
+              ],
+              isRoof && [
+                e('th', { key: 'raw-roof-desc', style: { width: '30%' } }, 'Raw Roof Description'),
+                e('th', { key: 'rf-geo-code', style: { width: '85px', textAlign: 'center' } }, 'Geo Code'),
+                e('th', { key: 'rf-geo-desc', style: { width: '120px' } }, 'Roof Geometry'),
+                e('th', { key: 'rf-cov-code', style: { width: '85px', textAlign: 'center' } }, 'Covering Code'),
+                e('th', { key: 'rf-cov-desc', style: { width: '120px' } }, 'Roof Covering'),
+                e('th', { key: 'rf-anc-code', style: { width: '85px', textAlign: 'center' } }, 'Anchorage Code'),
+                e('th', { key: 'rf-anc-desc', style: { width: '120px' } }, 'Roof Anchorage'),
+                e('th', { key: 'status', style: { width: '135px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '125px', textAlign: 'right' } }, 'Actions')
+              ],
+              isWall && [
+                e('th', { key: 'raw-wall-desc', style: { width: '36%' } }, 'Raw Exterior Wall Description'),
+                e('th', { key: 'wl-type-code', style: { width: '90px', textAlign: 'center' } }, 'Wall Code'),
+                e('th', { key: 'wl-type-desc', style: { width: '140px' } }, 'Exterior Wall Finish'),
+                e('th', { key: 'wl-con-class', style: { width: '140px', textAlign: 'center' } }, 'Mapped Con Class'),
+                e('th', { key: 'status', style: { width: '135px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '125px', textAlign: 'right' } }, 'Actions')
+              ],
+              isRoofYear && [
+                e('th', { key: 'raw-yb', style: { width: '22%' } }, 'Year Built (Col 1)'),
+                e('th', { key: 'raw-ry', style: { width: '22%' } }, 'Roof Year Built (Col 2)'),
+                e('th', { key: 'clean-ry', style: { width: '26%' } },
+                  e('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' } },
+                    e('span', null, 'Cleaned Roof Year (≥ YB)'),
+                    e('button', {
+                      type: 'button',
+                      className: 'btn-col-header-copy',
+                      title: 'Copy Cleaned Roof Years for Excel',
+                      onClick: (evt) => {
+                        evt.stopPropagation();
+                        if (window.copyForExcel) window.copyForExcel();
+                      }
+                    }, '📋 Copy Column')
                   )
+                ),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
+              ],
+              isSplit && [
+                showRaw && e('th', { key: 'raw-addr', style: { width: '22%' } }, 'Raw Address Input'),
+                e('th', { key: 'st', style: { width: showRaw ? '18%' : '26%' } }, 'STREET'),
+                e('th', { key: 'city', style: { width: '13%' } }, 'City'),
+                e('th', { key: 'state', style: { width: '55px', textAlign: 'center' } }, 'State'),
+                showCounty && e('th', { key: 'county', style: { width: '12%' } }, 'County'),
+                e('th', { key: 'postal', style: { width: '85px' } }, 'Postal'),
+                showCountry && e('th', { key: 'country', style: { width: '80px', textAlign: 'center' } }, 'Country'),
+                e('th', { key: 'actions', style: { width: '125px', textAlign: 'right' } }, 'Actions')
+              ].filter(Boolean),
+              (!isConstruction && !isOccupancy && !isSplit && !isRoof && !isWall && !isRoofYear) && [
+                e('th', { key: 'raw', style: { width: '38%' } },
+                  activeColumnId === 'year'
+                    ? 'Raw Input Year'
+                    : (activeColumnId === 'stores' || activeColumnId === 'stories'
+                        ? 'Raw Input (No of Stores)'
+                        : 'Raw Input')
+                ),
+                e('th', { key: 'clean' },
+                  e('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' } },
+                    e('span', null,
+                      activeColumnId === 'year'
+                        ? 'Cleaned Year (1753–2026)'
+                        : (activeColumnId === 'stores' || activeColumnId === 'stories'
+                            ? 'Cleaned Stories (Positive Whole No)'
+                            : 'Cleaned Result (Excel Column)')
+                    ),
+                    e('button', {
+                      type: 'button',
+                      className: 'btn-col-header-copy',
+                      title: activeColumnId === 'year'
+                        ? 'Copy all Cleaned Years for Excel'
+                        : (activeColumnId === 'stores' || activeColumnId === 'stories'
+                            ? 'Copy Cleaned Stories for Excel'
+                            : 'Copy cleaned column for Excel'),
+                      onClick: (evt) => {
+                        evt.stopPropagation();
+                        if (window.copyForExcel) window.copyForExcel();
+                      }
+                    }, '📋 Copy Column')
+                  )
+                ),
+                e('th', { key: 'st', style: { width: '145px', textAlign: 'center' } }, 'Status'),
+                e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
+              ]
+            )
+          ),
+          e('tbody', null,
+            visibleRows.length === 0 ? (
+              e('tr', null,
+                e('td', {
+                  colSpan: (isConstruction || isOccupancy) ? (5 + totalInputCols) : (isRoof ? 9 : (isRoofYear ? 6 : (isWall ? 6 : (isSplit ? (6 + (showRaw ? 1 : 0) + (showCounty ? 1 : 0) + (showCountry ? 1 : 0)) : 5)))),
+                  style: { textAlign: 'center', padding: '48px 16px', color: 'var(--text-muted)' }
+                },
+                  e('div', { style: { fontSize: '26px', marginBottom: '8px' } }, '🔍'),
+                  'No rows match the search query or active filter.'
                 )
-              ) : (
-                visibleRows.map((r, idx) => {
-                  const rowNum = r.lineNum || (startIndex + idx + 1);
+              )
+            ) : (
+              visibleRows.map((r, idx) => {
+                const rowNum = r.lineNum || (startIndex + idx + 1);
 
-                  if (isConstruction) {
-                    const fullSearch = `${r.bldgDesc || ''} ${r.conDesc || ''}`.trim();
+                if (isConstruction) {
+                    const extraParts = Array.isArray(r.extraCols) ? r.extraCols.join(' ') : '';
+                    const fullSearch = `${r.bldgDesc || ''} ${r.conDesc || ''} ${extraParts}`.trim();
                     const searchUrl = fullSearch ? `https://www.google.com/search?q=${encodeURIComponent(fullSearch + ' Touchstone UNICEDE construction code')}` : '#';
 
                     return e('tr', { key: String(rowNum) },
@@ -535,6 +599,9 @@
                       ),
                       e('td', { className: 'td-bldg-desc' }, r.bldgDesc || '—'),
                       e('td', { className: 'td-occ-desc' }, r.conDesc || '—'),
+                      ...(Array.isArray(r.extraCols) ? r.extraCols.map((extraVal, eIdx) =>
+                        e('td', { key: 'extra-' + eIdx, className: 'td-extra-desc' }, extraVal || '—')
+                      ) : []),
                       e('td', { className: 'td-occ-code' },
                         e('span', {
                           className: 'occ-code-badge',
@@ -548,7 +615,7 @@
                         r.group && e('br'),
                         r.group && e('small', { style: { color: 'var(--text-muted)', fontSize: '10px' } }, r.group)
                       ),
-                      e('td', { style: { textAlign: 'center' } },
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
                         getStatusBadge(r.comparisonStatus, r.comparisonMessage, 'Assigned')
                       ),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
@@ -570,7 +637,8 @@
                       )
                     );
                   } else if (isOccupancy) {
-                    const fullSearch = `${r.bldgDesc || ''} ${r.occDesc || ''}`.trim();
+                    const extraParts = Array.isArray(r.extraCols) ? r.extraCols.join(' ') : '';
+                    const fullSearch = `${r.bldgDesc || ''} ${r.occDesc || ''} ${extraParts}`.trim();
                     const searchUrl = fullSearch ? `https://www.google.com/search?q=${encodeURIComponent(fullSearch + ' Touchstone UNICEDE occupancy code')}` : '#';
 
                     return e('tr', { key: String(rowNum) },
@@ -580,6 +648,9 @@
                       ),
                       e('td', { className: 'td-bldg-desc' }, r.bldgDesc || '—'),
                       e('td', { className: 'td-occ-desc' }, r.occDesc || '—'),
+                      ...(Array.isArray(r.extraCols) ? r.extraCols.map((extraVal, eIdx) =>
+                        e('td', { key: 'extra-' + eIdx, className: 'td-extra-desc' }, extraVal || '—')
+                      ) : []),
                       e('td', { className: 'td-occ-code' },
                         e('span', {
                           className: 'occ-code-badge',
@@ -593,7 +664,7 @@
                         r.group && e('br'),
                         r.group && e('small', { style: { color: 'var(--text-muted)', fontSize: '10px' } }, r.group)
                       ),
-                      e('td', { style: { textAlign: 'center' } },
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
                         getStatusBadge(r.comparisonStatus, r.comparisonMessage, 'Assigned')
                       ),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
@@ -660,7 +731,7 @@
                           onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.anchorageCode, 'roof', 'anchorage')
                         }, r.anchorageCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
-                      e('td', { style: { textAlign: 'center' } },
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
                         getStatusBadge(r.status, r.statusText, r.statusText || 'Separated')
                       ),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
@@ -703,7 +774,7 @@
                           onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.wallSidingCode, 'wall')
                         }, r.wallSidingCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
-                      e('td', { style: { textAlign: 'center' } },
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
                         getStatusBadge(r.status, r.statusText, r.statusText || 'Separated')
                       ),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
@@ -781,7 +852,7 @@
                           onClick: () => handleCopyValue(r.cleaned, `ry-cell-${rowNum}`, 'Roof Year')
                         }, copiedRowId === `ry-cell-${rowNum}` ? '✓' : '📋')
                       ) : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '11px' } }, '— (Blank)')),
-                      e('td', { style: { textAlign: 'center' } },
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
                         getStatusBadge(badgeCls, r.statusText, badgeText)
                       ),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
@@ -803,22 +874,43 @@
                       )
                     );
                   } else if (isSplit) {
-                    const fullAddr = `${r.street || ''}, ${r.city || ''}, ${r.state || ''} ${r.postal || ''}`.trim();
+                    const fullAddr = [r.street, r.city, r.state, r.county, r.postal, r.country].filter(Boolean).join(', ');
                     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}`;
+
+                    const copyParts = [];
+                    if (showRaw) copyParts.push(r.original || '');
+                    copyParts.push(r.street || '', r.city || '', r.state || '');
+                    if (showCounty) copyParts.push(r.county || '');
+                    copyParts.push(r.postal || '');
+                    if (showCountry) copyParts.push(r.country || '');
+
+                    // Country pill styling
+                    let countryClass = 'country-badge';
+                    const cUpper = String(r.country || '').toUpperCase();
+                    if (['GB', 'UK', 'UNITED KINGDOM'].includes(cUpper)) countryClass += ' country-uk';
+                    else if (['US', 'USA', 'UNITED STATES'].includes(cUpper)) countryClass += ' country-us';
+                    else if (['CA', 'CANADA'].includes(cUpper)) countryClass += ' country-ca';
+                    else if (['AU', 'AUSTRALIA'].includes(cUpper)) countryClass += ' country-au';
+                    else if (['DE', 'GERMANY'].includes(cUpper)) countryClass += ' country-de';
 
                     return e('tr', { key: String(rowNum) },
                       e('td', { className: 'td-num' }, rowNum),
+                      showRaw && e('td', { className: 'td-raw-addr', title: r.original }, r.original || '—'),
                       e('td', { className: 'td-street' }, r.street || '—'),
                       e('td', { className: 'td-city' }, r.city || '—'),
-                      e('td', { className: 'td-state' }, r.state || '—'),
+                      e('td', { className: 'td-state' }, r.state ? e('span', { className: 'state-pill' }, r.state) : '—'),
+                      showCounty && e('td', { className: 'td-county' }, r.county || '—'),
                       e('td', { className: 'td-postal' }, r.postal || '—'),
+                      showCountry && e('td', { className: 'td-country', style: { textAlign: 'center' } },
+                        r.country ? e('span', { className: countryClass }, r.country) : '—'
+                      ),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
                         e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
                           fullAddr && e('button', {
                             type: 'button',
                             className: `btn-row-copy ${copiedRowId === `sp-${rowNum}` ? 'copied' : ''}`,
                             title: 'Copy split address row to clipboard',
-                            onClick: () => handleCopyValue([r.street || '', r.city || '', r.state || '', r.postal || ''].join('\t'), `sp-${rowNum}`, 'Address')
+                            onClick: () => handleCopyValue(copyParts.join('\t'), `sp-${rowNum}`, 'Address')
                           }, copiedRowId === `sp-${rowNum}` ? '✓ Copied' : '📋 Copy'),
                           e('a', { href: mapsUrl, target: '_blank', rel: 'noopener noreferrer', className: 'btn-maps', title: 'View on Maps' }, '🗺️ Maps')
                         )
@@ -826,6 +918,7 @@
                     );
                   } else {
                     const isYear = activeColumnId === 'year';
+                    const isStores = activeColumnId === 'stores' || activeColumnId === 'stories';
                     let statusKey = !r.original?.trim() ? 'empty' : (r.changed ? 'cleaned' : 'unchanged');
                     let defaultText = r.changed ? 'Cleaned' : 'No Change';
 
@@ -843,29 +936,41 @@
                         statusKey = 'assigned';
                         defaultText = `✨ Cleaned (${r.cleaned})`;
                       }
+                    } else if (isStores) {
+                      if (!r.original?.trim() || !r.cleaned) {
+                        statusKey = 'empty';
+                        defaultText = 'Blank';
+                      } else if (r.original.trim() === r.cleaned) {
+                        statusKey = 'match';
+                        defaultText = '✓ Valid Stories';
+                      } else {
+                        statusKey = 'assigned';
+                        defaultText = r.statusText || `✨ Max (${r.cleaned})`;
+                      }
                     }
 
-                    const searchUrl = r.cleaned ? `https://www.google.com/search?q=${encodeURIComponent('Year Built ' + r.cleaned)}` : '#';
+                    const searchUrl = r.cleaned ? `https://www.google.com/search?q=${encodeURIComponent(isStores ? ('Number of Stories ' + r.cleaned) : ('Year Built ' + r.cleaned))}` : '#';
                     const mapsUrl = r.cleaned ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.cleaned)}` : '#';
+                    const isMonoSpecial = isYear || isStores;
 
                     return e('tr', { key: String(rowNum) },
                       e('td', { className: 'td-num' }, rowNum),
                       e('td', { className: 'td-raw' }, r.original || '—'),
                       e('td', {
                         className: 'td-cleaned',
-                        style: isYear ? {
+                        style: isMonoSpecial ? {
                           fontFamily: 'var(--font-mono)',
                           fontWeight: 'bold',
                           color: r.cleaned ? 'var(--accent-emerald-light)' : 'var(--text-muted)'
                         } : {}
-                      }, isYear ? (
+                      }, isMonoSpecial ? (
                         r.cleaned ? e('div', { style: { display: 'inline-flex', alignItems: 'center', gap: '6px' } },
                           e('span', null, r.cleaned),
                           e('button', {
                             type: 'button',
                             className: `btn-inline-copy ${copiedRowId === `cell-${rowNum}` ? 'copied' : ''}`,
-                            title: `Copy year "${r.cleaned}"`,
-                            onClick: () => handleCopyValue(r.cleaned, `cell-${rowNum}`, 'Year')
+                            title: `Copy ${isStores ? 'stories' : 'year'} "${r.cleaned}"`,
+                            onClick: () => handleCopyValue(r.cleaned, `cell-${rowNum}`, isStores ? 'Stories' : 'Year')
                           }, copiedRowId === `cell-${rowNum}` ? '✓' : '📋')
                         ) : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '11px' } }, '— (Blank)')
                       ) : (
@@ -879,17 +984,17 @@
                           }, copiedRowId === `cell-${rowNum}` ? '✓' : '📋')
                         ) : (r.cleaned || '—')
                       )),
-                      e('td', { style: { textAlign: 'center' } }, getStatusBadge(statusKey, r.statusText || '', defaultText)),
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } }, getStatusBadge(statusKey, r.statusText || '', defaultText)),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
                         e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
                           r.cleaned && e('button', {
                             type: 'button',
                             className: `btn-row-copy ${copiedRowId === rowNum ? 'copied' : ''}`,
                             title: `Copy "${r.cleaned}" to clipboard`,
-                            onClick: () => handleCopyValue(r.cleaned, rowNum, isYear ? 'Year' : '')
+                            onClick: () => handleCopyValue(r.cleaned, rowNum, isStores ? 'Stories' : (isYear ? 'Year' : ''))
                           }, copiedRowId === rowNum ? '✓ Copied' : '📋 Copy'),
-                          r.cleaned && (isYear
-                            ? e('a', { href: searchUrl, target: '_blank', rel: 'noopener noreferrer', className: 'btn-maps', title: 'Search Year' }, '🔍 Info')
+                          r.cleaned && (isMonoSpecial
+                            ? e('a', { href: searchUrl, target: '_blank', rel: 'noopener noreferrer', className: 'btn-maps', title: isStores ? 'Search Stories' : 'Search Year' }, '🔍 Info')
                             : e('a', { href: mapsUrl, target: '_blank', rel: 'noopener noreferrer', className: 'btn-maps', title: 'View on Maps' }, '🗺️ Maps')
                           )
                         )
@@ -908,18 +1013,20 @@
             className: 'code-textarea output-text-area',
             readOnly: true,
             value: useMemo(() => {
-              if (isConstruction) {
-                const header = [col1Title, col2Title, col3Title, 'Touchstone Code', 'Touchstone Category', 'Status'].join('\t');
+              if (isConstruction || isOccupancy) {
+                const header = dynamicColHeaders.map(h => h.title).concat(['Touchstone Code', 'Touchstone Category', 'Status']).join('\t');
                 const lines = [header];
                 filteredRows.forEach(r => {
-                  lines.push([r.existingCode || '', r.bldgDesc || '', r.conDesc || '', r.conCode || '100', r.category || '', r.comparisonMessage || ''].join('\t'));
-                });
-                return lines.join('\n');
-              } else if (isOccupancy) {
-                const header = [col1Title, col2Title, col3Title, 'Touchstone Code', 'Touchstone Category', 'Status'].join('\t');
-                const lines = [header];
-                filteredRows.forEach(r => {
-                  lines.push([r.existingCode || '', r.bldgDesc || '', r.occDesc || '', r.occCode || '300', r.category || '', r.comparisonMessage || ''].join('\t'));
+                  const row = [r.existingCode || '', r.bldgDesc || '', (isConstruction ? r.conDesc : r.occDesc) || ''];
+                  if (Array.isArray(r.extraCols)) {
+                    row.push(...r.extraCols);
+                  }
+                  row.push(
+                    isConstruction ? (r.conCode || '100') : (r.occCode || '300'),
+                    r.category || '',
+                    r.comparisonMessage || ''
+                  );
+                  lines.push(row.join('\t'));
                 });
                 return lines.join('\n');
               } else if (isRoof) {
@@ -944,13 +1051,27 @@
                 });
                 return lines.join('\n');
               } else if (isSplit) {
-                const lines = [['STREET', 'City', 'State', 'Postal'].join('\t')];
-                filteredRows.forEach(r => lines.push([r.street || '', r.city || '', r.state || '', r.postal || ''].join('\t')));
+                const headerParts = [];
+                if (showRaw) headerParts.push('Raw Address Input');
+                headerParts.push('STREET', 'City', 'State');
+                if (showCounty) headerParts.push('County');
+                headerParts.push('Postal');
+                if (showCountry) headerParts.push('Country');
+                const lines = [headerParts.join('\t')];
+                filteredRows.forEach(r => {
+                  const rowParts = [];
+                  if (showRaw) rowParts.push(r.original || '');
+                  rowParts.push(r.street || '', r.city || '', r.state || '');
+                  if (showCounty) rowParts.push(r.county || '');
+                  rowParts.push(r.postal || '');
+                  if (showCountry) rowParts.push(r.country || '');
+                  lines.push(rowParts.join('\t'));
+                });
                 return lines.join('\n');
               } else {
                 return filteredRows.map(r => r.cleaned || '').join('\n');
               }
-            }, [filteredRows, isConstruction, isOccupancy, isSplit, isRoof, isWall, isRoofYear, col1Title, col2Title, col3Title])
+            }, [filteredRows, isConstruction, isOccupancy, isSplit, isRoof, isWall, isRoofYear, col1Title, col2Title, col3Title, showRaw, showCounty, showCountry])
           })
         )
       ),
