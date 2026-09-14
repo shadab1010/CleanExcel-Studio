@@ -587,9 +587,9 @@ function bindEvents() {
     // --- Strategy 1: HTML table parsing (most reliable for Excel) ---
     if (htmlData && htmlData.includes('<td')) {
       try {
-        const tmp = document.createElement('div');
-        tmp.innerHTML = htmlData;
-        const trs = tmp.querySelectorAll('tr');
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlData, 'text/html');
+        const trs = doc.querySelectorAll('tr');
         if (trs.length > 0) {
           const rowTexts = [];
           trs.forEach(tr => {
@@ -2819,45 +2819,55 @@ function downloadCsvFile() {
   const isFiltered = dataToExport.length < totalCount;
   let csvLines = [];
 
+  // Defense against CSV / Formula Injection (CWE-1236)
+  const formatCsvCell = (val) => {
+    const s = String(val ?? '');
+    const firstChar = s.charAt(0);
+    // Neutralize dangerous formula prefixes (=, +, -, @, \t, \r)
+    const isFormula = firstChar === '=' || firstChar === '+' || firstChar === '-' || firstChar === '@' || firstChar === '\t' || firstChar === '\r';
+    const safeStr = isFormula ? `'${s}` : s;
+    return `"${safeStr.replace(/"/g, '""')}"`;
+  };
+
   if (isSplit) {
     const headers = ['STREET', 'City', 'State'];
     if (AppState.splitIncludeCounty) headers.push('County');
     headers.push('Postal');
     if (AppState.splitIncludeCountry) headers.push('Country');
-    csvLines.push(headers.map(h => `"${h}"`).join(','));
+    csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
 
     dataToExport.forEach(r => {
       const row = [r.street, r.city, r.state];
       if (AppState.splitIncludeCounty) row.push(r.county);
       row.push(r.postal);
       if (AppState.splitIncludeCountry) row.push(r.country);
-      csvLines.push(row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(','));
+      csvLines.push(row.map(c => formatCsvCell(c)).join(','));
     });
   } else if (isOccupancy) {
     const col1Title = `${getColumnHeaderName(1)} (AR)`;
     const col2Title = `${getColumnHeaderName(2)} (AS)`;
     const col3Title = `${getColumnHeaderName(3)} (AT)`;
     const headers = [col1Title, col2Title, col3Title, 'Touchstone Code', 'Touchstone Category', 'Status'];
-    csvLines.push(headers.map(h => `"${h}"`).join(','));
+    csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
 
     dataToExport.forEach(r => {
       const row = [r.existingCode || '', r.bldgDesc || '', r.occDesc || '', r.occCode || '300', r.category || 'Unknown occupancy', r.comparisonMessage || ''];
-      csvLines.push(row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(','));
+      csvLines.push(row.map(c => formatCsvCell(c)).join(','));
     });
   } else if (isConstruction) {
     const col1Title = `${getColumnHeaderName(1)} (AR)`;
     const col2Title = `${getColumnHeaderName(2)} (AS)`;
     const col3Title = `${getColumnHeaderName(3)} (AT)`;
     const headers = [col1Title, col2Title, col3Title, 'Touchstone Code', 'Touchstone Category', 'Status'];
-    csvLines.push(headers.map(h => `"${h}"`).join(','));
+    csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
 
     dataToExport.forEach(r => {
       const row = [r.existingCode || '', r.bldgDesc || '', r.conDesc || '', r.conCode || '100', r.category || 'Unknown', r.comparisonMessage || ''];
-      csvLines.push(row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(','));
+      csvLines.push(row.map(c => formatCsvCell(c)).join(','));
     });
   } else if (isRoof) {
     const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Anchorage', 'Status'];
-    csvLines.push(headers.map(h => `"${h}"`).join(','));
+    csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
 
     dataToExport.forEach(r => {
       const row = [
@@ -2869,11 +2879,11 @@ function downloadCsvFile() {
         r.anchorageCode || '',
         r.statusText || ''
       ];
-      csvLines.push(row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(','));
+      csvLines.push(row.map(c => formatCsvCell(c)).join(','));
     });
   } else if (isWall) {
     const headers = ['Raw Wall Input', '1. WallType', '2. WallSiding', 'Status'];
-    csvLines.push(headers.map(h => `"${h}"`).join(','));
+    csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
 
     dataToExport.forEach(r => {
       const row = [
@@ -2882,11 +2892,11 @@ function downloadCsvFile() {
         r.wallSidingCode || '',
         r.statusText || ''
       ];
-      csvLines.push(row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(','));
+      csvLines.push(row.map(c => formatCsvCell(c)).join(','));
     });
   } else if (isRoofYear) {
     const headers = ['Year Built', 'Roof Year Built (Input)', 'Cleaned Roof Year Built', 'Status'];
-    csvLines.push(headers.map(h => `"${h}"`).join(','));
+    csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
 
     dataToExport.forEach(r => {
       const row = [
@@ -2895,17 +2905,16 @@ function downloadCsvFile() {
         r.cleaned || '',
         r.statusText || ''
       ];
-      csvLines.push(row.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(','));
+      csvLines.push(row.map(c => formatCsvCell(c)).join(','));
     });
   } else {
     const colName = (window.CleanersRegistry && window.CleanersRegistry[AppState.activeColumnId])
       ? window.CleanersRegistry[AppState.activeColumnId].name
       : 'Cleaned_Street';
 
-    csvLines.push(`"${colName}"`);
+    csvLines.push(formatCsvCell(colName));
     dataToExport.forEach(r => {
-      const escaped = r.cleaned.replace(/"/g, '""');
-      csvLines.push(`"${escaped}"`);
+      csvLines.push(formatCsvCell(r.cleaned));
     });
   }
 
@@ -3866,6 +3875,15 @@ function initVengeanceNavigation() {
       if (navBtnHome) navBtnHome.classList.remove('active');
       if (navBtnStudio) navBtnStudio.classList.add('active');
       if (btnLaunchHeader) btnLaunchHeader.style.display = 'none';
+
+      // Load studio ambient video on demand when entering workspace
+      const studioVideo = document.querySelector('.studio-ambient-video');
+      if (studioVideo && studioVideo.dataset.src && !studioVideo.src) {
+        studioVideo.src = studioVideo.dataset.src;
+        studioVideo.load();
+        studioVideo.play().catch(() => {});
+      }
+
       // Re-trigger layout alignment for multi-column inputs and output tables
       updateLineNumbers();
       updateOccLineNumbers();
@@ -3976,6 +3994,7 @@ function initVengeanceNavigation() {
 
   // Initialize SynapseX Hero mouse-scrubbed video and text scrambler
   initSynapseHero();
+  initLazyVideos();
 }
 
 /**
@@ -4051,4 +4070,49 @@ function initSynapseHero() {
       }, 40);
     }, 200 + idx * 300);
   });
+}
+
+/**
+ * SynapseX Lazy Video Loader & Mobile Bandwidth Optimization
+ * Avoids downloading 45+ MB of video payloads on initial page render.
+ */
+function initLazyVideos() {
+  // 1. Ambient Background Video (Desktop only, skipped on mobile to save 17MB)
+  const ambientVideo = document.querySelector('.synapse-ambient-video');
+  if (ambientVideo && window.innerWidth > 768) {
+    if (ambientVideo.dataset.src && !ambientVideo.src) {
+      ambientVideo.src = ambientVideo.dataset.src;
+      ambientVideo.load();
+      ambientVideo.play().catch(() => {});
+    }
+  }
+
+  // 2. Below-the-fold showcase videos (Cinematic, Metrics, Footer)
+  const lazyVideos = document.querySelectorAll('.synapse-lazy-video');
+  if ('IntersectionObserver' in window) {
+    const videoObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const video = entry.target;
+          if (video.dataset.src && !video.src) {
+            video.src = video.dataset.src;
+            video.load();
+            video.play().catch(() => {});
+          }
+          observer.unobserve(video);
+        }
+      });
+    }, { rootMargin: '300px 0px' });
+
+    lazyVideos.forEach(v => videoObserver.observe(v));
+  } else {
+    // Fallback for older browsers
+    lazyVideos.forEach(v => {
+      if (v.dataset.src && !v.src) {
+        v.src = v.dataset.src;
+        v.load();
+        v.play().catch(() => {});
+      }
+    });
+  }
 }

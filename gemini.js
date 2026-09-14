@@ -35,13 +35,32 @@ const GeminiService = {
   },
 
   /**
+   * Internal helper: Base API endpoint (keeps secret keys out of URL query parameters)
+   */
+  _getEndpoint() {
+    return `${this.API_BASE}/${this.MODEL_NAME}:generateContent`;
+  },
+
+  /**
+   * Internal helper: Secure HTTP headers carrying the API key
+   */
+  _getHeaders(customKey) {
+    const apiKey = (customKey || this.getApiKey() || '').trim();
+    const headers = { 'Content-Type': 'application/json' };
+    if (apiKey) {
+      headers['x-goog-api-key'] = apiKey;
+    }
+    return headers;
+  },
+
+  /**
    * Test API key connectivity
    */
   async testConnection() {
     const key = this.getApiKey();
     if (!key) throw new Error('No Gemini API Key provided.');
 
-    const url = `${this.API_BASE}/${this.MODEL_NAME}:generateContent?key=${key}`;
+    const url = this._getEndpoint();
     const payload = {
       generationConfig: {
         thinkingConfig: { thinkingBudget: 0 }
@@ -51,7 +70,7 @@ const GeminiService = {
 
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._getHeaders(key),
       body: JSON.stringify(payload)
     });
 
@@ -76,7 +95,7 @@ const GeminiService = {
     const key = this.getApiKey();
     if (!key) throw new Error('Please configure a Gemini API key.');
 
-    const url = `${this.API_BASE}/${this.MODEL_NAME}:generateContent?key=${key}`;
+    const url = this._getEndpoint();
     const payload = {
       generationConfig: {
         response_mime_type: 'application/json',
@@ -92,7 +111,7 @@ const GeminiService = {
 
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._getHeaders(key),
       body: JSON.stringify(payload)
     });
 
@@ -117,7 +136,7 @@ const GeminiService = {
     const nonBlankLines = rawLines.map((line, idx) => ({ idx, line: String(line || '').trim() })).filter(item => item.line.length > 0);
     if (nonBlankLines.length === 0) return [];
 
-    const url = `${this.API_BASE}/${this.MODEL_NAME}:generateContent?key=${key}`;
+    const url = this._getEndpoint();
 
     const systemPrompt = `You are CleanExcel Studio AI, an expert address parser with worldwide international knowledge (US, UK, Germany, Canada, France, Australia, Japan, etc.).
 Parse each input address into an array of JSON objects matching this exact structure:
@@ -159,7 +178,7 @@ Strict Rules:
 
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._getHeaders(key),
       body: JSON.stringify(payload)
     });
 
@@ -233,7 +252,7 @@ Strict Rules:
     const nonBlankLines = rawLines.map((line, idx) => ({ idx, line: String(line || '').trim() })).filter(item => item.line.length > 0);
     if (nonBlankLines.length === 0) return [];
 
-    const url = `${this.API_BASE}/${this.MODEL_NAME}:generateContent?key=${key}`;
+    const url = this._getEndpoint();
 
     const systemPrompt = `You are CleanExcel Studio AI Street Cleaner.
 Clean each address according to these strict rules:
@@ -262,7 +281,7 @@ Output ONLY a JSON array: [{"lineNum": <int>, "cleaned": "<UPPERCASE cleaned str
 
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._getHeaders(key),
       body: JSON.stringify(payload)
     });
 
@@ -335,7 +354,7 @@ Output ONLY a JSON array: [{"lineNum": <int>, "cleaned": "<UPPERCASE cleaned str
       return [];
     }
 
-    const url = `${this.API_BASE_URL}?key=${this.getApiKey()}`;
+    const url = this._getEndpoint();
 
     const systemPrompt = `You are CleanExcel Studio AI Insurance Occupancy Classifier.
 You analyze commercial, residential, industrial, and institutional occupancy and building descriptions to assign the official UNICEDE® / AIR-Worldwide Touchstone Occupancy Class Code.
@@ -425,7 +444,7 @@ Instructions:
 
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._getHeaders(),
       body: JSON.stringify(payload)
     });
 
@@ -547,7 +566,7 @@ Instructions:
     const nonBlankRows = rowsToProcess.filter(r => r.existingCode || r.bldgDesc || r.conDesc);
     if (nonBlankRows.length === 0) return [];
 
-    const url = `${this.API_BASE}/${this.MODEL_NAME}:generateContent?key=${key}`;
+    const url = this._getEndpoint();
 
     const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and property appraisal analyst specialized in Verisk Touchstone UNICEDE® Construction Class Codes.
 Map each building and construction description to its official Verisk Touchstone construction code:
@@ -636,7 +655,7 @@ Instructions:
 
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._getHeaders(key),
       body: JSON.stringify(payload)
     });
 

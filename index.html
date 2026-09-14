@@ -9,16 +9,17 @@
   <!-- Google Fonts: Space Mono, Anton SC, Space Grotesk, Plus Jakarta Sans, Orbitron, Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton+SC&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   
   <!-- Bootstrap Icons CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous">
   
   <!-- Stylesheet -->
   <link rel="stylesheet" href="styles.css">
   
-  <!-- SheetJS CDN (optional enhancement for binary .xlsx, fallback is native XML .xls / .csv) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- SheetJS CDN (optional enhancement for binary .xlsx, deferred to avoid blocking first paint) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -26,11 +27,12 @@
   <div class="synapse-bg" aria-hidden="true">
     <video 
       class="synapse-ambient-video" 
-      src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_095750_32a52ce0-2005-45c9-9093-41f03fde9530.mp4" 
-      autoplay 
+      data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_095750_32a52ce0-2005-45c9-9093-41f03fde9530.mp4" 
+      preload="none"
       muted 
       loop 
-      playsinline>
+      playsinline
+      onerror="this.style.display='none'">
     </video>
     <div class="synapse-video-overlay"></div>
     <div class="synapse-dot-grid"></div>
@@ -101,7 +103,7 @@
     <!-- ====================================================================
          HOMEPAGE / LANDING PAGE VIEW (SynapseX Full Cinematic Design)
          ==================================================================== -->
-    <div id="landing-page-view" class="landing-page-view">
+    <main id="landing-page-view" class="landing-page-view">
       
       <!-- 1. Full-Viewport Hero Section with Video Background & Mouse Scrubbing -->
       <section class="synapse-hero-section" id="synapse-hero">
@@ -110,9 +112,10 @@
           id="synapse-hero-video" 
           class="synapse-hero-video" 
           src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_083515_290e5a10-0b95-41af-a5e2-32b6389baa4d.mp4" 
-          preload="auto" 
+          preload="metadata" 
           muted 
-          playsinline>
+          playsinline
+          onerror="this.style.display='none'">
         </video>
 
         <!-- Subtle Dot Grid Overlay -->
@@ -184,12 +187,13 @@
       <!-- 2. Cinematic Section (3D Perspective Scroll & Video Background) -->
       <section class="synapse-cinematic-section">
         <video 
-          class="synapse-cinematic-video" 
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_092455_089c54f8-3b03-4966-9df1-e9746063d0ef.mp4" 
-          autoplay 
+          class="synapse-cinematic-video synapse-lazy-video" 
+          data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_092455_089c54f8-3b03-4966-9df1-e9746063d0ef.mp4" 
+          preload="none"
           muted 
           loop 
-          playsinline>
+          playsinline
+          onerror="this.style.display='none'">
         </video>
         <div class="synapse-cinematic-overlay"></div>
         <div class="synapse-cinematic-text-wrap">
@@ -202,12 +206,13 @@
       <!-- 3. Performance Metrics Section (Video Background) -->
       <section class="synapse-metrics-section">
         <video 
-          class="synapse-metrics-video" 
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_095810_ecea3dd2-fc5e-4e41-8696-4219290b6589.mp4" 
-          autoplay 
+          class="synapse-metrics-video synapse-lazy-video" 
+          data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_095810_ecea3dd2-fc5e-4e41-8696-4219290b6589.mp4" 
+          preload="none"
           muted 
           loop 
-          playsinline>
+          playsinline
+          onerror="this.style.display='none'">
         </video>
         <div class="synapse-metrics-overlay"></div>
         <div class="synapse-metrics-container">
@@ -405,12 +410,13 @@
           <!-- Left: Video Panel -->
           <div class="synapse-footer-video-wrap">
             <video 
-              class="synapse-footer-video" 
-              src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_080203_fd7f4f85-3a86-4837-8192-85e7bfe68e75.mp4" 
-              autoplay 
+              class="synapse-footer-video synapse-lazy-video" 
+              data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_080203_fd7f4f85-3a86-4837-8192-85e7bfe68e75.mp4" 
+              preload="none" 
               muted 
               loop 
-              playsinline>
+              playsinline
+              onerror="this.style.display='none'">
             </video>
             <div class="synapse-footer-video-gradient"></div>
           </div>
@@ -449,7 +455,7 @@
         </div>
       </footer>
 
-    </div> <!-- /#landing-page-view -->
+    </main> <!-- /#landing-page-view -->
 
     <!-- ====================================================================
          CLEAN STUDIO WORKSPACE VIEW (#studio-view)
@@ -465,11 +471,12 @@
       <div class="studio-ambient-backdrop" aria-hidden="true">
         <video 
           class="studio-ambient-video" 
-          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_083515_290e5a10-0b95-41af-a5e2-32b6389baa4d.mp4" 
-          autoplay 
+          data-src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_083515_290e5a10-0b95-41af-a5e2-32b6389baa4d.mp4" 
+          preload="none" 
           muted 
           loop 
-          playsinline>
+          playsinline
+          onerror="this.style.display='none'">
         </video>
         <div class="studio-video-overlay"></div>
         <div class="studio-neon-visor-glow"></div>
@@ -1469,7 +1476,7 @@
     </div> <!-- /#rules-collapsible-wrapper -->
 
     <!-- Dual Workspace: Raw Input vs Cleaned Output -->
-    <main class="workspace-grid">
+    <section class="workspace-grid" aria-label="Studio Workspace Grid">
       
       <!-- Left Pane: Raw Input -->
       <section class="pane" id="raw-pane">
@@ -1758,7 +1765,7 @@
         </div>
       </section>
 
-    </main>
+    </section> <!-- /.workspace-grid -->
 
     </div> <!-- /#studio-view -->
 

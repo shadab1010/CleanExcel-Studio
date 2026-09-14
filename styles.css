@@ -4693,6 +4693,12 @@ body {
   pointer-events: none;
 }
 
+@media (max-width: 768px) {
+  .synapse-ambient-video {
+    display: none !important;
+  }
+}
+
 .synapse-video-overlay {
   position: absolute;
   inset: 0;
@@ -5545,7 +5551,7 @@ body {
 
 .pane-sub {
   font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.70);
 }
 
 .code-preview-block {
@@ -5567,7 +5573,7 @@ body {
 }
 
 .code-line .line-num {
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.60);
   user-select: none;
   width: 14px;
   text-align: right;
@@ -5584,11 +5590,11 @@ body {
 }
 
 .tok-str {
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.70);
 }
 
 .tok-cmt {
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.70);
   font-style: italic;
 }
 
@@ -6019,7 +6025,7 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.35);
+  color: rgba(255, 255, 255, 0.70);
 }
 
 .synapse-status-pill {
