@@ -262,7 +262,8 @@ const SampleDatasets = {
     "3 stories",    // -> 3
     "1.25 floors",  // -> 2 (Round UP / Ceil)
     "N/A",          // -> blank
-    "-2",           // -> 2 (Always positive)
+    "-5",           // -> blank (Negative values -> Blank)
+    "-2",           // -> blank (Negative values -> Blank)
     "0",            // -> blank
     "2 and 4",      // -> 4
     "3/4/5",        // -> 5
@@ -1190,7 +1191,7 @@ function bindEvents() {
         } else if (colId === 'year') {
           rawInputEl.placeholder = 'Paste Year Built column here (e.g. "1994", "Built in 1985", "1680", "2030")...\nCleanExcel will validate between 1753 and 2026, blanking out-of-range rows.';
         } else if (colId === 'stores' || colId === 'stories') {
-          rawInputEl.placeholder = 'Paste No of Stores / Stories data here (e.g. "3.5", "4.2", "2 & 3", "1,2", "2/3", "non", "none", "5")...\nCleanExcel enforces Underwriting Rules:\n• Decimals round UP (3.5 ➔ 4, 4.2 ➔ 5)\n• Multi-values/ranges pick MAX (2 & 3 ➔ 3, 1,2 ➔ 2, 2/3 ➔ 3)\n• Always positive whole numbers\n• Non / none / blank ➔ Blank';
+          rawInputEl.placeholder = 'Paste No of Stores / Stories data here (e.g. "3.5", "4.2", "2 & 3", "1,2", "2/3", "-5", "non", "none", "5")...\nCleanExcel enforces Underwriting Rules:\n• Decimals round UP (3.5 ➔ 4, 4.2 ➔ 5)\n• Multi-values/ranges pick MAX (2 & 3 ➔ 3, 1,2 ➔ 2, 2/3 ➔ 3)\n• Negative values leave blank (-5 ➔ Blank)\n• Non / none / blank ➔ Blank';
         } else {
           rawInputEl.placeholder = 'Paste your raw Excel column here (one record per line)...\n\nExample:\n123 MAIN ST STE 400\nAPT #5B 456 ELM AVE\nPO BOX 789 BLDG 2';
         }

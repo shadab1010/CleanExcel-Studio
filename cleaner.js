@@ -1738,8 +1738,8 @@ const CleanersRegistry = {
     id: 'stores',
     name: 'No of Stores',
     icon: '🏢',
-    badge: 'Positive Whole No',
-    description: 'Underwriting Stories / Floors Engine: Decimals round UP (3.5➔4, 4.2➔5), multi-values/ranges pick max (2&3➔3, 1,2➔2, 2/3➔3), always positive integer, none/blank leaves blank.',
+    badge: 'Whole No / No Negatives',
+    description: 'Underwriting Stories / Floors Engine: Decimals round UP (3.5➔4, 4.2➔5), multi-values/ranges pick max (2&3➔3, 1,2➔2, 2/3➔3), negative values leave blank (-5➔blank), none/blank leaves blank.',
     cleaner: null // Attached below
   }
 };
@@ -3667,7 +3667,7 @@ CleanersRegistry.wall.cleaner = WallClassifier;
  * CleanExcel - Number of Stories / Stores Underwriting Cleaner Engine
  * 
  * Rules:
- *  1. Always positive: Output is strictly positive integers (>= 1, e.g. -2 -> 2, 0 -> blank).
+ *  1. Negative values leave blank: If input has a negative value, leave blank (e.g. -5 -> blank, -2 -> blank, 0 -> blank).
  *  2. Always whole number (hole no): Decimals round UP (Math.ceil, e.g. 3.5 -> 4, 4.2 -> 5, 1.1 -> 2).
  *  3. Multiple values / Ranges pick Maximum:
  *     - "2 & 3" -> 3
@@ -3711,6 +3711,10 @@ const NoOfStoresCleaner = {
     // e.g. "2-3" -> "2 & 3", "2 - 3" -> "2 & 3"
     processed = processed.replace(/(\d+(?:\.\d+)?)\s*[-–—]\s*(\d+(?:\.\d+)?)/g, '$1 & $2');
 
+    // Normalise negative numbers separated by spaces or word prefixes: e.g. "- 5" -> "-5", "minus 5" -> "-5"
+    processed = processed.replace(/-\s+(\d)/g, '-$1');
+    processed = processed.replace(/\b(?:negative|minus)\s*(\d+)/gi, '-$1');
+
     // Replace word numbers when bounded by word boundaries
     Object.keys(wordMap).forEach(word => {
       const regex = new RegExp(`\\b${word}\\b`, 'gi');
@@ -3718,25 +3722,27 @@ const NoOfStoresCleaner = {
     });
 
     // Extract all numbers (integers, floats, negative numbers)
-    // Matches: 3.5, 4.2, -2, 2, 3
+    // Matches: 3.5, 4.2, -5, -2, 2, 3
     const numberMatches = processed.match(/-?\d+(?:\.\d+)?/g);
     if (!numberMatches || numberMatches.length === 0) {
       return '';
     }
 
+    // Rule: Negative values leave blank (e.g. -5 -> blank, -2 -> blank)
+    // Underwriting rule: Negative stories are impossible and must be left blank
+    if (numberMatches.some(m => parseFloat(m) < 0)) {
+      return '';
+    }
+
     // Process each candidate:
-    // Rule: Always positive -> Math.abs
-    // Rule: Always whole number -> Math.ceil
+    // Rule: Always whole number -> Math.ceil (round up)
+    const roundUp = options.roundUpDecimals !== false;
     const validCandidates = numberMatches
       .map(m => {
         const parsed = parseFloat(m);
-        if (isNaN(parsed)) return null;
-        // Always positive
-        const positiveVal = Math.abs(parsed);
-        // If 0, not a valid positive story count in underwriting
-        if (positiveVal === 0) return null;
-        // Always whole number (round up)
-        return Math.ceil(positiveVal);
+        if (isNaN(parsed) || parsed <= 0) return null;
+        // Whole number (round up)
+        return roundUp ? Math.ceil(parsed) : Math.floor(parsed);
       })
       .filter(n => n !== null && n > 0);
 
@@ -3745,8 +3751,9 @@ const NoOfStoresCleaner = {
     }
 
     // Rule: Multiple values / ranges pick maximum
-    const maxVal = Math.max(...validCandidates);
-    return String(maxVal);
+    const pickMax = options.pickMax !== false;
+    const finalVal = pickMax ? Math.max(...validCandidates) : validCandidates[0];
+    return String(finalVal);
   },
 
   cleanColumn(input, options = {}) {
@@ -3769,7 +3776,11 @@ const NoOfStoresCleaner = {
         statusText = 'Blank';
       } else if (!cleaned) {
         status = 'mismatch';
-        statusText = '⚠️ Invalid / Blank';
+        if (/(?:^|[^\d])-\s*\d|\b(?:negative|minus)\b/i.test(trimmed)) {
+          statusText = '⚠️ Negative Value → Blank';
+        } else {
+          statusText = '⚠️ Invalid / Blank';
+        }
       } else if (trimmed === cleaned) {
         status = 'unchanged';
         statusText = '✓ Valid Stories';
@@ -3777,14 +3788,11 @@ const NoOfStoresCleaner = {
         status = 'assigned';
         const hasMultiple = (trimmed.match(/-?\d+(?:\.\d+)?/g) || []).length > 1 || /[/\\&,]|(?:to|and|or)/i.test(trimmed);
         const hadDecimal = /\d+\.\d+/.test(trimmed);
-        const hadNegative = /-\d/.test(trimmed);
 
         if (hasMultiple) {
           statusText = `✨ Max (${cleaned})`;
         } else if (hadDecimal) {
           statusText = `✨ Ceil (${cleaned})`;
-        } else if (hadNegative) {
-          statusText = `✨ Abs (${cleaned})`;
         } else {
           statusText = `✨ Cleaned (${cleaned})`;
         }

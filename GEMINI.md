@@ -54,7 +54,7 @@
 - **Valid Range**: Output cleaned roof year within valid range `1753`–`2026`.
 
 ## No of Stores (Stories & Floors) Classification Rules
-- **Always Positive**: Output is strictly positive integers ($\ge 1$). Negative numbers convert to positive (e.g. `-2 ➔ 2`). Zero (`0`) or non-positive values resolve to blank.
+- **Negative Values Leave Blank**: If there are negative values, leave blank (e.g. `-5 ➔ blank`, `-2 ➔ blank`). Stories cannot be negative in underwriting. Zero (`0`) or non-positive values also resolve to blank.
 - **Always Whole Number (`hole no`)**: Decimals round UP (`Math.ceil`):
   - `3.5 = 4`
   - `4.2 = 5`

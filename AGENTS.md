@@ -121,7 +121,7 @@ This document records persistent project memory, domain rules, and user underwri
 > **User Instruction**:
 > Add new section name: **`No of Stores`**
 > Rules of this section:
-> - **Always Positive**: Output is strictly positive integers ($\ge 1$). Negative numbers convert to positive (e.g. `-2 ➔ 2`). Zero (`0`) or non-positive values resolve to blank.
+> - **Negative Values Leave Blank**: If there are negative values, leave blank (e.g. `-5 ➔ blank`, `-2 ➔ blank`). Stories cannot be negative in underwriting. Zero (`0`) or non-positive values also resolve to blank.
 > - **Always Whole Number (`hole no`)**: Decimals always round UP (`Math.ceil`):
 >   - `3.5 = 4`
 >   - `4.2 = 5`
