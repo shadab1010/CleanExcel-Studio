@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous">
   
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=4.0">
   
   <!-- SheetJS CDN (optional enhancement for binary .xlsx, deferred to avoid blocking first paint) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer crossorigin="anonymous"></script>
@@ -1915,33 +1915,29 @@
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title">
-          <span class="ai-sparkle">✨</span>
-          <h3>Google Gemini AI Settings</h3>
+          <span class="ai-sparkle">🌐</span>
+          <h3>Universal AI Engine Settings</h3>
         </div>
         <button class="modal-close" id="btn-close-modal">&times;</button>
       </div>
       <div class="modal-body">
-        <p class="modal-desc">
-          CleanExcel Studio is integrated with <strong>Gemini 2.5 Flash</strong> for instant worldwide address intelligence (UK postcodes, Germany PLZ, Canadian provinces, US county appraisal records, etc.).
-        </p>
-
-        <!-- Google AI Studio Free Key Helper Box -->
+        <!-- AI Key Guide Helper Box -->
         <div class="ai-key-guide-box">
           <div class="ai-key-guide-content">
-            <span class="ai-key-guide-icon">🔑</span>
+            <span class="ai-key-guide-icon">✨</span>
             <div>
-              <div class="ai-key-guide-title">Need a Free Google Gemini API Key?</div>
-              <div class="ai-key-guide-desc">Google AI Studio provides a free API key with generous daily usage. No credit card required.</div>
+              <div class="ai-key-guide-title">Multi-Provider AI Intelligence</div>
+              <div class="ai-key-guide-desc">Paste ANY API key (Gemini, OpenAI, Claude, Groq, DeepSeek, OpenRouter). The engine auto-detects the provider &amp; fastest model.</div>
             </div>
           </div>
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-cyan ai-key-guide-btn">
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-cyan ai-key-guide-btn" id="ai-provider-get-key-btn">
             <span>Get Free Key</span>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
           </a>
         </div>
 
         <div class="form-group">
-          <label>API Key Status</label>
+          <label>Detected AI Provider &amp; Key Status</label>
           <div class="api-key-status-box">
             <div class="api-status-pill">
               <span class="status-dot-pulse"></span>
@@ -1951,13 +1947,13 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="gemini-api-key-input">Enter / Update Gemini API Key</label>
+          <label for="gemini-api-key-input">Enter / Update AI API Key (Any Model)</label>
           <div class="key-input-wrapper">
             <input 
               type="password" 
               id="gemini-api-key-input" 
               class="tag-input" 
-              placeholder="Paste your Google Gemini API key (e.g. AIzaSy...)..." 
+              placeholder="Paste any API key (Gemini AIza/AQ, OpenAI sk-..., Claude sk-ant-..., Groq gsk_..., DeepSeek)..." 
               autocomplete="new-password"
               style="width: 100%; font-family: var(--font-mono); font-size: 12px;" />
             <button id="btn-clear-custom-key" class="btn btn-secondary btn-sm" type="button" title="Clear saved key and remove from browser">Remove</button>
@@ -1965,17 +1961,57 @@
           <span class="form-help">Your secret key is stored locally in your browser and is never sent to any third party.</span>
         </div>
         <div class="form-group">
-          <label>Active Engine</label>
-          <div class="model-badge">
-            <span class="status-dot-pulse"></span>
-            <span>gemini-2.5-flash (Fast, Worldwide Address Knowledge)</span>
+          <label for="gemini-model-select">Active Model &amp; Engine</label>
+          <div class="model-selector-wrapper">
+            <div class="model-selector-current" id="gemini-model-trigger" tabindex="0" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="gemini-model-select">
+              <span class="status-dot-pulse"></span>
+              <span class="model-selector-label" id="gemini-model-label">Gemini 3.6 Flash</span>
+              <span class="model-selector-badge" id="gemini-model-badge">🚀 Latest</span>
+              <svg class="model-selector-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="model-selector-dropdown" id="gemini-model-dropdown" role="listbox" style="display:none;">
+              <!-- Populated dynamically by JS based on detected provider -->
+            </div>
           </div>
+          <span class="form-help" id="gemini-model-desc">Auto-probed and selected for your API key</span>
         </div>
         <div id="gemini-test-status" class="test-status-area" style="display: none;"></div>
+
+        <!-- Active Configuration Summary Card -->
+        <div class="active-config-card" id="active-config-card" style="display:none;">
+          <div class="active-config-header">
+            <div class="active-config-header-left">
+              <span class="active-config-dot"></span>
+              <span class="active-config-title">Active AI Configuration</span>
+            </div>
+            <span class="active-config-badge">✓ Connected &amp; Ready</span>
+          </div>
+          <div class="active-config-body">
+            <div class="active-config-row">
+              <span class="active-config-key">Provider</span>
+              <span class="active-config-val" id="active-config-provider-name">—</span>
+            </div>
+            <div class="active-config-row">
+              <span class="active-config-key">Model</span>
+              <span class="active-config-val highlight" id="active-config-model-name">—</span>
+            </div>
+            <div class="active-config-row span-2">
+              <span class="active-config-key">Capability</span>
+              <span class="active-config-val" id="active-config-model-desc">—</span>
+            </div>
+            <div class="active-config-row span-2">
+              <span class="active-config-key">API Key</span>
+              <span class="active-config-val active-config-key-masked" id="active-config-key-display">—</span>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
-        <button id="btn-test-gemini" class="btn btn-secondary btn-sm" type="button">🧪 Test Connection</button>
-        <button id="btn-save-gemini-key" class="btn btn-primary btn-sm" type="button">Save &amp; Close</button>
+        <button id="btn-cancel-gemini-modal" class="btn btn-secondary btn-sm" type="button">Cancel</button>
+        <div class="modal-footer-right">
+          <button id="btn-test-gemini" class="btn btn-secondary btn-sm" type="button">🔍 Auto-Detect Models</button>
+          <button id="btn-save-gemini-key" class="btn btn-primary btn-sm" type="button">✓ Save &amp; Connect</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2074,7 +2110,7 @@
   <script src="cleaner.js?v=3.0"></script>
   <script src="code_finder.js?v=3.0"></script>
   <script src="react_output.js?v=3.0"></script>
-  <script src="gemini.js?v=3.0"></script>
-  <script src="app.js?v=3.0"></script>
+  <script src="gemini.js?v=4.0"></script>
+  <script src="app.js?v=4.0"></script>
 </body>
 </html>

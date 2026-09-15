@@ -666,16 +666,24 @@ const AddressSplitter = {
       }
 
       if (stateIdx !== -1) {
-        if (stateIdx > 1) {
-          city = parts[stateIdx - 1];
-          street = parts.slice(0, stateIdx - 1).join(', ');
-        } else if (stateIdx === 1) {
-          const res = this.splitStreetAndCity(parts[0]);
+        let beforeParts = parts.slice(0, stateIdx);
+        // Check if any part before state is a county (e.g. "Davidson County" or "County of ...")
+        const countyBeforeIdx = beforeParts.findIndex(p => /\bcounty\b/i.test(p));
+        if (countyBeforeIdx !== -1) {
+          county = beforeParts[countyBeforeIdx].replace(/\bcounty\b/i, '').trim();
+          beforeParts.splice(countyBeforeIdx, 1);
+        }
+
+        if (beforeParts.length > 1) {
+          city = beforeParts[beforeParts.length - 1];
+          street = beforeParts.slice(0, beforeParts.length - 1).join(', ');
+        } else if (beforeParts.length === 1) {
+          const res = this.splitStreetAndCity(beforeParts[0]);
           street = res.s;
           city = res.c;
         }
         // County is between state and postal (e.g. "DAVIDSON" in "...,TN,DAVIDSON,37212")
-        if (parts.length > stateIdx + 1) {
+        if (!county && parts.length > stateIdx + 1) {
           const candidateCounty = parts[stateIdx + 1];
           if (!candidateCounty.match(/^\d{5}/)) {
             county = candidateCounty;

@@ -1,12 +1,294 @@
 /**
- * CleanExcel - Google Gemini AI Integration Service
- * Model: gemini-2.5-flash
+ * CleanExcel - Universal AI Engine & Multi-Provider Integration Service
+ * Supported Providers: Google Gemini, OpenAI, Anthropic Claude, Groq, DeepSeek, OpenRouter, Mistral
+ * Automatically detects key formats and routes requests accordingly.
  */
+
+const PROVIDERS = {
+  gemini: {
+    id: 'gemini',
+    name: 'Google Gemini',
+    icon: '✨',
+    badge: 'Google',
+    defaultModel: 'gemini-3.6-flash',
+    keyPrefixes: ['AIza', 'AQ.'],
+    keyPlaceholder: 'Paste Google Gemini API key (AIzaSy... or AQ....)',
+    models: [
+      { id: 'gemini-3.6-flash',               label: 'Gemini 3.6 Flash',            badge: '🚀 Latest',   desc: 'Latest & fastest Gemini model' },
+      { id: 'gemini-2.5-pro',                 label: 'Gemini 2.5 Pro',              badge: '🧠 Pro',      desc: 'Most capable reasoning & coding' },
+      { id: 'gemini-2.5-flash-preview-05-20', label: 'Gemini 2.5 Flash Preview',    badge: '🔥 Preview',  desc: 'Preview build of 2.5 Flash' },
+      { id: 'gemini-1.5-flash',               label: 'Gemini 1.5 Flash',            badge: '📦 Stable',   desc: 'Reliable workhorse model' },
+      { id: 'gemini-1.5-pro',                 label: 'Gemini 1.5 Pro',              badge: '🏆 Pro',      desc: 'Large context window' },
+      { id: 'gemini-2.0-flash',               label: 'Gemini 2.0 Flash',            badge: '⚡ Legacy',   desc: 'Second generation Gemini' },
+    ]
+  },
+  openai: {
+    id: 'openai',
+    name: 'OpenAI (ChatGPT)',
+    icon: '⚡',
+    badge: 'OpenAI',
+    defaultModel: 'gpt-4o',
+    keyPrefixes: ['sk-proj-', 'sk-'],
+    keyPlaceholder: 'Paste OpenAI API key (sk-proj-... or sk-...)',
+    models: [
+      { id: 'gpt-4o',                         label: 'GPT-4o (Omni)',               badge: '🚀 Flagship', desc: 'Fast, highly intelligent flagship' },
+      { id: 'gpt-4o-mini',                    label: 'GPT-4o Mini',                 badge: '⚡ Speedy',   desc: 'Ultra-fast, cost-effective workhorse' },
+      { id: 'o3-mini',                        label: 'o3-mini Reasoning',           badge: '🧠 Reasoning', desc: 'Deep mathematical & structured logic' },
+      { id: 'gpt-4-turbo',                    label: 'GPT-4 Turbo',                 badge: '🏆 Turbo',    desc: 'High-capability GPT-4 engine' },
+      { id: 'gpt-3.5-turbo',                  label: 'GPT-3.5 Turbo',               badge: '📦 Classic',  desc: 'Legacy speed model' },
+    ]
+  },
+  anthropic: {
+    id: 'anthropic',
+    name: 'Anthropic (Claude)',
+    icon: '🎭',
+    badge: 'Anthropic',
+    defaultModel: 'claude-3-7-sonnet-20250219',
+    keyPrefixes: ['sk-ant-'],
+    keyPlaceholder: 'Paste Anthropic Claude API key (sk-ant-...)',
+    models: [
+      { id: 'claude-3-7-sonnet-20250219',     label: 'Claude 3.7 Sonnet',           badge: '🚀 Latest',   desc: 'State-of-the-art hybrid reasoning & speed' },
+      { id: 'claude-3-5-sonnet-20241022',     label: 'Claude 3.5 Sonnet',           badge: '🧠 Smart',    desc: 'Top-tier code and data structuring' },
+      { id: 'claude-3-5-haiku-20241022',      label: 'Claude 3.5 Haiku',            badge: '⚡ Fast',     desc: 'Near-instant lightweight model' },
+      { id: 'claude-3-haiku-20240307',       label: 'Claude 3 Haiku',              badge: '📦 Classic',  desc: 'Reliable fast classic' },
+    ]
+  },
+  groq: {
+    id: 'groq',
+    name: 'Groq (Ultra-Fast LPU)',
+    icon: '⚡',
+    badge: 'Groq',
+    defaultModel: 'llama-3.3-70b-versatile',
+    keyPrefixes: ['gsk_'],
+    keyPlaceholder: 'Paste Groq API key (gsk_...)',
+    models: [
+      { id: 'llama-3.3-70b-versatile',        label: 'Llama 3.3 70B Versatile',     badge: '🚀 Blazing',  desc: 'Near-instant LPU inference speed' },
+      { id: 'llama-3.1-8b-instant',           label: 'Llama 3.1 8B Instant',        badge: '⚡ Sub-100ms', desc: 'Ultra-fast lightweight model' },
+      { id: 'mixtral-8x7b-32768',             label: 'Mixtral 8x7B',                badge: '🏆 MoE',      desc: 'High-speed Mixture of Experts' },
+    ]
+  },
+  deepseek: {
+    id: 'deepseek',
+    name: 'DeepSeek',
+    icon: '🐋',
+    badge: 'DeepSeek',
+    defaultModel: 'deepseek-chat',
+    keyPrefixes: ['sk-'],
+    keyPlaceholder: 'Paste DeepSeek API key (sk-...)',
+    models: [
+      { id: 'deepseek-chat',                  label: 'DeepSeek V3 Chat',            badge: '🚀 High IQ',  desc: 'State-of-the-art open weights model' },
+      { id: 'deepseek-reasoner',              label: 'DeepSeek R1 Reasoner',        badge: '🧠 Reasoner', desc: 'Deep chain-of-thought reasoning' },
+    ]
+  },
+  openrouter: {
+    id: 'openrouter',
+    name: 'OpenRouter (Universal)',
+    icon: '🌐',
+    badge: 'OpenRouter',
+    defaultModel: 'openai/gpt-4o-mini',
+    keyPrefixes: ['sk-or-'],
+    keyPlaceholder: 'Paste OpenRouter API key (sk-or-...)',
+    models: [
+      { id: 'openai/gpt-4o-mini',             label: 'GPT-4o Mini (via OpenRouter)', badge: '⚡ Fast',    desc: 'Universal routing to GPT-4o-mini' },
+      { id: 'google/gemini-2.5-flash',        label: 'Gemini 2.5 Flash (via OR)',   badge: '✨ Gemini',   desc: 'Google Gemini via OpenRouter' },
+      { id: 'anthropic/claude-3.5-sonnet',    label: 'Claude 3.5 Sonnet (via OR)',  badge: '🎭 Claude',   desc: 'Anthropic Claude via OpenRouter' },
+      { id: 'deepseek/deepseek-chat',         label: 'DeepSeek V3 (via OR)',        badge: '🐋 DeepSeek', desc: 'DeepSeek Chat via OpenRouter' },
+      { id: 'meta-llama/llama-3.3-70b-instruct', label: 'Llama 3.3 70B (via OR)',   badge: '🦙 Llama',    desc: 'Meta Llama 3.3 via OpenRouter' },
+    ]
+  },
+  mistral: {
+    id: 'mistral',
+    name: 'Mistral AI',
+    icon: '🌪️',
+    badge: 'Mistral',
+    defaultModel: 'mistral-large-latest',
+    keyPrefixes: [],
+    keyPlaceholder: 'Paste Mistral API key',
+    models: [
+      { id: 'mistral-large-latest',           label: 'Mistral Large Latest',        badge: '🚀 Large',    desc: 'Flagship multilingual reasoning' },
+      { id: 'mistral-small-latest',           label: 'Mistral Small Latest',        badge: '⚡ Small',    desc: 'Fast and lightweight' },
+      { id: 'codestral-latest',               label: 'Codestral Latest',            badge: '💻 Code',     desc: 'Specialized code and parsing' },
+    ]
+  }
+};
 
 const GeminiService = {
   DEFAULT_API_KEY: '',
-  MODEL_NAME: 'gemini-2.5-flash',
+  MODEL_NAME: 'gemini-3.6-flash',
   API_BASE: 'https://generativelanguage.googleapis.com/v1beta/models',
+  PROVIDERS: PROVIDERS,
+
+  /**
+   * Automatically detect provider from an API key string
+   */
+  detectProvider(key) {
+    const k = (key || this.getApiKey() || '').trim();
+    if (!k) return 'gemini';
+    if (k.startsWith('sk-ant-')) return 'anthropic';
+    if (k.startsWith('gsk_')) return 'groq';
+    if (k.startsWith('sk-or-')) return 'openrouter';
+    if (k.startsWith('AIza') || k.startsWith('AQ.')) return 'gemini';
+    if (k.startsWith('sk-proj-')) return 'openai';
+    if (k.startsWith('sk-')) {
+      const savedProvider = this.getProvider();
+      if (savedProvider === 'deepseek' || savedProvider === 'openrouter' || savedProvider === 'mistral') {
+        return savedProvider;
+      }
+      return 'openai';
+    }
+    return this.getProvider() || 'gemini';
+  },
+
+  /** Get active provider ID */
+  getProvider() {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('cleanexcel_ai_provider');
+      if (saved && PROVIDERS[saved]) return saved;
+    }
+    const key = this.getApiKey();
+    if (key) {
+      if (key.startsWith('sk-ant-')) return 'anthropic';
+      if (key.startsWith('gsk_')) return 'groq';
+      if (key.startsWith('sk-or-')) return 'openrouter';
+      if (key.startsWith('AIza') || key.startsWith('AQ.')) return 'gemini';
+    }
+    return 'gemini';
+  },
+
+  /** Set active provider ID */
+  setProvider(providerId) {
+    if (typeof localStorage !== 'undefined' && PROVIDERS[providerId]) {
+      localStorage.setItem('cleanexcel_ai_provider', providerId);
+      const defaultMod = PROVIDERS[providerId].defaultModel;
+      this.setModel(defaultMod);
+      this.AVAILABLE_MODELS = PROVIDERS[providerId].models;
+    }
+  },
+
+  /** Get all supported providers */
+  getAllProviders() {
+    return Object.values(PROVIDERS);
+  },
+
+  /** Get provider details */
+  getProviderInfo(providerId) {
+    const id = providerId || this.getProvider();
+    return PROVIDERS[id] || PROVIDERS.gemini;
+  },
+
+  /** Dynamic AVAILABLE_MODELS getter based on active provider */
+  get AVAILABLE_MODELS() {
+    const provider = this.getProvider();
+    if (this._customModels && this._customModels[provider]) {
+      return this._customModels[provider];
+    }
+    return (PROVIDERS[provider] && PROVIDERS[provider].models) || PROVIDERS.gemini.models;
+  },
+  set AVAILABLE_MODELS(models) {
+    if (!this._customModels) this._customModels = {};
+    this._customModels[this.getProvider()] = models;
+  },
+
+  /** Badge & description hints for known model families */
+  _modelMeta(id) {
+    const d = id.toLowerCase();
+    if (d.includes('3.7') || d.includes('3.6')) return { badge: '🚀 Latest', desc: 'Latest generation — fastest & most capable' };
+    if (d.includes('4o-mini') || d.includes('haiku') || d.includes('8b') || d.includes('small')) return { badge: '⚡ Speedy', desc: 'Ultra-fast, low latency' };
+    if (d.includes('4o') || d.includes('2.5-pro') || d.includes('sonnet') || d.includes('70b') || d.includes('large') || d.includes('chat')) return { badge: '🧠 Smart', desc: 'High capability reasoning' };
+    if (d.includes('reasoner') || d.includes('o3') || d.includes('o1')) return { badge: '🔬 Deep Think', desc: 'Advanced reasoning' };
+    if (d.includes('preview')) return { badge: '🔥 Preview', desc: 'Preview build — cutting-edge features' };
+    if (d.includes('flash')) return { badge: '⚡ Flash', desc: 'Fast & efficient' };
+    if (d.includes('pro')) return { badge: '🧠 Pro', desc: 'High-capability model' };
+    return { badge: '🤖 AI', desc: 'AI Model' };
+  },
+
+  /**
+   * Fetch all models available for the current API key from Google's API.
+   * Caches result per key in memory.
+   */
+  _modelCache: {},
+  async fetchModelsFromAPI(key) {
+    const testKey = (key || this.getApiKey() || '').trim();
+    if (!testKey) return null;
+
+    const provider = this.detectProvider(testKey);
+    if (provider !== 'gemini') {
+      return (PROVIDERS[provider] && PROVIDERS[provider].models) || null;
+    }
+
+    if (this._modelCache[testKey]) return this._modelCache[testKey];
+
+    try {
+      const res = await fetch(`${this.API_BASE}?key=${encodeURIComponent(testKey)}&pageSize=100`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      const rawModels = data.models || [];
+
+      const filtered = rawModels
+        .filter(m => {
+          const methods = m.supportedGenerationMethods || [];
+          return methods.includes('generateContent');
+        })
+        .map(m => {
+          const id = m.name.replace('models/', '');
+          const displayName = m.displayName || id;
+          const label = displayName
+            .replace(/^gemini\s*/i, 'Gemini ')
+            .replace(/\b(\d+\.\d+)\b/g, '$1');
+          const meta = this._modelMeta(id);
+          return {
+            id,
+            label: label.length > 2 ? label : `Gemini ${id.replace('gemini-', '')}`,
+            badge: meta.badge,
+            desc: m.description ? m.description.split('.')[0] : meta.desc,
+            inputTokenLimit: m.inputTokenLimit,
+            outputTokenLimit: m.outputTokenLimit,
+          };
+        })
+        .sort((a, b) => {
+          const ver = id => {
+            const m = id.match(/(\d+)\.?(\d*)/);
+            return m ? parseFloat(`${m[1]}.${m[2] || '0'}`) : 0;
+          };
+          return ver(b.id) - ver(a.id);
+        });
+
+      if (filtered.length > 0) {
+        this._modelCache[testKey] = filtered;
+        this.AVAILABLE_MODELS = filtered;
+        return filtered;
+      }
+    } catch (e) {}
+    return null;
+  },
+
+  /** Get currently selected model */
+  getModel() {
+    if (typeof localStorage !== 'undefined') {
+      const saved = localStorage.getItem('cleanexcel_gemini_model');
+      if (saved) return saved;
+    }
+    const provider = this.getProvider();
+    return (PROVIDERS[provider] && PROVIDERS[provider].defaultModel) || this.MODEL_NAME;
+  },
+
+  /** Persist selected model to localStorage */
+  setModel(modelId) {
+    if (typeof localStorage !== 'undefined' && modelId) {
+      localStorage.setItem('cleanexcel_gemini_model', modelId);
+    }
+  },
+
+  /** Get metadata for the currently active model */
+  getModelInfo() {
+    const current = this.getModel();
+    const provider = this.getProvider();
+    const list = this.AVAILABLE_MODELS;
+    const match = list.find(m => m.id === current);
+    if (match) return match;
+    const pInfo = this.getProviderInfo(provider);
+    return { id: current, label: current, badge: pInfo.icon || '🤖', desc: `${pInfo.name} model` };
+  },
 
   getApiKey() {
     if (typeof localStorage !== 'undefined') {
@@ -18,7 +300,10 @@ const GeminiService = {
   setApiKey(key) {
     if (typeof localStorage === 'undefined') return;
     if (key && key.trim()) {
-      localStorage.setItem('cleanexcel_gemini_api_key', key.trim());
+      const trimmed = key.trim();
+      localStorage.setItem('cleanexcel_gemini_api_key', trimmed);
+      const detected = this.detectProvider(trimmed);
+      this.setProvider(detected);
     } else {
       localStorage.removeItem('cleanexcel_gemini_api_key');
     }
@@ -44,28 +329,7 @@ const GeminiService = {
   },
 
   /**
-   * Internal helper: Base API endpoint
-   */
-  _getEndpoint(modelName) {
-    const model = modelName || this.MODEL_NAME;
-    return `${this.API_BASE}/${model}:generateContent`;
-  },
-
-  /**
-   * Internal helper: Secure HTTP headers carrying the API key
-   */
-  _getHeaders(customKey) {
-    const apiKey = (customKey || this.getApiKey() || '').trim();
-    const headers = { 'Content-Type': 'application/json' };
-    if (apiKey) {
-      headers['x-goog-api-key'] = apiKey;
-    }
-    return headers;
-  },
-
-  /**
    * Robust JSON extractor: safely handles markdown code fences (```json ... ```)
-   * and extracts arrays or objects without throwing syntax errors.
    */
   _extractJSON(text) {
     if (!text || typeof text !== 'string') return null;
@@ -93,73 +357,157 @@ const GeminiService = {
   },
 
   /**
-   * Internal resilient HTTP request helper:
-   * - Validates key presence
-   * - Retries with URL query param if custom header is blocked
-   * - Retries without thinkingConfig if unsupported
-   * - Falls back to alternative models if 404
+   * Universal HTTP request dispatcher supporting all providers
    */
-  async _makeRequest(payload, customKey, modelOverride) {
+  async _makeUniversalRequest(systemPrompt, userText, customKey, modelOverride, providerOverride) {
     const key = (customKey || this.getApiKey() || '').trim();
     if (!key) {
-      throw new Error('No Gemini API Key provided. Please enter your Google Gemini API key in Gemini AI Settings.');
+      throw new Error('No API Key provided. Please enter your AI API key in Settings.');
     }
 
-    const currentModel = modelOverride || this.MODEL_NAME;
-    const url = this._getEndpoint(currentModel);
-    let res;
+    const providerId = providerOverride || this.detectProvider(key);
+    const currentModel = modelOverride || (providerOverride ? PROVIDERS[providerId]?.defaultModel : this.getModel());
 
-    try {
-      res = await fetch(url, {
-        method: 'POST',
-        headers: this._getHeaders(key),
-        body: JSON.stringify(payload)
-      });
-    } catch (netErr) {
-      // Fallback with key query parameter if headers are stripped by proxies/extensions
-      const fallbackUrl = `${url}?key=${encodeURIComponent(key)}`;
+    // 1. Google Gemini Provider
+    if (providerId === 'gemini') {
+      const baseUrl = `${this.API_BASE}/${currentModel}:generateContent`;
+      const url = `${baseUrl}?key=${encodeURIComponent(key)}`;
+      const payload = {
+        generationConfig: {
+          responseMimeType: 'application/json',
+          response_mime_type: 'application/json'
+        },
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ parts: [{ text: userText }] }]
+      };
+
+      let res;
       try {
-        res = await fetch(fallbackUrl, {
+        res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-      } catch (fallbackErr) {
-        throw new Error(`Network connection to Google Gemini failed: ${netErr.message || fallbackErr.message}. Check your internet connection or browser security extensions.`);
+      } catch (netErr) {
+        try {
+          res = await fetch(baseUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+            body: JSON.stringify(payload)
+          });
+        } catch (fallbackErr) {
+          throw new Error(`Network connection to Google Gemini failed: ${netErr.message || fallbackErr.message}`);
+        }
       }
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        const errMsg = errJson.error ? errJson.error.message : `HTTP ${res.status}`;
+        throw new Error(`Google Gemini Error: ${errMsg}`);
+      }
+
+      const data = await res.json();
+      const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!textOutput) throw new Error('Gemini returned an empty response.');
+      return textOutput;
+    }
+
+    // 2. Anthropic Claude Provider
+    if (providerId === 'anthropic') {
+      const url = 'https://api.anthropic.com/v1/messages';
+      const payload = {
+        model: currentModel,
+        system: systemPrompt + '\nOutput strictly valid JSON. Do not wrap in explanations.',
+        messages: [{ role: 'user', content: userText }],
+        max_tokens: 4096,
+        temperature: 0.1
+      };
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        const errMsg = errJson.error ? errJson.error.message : `HTTP ${res.status}`;
+        throw new Error(`Anthropic Claude Error: ${errMsg}`);
+      }
+
+      const data = await res.json();
+      const textOutput = data.content?.[0]?.text;
+      if (!textOutput) throw new Error('Claude returned an empty response.');
+      return textOutput;
+    }
+
+    // 3. OpenAI-Compatible Providers (OpenAI, Groq, DeepSeek, OpenRouter, Mistral)
+    const endpoints = {
+      openai: 'https://api.openai.com/v1/chat/completions',
+      groq: 'https://api.groq.com/openai/v1/chat/completions',
+      deepseek: 'https://api.deepseek.com/chat/completions',
+      openrouter: 'https://openrouter.ai/api/v1/chat/completions',
+      mistral: 'https://api.mistral.ai/v1/chat/completions'
+    };
+
+    const url = endpoints[providerId] || endpoints.openai;
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${key}`
+    };
+    if (providerId === 'openrouter') {
+      headers['HTTP-Referer'] = window.location?.origin || 'http://localhost:5500';
+      headers['X-Title'] = 'CleanExcel Studio';
+    }
+
+    const payload = {
+      model: currentModel,
+      messages: [
+        { role: 'system', content: systemPrompt + '\nOutput strictly valid JSON only.' },
+        { role: 'user', content: userText }
+      ],
+      response_format: { type: 'json_object' },
+      temperature: 0.1
+    };
+
+    let res = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload)
+    });
+
+    // Retry without response_format if provider rejects json_object mode
+    if (!res.ok && res.status === 400) {
+      delete payload.response_format;
+      res = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+      });
     }
 
     if (!res.ok) {
       const errJson = await res.json().catch(() => ({}));
-      const errMsg = errJson.error ? errJson.error.message : `HTTP ${res.status}`;
-
-      // If error is related to thinkingConfig, retry without it
-      if (payload.generationConfig && payload.generationConfig.thinkingConfig && (res.status === 400 || errMsg.toLowerCase().includes('thinking'))) {
-        const cleanPayload = JSON.parse(JSON.stringify(payload));
-        delete cleanPayload.generationConfig.thinkingConfig;
-        return this._makeRequest(cleanPayload, key, currentModel);
-      }
-
-      // If model not found (404), fallback to alternative Flash models
-      if (res.status === 404 && currentModel !== 'gemini-1.5-flash') {
-        const altModels = ['gemini-2.0-flash', 'gemini-1.5-flash'];
-        for (const alt of altModels) {
-          if (alt === currentModel) continue;
-          try {
-            return await this._makeRequest(payload, key, alt);
-          } catch (e) {}
-        }
-      }
-
-      throw new Error(errMsg);
+      const errMsg = errJson.error ? (errJson.error.message || JSON.stringify(errJson.error)) : `HTTP ${res.status}`;
+      throw new Error(`${PROVIDERS[providerId]?.name || 'AI'} Error: ${errMsg}`);
     }
 
     const data = await res.json();
-    const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!textOutput) {
-      throw new Error('Gemini returned an empty response. Content may have been filtered.');
-    }
+    const textOutput = data.choices?.[0]?.message?.content;
+    if (!textOutput) throw new Error('AI Provider returned an empty response.');
     return textOutput;
+  },
+
+  /** Backward-compatible makeRequest */
+  async _makeRequest(payload, customKey, modelOverride) {
+    const systemPrompt = payload?.system_instruction?.parts?.[0]?.text || 'You are an AI assistant. Return valid JSON.';
+    const userText = payload?.contents?.[0]?.parts?.[0]?.text || '';
+    return this._makeUniversalRequest(systemPrompt, userText, customKey, modelOverride);
   },
 
   /**
@@ -167,39 +515,100 @@ const GeminiService = {
    */
   async testConnection(customKey) {
     const key = (customKey || this.getApiKey() || '').trim();
-    if (!key) throw new Error('No Gemini API Key provided. Please paste your API key above.');
+    if (!key) throw new Error('No API Key provided. Please paste your API key above.');
 
-    const payload = {
-      contents: [{ parts: [{ text: 'Respond with exactly: "Google Gemini 2.5 Flash is connected."' }] }]
-    };
+    const providerId = this.detectProvider(key);
+    const pInfo = this.getProviderInfo(providerId);
+    const model = this.getModel();
 
-    const text = await this._makeRequest(payload, key);
+    const text = await this._makeUniversalRequest(
+      'Respond with a JSON object: {"status": "connected", "message": "Model is connected successfully."}',
+      `Ping connection test for ${model}`,
+      key,
+      model,
+      providerId
+    );
+
     return {
       success: true,
-      model: this.MODEL_NAME,
-      message: text.trim()
+      provider: pInfo.name,
+      model: model,
+      message: `${pInfo.name} (${model}) is connected.`
     };
   },
 
   /**
-   * Helper to invoke Gemini with a system prompt and user text, expecting JSON
+   * Auto-detect all models compatible with the given API key across providers.
+   * Probes models in parallel with individual 8s timeouts.
+   */
+  async autoDetectModels(key, onProgress) {
+    const testKey = (key || this.getApiKey() || '').trim();
+    if (!testKey) throw new Error('No API key provided.');
+
+    let providerId = this.detectProvider(testKey);
+    let candidateModels = (PROVIDERS[providerId] && PROVIDERS[providerId].models) || PROVIDERS.gemini.models;
+
+    // For Google Gemini, try live fetch first
+    if (providerId === 'gemini') {
+      try {
+        const liveModels = await this.fetchModelsFromAPI(testKey);
+        if (liveModels && liveModels.length > 0) candidateModels = liveModels;
+      } catch (e) {}
+    }
+
+    const probeOne = (model, prov) => new Promise(resolve => {
+      const start = Date.now();
+      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000));
+
+      Promise.race([
+        this._makeUniversalRequest(
+          '{"ping":"pong"}',
+          'Hi',
+          testKey,
+          model.id,
+          prov
+        ),
+        timeout
+      ])
+        .then(() => {
+          const latency = Date.now() - start;
+          if (onProgress) onProgress(model.id, 'ok', latency);
+          resolve({ ...model, provider: prov, ok: true, latency });
+        })
+        .catch(() => {
+          if (onProgress) onProgress(model.id, 'fail');
+          resolve({ ...model, provider: prov, ok: false, latency: null });
+        });
+    });
+
+    const probes = candidateModels.map(m => probeOne(m, providerId));
+    let results = await Promise.all(probes);
+    let working = results.filter(r => r.ok).sort((a, b) => a.latency - b.latency);
+
+    // If sk- key failed on OpenAI, try DeepSeek & Groq in case it's a DeepSeek or OpenRouter key
+    if (working.length === 0 && testKey.startsWith('sk-') && providerId === 'openai') {
+      const deepseekModels = PROVIDERS.deepseek.models;
+      const dsProbes = deepseekModels.map(m => probeOne(m, 'deepseek'));
+      const dsResults = await Promise.all(dsProbes);
+      const dsWorking = dsResults.filter(r => r.ok).sort((a, b) => a.latency - b.latency);
+      if (dsWorking.length > 0) {
+        providerId = 'deepseek';
+        this.setProvider('deepseek');
+        return { provider: 'deepseek', all: dsResults, working: dsWorking };
+      }
+    }
+
+    this.setProvider(providerId);
+    return { provider: providerId, all: results, working };
+  },
+
+  /**
+   * Helper to invoke AI with a system prompt and user text, expecting JSON
    */
   async callGemini(systemPrompt, userText) {
-    const payload = {
-      generationConfig: {
-        responseMimeType: 'application/json',
-        response_mime_type: 'application/json'
-      },
-      system_instruction: {
-        parts: [{ text: systemPrompt }]
-      },
-      contents: [
-        { parts: [{ text: userText }] }
-      ]
-    };
-
-    return this._makeRequest(payload);
+    return this._makeUniversalRequest(systemPrompt, userText);
   },
+
 
   /**
    * Use Gemini AI to parse and split addresses across any country (US, UK, Germany, Canada, etc.)

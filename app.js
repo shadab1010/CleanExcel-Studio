@@ -456,6 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Update Gemini status without exposing plaintext key in DOM
   updateGeminiModalUI();
+  initModelSelector();
 
   // Initialize UI
   renderWordTags();
@@ -478,13 +479,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /**
- * Helper to update Gemini modal security display
+ * Helper to update Universal AI modal security and provider display
  */
 function updateGeminiModalUI() {
   if (!window.GeminiService) return;
   if (geminiApiKeyInputEl) geminiApiKeyInputEl.value = ''; // NEVER populate secret key in DOM
   const isConfigured = window.GeminiService.isConfigured();
   const hasCustom = window.GeminiService.hasCustomKey();
+  const provider = window.GeminiService.getProvider();
+  const pInfo = window.GeminiService.getProviderInfo(provider);
 
   const statusPill = document.querySelector('.api-status-pill');
   const statusDot = statusPill ? statusPill.querySelector('.status-dot-pulse') : null;
@@ -493,15 +496,15 @@ function updateGeminiModalUI() {
 
   if (geminiKeyStatusTextEl) {
     if (hasCustom) {
-      geminiKeyStatusTextEl.textContent = '🔒 Custom Key Active';
+      geminiKeyStatusTextEl.textContent = `🔒 ${pInfo.name} Active`;
       if (statusPill) statusPill.className = 'api-status-pill';
       if (statusDot) statusDot.className = 'status-dot-pulse';
     } else if (isConfigured) {
-      geminiKeyStatusTextEl.textContent = '🔒 System Key Active';
+      geminiKeyStatusTextEl.textContent = `🔒 ${pInfo.name} Active`;
       if (statusPill) statusPill.className = 'api-status-pill';
       if (statusDot) statusDot.className = 'status-dot-pulse';
     } else {
-      geminiKeyStatusTextEl.textContent = '⚠️ No API Key Configured';
+      geminiKeyStatusTextEl.textContent = '⚠️ No AI Key Configured';
       if (statusPill) statusPill.className = 'api-status-pill unconfigured';
       if (statusDot) statusDot.className = 'status-dot-pulse warning';
     }
@@ -513,25 +516,173 @@ function updateGeminiModalUI() {
 
   if (geminiApiKeyInputEl) {
     geminiApiKeyInputEl.placeholder = isConfigured
-      ? 'Enter new key to update (leave blank to keep current key)...'
-      : 'Paste your Google Gemini API key here (AIzaSy...)...';
+      ? `Enter new key to switch (active: ${pInfo.name} • ${window.GeminiService.getModel()})...`
+      : 'Paste any AI key (Gemini AIza/AQ, OpenAI sk-..., Claude sk-ant-..., Groq gsk_..., DeepSeek)...';
   }
 
   if (btnClearCustomKeyEl) {
     btnClearCustomKeyEl.style.display = hasCustom ? 'inline-flex' : 'none';
   }
 
-  if (navPill) {
-    if (isConfigured) {
-      navPill.className = 'veng-ai-pill active-key';
-      navPill.title = 'Google Gemini 2.5 Active. Click to manage API key.';
-      if (navText) navText.textContent = 'Gemini 2.5';
+  // Re-populate and sync model selector
+  initModelSelector();
+
+  const modelInfo = window.GeminiService.getModelInfo();
+  if (modelInfo) {
+    const labelEl = document.getElementById('gemini-model-label');
+    const badgeEl = document.getElementById('gemini-model-badge');
+    const descEl  = document.getElementById('gemini-model-desc');
+    if (labelEl) labelEl.textContent = modelInfo.label;
+    if (badgeEl) badgeEl.textContent = modelInfo.badge;
+    if (descEl)  descEl.textContent  = modelInfo.desc;
+    // Update selected state in open dropdown
+    document.querySelectorAll('.model-option').forEach(opt => {
+      opt.classList.toggle('selected', opt.dataset.modelId === modelInfo.id);
+    });
+  }
+
+  // ── Active Configuration Card ────────────────────────────
+  const configCard = document.getElementById('active-config-card');
+  if (configCard) {
+    if (isConfigured && modelInfo) {
+      const provEl    = document.getElementById('active-config-provider-name');
+      const nameEl    = document.getElementById('active-config-model-name');
+      const descEl2   = document.getElementById('active-config-model-desc');
+      const keyDispEl = document.getElementById('active-config-key-display');
+      if (provEl)    provEl.textContent    = `${pInfo.icon} ${pInfo.name}`;
+      if (nameEl)    nameEl.textContent    = `${modelInfo.label}  ${modelInfo.badge}`;
+      if (descEl2)   descEl2.textContent   = modelInfo.desc;
+      if (keyDispEl) keyDispEl.textContent = window.GeminiService.getMaskedKeyDisplay();
+      configCard.style.display = 'block';
     } else {
-      navPill.className = 'veng-ai-pill needs-key';
-      navPill.title = 'Gemini API key required. Click to enter your free key.';
-      if (navText) navText.textContent = 'Setup Gemini AI';
+      configCard.style.display = 'none';
     }
   }
+
+  if (navPill) {
+    const shortName = modelInfo ? modelInfo.label.replace(/^(Gemini|Claude|GPT-|Llama\s*)/i, '').trim() : 'AI Active';
+    if (isConfigured) {
+      navPill.className = 'veng-ai-pill active-key';
+      navPill.title = `${pInfo.name} (${modelInfo ? modelInfo.label : ''}) Active. Click to manage.`;
+      if (navText) navText.textContent = `${pInfo.icon} ${shortName}`;
+    } else {
+      navPill.className = 'veng-ai-pill needs-key';
+      navPill.title = 'AI API key required. Click to connect any AI key.';
+      if (navText) navText.textContent = 'Setup AI Engine';
+    }
+  }
+
+  // ── Dynamic Run AI Action Button Labels across UI ───────
+  const runAiBtn = document.getElementById('btn-ai-process');
+  const runAiLabel = document.getElementById('btn-ai-process-label');
+  const runAiSparkle = runAiBtn ? runAiBtn.querySelector('.ai-sparkle') : null;
+  if (runAiBtn) {
+    const provDisplay = isConfigured ? (pInfo.name || 'AI') : 'Universal AI';
+    if (runAiLabel) runAiLabel.textContent = `Run ${provDisplay}`;
+    if (runAiSparkle) runAiSparkle.textContent = pInfo.icon || '✨';
+    runAiBtn.title = isConfigured
+      ? `Process current data with ${pInfo.name} (${modelInfo ? modelInfo.label : ''})`
+      : 'Process current data with Universal AI (Enter API key)';
+  }
+
+  // Section-specific AI action buttons
+  const splitAiBtn = document.getElementById('btn-split-ai');
+  if (splitAiBtn) {
+    const s = splitAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Universal Split (${pInfo.name})` : 'AI Universal Split';
+  }
+  const occAiBtn = document.getElementById('btn-occupancy-ai');
+  if (occAiBtn) {
+    const s = occAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Classify Occupancy (${pInfo.name})` : 'AI Classify Occupancy';
+  }
+  const conAiBtn = document.getElementById('btn-construction-ai');
+  if (conAiBtn) {
+    const s = conAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Classify Construction (${pInfo.name})` : 'AI Classify Construction';
+  }
+  const yearAiBtn = document.getElementById('btn-year-ai');
+  if (yearAiBtn) {
+    const s = yearAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Parse Year (${pInfo.name})` : 'AI Parse Year';
+  }
+  const roofAiBtn = document.getElementById('btn-roof-ai');
+  if (roofAiBtn) {
+    const s = roofAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Classify Roof (${pInfo.name})` : 'AI Classify Roof';
+  }
+  const wallAiBtn = document.getElementById('btn-wall-ai');
+  if (wallAiBtn) {
+    const s = wallAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Clean Walls (${pInfo.name})` : 'AI Clean Walls';
+  }
+  const streetAiBtn = document.getElementById('btn-street-ai');
+  if (streetAiBtn) {
+    const s = streetAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Extract Streets (${pInfo.name})` : 'AI Extract Streets';
+  }
+}
+
+/**
+ * Initialize the model selector dropdown behaviour
+ */
+function initModelSelector() {
+  if (!window.GeminiService || !window.GeminiService.AVAILABLE_MODELS) return;
+
+  const trigger  = document.getElementById('gemini-model-trigger');
+  const dropdown = document.getElementById('gemini-model-dropdown');
+  if (!trigger || !dropdown) return;
+
+  // Populate dropdown options
+  dropdown.innerHTML = '';
+  window.GeminiService.AVAILABLE_MODELS.forEach(model => {
+    const opt = document.createElement('div');
+    opt.className = 'model-option' + (model.id === window.GeminiService.getModel() ? ' selected' : '');
+    opt.dataset.modelId = model.id;
+    opt.setAttribute('role', 'option');
+    opt.setAttribute('aria-selected', model.id === window.GeminiService.getModel() ? 'true' : 'false');
+    opt.innerHTML = `
+      <span class="model-opt-dot"></span>
+      <span class="model-opt-info">
+        <span class="model-opt-name">${model.label}</span>
+        <span class="model-opt-desc">${model.desc}</span>
+      </span>
+      <span class="model-opt-badge">${model.badge}</span>`;
+    opt.addEventListener('click', () => {
+      window.GeminiService.setModel(model.id);
+      // Update aria-selected on all options
+      dropdown.querySelectorAll('.model-option').forEach(o => {
+        o.setAttribute('aria-selected', o.dataset.modelId === model.id ? 'true' : 'false');
+      });
+      closeModelDropdown();
+      updateGeminiModalUI();
+    });
+    dropdown.appendChild(opt);
+  });
+
+  function openModelDropdown() {
+    dropdown.style.display = 'block';
+    trigger.classList.add('open');
+    trigger.setAttribute('aria-expanded', 'true');
+  }
+  function closeModelDropdown() {
+    dropdown.style.display = 'none';
+    trigger.classList.remove('open');
+    trigger.setAttribute('aria-expanded', 'false');
+  }
+
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (dropdown.style.display === 'none') openModelDropdown();
+    else closeModelDropdown();
+  });
+  trigger.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger.click(); }
+    if (e.key === 'Escape') closeModelDropdown();
+  });
+  document.addEventListener('click', (e) => {
+    if (!trigger.contains(e.target) && !dropdown.contains(e.target)) closeModelDropdown();
+  });
 }
 
 /**
@@ -1840,6 +1991,13 @@ function bindEvents() {
     });
   }
 
+  const cancelGeminiModalBtn = document.getElementById('btn-cancel-gemini-modal');
+  if (cancelGeminiModalBtn && geminiModalEl) {
+    cancelGeminiModalBtn.addEventListener('click', () => {
+      geminiModalEl.style.display = 'none';
+    });
+  }
+
   if (geminiModalEl) {
     geminiModalEl.addEventListener('click', (e) => {
       if (e.target === geminiModalEl) {
@@ -1880,37 +2038,123 @@ function bindEvents() {
     });
   }
 
-  // Test Gemini Connection
+  // Auto-Detect & Test All Models
   const testKeyBtn = document.getElementById('btn-test-gemini');
   if (testKeyBtn) {
     testKeyBtn.addEventListener('click', async () => {
       if (!window.GeminiService) return;
+
+      // If a key is typed in input, save it first
+      if (geminiApiKeyInputEl && geminiApiKeyInputEl.value.trim()) {
+        window.GeminiService.setApiKey(geminiApiKeyInputEl.value.trim());
+        geminiApiKeyInputEl.value = '';
+      }
+
+      const key = window.GeminiService.getApiKey();
+      if (!key) {
+        if (geminiTestStatusEl) {
+          geminiTestStatusEl.style.display = 'block';
+          geminiTestStatusEl.className = 'test-status-area error';
+          geminiTestStatusEl.textContent = '✗ Please paste your API key first.';
+        }
+        return;
+      }
+
+      const detectedProv = window.GeminiService.detectProvider(key);
+      const provInfo = window.GeminiService.getProviderInfo(detectedProv);
+
       testKeyBtn.disabled = true;
-      testKeyBtn.textContent = 'Testing...';
+      testKeyBtn.innerHTML = '<span class="btn-spinner"></span> Detecting...';
+
+      // Build live result panel
       if (geminiTestStatusEl) {
         geminiTestStatusEl.style.display = 'block';
-        geminiTestStatusEl.className = 'test-status-area';
-        geminiTestStatusEl.textContent = 'Connecting to Google Gemini API...';
+        geminiTestStatusEl.className = 'test-status-area autodetect-panel';
+        const models = window.GeminiService.AVAILABLE_MODELS;
+        geminiTestStatusEl.innerHTML = `
+          <div class="autodetect-header">
+            <span class="autodetect-icon">${provInfo.icon}</span>
+            <span>Probing <strong>${provInfo.name}</strong> models (${models.length} candidate${models.length > 1 ? 's' : ''})...</span>
+          </div>
+          <div class="autodetect-list" id="autodetect-list">
+            ${models.map(m => `
+              <div class="autodetect-row" id="adr-${m.id.replace(/[^a-z0-9]/gi,'-')}">
+                <span class="adr-spinner"></span>
+                <span class="adr-name">${m.label}</span>
+                <span class="adr-badge">${m.badge}</span>
+                <span class="adr-status">Testing...</span>
+              </div>`).join('')}
+          </div>`;
+      }
+
+      function updateRow(modelId, status, latency) {
+        const rowId = 'adr-' + modelId.replace(/[^a-z0-9]/gi, '-');
+        const row = document.getElementById(rowId);
+        if (!row) return;
+        if (status === 'ok') {
+          row.classList.add('adr-ok');
+          row.querySelector('.adr-spinner').outerHTML = '<span class="adr-tick">✓</span>';
+          row.querySelector('.adr-status').textContent = `${latency}ms`;
+        } else {
+          row.classList.add('adr-fail');
+          row.querySelector('.adr-spinner').outerHTML = '<span class="adr-cross">✗</span>';
+          row.querySelector('.adr-status').textContent = 'Not available';
+        }
       }
 
       try {
-        if (geminiApiKeyInputEl && geminiApiKeyInputEl.value.trim()) {
-          window.GeminiService.setApiKey(geminiApiKeyInputEl.value.trim());
-        }
-        const res = await window.GeminiService.testConnection();
-        updateGeminiModalUI();
-        if (geminiTestStatusEl) {
-          geminiTestStatusEl.className = 'test-status-area success';
-          geminiTestStatusEl.textContent = `✓ Connected! Model: ${res.model} is active. Response: "${res.message}"`;
+        const { provider: finalProv, working } = await window.GeminiService.autoDetectModels(key, (modelId, status, latency) => {
+          // Update row live as each probe resolves
+          updateRow(modelId, status, latency);
+        });
+
+        const finalPInfo = window.GeminiService.getProviderInfo(finalProv);
+
+        if (working.length > 0) {
+          const best = working[0];
+          // Auto-select and save the fastest working model
+          window.GeminiService.setModel(best.id);
+          updateGeminiModalUI();
+          // Highlight the auto-selected row
+          const bestRowId = 'adr-' + best.id.replace(/[^a-z0-9]/gi, '-');
+          const bestRow = document.getElementById(bestRowId);
+          if (bestRow) {
+            bestRow.classList.add('adr-selected');
+            const nameEl = bestRow.querySelector('.adr-name');
+            if (nameEl) nameEl.innerHTML += ' <span class="adr-auto-badge">Auto-Selected ★</span>';
+          }
+          // Show summary with 1-click OK button
+          const summaryEl = document.createElement('div');
+          summaryEl.className = 'autodetect-summary success';
+          summaryEl.innerHTML = `
+            <div class="autodetect-summary-content">
+              <span>✓ <strong>${working.length} ${finalPInfo.name} model${working.length > 1 ? 's' : ''} ready</strong> — Auto-selected <strong>${best.label}</strong> (${best.latency}ms)</span>
+              <button class="autodetect-ok-btn" id="btn-autodetect-ok" type="button">✓ OK / Connect</button>
+            </div>`;
+          geminiTestStatusEl.appendChild(summaryEl);
+
+          const autoOkBtn = document.getElementById('btn-autodetect-ok');
+          if (autoOkBtn) {
+            autoOkBtn.addEventListener('click', () => {
+              if (geminiModalEl) geminiModalEl.style.display = 'none';
+              showToast(`Connected to ${finalPInfo.name} (${best.label})!`, '✨');
+            });
+          }
+          showToast(`✓ Auto-selected ${best.label} (${finalPInfo.name})`, '🚀');
+        } else {
+          const summaryEl = document.createElement('div');
+          summaryEl.className = 'autodetect-summary error';
+          summaryEl.innerHTML = `✗ <strong>No compatible ${finalPInfo.name} models found.</strong> Please verify your API key and billing status.`;
+          geminiTestStatusEl.appendChild(summaryEl);
         }
       } catch (err) {
         if (geminiTestStatusEl) {
           geminiTestStatusEl.className = 'test-status-area error';
-          geminiTestStatusEl.textContent = `✗ Connection failed: ${err.message}`;
+          geminiTestStatusEl.textContent = `✗ ${err.message}`;
         }
       } finally {
         testKeyBtn.disabled = false;
-        testKeyBtn.textContent = '🧪 Test Connection';
+        testKeyBtn.innerHTML = '🔍 Auto-Detect Models';
       }
     });
   }
@@ -3576,8 +3820,12 @@ async function triggerGeminiAI() {
     return;
   }
 
+  const provider = window.GeminiService.getProvider();
+  const pInfo = window.GeminiService.getProviderInfo(provider);
+  const modelInfo = window.GeminiService.getModelInfo();
+
   if (!window.GeminiService.isConfigured()) {
-    showToast('Please enter your Google Gemini API key to use AI features', '🔑');
+    showToast(`Please enter your ${pInfo.name} API key in AI Settings to use AI features`, '🔑');
     updateGeminiModalUI();
     if (geminiModalEl) geminiModalEl.style.display = 'flex';
     if (geminiApiKeyInputEl) geminiApiKeyInputEl.focus();
@@ -3594,20 +3842,21 @@ async function triggerGeminiAI() {
 
   if (aiLoadingOverlayEl) {
     if (aiLoadingTitleEl) {
+      const headerPrefix = `${pInfo.icon} ${pInfo.name} (${modelInfo.label})`;
       if (isSplit) {
-        aiLoadingTitleEl.textContent = '✨ Gemini 2.5 is parsing addresses worldwide...';
+        aiLoadingTitleEl.textContent = `${headerPrefix} is parsing addresses worldwide...`;
       } else if (isOccupancy) {
-        aiLoadingTitleEl.textContent = '✨ Gemini 2.5 is analyzing occupancy descriptions...';
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing occupancy descriptions...`;
       } else if (isConstruction) {
-        aiLoadingTitleEl.textContent = '✨ Gemini 2.5 is analyzing construction descriptions...';
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing construction descriptions...`;
       } else if (isRoof) {
-        aiLoadingTitleEl.textContent = '✨ Gemini 2.5 is analyzing roof descriptions...';
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing roof descriptions...`;
       } else if (isWall) {
-        aiLoadingTitleEl.textContent = '✨ Gemini 2.5 is analyzing exterior wall materials...';
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing exterior wall materials...`;
       } else if (isYear) {
-        aiLoadingTitleEl.textContent = '✨ Gemini 2.5 is validating Year Built records...';
+        aiLoadingTitleEl.textContent = `${headerPrefix} is validating Year Built records...`;
       } else {
-        aiLoadingTitleEl.textContent = '✨ Gemini 2.5 is cleaning street addresses...';
+        aiLoadingTitleEl.textContent = `${headerPrefix} is cleaning street addresses...`;
       }
     }
     if (aiLoadingSubtitleEl) {
