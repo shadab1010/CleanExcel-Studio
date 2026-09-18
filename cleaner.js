@@ -1017,6 +1017,31 @@ const OccupancyClassifier = {
         }
       }
     }
+
+    // 4. Match against all Touchstone database dictionary keywords & categories
+    const lower = cleanText.toLowerCase();
+    for (const [code, info] of Object.entries(this.CODES)) {
+      if (code === '300') continue;
+      if (info.keywords && Array.isArray(info.keywords)) {
+        for (let j = 0; j < info.keywords.length; j++) {
+          const kw = String(info.keywords[j] || '').trim().toLowerCase();
+          if (kw) {
+            const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const pat = new RegExp(`\\b${escaped}\\b`, 'i');
+            if (pat.test(cleanText) || (kw.length > 3 && lower.includes(kw))) {
+              return code;
+            }
+          }
+        }
+      }
+      if (info.category) {
+        const catLower = info.category.toLowerCase();
+        if (catLower.length > 4 && lower.includes(catLower)) {
+          return code;
+        }
+      }
+    }
+
     return null;
   },
 
@@ -1510,13 +1535,27 @@ const ConstructionClassifier = {
       }
     }
 
-    // Match category descriptions from CODES
+    // Match category descriptions and keywords from CODES
     const lower = textWithoutPercent.toLowerCase();
     for (const [c, info] of Object.entries(this.CODES)) {
       if (c === '100') continue;
-      const catLower = info.category.toLowerCase();
-      if (catLower.length > 4 && lower.includes(catLower)) {
-        return c;
+      if (info.keywords && Array.isArray(info.keywords)) {
+        for (let j = 0; j < info.keywords.length; j++) {
+          const kw = String(info.keywords[j] || '').trim().toLowerCase();
+          if (kw) {
+            const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const pat = new RegExp(`\\b${escaped}\\b`, 'i');
+            if (pat.test(clean) || (kw.length > 3 && lower.includes(kw))) {
+              return c;
+            }
+          }
+        }
+      }
+      if (info.category) {
+        const catLower = info.category.toLowerCase();
+        if (catLower.length > 4 && lower.includes(catLower)) {
+          return c;
+        }
       }
     }
 
