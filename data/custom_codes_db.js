@@ -216,6 +216,80 @@
     },
 
     /**
+     * Add one or more keywords mapping to a code in the database
+     * @param {'occupancy'|'construction'} section
+     * @param {string|number} code
+     * @param {string|string[]} newKeywords
+     * @param {Object} [optionalMetadata] { category, group, description }
+     */
+    addKeyword(section, code, newKeywords, optionalMetadata = {}) {
+      if (!section || !code) {
+        throw new Error('Section and Code are required.');
+      }
+      const strCode = String(code).trim();
+      const existing = this.getCode(section, strCode) || {};
+      let currentKeywords = Array.isArray(existing.keywords) ? [...existing.keywords] : [];
+
+      const toAdd = (Array.isArray(newKeywords) ? newKeywords : [newKeywords])
+        .map(k => String(k || '').trim())
+        .filter(k => k && k !== '—' && k !== '-' && k.toLowerCase() !== 'n/a' && k.toLowerCase() !== 'unknown');
+
+      let addedCount = 0;
+      for (const kw of toAdd) {
+        const kwLower = kw.toLowerCase();
+        if (!currentKeywords.some(existingKw => existingKw.toLowerCase() === kwLower)) {
+          currentKeywords.push(kw);
+          addedCount++;
+        }
+      }
+
+      const td = _getTouchstoneData();
+      const isBaseItem = !!(td && td[section.toUpperCase()] && td[section.toUpperCase()][strCode]);
+      const baseItem = isBaseItem ? td[section.toUpperCase()][strCode] : null;
+
+      const category = (optionalMetadata.category || '').trim() || existing.category || (baseItem ? baseItem.category : `Code ${strCode}`);
+      const group = (optionalMetadata.group || '').trim() || existing.group || (baseItem ? baseItem.group : 'Custom Underwriting');
+      const description = (optionalMetadata.description || '').trim() || existing.description || (baseItem ? baseItem.description : '');
+
+      this.saveCode(section, strCode, {
+        category,
+        group,
+        description,
+        keywords: currentKeywords
+      });
+
+      return { code: strCode, category, keywords: currentKeywords, addedCount, totalKeywords: currentKeywords.length };
+    },
+
+    /**
+     * Save multiple keyword-to-code mappings at once (e.g. from batch AI predictions)
+     * @param {'occupancy'|'construction'} section
+     * @param {Array<{code: string|number, keywords: string|string[], category?: string, group?: string, description?: string}>} mappings
+     */
+    saveMultipleMappings(section, mappings) {
+      if (!section || !Array.isArray(mappings) || mappings.length === 0) {
+        return { success: false, count: 0 };
+      }
+
+      let totalAdded = 0;
+      for (const m of mappings) {
+        if (m && m.code) {
+          const kw = m.keywords || m.keyword;
+          if (kw) {
+            const res = this.addKeyword(section, m.code, kw, {
+              category: m.category,
+              group: m.group,
+              description: m.description
+            });
+            if (res.addedCount > 0) totalAdded += res.addedCount;
+          }
+        }
+      }
+
+      return { success: true, count: totalAdded };
+    },
+
+    /**
      * Delete a code or mark standard code as deleted
      */
     deleteCode(section, code) {

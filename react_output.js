@@ -161,6 +161,21 @@
       construction: { col1: 'Existing Code', col2: 'Building Type', col3: 'Construction Description' }
     });
     const [copiedRowId, setCopiedRowId] = useState(null);
+    const [savedRowsMap, setSavedRowsMap] = useState({});
+
+    // Handler to save row keyword-to-code mapping to Custom Database
+    const handleSaveRowToDB = useCallback((section, rowData, rowKey) => {
+      if (window.saveRowToCustomDB) {
+        window.saveRowToCustomDB(section, rowData, (success) => {
+          if (success) {
+            setSavedRowsMap(prev => ({ ...prev, [rowKey]: true }));
+            setTimeout(() => {
+              setSavedRowsMap(prev => ({ ...prev, [rowKey]: false }));
+            }, 3000);
+          }
+        });
+      }
+    }, []);
 
     // Individual copy helper with toast notification & button feedback
     const handleCopyValue = useCallback((val, rowId, label = '') => {
@@ -470,7 +485,22 @@
                 e('th', { key: 'con-code', style: { width: '90px', textAlign: 'center' } }, 'Touchstone Code'),
                 e('th', { key: 'con-desc' }, 'Construction Class Description'),
                 e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
-                e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
+                e('th', { key: 'actions', style: { width: '190px', textAlign: 'right' } },
+                  e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' } },
+                    e('span', null, 'Actions'),
+                    filteredRows.length > 0 && e('button', {
+                      type: 'button',
+                      className: 'btn-header-save-all-db',
+                      title: 'Save all valid construction rules in this table to Custom Database',
+                      onClick: (evt) => {
+                        evt.stopPropagation();
+                        if (window.saveAllRowsToCustomDB) {
+                          window.saveAllRowsToCustomDB('construction', filteredRows);
+                        }
+                      }
+                    }, '💾 Save All')
+                  )
+                )
               ],
               isOccupancy && [
                 dynamicColHeaders.map(col =>
@@ -479,7 +509,22 @@
                 e('th', { key: 'occ-code', style: { width: '90px', textAlign: 'center' } }, 'Touchstone Code'),
                 e('th', { key: 'occ-desc' }, 'Occupancy Description'),
                 e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
-                e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
+                e('th', { key: 'actions', style: { width: '190px', textAlign: 'right' } },
+                  e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' } },
+                    e('span', null, 'Actions'),
+                    filteredRows.length > 0 && e('button', {
+                      type: 'button',
+                      className: 'btn-header-save-all-db',
+                      title: 'Save all valid occupancy rules in this table to Custom Database',
+                      onClick: (evt) => {
+                        evt.stopPropagation();
+                        if (window.saveAllRowsToCustomDB) {
+                          window.saveAllRowsToCustomDB('occupancy', filteredRows);
+                        }
+                      }
+                    }, '💾 Save All')
+                  )
+                )
               ],
               isRoof && [
                 e('th', { key: 'raw-roof-desc', style: { width: '30%' } }, 'Raw Roof Description'),
@@ -617,6 +662,12 @@
                         e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
                           r.conCode && e('button', {
                             type: 'button',
+                            className: `btn-row-db ${savedRowsMap[`con-${rowNum}`] ? 'saved' : ''}`,
+                            title: `Save rule "${r.conDesc || r.bldgDesc || ''}" → Code ${r.conCode} to Custom Database`,
+                            onClick: () => handleSaveRowToDB('construction', r, `con-${rowNum}`)
+                          }, savedRowsMap[`con-${rowNum}`] ? '✓ Saved' : '💾 + DB'),
+                          r.conCode && e('button', {
+                            type: 'button',
                             className: `btn-row-copy ${copiedRowId === `con-${rowNum}` ? 'copied' : ''}`,
                             title: `Copy Construction Code "${r.conCode}" to clipboard`,
                             onClick: () => handleCopyValue(r.conCode, `con-${rowNum}`, 'Code')
@@ -664,6 +715,12 @@
                       ),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
                         e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          r.occCode && e('button', {
+                            type: 'button',
+                            className: `btn-row-db ${savedRowsMap[`occ-${rowNum}`] ? 'saved' : ''}`,
+                            title: `Save rule "${r.occDesc || r.bldgDesc || ''}" → Code ${r.occCode} to Custom Database`,
+                            onClick: () => handleSaveRowToDB('occupancy', r, `occ-${rowNum}`)
+                          }, savedRowsMap[`occ-${rowNum}`] ? '✓ Saved' : '💾 + DB'),
                           r.occCode && e('button', {
                             type: 'button',
                             className: `btn-row-copy ${copiedRowId === `occ-${rowNum}` ? 'copied' : ''}`,

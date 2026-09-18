@@ -3110,6 +3110,65 @@ body {
   color: #ffffff;
 }
 
+/* Individual Row & Header Save to DB Buttons */
+.btn-row-db {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  background: rgba(99, 102, 241, 0.14);
+  border: 1px solid rgba(99, 102, 241, 0.38);
+  color: #a5b4fc;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  line-height: 1.2;
+}
+
+.btn-row-db:hover {
+  background: rgba(99, 102, 241, 0.32);
+  border-color: rgba(99, 102, 241, 0.85);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+.btn-row-db.saved {
+  background: rgba(16, 185, 129, 0.45);
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.btn-header-save-all-db {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  background: rgba(99, 102, 241, 0.18);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: #c7d2fe;
+  border-radius: 4px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1.3;
+}
+
+.btn-header-save-all-db:hover {
+  background: rgba(99, 102, 241, 0.38);
+  border-color: #818cf8;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
 .btn-inline-copy {
   display: inline-flex;
   align-items: center;
@@ -3198,6 +3257,30 @@ body {
   background: rgba(5, 150, 105, 0.12);
   border-color: rgba(5, 150, 105, 0.35);
   color: #059669;
+}
+
+[data-theme="light"] .btn-row-db {
+  background: rgba(79, 70, 229, 0.1);
+  border-color: rgba(79, 70, 229, 0.3);
+  color: #4f46e5;
+}
+
+[data-theme="light"] .btn-row-db:hover {
+  background: rgba(79, 70, 229, 0.2);
+  border-color: #4f46e5;
+  color: #3730a3;
+}
+
+[data-theme="light"] .btn-header-save-all-db {
+  background: rgba(79, 70, 229, 0.12);
+  border-color: rgba(79, 70, 229, 0.35);
+  color: #4f46e5;
+}
+
+[data-theme="light"] .btn-header-save-all-db:hover {
+  background: rgba(79, 70, 229, 0.25);
+  border-color: #4338ca;
+  color: #3730a3;
 }
 
 /* Status Badges */

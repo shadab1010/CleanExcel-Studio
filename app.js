@@ -4510,6 +4510,120 @@ function initCodeFinderUI() {
     }
   };
 
+  // Global helper to save row keyword-to-code mapping to Custom Database
+  window.saveRowToCustomDB = function(section, rowData, callback) {
+    if (!rowData) return;
+    const isConstruction = section === 'construction';
+    const code = isConstruction ? rowData.conCode : rowData.occCode;
+
+    // Extract candidate keywords
+    const primaryDesc = isConstruction ? (rowData.conDesc || '') : (rowData.occDesc || '');
+    const bldgDesc = rowData.bldgDesc || '';
+    const extraParts = Array.isArray(rowData.extraCols) ? rowData.extraCols.filter(Boolean) : [];
+
+    // Clean list of candidate keywords to associate
+    const candidateKeywords = [];
+    if (primaryDesc && primaryDesc !== '—' && primaryDesc !== '-') candidateKeywords.push(primaryDesc.trim());
+    if (bldgDesc && bldgDesc !== '—' && bldgDesc !== '-' && !candidateKeywords.includes(bldgDesc.trim())) candidateKeywords.push(bldgDesc.trim());
+    extraParts.forEach(part => {
+      const p = String(part).trim();
+      if (p && p !== '—' && p !== '-' && !candidateKeywords.includes(p)) candidateKeywords.push(p);
+    });
+
+    // If combined phrase exists and differs from single parts
+    const combinedPhrase = [bldgDesc, primaryDesc, ...extraParts].filter(p => p && p !== '—' && p !== '-').join(' ').trim();
+    if (combinedPhrase && !candidateKeywords.includes(combinedPhrase)) {
+      candidateKeywords.push(combinedPhrase);
+    }
+
+    const mainKeyword = candidateKeywords[0] || combinedPhrase || (rowData.original ? rowData.original.trim() : '');
+
+    if (!code || code === '100' || code === '300' || code === '—' || code === '-') {
+      // If code is unknown / missing, open the custom code editor with keywords prefilled so user can assign it
+      if (typeof openCodeEditor === 'function') {
+        openCodeEditor(section, null, true);
+        const editorKwEl = document.getElementById('editor-code-keywords');
+        if (editorKwEl) editorKwEl.value = candidateKeywords.join(', ');
+        showToast(`Select or create a code for "${mainKeyword || 'this keyword'}"`, 'ℹ️');
+      }
+      if (callback) callback(false);
+      return;
+    }
+
+    if (window.CustomCodesDB) {
+      window.CustomCodesDB.addKeyword(section, code, candidateKeywords, {
+        category: rowData.category,
+        group: rowData.group
+      });
+
+      if (window.CodeFinder) {
+        window.CodeFinder.clearCache();
+      }
+
+      const kwDisplay = mainKeyword ? `"${mainKeyword}"` : `Keywords`;
+      showToast(`💾 Saved ${kwDisplay} ➔ Code ${code} (${rowData.category || 'Class'}) to Custom Database!`, '💾');
+
+      if (callback) callback(true);
+
+      // Live re-process if not in AI mode
+      if (typeof processCleaning === 'function' && !AppState.isAiCleanActive) {
+        processCleaning();
+      }
+    }
+  };
+
+  // Global helper to save all visible rows with valid codes to Custom Database
+  window.saveAllRowsToCustomDB = function(section, rows) {
+    if (!rows || !Array.isArray(rows) || rows.length === 0) {
+      showToast('No rows to save to Database.', 'ℹ️');
+      return;
+    }
+    if (!window.CustomCodesDB) return;
+
+    const isConstruction = section === 'construction';
+    const mappings = [];
+
+    rows.forEach(r => {
+      const code = isConstruction ? r.conCode : r.occCode;
+      if (!code || code === '100' || code === '300' || code === '—' || code === '-') return;
+
+      const primaryDesc = isConstruction ? (r.conDesc || '') : (r.occDesc || '');
+      const bldgDesc = r.bldgDesc || '';
+      const extraParts = Array.isArray(r.extraCols) ? r.extraCols.filter(Boolean) : [];
+
+      const kws = [];
+      if (primaryDesc && primaryDesc !== '—' && primaryDesc !== '-') kws.push(primaryDesc.trim());
+      if (bldgDesc && bldgDesc !== '—' && bldgDesc !== '-') kws.push(bldgDesc.trim());
+      extraParts.forEach(p => { if (p && p !== '—') kws.push(String(p).trim()); });
+
+      const combined = [bldgDesc, primaryDesc, ...extraParts].filter(p => p && p !== '—').join(' ').trim();
+      if (combined && !kws.includes(combined)) kws.push(combined);
+
+      if (kws.length > 0) {
+        mappings.push({
+          code,
+          keywords: kws,
+          category: r.category,
+          group: r.group
+        });
+      }
+    });
+
+    if (mappings.length === 0) {
+      showToast('No valid code mappings found to save.', '⚠️');
+      return;
+    }
+
+    const result = window.CustomCodesDB.saveMultipleMappings(section, mappings);
+    if (window.CodeFinder) window.CodeFinder.clearCache();
+
+    showToast(`💾 Saved ${mappings.length} mapping(s) (${result.count} new keyword rules) to Custom Database!`, '💾');
+
+    if (typeof processCleaning === 'function' && !AppState.isAiCleanActive) {
+      processCleaning();
+    }
+  };
+
   // 4. Setup Live Code Match Inspector below editors
   const inspectorEl = document.getElementById('live-code-inspector');
   const btnInspectorDetails = document.getElementById('btn-inspector-view-details');
