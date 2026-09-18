@@ -631,7 +631,11 @@
                     const extraParts = Array.isArray(r.extraCols) ? r.extraCols.join(' ') : '';
                     const fullSearch = `${r.bldgDesc || ''} ${r.conDesc || ''} ${extraParts}`.trim();
                     const searchUrl = fullSearch ? `https://www.google.com/search?q=${encodeURIComponent(fullSearch + ' Touchstone UNICEDE construction code')}` : '#';
-                    const conKeywords = [r.conDesc, r.bldgDesc, ...(Array.isArray(r.extraCols) ? r.extraCols : [])].filter(k => k && k !== '—' && k !== '-');
+                    
+                    const conRawList = [r.col1, r.col2, r.col3, r.existingCode, r.bldgDesc, r.conDesc, ...(Array.isArray(r.extraCols) ? r.extraCols : []), ...(Array.isArray(r.allCols) ? r.allCols : [])];
+                    const conKeywords = conRawList.map(k => String(k || '').trim()).filter(k => k && k !== '—' && k !== '-' && k.toLowerCase() !== 'n/a' && !/^\d{3,4}$/.test(k));
+                    if (conKeywords.length === 0 && r.original && !/^\d{3,4}$/.test(String(r.original).trim())) conKeywords.push(String(r.original).trim());
+
                     const isConSaved = Boolean(savedRowsMap[`con-${rowNum}`]) || (
                       Boolean(r.conCode && r.conCode !== '100' && r.conCode !== '—') &&
                       typeof window !== 'undefined' &&
@@ -672,14 +676,12 @@
                             e('button', {
                               type: 'button',
                               className: 'btn-row-db in-db',
-                              title: `✓ Saved in Database for Code ${r.conCode}. Click to inspect code (or Shift+Click to open definition in new tab)!`,
+                              title: `✓ Saved in Database for Code ${r.conCode}. Click to view notice & open Database Explorer (or Shift+Click to open definition in new tab)!`,
                               onClick: (evt) => {
                                 if (evt.shiftKey || evt.metaKey || evt.ctrlKey) {
                                   window.open(searchUrl, '_blank');
-                                } else if (window.openCodeDetailByBadge) {
-                                  window.openCodeDetailByBadge(r.conCode, 'construction');
                                 } else {
-                                  window.open(searchUrl, '_blank');
+                                  handleSaveRowToDB('construction', r, `con-${rowNum}`);
                                 }
                               }
                             }, '✓ In DB ↗')
@@ -687,7 +689,7 @@
                             e('button', {
                               type: 'button',
                               className: 'btn-row-db',
-                              title: `Save rule "${r.conDesc || r.bldgDesc || ''}" → Code ${r.conCode} to Custom Database`,
+                              title: `Save rule "${conKeywords[0] || ''}" → Code ${r.conCode} to Custom Database`,
                               onClick: () => handleSaveRowToDB('construction', r, `con-${rowNum}`)
                             }, '💾 + DB')
                           )),
@@ -711,7 +713,11 @@
                     const extraParts = Array.isArray(r.extraCols) ? r.extraCols.join(' ') : '';
                     const fullSearch = `${r.bldgDesc || ''} ${r.occDesc || ''} ${extraParts}`.trim();
                     const searchUrl = fullSearch ? `https://www.google.com/search?q=${encodeURIComponent(fullSearch + ' Touchstone UNICEDE occupancy code')}` : '#';
-                    const occKeywords = [r.occDesc, r.bldgDesc, ...(Array.isArray(r.extraCols) ? r.extraCols : [])].filter(k => k && k !== '—' && k !== '-');
+                    
+                    const occRawList = [r.col1, r.col2, r.col3, r.existingCode, r.bldgDesc, r.occDesc, ...(Array.isArray(r.extraCols) ? r.extraCols : []), ...(Array.isArray(r.allCols) ? r.allCols : [])];
+                    const occKeywords = occRawList.map(k => String(k || '').trim()).filter(k => k && k !== '—' && k !== '-' && k.toLowerCase() !== 'n/a' && !/^\d{3,4}$/.test(k));
+                    if (occKeywords.length === 0 && r.original && !/^\d{3,4}$/.test(String(r.original).trim())) occKeywords.push(String(r.original).trim());
+
                     const isOccSaved = Boolean(savedRowsMap[`occ-${rowNum}`]) || (
                       Boolean(r.occCode && r.occCode !== '300' && r.occCode !== '—') &&
                       typeof window !== 'undefined' &&
@@ -752,14 +758,12 @@
                             e('button', {
                               type: 'button',
                               className: 'btn-row-db in-db',
-                              title: `✓ Saved in Database for Code ${r.occCode}. Click to inspect code (or Shift+Click to open definition in new tab)!`,
+                              title: `✓ Saved in Database for Code ${r.occCode}. Click to view notice & open Database Explorer (or Shift+Click to open definition in new tab)!`,
                               onClick: (evt) => {
                                 if (evt.shiftKey || evt.metaKey || evt.ctrlKey) {
                                   window.open(searchUrl, '_blank');
-                                } else if (window.openCodeDetailByBadge) {
-                                  window.openCodeDetailByBadge(r.occCode, 'occupancy');
                                 } else {
-                                  window.open(searchUrl, '_blank');
+                                  handleSaveRowToDB('occupancy', r, `occ-${rowNum}`);
                                 }
                               }
                             }, '✓ In DB ↗')
@@ -767,7 +771,7 @@
                             e('button', {
                               type: 'button',
                               className: 'btn-row-db',
-                              title: `Save rule "${r.occDesc || r.bldgDesc || ''}" → Code ${r.occCode} to Custom Database`,
+                              title: `Save rule "${occKeywords[0] || ''}" → Code ${r.occCode} to Custom Database`,
                               onClick: () => handleSaveRowToDB('occupancy', r, `occ-${rowNum}`)
                             }, '💾 + DB')
                           )),

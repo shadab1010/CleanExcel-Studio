@@ -3754,20 +3754,40 @@ function loadSample(columnId) {
   processCleaning();
 }
 
-function showToast(message, icon = '✓') {
+function showToast(message, icon = '✓', action = null) {
   const container = document.getElementById('toast-container');
   if (!container) return;
 
   const toast = document.createElement('div');
   toast.className = 'toast';
+
+  let actionHtml = '';
+  if (action && action.text) {
+    actionHtml = `<button type="button" class="toast-action-btn">${escapeHtml(action.text)}</button>`;
+  }
+
   toast.innerHTML = `
     <span class="toast-icon">${icon}</span>
-    <span>${message}</span>
+    <span class="toast-msg-text">${message}</span>
+    ${actionHtml}
   `;
+
+  if (action && typeof action.onClick === 'function') {
+    const btn = toast.querySelector('.toast-action-btn');
+    if (btn) {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        action.onClick();
+        toast.classList.remove('show');
+        setTimeout(() => { if (toast.remove) toast.remove(); }, 200);
+      });
+    }
+  }
 
   container.appendChild(toast);
   requestAnimationFrame(() => toast.classList.add('show'));
 
+  const duration = action ? 6000 : 3200;
   setTimeout(() => {
     toast.classList.remove('show');
     setTimeout(() => {
@@ -3777,7 +3797,7 @@ function showToast(message, icon = '✓') {
         toast.parentNode.removeChild(toast);
       }
     }, 300);
-  }, 3200);
+  }, duration);
 }
 
 function escapeHtml(str) {
@@ -4127,6 +4147,16 @@ function initCodeFinderUI() {
   function closeExplorer() {
     if (explorerModal) explorerModal.style.display = 'none';
   }
+
+  // Expose global openCodeExplorer helper
+  window.openCodeExplorer = function(targetTab = null, searchQuery = '') {
+    openExplorer(targetTab);
+    if (searchQuery && explorerSearchInput) {
+      explorerSearchInput.value = searchQuery;
+      if (explorerClearBtn) explorerClearBtn.style.display = 'inline-block';
+      renderExplorerCards();
+    }
+  };
 
   if (btnOpenHeader) btnOpenHeader.addEventListener('click', () => openExplorer());
   if (btnOpenInput) btnOpenInput.addEventListener('click', () => openExplorer());
@@ -4516,27 +4546,32 @@ function initCodeFinderUI() {
     const isConstruction = section === 'construction';
     const code = isConstruction ? rowData.conCode : rowData.occCode;
 
-    // Extract candidate keywords
-    const primaryDesc = isConstruction ? (rowData.conDesc || '') : (rowData.occDesc || '');
-    const bldgDesc = rowData.bldgDesc || '';
-    const extraParts = Array.isArray(rowData.extraCols) ? rowData.extraCols.filter(Boolean) : [];
-
-    // Clean list of candidate keywords to associate
+    // Extract all candidate keywords from row
     const candidateKeywords = [];
-    if (primaryDesc && primaryDesc !== '—' && primaryDesc !== '-') candidateKeywords.push(primaryDesc.trim());
-    if (bldgDesc && bldgDesc !== '—' && bldgDesc !== '-' && !candidateKeywords.includes(bldgDesc.trim())) candidateKeywords.push(bldgDesc.trim());
-    extraParts.forEach(part => {
-      const p = String(part).trim();
-      if (p && p !== '—' && p !== '-' && !candidateKeywords.includes(p)) candidateKeywords.push(p);
+    const rawCols = [
+      rowData.col1,
+      rowData.col2,
+      rowData.col3,
+      rowData.existingCode,
+      rowData.bldgDesc,
+      rowData.occDesc,
+      rowData.conDesc,
+      ...(Array.isArray(rowData.extraCols) ? rowData.extraCols : []),
+      ...(Array.isArray(rowData.allCols) ? rowData.allCols : [])
+    ];
+    rawCols.forEach(col => {
+      const val = String(col || '').trim();
+      if (val && val !== '—' && val !== '-' && val.toLowerCase() !== 'n/a' && !/^\d{3,4}$/.test(val)) {
+        if (!candidateKeywords.includes(val)) candidateKeywords.push(val);
+      }
     });
 
-    // If combined phrase exists and differs from single parts
-    const combinedPhrase = [bldgDesc, primaryDesc, ...extraParts].filter(p => p && p !== '—' && p !== '-').join(' ').trim();
-    if (combinedPhrase && !candidateKeywords.includes(combinedPhrase)) {
-      candidateKeywords.push(combinedPhrase);
+    if (candidateKeywords.length === 0 && rowData.original) {
+      const orig = String(rowData.original).trim();
+      if (orig && !/^\d{3,4}$/.test(orig)) candidateKeywords.push(orig);
     }
 
-    const mainKeyword = candidateKeywords[0] || combinedPhrase || (rowData.original ? rowData.original.trim() : '');
+    const mainKeyword = candidateKeywords[0] || (rowData.original ? rowData.original.trim() : '');
 
     if (!code || code === '100' || code === '300' || code === '—' || code === '-') {
       // If code is unknown / missing, open the custom code editor with keywords prefilled so user can assign it
@@ -4544,9 +4579,24 @@ function initCodeFinderUI() {
         openCodeEditor(section, null, true);
         const editorKwEl = document.getElementById('editor-code-keywords');
         if (editorKwEl) editorKwEl.value = candidateKeywords.join(', ');
-        showToast(`Select or create a code for "${mainKeyword || 'this keyword'}"`, 'ℹ️');
+        showToast(`Select or create a code for "${mainKeyword || 'this keyword'}"`, 'ℹ️', {
+          text: '📂 View Database',
+          onClick: () => window.openCodeExplorer(section)
+        });
       }
-      if (callback) callback(false);
+      if (callback) callback(false, false);
+      return;
+    }
+
+    // Check if keyword mapping is ALREADY saved in Database
+    const alreadySaved = window.CustomCodesDB && window.CustomCodesDB.hasKeyword(section, code, candidateKeywords);
+    if (alreadySaved) {
+      // DO NOT save duplicate again. Show popup notice with action button to view all database data!
+      showToast(`✨ "${mainKeyword || 'This rule'}" is ALREADY SAVED in Database under Code ${code} (${rowData.category || 'Class'})!`, '💾', {
+        text: '📂 View Database Data',
+        onClick: () => window.openCodeExplorer(section, mainKeyword || code)
+      });
+      if (callback) callback(true, true);
       return;
     }
 
@@ -4561,9 +4611,12 @@ function initCodeFinderUI() {
       }
 
       const kwDisplay = mainKeyword ? `"${mainKeyword}"` : `Keywords`;
-      showToast(`💾 Saved ${kwDisplay} ➔ Code ${code} (${rowData.category || 'Class'}) to Custom Database!`, '💾');
+      showToast(`💾 Saved ${kwDisplay} ➔ Code ${code} (${rowData.category || 'Class'}) to Custom Database!`, '💾', {
+        text: '📂 View Database Data',
+        onClick: () => window.openCodeExplorer(section, mainKeyword || code)
+      });
 
-      if (callback) callback(true);
+      if (callback) callback(true, false);
 
       // Live re-process if not in AI mode
       if (typeof processCleaning === 'function' && !AppState.isAiCleanActive) {
@@ -4575,49 +4628,69 @@ function initCodeFinderUI() {
   // Global helper to save all visible rows with valid codes to Custom Database
   window.saveAllRowsToCustomDB = function(section, rows) {
     if (!rows || !Array.isArray(rows) || rows.length === 0) {
-      showToast('No rows to save to Database.', 'ℹ️');
+      showToast('No rows to save to Database.', 'ℹ️', {
+        text: '📂 View Database',
+        onClick: () => window.openCodeExplorer(section)
+      });
       return;
     }
     if (!window.CustomCodesDB) return;
 
     const isConstruction = section === 'construction';
     const mappings = [];
+    let alreadySavedCount = 0;
 
     rows.forEach(r => {
       const code = isConstruction ? r.conCode : r.occCode;
       if (!code || code === '100' || code === '300' || code === '—' || code === '-') return;
 
-      const primaryDesc = isConstruction ? (r.conDesc || '') : (r.occDesc || '');
-      const bldgDesc = r.bldgDesc || '';
-      const extraParts = Array.isArray(r.extraCols) ? r.extraCols.filter(Boolean) : [];
-
       const kws = [];
-      if (primaryDesc && primaryDesc !== '—' && primaryDesc !== '-') kws.push(primaryDesc.trim());
-      if (bldgDesc && bldgDesc !== '—' && bldgDesc !== '-') kws.push(bldgDesc.trim());
-      extraParts.forEach(p => { if (p && p !== '—') kws.push(String(p).trim()); });
-
-      const combined = [bldgDesc, primaryDesc, ...extraParts].filter(p => p && p !== '—').join(' ').trim();
-      if (combined && !kws.includes(combined)) kws.push(combined);
+      const rawCols = [
+        r.col1, r.col2, r.col3, r.existingCode, r.bldgDesc,
+        isConstruction ? r.conDesc : r.occDesc,
+        ...(Array.isArray(r.extraCols) ? r.extraCols : []),
+        ...(Array.isArray(r.allCols) ? r.allCols : [])
+      ];
+      rawCols.forEach(col => {
+        const val = String(col || '').trim();
+        if (val && val !== '—' && val !== '-' && val.toLowerCase() !== 'n/a' && !/^\d{3,4}$/.test(val)) {
+          if (!kws.includes(val)) kws.push(val);
+        }
+      });
+      if (kws.length === 0 && r.original) {
+        const orig = String(r.original).trim();
+        if (orig && !/^\d{3,4}$/.test(orig)) kws.push(orig);
+      }
 
       if (kws.length > 0) {
-        mappings.push({
-          code,
-          keywords: kws,
-          category: r.category,
-          group: r.group
-        });
+        if (window.CustomCodesDB.hasKeyword(section, code, kws)) {
+          alreadySavedCount++;
+        } else {
+          mappings.push({
+            code,
+            keywords: kws,
+            category: r.category,
+            group: r.group
+          });
+        }
       }
     });
 
     if (mappings.length === 0) {
-      showToast('No valid code mappings found to save.', '⚠️');
+      showToast(`All ${alreadySavedCount} rule(s) in this table are ALREADY SAVED in the Database!`, '💾', {
+        text: '📂 View Database Data',
+        onClick: () => window.openCodeExplorer(section)
+      });
       return;
     }
 
     const result = window.CustomCodesDB.saveMultipleMappings(section, mappings);
     if (window.CodeFinder) window.CodeFinder.clearCache();
 
-    showToast(`💾 Saved ${mappings.length} mapping(s) (${result.count} new keyword rules) to Custom Database!`, '💾');
+    showToast(`💾 Saved ${mappings.length} new mapping(s) (${result.count} rules) to Database! (${alreadySavedCount} were already saved)`, '💾', {
+      text: '📂 View Database Data',
+      onClick: () => window.openCodeExplorer(section)
+    });
 
     if (typeof processCleaning === 'function' && !AppState.isAiCleanActive) {
       processCleaning();

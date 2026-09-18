@@ -4624,6 +4624,33 @@ body {
   color: var(--accent-emerald-light);
 }
 
+.toast-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px;
+  padding: 4px 12px;
+  background: rgba(99, 102, 241, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.6);
+  color: #ffffff;
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.toast-action-btn:hover {
+  background: #6366f1;
+  border-color: #818cf8;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
 /* ==========================================================================
    React 18 High-Performance Output & Pagination Styles
    ========================================================================== */

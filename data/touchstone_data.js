@@ -963,8 +963,8 @@
     "code": "113",
     "category": "Rubble Stone Masonry",
     "group": "Masonry construction",
-    "description": "Rubble stone masonry consists of low-rise perimeter load-bearing walls composed of irregular stones laid as coursed or uncoursed rubble in a cement mortar bed, with floor and roof joists constructed with wood framing.",
-    "keywords": []
+    "description": "Rubble stone masonry consists of low-rise perimeter load-bearing walls composed of irregular stones laid as coursed or uncoursed rubble in a cement mortar bed, with floor and roof joists constructed with wood framing. Underwriting Rule: STONE in Exterior Wall Finish always maps to Code 113.",
+    "keywords": ["stone", "stone facade", "stone wall", "stone finish", "stone masonry", "rubble stone", "fieldstone", "rubble", "coursed rubble", "uncoursed rubble"]
   },
   "114": {
     "code": "114",
