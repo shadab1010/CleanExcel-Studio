@@ -357,6 +357,51 @@ const GeminiService = {
   },
 
   /**
+   * Robust JSON array extractor: always guarantees an array return
+   * Safely unwraps nested object properties like { results: [...] }, { data: [...] }, { items: [...] },
+   * or numbered keys { "0": {...}, "1": {...} } commonly returned by OpenRouter, OpenAI, and Claude.
+   */
+  _extractJSONArray(text) {
+    if (!text || typeof text !== 'string') return [];
+    let raw;
+    try {
+      raw = this._extractJSON(text);
+    } catch (e) {
+      console.warn('JSON extraction failed, attempting regex array fallback:', e);
+      const match = text.match(/\[[\s\S]*\]/);
+      if (match) {
+        try {
+          raw = JSON.parse(match[0]);
+        } catch (e2) {}
+      }
+    }
+
+    if (!raw) return [];
+    if (Array.isArray(raw)) return raw;
+
+    if (typeof raw === 'object') {
+      const candidateKeys = ['results', 'data', 'rows', 'items', 'list', 'output', 'classifications', 'records', 'addresses', 'values', 'stories', 'years', 'occupancies', 'constructions', 'walls', 'roofs', 'payload'];
+      for (const key of candidateKeys) {
+        if (Array.isArray(raw[key])) {
+          return raw[key];
+        }
+      }
+      for (const key of Object.keys(raw)) {
+        if (Array.isArray(raw[key])) {
+          return raw[key];
+        }
+      }
+      const values = Object.values(raw);
+      if (values.length > 0 && typeof values[0] === 'object' && values[0] !== null) {
+        return values;
+      }
+      return [raw];
+    }
+
+    return [];
+  },
+
+  /**
    * Universal HTTP request dispatcher supporting all providers
    */
   async _makeUniversalRequest(systemPrompt, userText, customKey, modelOverride, providerOverride) {
@@ -651,7 +696,7 @@ Strict Rules:
       const userText = batch.map(item => `Line ${item.idx + 1}: ${item.line}`).join('\n');
       
       const textOutput = await this.callGemini(systemPrompt, userText);
-      const batchParsed = this._extractJSON(textOutput) || [];
+      const batchParsed = this._extractJSONArray(textOutput);
       if (Array.isArray(batchParsed)) {
         parsedArray.push(...batchParsed);
       }
@@ -732,7 +777,7 @@ Output ONLY a JSON array: [{"lineNum": <int>, "cleaned": "<UPPERCASE cleaned str
 
     const userText = nonBlankLines.map(item => `Line ${item.idx + 1}: ${item.line}`).join('\n');
     const textOutput = await this.callGemini(systemPrompt, userText);
-    const parsedArray = this._extractJSON(textOutput) || [];
+    const parsedArray = this._extractJSONArray(textOutput);
     const resultsMap = new Map();
     parsedArray.forEach(item => {
       resultsMap.set(item.lineNum, item.cleaned);
@@ -872,7 +917,7 @@ Instructions:
     ).join('\n');
 
     const textOutput = await this.callGemini(systemPrompt, userText);
-    const parsedArray = this._extractJSON(textOutput) || [];
+    const parsedArray = this._extractJSONArray(textOutput);
     const resultsMap = new Map();
     parsedArray.forEach(item => {
       resultsMap.set(item.lineNum, {
@@ -1082,7 +1127,7 @@ Instructions:
     }).join('\n');
 
     const textOutput = await this.callGemini(systemPrompt, userText);
-    const parsedArray = this._extractJSON(textOutput) || [];
+    const parsedArray = this._extractJSONArray(textOutput);
     const resultsMap = new Map();
     parsedArray.forEach(item => {
       resultsMap.set(item.lineNum, {
@@ -1223,7 +1268,7 @@ Output ONLY a JSON array of objects:
 
     const userLinesText = validLines.map(v => `${v.lineNum}. ${v.text}`).join('\n');
     const responseText = await this.callGemini(systemPrompt, userLinesText);
-    const aiItems = this._extractJSON(responseText) || [];
+    const aiItems = this._extractJSONArray(responseText);
 
     const aiMap = new Map();
     aiItems.forEach(item => {
@@ -1395,7 +1440,7 @@ Output ONLY a JSON array of objects:
 
     const userLinesText = validLines.map(v => `${v.lineNum}. ${v.text}`).join('\n');
     const responseText = await this.callGemini(systemPrompt, userLinesText);
-    const aiItems = this._extractJSON(responseText) || [];
+    const aiItems = this._extractJSONArray(responseText);
 
     const aiMap = new Map();
     if (Array.isArray(aiItems)) {
@@ -1552,7 +1597,7 @@ Output ONLY a valid JSON array of objects:
 
     const userLinesText = validLines.map(v => `${v.lineNum}. ${v.text}`).join('\n');
     const responseText = await this.callGemini(systemPrompt, userLinesText);
-    const aiItems = this._extractJSON(responseText) || [];
+    const aiItems = this._extractJSONArray(responseText);
 
     const aiMap = new Map();
     aiItems.forEach(item => {
@@ -1722,7 +1767,7 @@ Output strictly a JSON array of objects:
       const userText = nonBlankRows.map(r => `Row ${r.lineNum}: Year Built = "${r.yb}", Roof Year = "${r.ry}"`).join('\n');
       try {
         const textOutput = await this.callGemini(systemPrompt, userText);
-        const parsed = this._extractJSON(textOutput) || [];
+        const parsed = this._extractJSONArray(textOutput);
         if (Array.isArray(parsed)) {
           parsed.forEach(p => {
             if (p && p.lineNum !== undefined) aiMap.set(p.lineNum, p);
@@ -1820,7 +1865,7 @@ Output strictly a JSON array of objects:
     let aiMap = new Map();
     try {
       const responseText = await this.callGemini(systemPrompt, userText);
-      const aiItems = this._extractJSON(responseText) || [];
+      const aiItems = this._extractJSONArray(responseText);
       aiItems.forEach(item => {
         if (item && item.lineNum !== undefined) {
           aiMap.set(item.lineNum, String(item.stores || '').trim());
@@ -1914,7 +1959,7 @@ Output ONLY a JSON array: [{"lineNum": <int: 1-based original line index>, "clea
     let aiMap = new Map();
     try {
       const responseText = await this.callGemini(systemPrompt, userText);
-      const parsedArray = this._extractJSON(responseText) || [];
+      const parsedArray = this._extractJSONArray(responseText);
       parsedArray.forEach(item => {
         if (item && item.lineNum !== undefined) aiMap.set(item.lineNum, String(item.cleaned || '').trim());
       });
@@ -1960,7 +2005,7 @@ Output ONLY a JSON array: [{"lineNum": <int: 1-based original line index>, "clea
     let aiMap = new Map();
     try {
       const responseText = await this.callGemini(systemPrompt, userText);
-      const parsedArray = this._extractJSON(responseText) || [];
+      const parsedArray = this._extractJSONArray(responseText);
       parsedArray.forEach(item => {
         if (item && item.lineNum !== undefined) aiMap.set(item.lineNum, String(item.cleaned || '').trim());
       });
@@ -2006,7 +2051,7 @@ Output ONLY a JSON array: [{"lineNum": <int: 1-based original line index>, "clea
     let aiMap = new Map();
     try {
       const responseText = await this.callGemini(systemPrompt, userText);
-      const parsedArray = this._extractJSON(responseText) || [];
+      const parsedArray = this._extractJSONArray(responseText);
       parsedArray.forEach(item => {
         if (item && item.lineNum !== undefined) aiMap.set(item.lineNum, String(item.cleaned || '').trim());
       });
