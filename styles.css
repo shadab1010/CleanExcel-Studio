@@ -3143,6 +3143,20 @@ body {
   color: #ffffff;
 }
 
+.btn-row-db.in-db {
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #34d399;
+}
+
+.btn-row-db.in-db:hover {
+  background: rgba(16, 185, 129, 0.32);
+  border-color: #10b981;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
 .btn-header-save-all-db {
   display: inline-flex;
   align-items: center;

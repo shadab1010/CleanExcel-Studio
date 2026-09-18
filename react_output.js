@@ -631,6 +631,14 @@
                     const extraParts = Array.isArray(r.extraCols) ? r.extraCols.join(' ') : '';
                     const fullSearch = `${r.bldgDesc || ''} ${r.conDesc || ''} ${extraParts}`.trim();
                     const searchUrl = fullSearch ? `https://www.google.com/search?q=${encodeURIComponent(fullSearch + ' Touchstone UNICEDE construction code')}` : '#';
+                    const conKeywords = [r.conDesc, r.bldgDesc, ...(Array.isArray(r.extraCols) ? r.extraCols : [])].filter(k => k && k !== '—' && k !== '-');
+                    const isConSaved = Boolean(savedRowsMap[`con-${rowNum}`]) || (
+                      Boolean(r.conCode && r.conCode !== '100' && r.conCode !== '—') &&
+                      typeof window !== 'undefined' &&
+                      window.CustomCodesDB &&
+                      typeof window.CustomCodesDB.hasKeyword === 'function' &&
+                      window.CustomCodesDB.hasKeyword('construction', r.conCode, conKeywords)
+                    );
 
                     return e('tr', { key: String(rowNum) },
                       e('td', { className: 'td-num' }, rowNum),
@@ -660,12 +668,29 @@
                       ),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
                         e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
-                          r.conCode && e('button', {
-                            type: 'button',
-                            className: `btn-row-db ${savedRowsMap[`con-${rowNum}`] ? 'saved' : ''}`,
-                            title: `Save rule "${r.conDesc || r.bldgDesc || ''}" → Code ${r.conCode} to Custom Database`,
-                            onClick: () => handleSaveRowToDB('construction', r, `con-${rowNum}`)
-                          }, savedRowsMap[`con-${rowNum}`] ? '✓ Saved' : '💾 + DB'),
+                          r.conCode && (isConSaved ? (
+                            e('button', {
+                              type: 'button',
+                              className: 'btn-row-db in-db',
+                              title: `✓ Saved in Database for Code ${r.conCode}. Click to inspect code (or Shift+Click to open definition in new tab)!`,
+                              onClick: (evt) => {
+                                if (evt.shiftKey || evt.metaKey || evt.ctrlKey) {
+                                  window.open(searchUrl, '_blank');
+                                } else if (window.openCodeDetailByBadge) {
+                                  window.openCodeDetailByBadge(r.conCode, 'construction');
+                                } else {
+                                  window.open(searchUrl, '_blank');
+                                }
+                              }
+                            }, '✓ In DB ↗')
+                          ) : (
+                            e('button', {
+                              type: 'button',
+                              className: 'btn-row-db',
+                              title: `Save rule "${r.conDesc || r.bldgDesc || ''}" → Code ${r.conCode} to Custom Database`,
+                              onClick: () => handleSaveRowToDB('construction', r, `con-${rowNum}`)
+                            }, '💾 + DB')
+                          )),
                           r.conCode && e('button', {
                             type: 'button',
                             className: `btn-row-copy ${copiedRowId === `con-${rowNum}` ? 'copied' : ''}`,
@@ -677,7 +702,7 @@
                             target: '_blank',
                             rel: 'noopener noreferrer',
                             className: 'btn-maps',
-                            title: 'Lookup Construction Definition'
+                            title: 'Lookup Construction Definition (Opens in new tab)'
                           }, '🔍 Info')
                         )
                       )
@@ -686,6 +711,14 @@
                     const extraParts = Array.isArray(r.extraCols) ? r.extraCols.join(' ') : '';
                     const fullSearch = `${r.bldgDesc || ''} ${r.occDesc || ''} ${extraParts}`.trim();
                     const searchUrl = fullSearch ? `https://www.google.com/search?q=${encodeURIComponent(fullSearch + ' Touchstone UNICEDE occupancy code')}` : '#';
+                    const occKeywords = [r.occDesc, r.bldgDesc, ...(Array.isArray(r.extraCols) ? r.extraCols : [])].filter(k => k && k !== '—' && k !== '-');
+                    const isOccSaved = Boolean(savedRowsMap[`occ-${rowNum}`]) || (
+                      Boolean(r.occCode && r.occCode !== '300' && r.occCode !== '—') &&
+                      typeof window !== 'undefined' &&
+                      window.CustomCodesDB &&
+                      typeof window.CustomCodesDB.hasKeyword === 'function' &&
+                      window.CustomCodesDB.hasKeyword('occupancy', r.occCode, occKeywords)
+                    );
 
                     return e('tr', { key: String(rowNum) },
                       e('td', { className: 'td-num' }, rowNum),
@@ -715,12 +748,29 @@
                       ),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
                         e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
-                          r.occCode && e('button', {
-                            type: 'button',
-                            className: `btn-row-db ${savedRowsMap[`occ-${rowNum}`] ? 'saved' : ''}`,
-                            title: `Save rule "${r.occDesc || r.bldgDesc || ''}" → Code ${r.occCode} to Custom Database`,
-                            onClick: () => handleSaveRowToDB('occupancy', r, `occ-${rowNum}`)
-                          }, savedRowsMap[`occ-${rowNum}`] ? '✓ Saved' : '💾 + DB'),
+                          r.occCode && (isOccSaved ? (
+                            e('button', {
+                              type: 'button',
+                              className: 'btn-row-db in-db',
+                              title: `✓ Saved in Database for Code ${r.occCode}. Click to inspect code (or Shift+Click to open definition in new tab)!`,
+                              onClick: (evt) => {
+                                if (evt.shiftKey || evt.metaKey || evt.ctrlKey) {
+                                  window.open(searchUrl, '_blank');
+                                } else if (window.openCodeDetailByBadge) {
+                                  window.openCodeDetailByBadge(r.occCode, 'occupancy');
+                                } else {
+                                  window.open(searchUrl, '_blank');
+                                }
+                              }
+                            }, '✓ In DB ↗')
+                          ) : (
+                            e('button', {
+                              type: 'button',
+                              className: 'btn-row-db',
+                              title: `Save rule "${r.occDesc || r.bldgDesc || ''}" → Code ${r.occCode} to Custom Database`,
+                              onClick: () => handleSaveRowToDB('occupancy', r, `occ-${rowNum}`)
+                            }, '💾 + DB')
+                          )),
                           r.occCode && e('button', {
                             type: 'button',
                             className: `btn-row-copy ${copiedRowId === `occ-${rowNum}` ? 'copied' : ''}`,
@@ -732,7 +782,7 @@
                             target: '_blank',
                             rel: 'noopener noreferrer',
                             className: 'btn-maps',
-                            title: 'Lookup Occupancy Definition'
+                            title: 'Lookup Occupancy Definition (Opens in new tab)'
                           }, '🔍 Info')
                         )
                       )

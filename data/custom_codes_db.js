@@ -72,6 +72,9 @@
     if (typeof TouchstoneData !== 'undefined') return TouchstoneData;
     if (root.TouchstoneData) return root.TouchstoneData;
     if (typeof globalThis !== 'undefined' && globalThis.TouchstoneData) return globalThis.TouchstoneData;
+    if (typeof require !== 'undefined') {
+      try { return require('./touchstone_data.js'); } catch (e) {}
+    }
     return null;
   }
 
@@ -170,6 +173,44 @@
         return this.getMergedConstruction()[strCode] || null;
       }
       return null;
+    },
+
+    /**
+     * Check if a specific keyword or any candidate keywords are already saved/registered for a code
+     * @param {'occupancy'|'construction'} section
+     * @param {string|number} code
+     * @param {string|string[]} keywords
+     * @returns {boolean}
+     */
+    hasKeyword(section, code, keywords) {
+      if (!section || !code || !keywords) return false;
+      const strCode = String(code).trim();
+      const item = this.getCode(section, strCode);
+      if (!item) return false;
+
+      const itemKeywords = Array.isArray(item.keywords)
+        ? item.keywords.map(k => String(k || '').trim().toLowerCase()).filter(Boolean)
+        : [];
+      const catLower = String(item.category || '').toLowerCase();
+      const descLower = String(item.description || '').toLowerCase();
+
+      const toCheck = (Array.isArray(keywords) ? keywords : [keywords])
+        .map(k => String(k || '').trim().toLowerCase())
+        .filter(k => k && k !== '—' && k !== '-' && k !== 'n/a' && k !== 'unknown');
+
+      if (toCheck.length === 0) return false;
+
+      return toCheck.some(k => {
+        if (!k) return false;
+        // Exact keyword match
+        if (itemKeywords.includes(k)) return true;
+        // Substring / word boundary check
+        if (itemKeywords.some(ik => ik === k || ik.includes(k) || k.includes(ik))) return true;
+        // Category or Description match
+        if (catLower && (catLower === k || catLower.includes(k) || k.includes(catLower))) return true;
+        if (descLower && descLower.includes(k)) return true;
+        return false;
+      });
     },
 
     /**
