@@ -264,6 +264,23 @@ This document records persistent project memory, domain rules, and user underwri
 - `Col 1 = "Wood", Col 2 = "12 stories"` &rarr; **BLANK** (`Stories ≥ 8`)
 - Non-Wood constructions (e.g. `Brick / Masonry` &rarr; `111`, `Steel` &rarr; `151`) are unaffected by the wood stories/year rule.
 
+---
+
+## 13. Sports Courts & Recreation Occupancy Underwriting Rules (Code 317)
+
+> **User Instruction**:
+> If an occupancy description or column is `Basketball Court`, `Volleyball Court`, `Tennis Court`, `Pickleball Court`, `Badminton Court`, `Squash Court`, `Racquetball Court`, or `Sports Court`, it MUST ALWAYS map to Touchstone UNICEDE Occupancy Code **`317`** (`Entertainment & Recreation (Theaters/Gyms)`).
+>
+> **Specific Mappings**:
+> - `Basketball Court` &rarr; **`317`** (`Entertainment & Recreation`)
+> - `Volleyball Court` &rarr; **`317`** (`Entertainment & Recreation`)
+> - `Tennis Court` &rarr; **`317`** (`Entertainment & Recreation`)
+> - `Pickleball Court` &rarr; **`317`** (`Entertainment & Recreation`)
+> - `Badminton Court` &rarr; **`317`** (`Entertainment & Recreation`)
+> - `Squash Court` / `Racquetball Court` &rarr; **`317`** (`Entertainment & Recreation`)
+> - `Sports Court` / `Athletic Court` &rarr; **`317`** (`Entertainment & Recreation`)
+
+
 
 
 

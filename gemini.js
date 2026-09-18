@@ -861,7 +861,7 @@ Key UNICEDE Touchstone Occupancy Code Schema:
 - 314: Personal & Repair Services (Salons, Dry Cleaners, Laundromats)
 - 315: Professional, Technical, Business Services (Offices, Banks, Financial, Law Firms)
 - 316: Health Care Services (Hospitals, Clinics, Outpatient, Medical Offices)
-- 317: Entertainment & Recreation (Theaters, Gyms, Arenas, Bowling, Stadiums)
+- 317: Entertainment & Recreation (Theaters, Gyms, Arenas, Bowling, Stadiums, Basketball Courts, Volleyball Courts, Tennis Courts, Sports Complexes)
 - 318: Parking Structures / Garages
 - 319: Golf Courses
 - 321: General Industrial

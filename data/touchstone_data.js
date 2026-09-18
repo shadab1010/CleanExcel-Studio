@@ -260,7 +260,7 @@
     "code": "317",
     "category": "Entertainment & Recreation (Theaters/Gyms)",
     "group": "Entertainment",
-    "description": "Recreational and public entertainment venues: movie theaters, performance playhouses, auditoriums, bowling alleys, fitness centers, gymnasiums, athletic stadiums, arenas, sports complexes, amusement arcades, skating rinks.",
+    "description": "Recreational and public entertainment venues: movie theaters, performance playhouses, auditoriums, bowling alleys, fitness centers, gymnasiums, basketball courts, volleyball courts, tennis courts, athletic stadiums, arenas, sports complexes, amusement arcades, skating rinks.",
     "keywords": [
       "theater",
       "theatre",
@@ -275,7 +275,16 @@
       "arcade",
       "skating rink",
       "sports complex",
-      "concert hall"
+      "concert hall",
+      "basketball court",
+      "volleyball court",
+      "tennis court",
+      "pickleball court",
+      "badminton court",
+      "squash court",
+      "racquetball court",
+      "sports court",
+      "court"
     ]
   },
   "318": {

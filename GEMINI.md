@@ -127,6 +127,14 @@
 - **Rule 4 (Stories $\ge$ 8 &rarr; Blank)**: If construction is Wood and number of stories is $\ge 8$ (8 or greater, e.g. 8, 9, 10, 12 stories), output is **BLANK** (`""` / `⚠️ Wood Frame ≥ 8 Stories → Blank`).
 - **Non-Wood Constructions**: Masonry (`111`), Reinforced Concrete (`131`), Structural Steel (`151`), etc. are unaffected by Wood story/year limits.
 
+## Sports Courts & Recreation Occupancy Classification Rules (Code 317)
+- **SPORTS COURTS Rule**: `Basketball Court`, `Volleyball Court`, `Tennis Court`, `Pickleball Court`, `Badminton Court`, `Squash Court`, `Racquetball Court`, `Sports Court`, `Athletic Court` MUST ALWAYS map to Touchstone UNICEDE Occupancy Code **`317`** (`Entertainment & Recreation (Theaters/Gyms)`).
+  - Example: `Col 1 = "Basketball Court"` &rarr; **`317`** (`Entertainment & Recreation`)
+  - Example: `Col 1 = "Volleyball Court"` &rarr; **`317`** (`Entertainment & Recreation`)
+  - Example: `Col 1 = "Tennis Court"` &rarr; **`317`** (`Entertainment & Recreation`)
+  - Example: `Col 1 = "Pickleball Court"` &rarr; **`317`** (`Entertainment & Recreation`)
+
+
 
 
 

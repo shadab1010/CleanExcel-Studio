@@ -858,8 +858,8 @@ const OccupancyClassifier = {
     { code: "312", patterns: [/retail/i, /store/i, /\bshop\b/i, /shopping center/i, /strip mall/i, /supermarket/i, /\bmall\b/i, /grocery/i, /department store/i, /boutique/i, /plaza/i] },
     // Professional Offices
     { code: "315", patterns: [/office/i, /\bbank\b/i, /financial/i, /professional/i, /corporate/i, /law firm/i, /accounting/i, /insurance agency/i, /consulting/i, /admin office/i] },
-    // Entertainment
-    { code: "317", patterns: [/theater/i, /theatre/i, /cinema/i, /gymnasium/i, /\bgym\b/i, /fitness/i, /bowling/i, /arena/i, /stadium/i, /amusement/i, /arcade/i, /skating rink/i] },
+    // Entertainment & Recreation (Theaters/Gyms/Sports Courts)
+    { code: "317", patterns: [/theater/i, /theatre/i, /cinema/i, /gymnasium/i, /\bgym\b/i, /fitness/i, /bowling/i, /arena/i, /stadium/i, /amusement/i, /arcade/i, /skating rink/i, /basketball court/i, /volleyball court/i, /tennis court/i, /pickleball court/i, /badminton court/i, /squash court/i, /racquetball court/i, /sports court/i, /\bcourts?\b/i] },
     // Parking / Garages
     { code: "318", patterns: [/\bgarages?\b/i, /parking/i, /parking garage/i, /parking structure/i, /parking deck/i, /parking ramp/i, /car park/i, /multilevel parking/i, /parking facility/i] },
     // Golf
