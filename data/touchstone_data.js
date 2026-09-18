@@ -284,6 +284,9 @@
     "group": "Commercial",
     "description": "Dedicated structures for vehicle parking: multi-level above-ground parking garages, underground parking structures, commercial parking ramps, elevated parking decks.",
     "keywords": [
+      "garage",
+      "garages",
+      "parking",
       "parking garage",
       "parking structure",
       "parking deck",

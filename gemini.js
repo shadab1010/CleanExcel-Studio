@@ -758,12 +758,13 @@ Output ONLY a JSON array: [{"lineNum": <int>, "cleaned": "<UPPERCASE cleaned str
     if (!this.isConfigured()) throw new Error('Please configure a Gemini API key in Gemini AI Settings.');
     let rowsToProcess = [];
 
-    if (inputData && typeof inputData === 'object' && !Array.isArray(inputData) && (inputData.bldgDescs || inputData.occDescs || inputData.extraCols)) {
+    if (inputData && typeof inputData === 'object' && !Array.isArray(inputData) && (inputData.existingCodes || inputData.bldgDescs || inputData.occDescs || inputData.extraCols || inputData.allCols)) {
       const codes = inputData.existingCodes || [];
       const bldgs = inputData.bldgDescs || [];
       const occs = inputData.occDescs || [];
       const extraCols = inputData.extraCols || [];
-      const maxLen = Math.max(codes.length, bldgs.length, occs.length, ...(extraCols.map(c => c.length)));
+      const allCols = inputData.allCols || [];
+      const maxLen = Math.max(codes.length, bldgs.length, occs.length, ...(extraCols.map(c => c.length)), ...(allCols.map(c => c.length)));
 
       for (let i = 0; i < maxLen; i++) {
         const rowExtra = extraCols.map(col => (col[i] || '').trim());
@@ -964,12 +965,13 @@ Instructions:
     if (!this.isConfigured()) throw new Error('Please configure a Gemini API key in Gemini AI Settings.');
 
     let rowsToProcess = [];
-    if (inputPayload && typeof inputPayload === 'object' && !Array.isArray(inputPayload) && (inputPayload.bldgDescs || inputPayload.conDescs || inputPayload.extraCols)) {
+    if (inputPayload && typeof inputPayload === 'object' && !Array.isArray(inputPayload) && (inputPayload.existingCodes || inputPayload.bldgDescs || inputPayload.conDescs || inputPayload.extraCols || inputPayload.allCols)) {
       const codes = inputPayload.existingCodes || [];
       const bldgs = inputPayload.bldgDescs || [];
       const cons = inputPayload.conDescs || [];
       const extraCols = inputPayload.extraCols || [];
-      const maxLen = Math.max(codes.length, bldgs.length, cons.length, ...(extraCols.map(c => c.length)));
+      const allCols = inputPayload.allCols || [];
+      const maxLen = Math.max(codes.length, bldgs.length, cons.length, ...(extraCols.map(c => c.length)), ...(allCols.map(c => c.length)));
       for (let i = 0; i < maxLen; i++) {
         const rowExtra = extraCols.map(col => (col[i] || '').trim());
         rowsToProcess.push({
@@ -1613,6 +1615,421 @@ Output ONLY a valid JSON array of objects:
         aiEnhanced
       };
     }).filter(Boolean);
+  },
+
+  /**
+   * Underwriting validation for Roof Year Built against Year Built using AI
+   * Enforces:
+   * 1. Roof Year Built >= Year Built (never less, can equal)
+   * 2. Without Year Built -> Blank
+   * 3. Missing Roof Year -> Blank
+   * 4. Multi-Year Roof (e.g. 2005/2006) -> Pick higher candidate year (2006) and ensure >= Year Built
+   * 5. Valid range 1753 to current year (2026)
+   */
+  async classifyRoofYearWithAI(inputData, options = {}) {
+    if (!this.isConfigured()) throw new Error('Please configure an AI API key in AI Settings.');
+
+    let ybLines = [];
+    let ryLines = [];
+
+    if (inputData && typeof inputData === 'object' && !Array.isArray(inputData)) {
+      ybLines = Array.isArray(inputData.yearBuilt) ? inputData.yearBuilt : (inputData.yearBuilt || '').split(/\r\n|\r|\n/);
+      ryLines = Array.isArray(inputData.roofYearBuilt) ? inputData.roofYearBuilt : (inputData.roofYearBuilt || '').split(/\r\n|\r|\n/);
+    } else if (typeof inputData === 'string') {
+      const rows = inputData.split(/\r\n|\r|\n/);
+      rows.forEach(r => {
+        const parts = r.split('\t');
+        if (parts.length >= 2) {
+          ybLines.push(parts[0]);
+          ryLines.push(parts[1]);
+        } else {
+          ybLines.push(r);
+          ryLines.push('');
+        }
+      });
+    } else if (Array.isArray(inputData)) {
+      inputData.forEach(r => {
+        if (typeof r === 'string') {
+          const parts = r.split('\t');
+          ybLines.push(parts[0] || '');
+          ryLines.push(parts[1] || '');
+        } else if (r && typeof r === 'object') {
+          ybLines.push(r.yearBuilt || r.yb || '');
+          ryLines.push(r.roofYearBuilt || r.ry || '');
+        }
+      });
+    }
+
+    const totalRows = Math.max(ybLines.length, ryLines.length);
+    if (totalRows === 0) return [];
+
+    const minYear = typeof options.minYear === 'number' && !isNaN(options.minYear) ? options.minYear : 1753;
+    const maxYear = typeof options.maxYear === 'number' && !isNaN(options.maxYear) ? options.maxYear : new Date().getFullYear();
+
+    // Carry forward Year Built if row 1 had it
+    let lastKnownYb = (ybLines.length >= 1 && ybLines[0] && ybLines[0].trim()) ? ybLines[0].trim() : '';
+
+    const rowsWithData = [];
+    for (let i = 0; i < totalRows; i++) {
+      let yb = ybLines[i] !== undefined ? ybLines[i] : '';
+      const ry = ryLines[i] !== undefined ? ryLines[i] : '';
+
+      if (!yb.trim() && lastKnownYb && ry.trim()) {
+        yb = lastKnownYb;
+      } else if (yb.trim()) {
+        lastKnownYb = yb.trim();
+      }
+
+      rowsWithData.push({
+        lineNum: i + 1,
+        yb: yb.trim(),
+        ry: ry.trim()
+      });
+    }
+
+    const nonBlankRows = rowsWithData.filter(r => r.yb || r.ry);
+    let aiMap = new Map();
+
+    if (nonBlankRows.length > 0) {
+      const systemPrompt = `You are CleanExcel Studio AI, an expert insurance underwriting validator for property Roof Year Built and Year Built.
+Task: Validate and standardize the Roof Year Built against the Year Built for each row.
+
+STRICT UNDERWRITING RULES:
+1. Valid Range: Must be between ${minYear} and ${maxYear} inclusive.
+2. Without Year Built: If Year Built is blank or missing, Roof Year MUST be an empty string ("").
+3. Missing Roof Year: If Roof Year is blank or missing, cleaned Roof Year MUST be an empty string ("").
+4. Roof Year >= Year Built Rule: Roof Year Built must be GREATER THAN OR EQUAL TO Year Built.
+   - If Year Built = 2005 and Roof Year = 2006 -> Output: "2006" (Valid)
+   - If Year Built = 2005 and Roof Year = 2005 -> Output: "2005" (Valid, Original Roof)
+   - If Year Built = 2005 and Roof Year = 2004 or 2004/2003 -> Output: "" (Blank, Roof Year cannot be less than Year Built)
+5. Multi-Year Roof Resolution: When Roof Year contains multiple years (e.g. "2005/2006", "2006/2007", "2004/2003"):
+   - Filter candidate roof years that are >= Year Built and pick the HIGHER year. E.g. with YB 2005 and Roof 2005/2006 -> "2006".
+   - If all candidate roof years are less than Year Built (e.g. 2004/2003 with YB 2005) -> Output: "".
+6. Year Built Multi-Year Resolution: If Year Built contains multiple years (e.g. "1995/2005"), Year Built is the OLDER/LESSER year (1995).
+
+OUTPUT FORMAT:
+Output strictly a JSON array of objects:
+[
+  {
+    "lineNum": <int: 1-based original line number>,
+    "yearBuilt": "<4-digit parsed Year Built or empty string>",
+    "cleaned": "<4-digit validated Roof Year Built or empty string>",
+    "status": "<'unchanged' | 'assigned' | 'mismatch' | 'missing_yb' | 'missing_roof' | 'empty'>",
+    "statusText": "<short explanatory underwriting status text>"
+  }
+]`;
+
+      const userText = nonBlankRows.map(r => `Row ${r.lineNum}: Year Built = "${r.yb}", Roof Year = "${r.ry}"`).join('\n');
+      try {
+        const textOutput = await this.callGemini(systemPrompt, userText);
+        const parsed = this._extractJSON(textOutput) || [];
+        if (Array.isArray(parsed)) {
+          parsed.forEach(p => {
+            if (p && p.lineNum !== undefined) aiMap.set(p.lineNum, p);
+          });
+        }
+      } catch (err) {
+        console.warn('AI Roof Year call error, falling back to deterministic cleaner:', err);
+      }
+    }
+
+    const roofYearCleaner = (typeof window !== 'undefined' && window.RoofYearCleaner) ? window.RoofYearCleaner : null;
+
+    const results = [];
+    lastKnownYb = (ybLines.length >= 1 && ybLines[0] && ybLines[0].trim()) ? ybLines[0].trim() : '';
+
+    for (let idx = 0; idx < totalRows; idx++) {
+      let yb = ybLines[idx] !== undefined ? ybLines[idx] : '';
+      const ry = ryLines[idx] !== undefined ? ryLines[idx] : '';
+
+      if (!yb.trim() && lastKnownYb && ry.trim()) {
+        yb = lastKnownYb;
+      } else if (yb.trim()) {
+        lastKnownYb = yb.trim();
+      }
+
+      if (!yb.trim() && !ry.trim() && options.removeEmptyLines) {
+        continue;
+      }
+
+      const lineNum = idx + 1;
+      const fallbackRes = roofYearCleaner ? roofYearCleaner.validateAndClean(yb, ry, options) : {
+        yearBuilt: yb,
+        roofYearBuilt: ry,
+        cleaned: '',
+        status: 'empty',
+        statusText: 'Blank'
+      };
+
+      const aiRes = aiMap.get(lineNum);
+      const yearBuilt = (aiRes && aiRes.yearBuilt) ? aiRes.yearBuilt : fallbackRes.yearBuilt;
+      const cleaned = (aiRes && aiRes.cleaned !== undefined) ? aiRes.cleaned : fallbackRes.cleaned;
+      const status = (aiRes && aiRes.status) ? aiRes.status : fallbackRes.status;
+      const statusText = (aiRes && aiRes.statusText) ? aiRes.statusText : fallbackRes.statusText;
+
+      results.push({
+        lineNum,
+        original: `${yb}\t${ry}`,
+        yearBuilt: yearBuilt,
+        rawYearBuilt: yb,
+        roofYearBuilt: ry,
+        rawRoofYearBuilt: ry,
+        cleaned: cleaned,
+        year: cleaned,
+        changed: (ry.trim() !== cleaned) || (status === 'mismatch' || status === 'missing_yb'),
+        status: status,
+        statusText: statusText,
+        aiEnhanced: aiMap.has(lineNum)
+      });
+    }
+
+    return results;
+  },
+
+  /**
+   * Normalize Number of Stores / Stories with AI
+   * Enforces:
+   * 1. Negative Values & Zero -> Blank (-5 -> Blank, -2 -> Blank, 0 -> Blank)
+   * 2. Always Whole Number -> Round UP (3.5 -> 4, 4.2 -> 5, 1.1 -> 2, 0.5 -> 1)
+   * 3. Ranges & Multi-values -> Pick Maximum (2 & 3 -> 3, 1,2 -> 2, 2/3 -> 3, 2-4 -> 4)
+   * 4. "non", "none", "n/a", "-", blank -> Blank
+   */
+  async cleanStoresWithAI(rawLines, options = {}) {
+    if (!this.isConfigured()) throw new Error('Please configure an AI API key in AI Settings.');
+
+    const validLines = rawLines.map((line, idx) => ({ lineNum: idx + 1, text: String(line || '').trim() })).filter(v => v.text.length > 0);
+    if (validLines.length === 0) return [];
+
+    const systemPrompt = `You are CleanExcel Studio AI, an expert insurance underwriting validator for building Number of Stories / Floors.
+Task: Normalize building stories according to strict underwriting rules.
+
+UNDERWRITING RULES:
+1. Negative Values & Zero: If input has negative values (e.g. -5, -2, -1) or zero (0), output MUST be an empty string (""). Stories cannot be negative or zero in underwriting.
+2. Always Whole Number (Round UP): Any decimal or fractional story MUST round UP to the next whole integer (e.g. 3.5 -> 4, 4.2 -> 5, 1.1 -> 2, 0.5 -> 1).
+3. Multi-Value / Ranges: Always pick the MAXIMUM candidate story count (e.g. "2 & 3" -> 3, "1,2" -> 2, "2/3" -> 3, "2-4" -> 4, "1.5 & 2.2" -> 3, "2 and 3" -> 3, "1 to 3" -> 3).
+4. Non-Applicable / Words: Inputs like "non", "none", "no", "n/a", "na", "null", "nil", "-", "unknown", "unk", "tbd" MUST be an empty string ("").
+5. Empty / Whitespace -> Empty string ("").
+
+OUTPUT FORMAT:
+Output strictly a JSON array of objects:
+[
+  { "lineNum": <int: 1-based original line index>, "stores": "<integer string or empty string>" }
+]`;
+
+    const userText = validLines.map(v => `${v.lineNum}. ${v.text}`).join('\n');
+    let aiMap = new Map();
+    try {
+      const responseText = await this.callGemini(systemPrompt, userText);
+      const aiItems = this._extractJSON(responseText) || [];
+      aiItems.forEach(item => {
+        if (item && item.lineNum !== undefined) {
+          aiMap.set(item.lineNum, String(item.stores || '').trim());
+        }
+      });
+    } catch (err) {
+      console.warn('AI stores call error, falling back to deterministic cleaner:', err);
+    }
+
+    const storesCleaner = (typeof window !== 'undefined' && window.NoOfStoresCleaner)
+      ? window.NoOfStoresCleaner
+      : (typeof NoOfStoresCleaner !== 'undefined' ? NoOfStoresCleaner : null);
+
+    return rawLines.map((line, idx) => {
+      const lineNum = idx + 1;
+      const trimmed = String(line || '').trim();
+      if (!trimmed && options.removeEmptyLines) return null;
+
+      let cleaned = '';
+      let aiEnhanced = false;
+
+      if (aiMap.has(lineNum)) {
+        const candidate = aiMap.get(lineNum);
+        if (/^\d+$/.test(candidate) && parseInt(candidate, 10) > 0) {
+          cleaned = candidate;
+          aiEnhanced = true;
+        }
+      }
+
+      if (!cleaned && storesCleaner) {
+        cleaned = storesCleaner.cleanStores(line, options);
+      }
+
+      let status = 'cleaned';
+      let statusText = 'Cleaned';
+
+      if (!trimmed || /^(?:non|none|no|n\/?a|n\.a\.?|null|nil|not\s*applicable|unknown|unk|tbd|—+|-+|\.|\/|0|zero)$/i.test(trimmed)) {
+        status = 'empty';
+        statusText = 'Blank';
+      } else if (trimmed === cleaned) {
+        status = 'unchanged';
+        statusText = '✓ Valid Stories';
+      } else if (!cleaned) {
+        status = 'mismatch';
+        statusText = '⚠️ Negative or Invalid (→ Blank)';
+      } else {
+        const hasDec = /\.\d+/.test(line);
+        const hasMulti = /[\/&,\-]|to|and/i.test(line);
+        status = 'assigned';
+        if (hasDec && hasMulti) {
+          statusText = `✨ Max & Rounded UP (${cleaned})`;
+        } else if (hasDec) {
+          statusText = `✨ Rounded UP (${cleaned})`;
+        } else if (hasMulti) {
+          statusText = `✨ Max Candidate (${cleaned})`;
+        } else {
+          statusText = `✨ Standardized (${cleaned})`;
+        }
+      }
+
+      return {
+        lineNum,
+        original: line,
+        cleaned,
+        stores: cleaned,
+        changed: trimmed !== cleaned,
+        status,
+        statusText,
+        aiEnhanced
+      };
+    }).filter(Boolean);
+  },
+
+  /**
+   * Clean Full Name records with AI
+   */
+  async cleanNamesWithAI(rawLines, options = {}) {
+    if (!this.isConfigured()) throw new Error('Please configure an AI API key in AI Settings.');
+
+    const nonBlankLines = rawLines.map((line, idx) => ({ idx, line: String(line || '').trim() })).filter(item => item.line.length > 0);
+    if (nonBlankLines.length === 0) return [];
+
+    const systemPrompt = `You are CleanExcel Studio AI Name Standardizer.
+Clean each person's full name:
+1. Remove titles/honorifics (Mr., Mrs., Ms., Dr., Prof., Jr., Sr., Esq., II, III, IV).
+2. Strip noise symbols and excess punctuation (,./<>?;':"|[]{}=+-_()#$%^&*@!).
+3. Normalize spacing and standardize to clean Title Case (e.g. "JOHN D. SMITH, JR." -> "John D Smith").
+Output ONLY a JSON array: [{"lineNum": <int: 1-based original line index>, "cleaned": "<Title Case cleaned name>"}]`;
+
+    const userText = nonBlankLines.map(item => `Line ${item.idx + 1}: ${item.line}`).join('\n');
+    let aiMap = new Map();
+    try {
+      const responseText = await this.callGemini(systemPrompt, userText);
+      const parsedArray = this._extractJSON(responseText) || [];
+      parsedArray.forEach(item => {
+        if (item && item.lineNum !== undefined) aiMap.set(item.lineNum, String(item.cleaned || '').trim());
+      });
+    } catch (err) {
+      console.warn('AI name call error, falling back to deterministic cleaner:', err);
+    }
+
+    const fallbackCleaner = (typeof window !== 'undefined' && window.CleanersRegistry?.name?.cleaner) ? window.CleanersRegistry.name.cleaner : null;
+
+    return rawLines.map((line, i) => {
+      const lineNum = i + 1;
+      const trimmed = String(line || '').trim();
+      const cleaned = aiMap.get(lineNum) || (fallbackCleaner ? fallbackCleaner.cleanAddress(line) : trimmed);
+      return {
+        lineNum,
+        original: line,
+        cleaned: cleaned,
+        changed: trimmed !== cleaned,
+        status: !trimmed ? 'empty' : (trimmed === cleaned ? 'unchanged' : 'assigned'),
+        statusText: !trimmed ? 'Blank' : (trimmed === cleaned ? '✓ Valid' : `✨ Cleaned (${cleaned})`),
+        aiEnhanced: aiMap.has(lineNum)
+      };
+    });
+  },
+
+  /**
+   * Clean Phone records with AI
+   */
+  async cleanPhonesWithAI(rawLines, options = {}) {
+    if (!this.isConfigured()) throw new Error('Please configure an AI API key in AI Settings.');
+
+    const nonBlankLines = rawLines.map((line, idx) => ({ idx, line: String(line || '').trim() })).filter(item => item.line.length > 0);
+    if (nonBlankLines.length === 0) return [];
+
+    const systemPrompt = `You are CleanExcel Studio AI Phone Number Standardizer.
+Standardize phone numbers:
+1. 10-digit US/Canada numbers format as "(XXX) XXX-XXXX".
+2. 11-digit numbers starting with 1 format as "(XXX) XXX-XXXX".
+3. Clean all formatting characters, extensions, or letters.
+Output ONLY a JSON array: [{"lineNum": <int: 1-based original line index>, "cleaned": "<Standardized phone number>"}]`;
+
+    const userText = nonBlankLines.map(item => `Line ${item.idx + 1}: ${item.line}`).join('\n');
+    let aiMap = new Map();
+    try {
+      const responseText = await this.callGemini(systemPrompt, userText);
+      const parsedArray = this._extractJSON(responseText) || [];
+      parsedArray.forEach(item => {
+        if (item && item.lineNum !== undefined) aiMap.set(item.lineNum, String(item.cleaned || '').trim());
+      });
+    } catch (err) {
+      console.warn('AI phone call error, falling back to deterministic cleaner:', err);
+    }
+
+    const fallbackCleaner = (typeof window !== 'undefined' && window.CleanersRegistry?.phone?.cleaner) ? window.CleanersRegistry.phone.cleaner : null;
+
+    return rawLines.map((line, i) => {
+      const lineNum = i + 1;
+      const trimmed = String(line || '').trim();
+      const cleaned = aiMap.get(lineNum) || (fallbackCleaner ? fallbackCleaner.cleanAddress(line) : trimmed);
+      return {
+        lineNum,
+        original: line,
+        cleaned: cleaned,
+        changed: trimmed !== cleaned,
+        status: !trimmed ? 'empty' : (trimmed === cleaned ? 'unchanged' : 'assigned'),
+        statusText: !trimmed ? 'Blank' : (trimmed === cleaned ? '✓ Valid' : `✨ Standardized (${cleaned})`),
+        aiEnhanced: aiMap.has(lineNum)
+      };
+    });
+  },
+
+  /**
+   * Clean Email records with AI
+   */
+  async cleanEmailsWithAI(rawLines, options = {}) {
+    if (!this.isConfigured()) throw new Error('Please configure an AI API key in AI Settings.');
+
+    const nonBlankLines = rawLines.map((line, idx) => ({ idx, line: String(line || '').trim() })).filter(item => item.line.length > 0);
+    if (nonBlankLines.length === 0) return [];
+
+    const systemPrompt = `You are CleanExcel Studio AI Email Cleaner.
+Clean email addresses:
+1. Remove leading/trailing brackets, quotes, whitespace, or mailto: prefixes.
+2. Standardize to lowercase.
+3. Validate email syntax. If invalid or junk, clean or clear.
+Output ONLY a JSON array: [{"lineNum": <int: 1-based original line index>, "cleaned": "<cleaned lowercase email>"}]`;
+
+    const userText = nonBlankLines.map(item => `Line ${item.idx + 1}: ${item.line}`).join('\n');
+    let aiMap = new Map();
+    try {
+      const responseText = await this.callGemini(systemPrompt, userText);
+      const parsedArray = this._extractJSON(responseText) || [];
+      parsedArray.forEach(item => {
+        if (item && item.lineNum !== undefined) aiMap.set(item.lineNum, String(item.cleaned || '').trim());
+      });
+    } catch (err) {
+      console.warn('AI email call error, falling back to deterministic cleaner:', err);
+    }
+
+    const fallbackCleaner = (typeof window !== 'undefined' && window.CleanersRegistry?.email?.cleaner) ? window.CleanersRegistry.email.cleaner : null;
+
+    return rawLines.map((line, i) => {
+      const lineNum = i + 1;
+      const trimmed = String(line || '').trim();
+      const cleaned = aiMap.get(lineNum) || (fallbackCleaner ? fallbackCleaner.cleanAddress(line) : trimmed);
+      return {
+        lineNum,
+        original: line,
+        cleaned: cleaned,
+        changed: trimmed !== cleaned,
+        status: !trimmed ? 'empty' : (trimmed === cleaned ? 'unchanged' : 'assigned'),
+        statusText: !trimmed ? 'Blank' : (trimmed === cleaned ? '✓ Valid' : `✨ Cleaned (${cleaned})`),
+        aiEnhanced: aiMap.has(lineNum)
+      };
+    });
   }
 };
 

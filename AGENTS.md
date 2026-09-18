@@ -183,3 +183,87 @@ This document records persistent project memory, domain rules, and user underwri
 >   - **Missing City Rule**: If the text has a building number and ends with a street suffix (e.g. `742 Evergreen Terrace IL 62704`), `street` is populated and `city` is left BLANK (`""` / `—`).
 > - **Order-Independent Parsing**:
 >   - Postal codes (`62704`, `OX28 6RB`), States (`IL`, `CA`, `TX`), and Countries (`US`, `UK`, `CA`) have distinct regex/dictionary signatures and are recognized and stripped out whether they appear at the start, middle, or end.
+
+---
+
+## 9. Custom Underwriting Database & Code Manager Rules
+
+> **User Instruction**:
+> Underwriters can customize, add, edit, and export/import Occupancy Codes and Construction Codes directly on the website:
+> - **Custom Overrides & New Codes**: Custom definitions take priority over built-in Touchstone defaults in `OccupancyClassifier` and `ConstructionClassifier`.
+> - **In-Browser Persistence**: Changes are stored in `localStorage` (`cleanexcel_underwriting_custom_db_v1`) and survive page reloads.
+> - **JSON Export & Import**: Underwriters can export their customized database as a `.json` backup file or import JSON definitions.
+> - **Restore to Factory**: Individual codes or the entire database can be reset back to official Touchstone UNICEDE® baseline at any time.
+
+---
+
+## 10. Apartment & Multi-Unit Residential Occupancy Rules (Codes 301, 303, 306)
+
+> **User Instruction**:
+> When an Occupancy description specifies `Apartment`, `Apartments`, `Condo`, `Condominium`, or `Residential`, and another column or inline text specifies the number of units / buildings:
+> - **1 Unit / 1 Building** &rarr; Maps to Touchstone Code **`301`** (`Permanent Dwelling: General Residential / 1 Unit`).
+> - **2, 3, or 4 Units (2–4 Units / Duplex / Triplex / Fourplex)** &rarr; Maps to Touchstone Code **`303`** (`Permanent Dwelling: Multi Family 2-4 Units`).
+> - **5 or More Units ($\ge 5$ Units / Apartment Complex)** &rarr; Maps to Touchstone Code **`306`** (`Apartments / Condominiums 5+ Units`).
+> - **Apartment without Unit Count** &rarr; Defaults to Touchstone Code **`306`** (`Apartments / Condominiums`).
+
+### Multi-Column & Inline Resolution:
+1. **Col 1 & Col 2 Cross-Evaluation**:
+   - `Col 1 = "Apartment"`, `Col 2 = "1"` or `"1 unit"` &rarr; **`301`**
+   - `Col 1 = "1"`, `Col 2 = "Apartment"` &rarr; **`301`**
+   - `Col 1 = "Apartment"`, `Col 2 = "3"` or `"3 units"` &rarr; **`303`**
+   - `Col 1 = "Apartment"`, `Col 2 = "4"` or `"4 units"` &rarr; **`303`**
+   - `Col 1 = "Apartment"`, `Col 2 = "5"` or `"6 units"` &rarr; **`306`**
+   - `Col 1 = "Apartment"`, `Col 2 = "24"` &rarr; **`306`**
+2. **Inline Descriptions**:
+   - `"1 unit apartment"` &rarr; **`301`**
+   - `"3 units apartment"` &rarr; **`303`**
+   - `"12 unit apartment complex"` &rarr; **`306`**
+
+---
+
+## 11. Garage Occupancy Underwriting Rules (Code 318)
+
+> **User Instruction**:
+> If an occupancy description or column is `Garage` (or `only Garage`, `Garages`, `Parking Garage`, `Detached Garage`, `Residential Garage`, `Commercial Garage`), it MUST ALWAYS map to Touchstone UNICEDE Occupancy Code **`318`** (`Parking Structures / Garages`).
+>
+> **Specific Mappings**:
+> - `Garage` &rarr; **`318`**
+> - `Only Garage` &rarr; **`318`**
+> - `Garages` &rarr; **`318`**
+> - `Parking` / `Parking Deck` / `Parking Ramp` / `Car Park` &rarr; **`318`**
+> - `Detached Garage` / `Storage Garage` &rarr; **`318`**
+
+---
+
+## 12. Wood Construction with Number of Stories & Year Built Rules
+
+> **User Instruction**:
+> In **Construction Classification**, when construction is **Wood** (or `Wood Frame`, `Timber`, `Wood Stud`, `Stick Built`):
+> 1. **Stories $\le 4$ (or less than 4 or 4)**:
+>    - Maps directly to Touchstone UNICEDE Code **`101`** (`Wood Frame (Modern)`).
+> 2. **Stories $> 4$ and $\le 7$ (between 5 and 7 stories)**:
+>    - **Year Built $> 2005$** &rarr; Maps to Touchstone UNICEDE Code **`101`** (`Wood Frame (Modern)`).
+>    - **Year Built $\le 2005$** (or missing) &rarr; MUST be left **BLANK** (`""` / `⚠️ Wood Frame 5-7 Stories Built ≤ 2005 → Blank`).
+> 3. **Stories $\ge 8$ (8 or greater)**:
+>    - MUST be left **BLANK** (`""` / `⚠️ Wood Frame ≥ 8 Stories → Blank`).
+
+### Specific Examples:
+- `Col 1 = "Wood", Col 2 = "4 stories", Col 3 = "1995"` &rarr; **`101`** (`Stories ≤ 4`)
+- `Col 1 = "Wood", Col 2 = "2 stories", Col 3 = "2004"` &rarr; **`101`** (`Stories ≤ 4`)
+- `Col 1 = "Wood", Col 2 = "1 story"` &rarr; **`101`** (`Stories ≤ 4`)
+- `Col 1 = "Wood", Col 2 = "5 stories", Col 3 = "2010"` &rarr; **`101`** (`Stories 5-7 & YB > 2005`)
+- `Col 1 = "Wood", Col 2 = "6 stories", Col 3 = "2006"` &rarr; **`101`** (`Stories 5-7 & YB > 2005`)
+- `Col 1 = "Wood", Col 2 = "7 stories", Col 3 = "2020"` &rarr; **`101`** (`Stories 5-7 & YB > 2005`)
+- `Col 1 = "Wood", Col 2 = "5 stories", Col 3 = "2005"` &rarr; **BLANK** (`Stories 5-7 & YB ≤ 2005`)
+- `Col 1 = "Wood", Col 2 = "6 stories", Col 3 = "1998"` &rarr; **BLANK** (`Stories 5-7 & YB ≤ 2005`)
+- `Col 1 = "Wood", Col 2 = "7 stories", Col 3 = "2004"` &rarr; **BLANK** (`Stories 5-7 & YB ≤ 2005`)
+- `Col 1 = "Wood", Col 2 = "5 stories"` (no YB) &rarr; **BLANK** (`Missing YB > 2005`)
+- `Col 1 = "Wood", Col 2 = "8 stories", Col 3 = "2015"` &rarr; **BLANK** (`Stories ≥ 8`)
+- `Col 1 = "Wood", Col 2 = "8 stories", Col 3 = "1995"` &rarr; **BLANK** (`Stories ≥ 8`)
+- `Col 1 = "Wood", Col 2 = "9 stories", Col 3 = "2018"` &rarr; **BLANK** (`Stories ≥ 8`)
+- `Col 1 = "Wood", Col 2 = "12 stories"` &rarr; **BLANK** (`Stories ≥ 8`)
+- Non-Wood constructions (e.g. `Brick / Masonry` &rarr; `111`, `Steel` &rarr; `151`) are unaffected by the wood stories/year rule.
+
+
+
+

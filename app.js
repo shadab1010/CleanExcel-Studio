@@ -47,14 +47,14 @@ const AppState = {
   },
   colNames: {
     occupancy: {
-      col1: 'Existing Code',
-      col2: 'Building Description',
-      col3: 'Occupancy Description'
+      col1: '',
+      col2: '',
+      col3: ''
     },
     construction: {
-      col1: 'Existing Code',
-      col2: 'Building Type',
-      col3: 'Construction Description'
+      col1: '',
+      col2: '',
+      col3: ''
     }
   },
   // View & Filtering options
@@ -616,6 +616,16 @@ function updateGeminiModalUI() {
     const s = wallAiBtn.querySelector('span:not(.ai-sparkle)');
     if (s) s.textContent = isConfigured ? `AI Clean Walls (${pInfo.name})` : 'AI Clean Walls';
   }
+  const roofYearAiBtn = document.getElementById('btn-roof-year-ai');
+  if (roofYearAiBtn) {
+    const s = roofYearAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Validate Roof Year (${pInfo.name})` : 'AI Validate Roof Year';
+  }
+  const storesAiBtn = document.getElementById('btn-stores-ai');
+  if (storesAiBtn) {
+    const s = storesAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Normalize Stories (${pInfo.name})` : 'AI Normalize Stories';
+  }
   const streetAiBtn = document.getElementById('btn-street-ai');
   if (streetAiBtn) {
     const s = streetAiBtn.querySelector('span:not(.ai-sparkle)');
@@ -692,9 +702,7 @@ function getActiveSectionColNames() {
   const section = (AppState.activeColumnId === 'construction') ? 'construction' : 'occupancy';
   if (!AppState.colNames) AppState.colNames = {};
   if (!AppState.colNames[section]) {
-    AppState.colNames[section] = (section === 'construction')
-      ? { col1: 'Existing Code', col2: 'Building Type', col3: 'Construction Description' }
-      : { col1: 'Existing Code', col2: 'Building Description', col3: 'Occupancy Description' };
+    AppState.colNames[section] = { col1: '', col2: '', col3: '' };
   }
   return AppState.colNames[section];
 }
@@ -721,23 +729,7 @@ function getColumnHeaderName(colIndex) {
   const names = getActiveSectionColNames();
   const key = `col${colIndex}`;
   if (names && names[key] && names[key].trim()) return names[key].trim();
-
-  const section = (AppState.activeColumnId === 'construction') ? 'construction' : 'occupancy';
-  if (section === 'construction') {
-    if (colIndex === 1) return 'Existing Code';
-    if (colIndex === 2) return 'Building Type';
-    if (colIndex === 3) return 'Construction Description';
-    if (colIndex === 4) return 'Exterior Finish / Wall';
-    if (colIndex === 5) return 'Roof / Framing Details';
-    return `Column ${colIndex}`;
-  } else {
-    if (colIndex === 1) return 'Existing Code';
-    if (colIndex === 2) return 'Building Description';
-    if (colIndex === 3) return 'Occupancy Description';
-    if (colIndex === 4) return 'Secondary Occupancy / Notes';
-    if (colIndex === 5) return 'Operations / Tenant';
-    return `Column ${colIndex}`;
-  }
+  return `Column ${colIndex}`;
 }
 
 /**
@@ -767,17 +759,10 @@ function renderMultiColumnInputs() {
     occupancy3ColContainerEl.style.setProperty('--occ-col-count', count);
   }
 
-  // Generate column letters list: e.g. "AR, AS, AT, AU"
-  const letters = [];
-  for (let i = 1; i <= count; i++) {
-    letters.push(getExcelColLetterFromIndex(i));
-  }
-  const lettersStr = letters.join(', ');
-
   // Update Pane Title
   if (rawPaneTitleEl) {
     const titleName = section === 'construction' ? 'Construction' : 'Occupancy';
-    rawPaneTitleEl.innerHTML = `📥 ${count}-Column ${titleName} Input <span style="font-size:11px;font-weight:normal;opacity:0.75;">(${lettersStr})</span>`;
+    rawPaneTitleEl.innerHTML = `📥 ${count}-Column ${titleName} Input`;
   }
 
   // Update Paste button text & title
@@ -786,7 +771,7 @@ function renderMultiColumnInputs() {
     if (pasteLabel) {
       pasteLabel.textContent = `Paste ${count} Columns`;
     }
-    btnPaste3ColEl.title = `Paste ${count} Excel columns (${lettersStr}) directly from clipboard`;
+    btnPaste3ColEl.title = `Paste ${count} Excel columns directly from clipboard`;
   }
 
   if (!occupancy3ColContainerEl) return;
@@ -811,14 +796,12 @@ function renderMultiColumnInputs() {
   for (let i = 1; i <= count; i++) {
     const card = occupancy3ColContainerEl.querySelector(`.occ-col-input-card[data-col-index="${i}"]`);
     if (card) {
-      const letter = getExcelColLetterFromIndex(i);
       const badge = card.querySelector('.occ-col-badge');
-      if (badge) badge.textContent = `Col ${i} • ${letter}`;
-
+      if (badge) badge.textContent = `Col ${i}`;
       const nameInput = card.querySelector('.occ-col-name-input');
-      if (nameInput) {
-        nameInput.value = getColumnHeaderName(i);
-        nameInput.placeholder = `Col ${i} Name...`;
+      const savedVal = AppState.colNames?.[section]?.[`col${i}`] || '';
+      if (nameInput && !nameInput.matches(':focus')) {
+        nameInput.value = savedVal;
       }
     }
   }
@@ -830,18 +813,17 @@ function renderMultiColumnInputs() {
  * Create a new dynamic column card element (for Column 4+)
  */
 function createDynamicColumnCard(index, section) {
-  const letter = getExcelColLetterFromIndex(index);
-  const colName = getColumnHeaderName(index);
-
   const card = document.createElement('div');
   card.className = 'occ-col-input-card occ-col-dynamic';
   card.setAttribute('data-col-index', String(index));
 
+  const savedVal = AppState.colNames?.[section]?.[`col${index}`] || '';
+
   card.innerHTML = `
     <div class="occ-col-header">
-      <span class="occ-col-badge">Col ${index} • ${letter}</span>
-      <div class="occ-col-title-wrapper" title="Click to rename Column ${index}">
-        <input type="text" id="occ-col-${index}-input" class="occ-col-name-input" value="${escapeHtml(colName)}" placeholder="Col ${index} Name..." spellcheck="false" title="Click to rename Column ${index}" />
+      <span class="occ-col-badge">Col ${index}</span>
+      <div class="occ-col-title-wrapper" title="Click to manually name Column ${index}">
+        <input type="text" id="occ-col-${index}-input" class="occ-col-name-input" value="${savedVal.replace(/"/g, '&quot;')}" placeholder="Col ${index} Name..." spellcheck="false" title="Click to rename Column ${index}" />
         <span class="occ-col-edit-icon" title="Click to rename">✏️</span>
       </div>
       <button class="occ-col-remove-btn" title="Remove Column ${index}" type="button">✕</button>
@@ -873,6 +855,9 @@ function createDynamicColumnCard(index, section) {
       if (!AppState.colNames) AppState.colNames = {};
       if (!AppState.colNames[activeSec]) AppState.colNames[activeSec] = {};
       AppState.colNames[activeSec]['col' + index] = nameInput.value;
+      if (window.CleanExcelReact?.updateColNames) {
+        window.CleanExcelReact.updateColNames(AppState.colNames);
+      }
       refreshOutputView();
     });
   }
@@ -1490,6 +1475,9 @@ function bindEvents() {
       if (!AppState.colNames) AppState.colNames = {};
       if (!AppState.colNames[section]) AppState.colNames[section] = {};
       AppState.colNames[section][key] = el.value;
+      if (window.CleanExcelReact?.updateColNames) {
+        window.CleanExcelReact.updateColNames(AppState.colNames);
+      }
       refreshOutputView();
     });
   });
@@ -2193,6 +2181,16 @@ function bindEvents() {
   const wallAiBtn = document.getElementById('btn-wall-ai');
   if (wallAiBtn) {
     wallAiBtn.addEventListener('click', () => triggerGeminiAI());
+  }
+
+  const roofYearAiBtn = document.getElementById('btn-roof-year-ai');
+  if (roofYearAiBtn) {
+    roofYearAiBtn.addEventListener('click', () => triggerGeminiAI());
+  }
+
+  const storesAiBtn = document.getElementById('btn-stores-ai');
+  if (storesAiBtn) {
+    storesAiBtn.addEventListener('click', () => triggerGeminiAI());
   }
 
   const yearAiBtn = document.getElementById('btn-year-ai');
@@ -3806,17 +3804,11 @@ function getTimestamp() {
 }
 
 /**
- * Execute Gemini 2.5 Flash AI Processing
+ * Execute AI Processing across all CleanExcel sections
  */
 async function triggerGeminiAI() {
-  const rawText = rawInputEl ? rawInputEl.value : '';
-  if (!rawText.trim()) {
-    showToast('Please paste or type addresses first', '⚠️');
-    return;
-  }
-
   if (!window.GeminiService) {
-    showToast('Gemini service not initialized', '❌');
+    showToast('AI service not initialized', '❌');
     return;
   }
 
@@ -3832,13 +3824,45 @@ async function triggerGeminiAI() {
     return;
   }
 
-  const lines = rawText.split(/\r\n|\r|\n/).filter(l => l.trim().length > 0);
   const isSplit = AppState.activeColumnId === 'split';
   const isOccupancy = AppState.activeColumnId === 'occupancy';
   const isConstruction = AppState.activeColumnId === 'construction';
+  const isRoofYear = AppState.activeColumnId === 'roof_year';
   const isRoof = AppState.activeColumnId === 'roof';
   const isWall = AppState.activeColumnId === 'wall';
   const isYear = AppState.activeColumnId === 'year';
+  const isStores = AppState.activeColumnId === 'stores' || AppState.activeColumnId === 'stories';
+  const isName = AppState.activeColumnId === 'name';
+  const isPhone = AppState.activeColumnId === 'phone';
+  const isEmail = AppState.activeColumnId === 'email';
+
+  const rawText = rawInputEl ? rawInputEl.value : '';
+
+  // Validate input presence based on active section
+  let hasInputData = false;
+  if (isOccupancy || isConstruction) {
+    const allValues = getAllColumnValues();
+    hasInputData = allValues.some(v => v && v.trim()) || Boolean(rawText.trim());
+  } else if (isRoofYear) {
+    const ybVal = roofYearInputYbEl ? roofYearInputYbEl.value : '';
+    const ryVal = roofYearInputRyEl ? roofYearInputRyEl.value : '';
+    hasInputData = Boolean(ybVal.trim()) || Boolean(ryVal.trim()) || Boolean(rawText.trim());
+  } else {
+    hasInputData = Boolean(rawText.trim());
+  }
+
+  if (!hasInputData) {
+    if (isOccupancy || isConstruction) {
+      showToast('Please paste or enter descriptions into the columns first', '⚠️');
+    } else if (isRoofYear) {
+      showToast('Please paste Year Built and Roof Year columns first', '⚠️');
+    } else {
+      showToast('Please paste or type data first', '⚠️');
+    }
+    return;
+  }
+
+  const lines = rawText.split(/\r\n|\r|\n/).filter(l => l.trim().length > 0);
 
   if (aiLoadingOverlayEl) {
     if (aiLoadingTitleEl) {
@@ -3849,12 +3873,22 @@ async function triggerGeminiAI() {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing occupancy descriptions...`;
       } else if (isConstruction) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing construction descriptions...`;
+      } else if (isRoofYear) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is validating Roof Year Built against Year Built...`;
       } else if (isRoof) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing roof descriptions...`;
       } else if (isWall) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing exterior wall materials...`;
       } else if (isYear) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is validating Year Built records...`;
+      } else if (isStores) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is normalizing Number of Stories / Floors...`;
+      } else if (isName) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is standardizing Full Names...`;
+      } else if (isPhone) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is standardizing Phone Numbers...`;
+      } else if (isEmail) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is validating and cleaning Email Addresses...`;
       } else {
         aiLoadingTitleEl.textContent = `${headerPrefix} is cleaning street addresses...`;
       }
@@ -3866,12 +3900,22 @@ async function triggerGeminiAI() {
         aiLoadingSubtitleEl.textContent = 'Matching UNICEDE® Touchstone codes across commercial & residential categories';
       } else if (isConstruction) {
         aiLoadingSubtitleEl.textContent = 'Matching UNICEDE® Touchstone codes across 224 structural construction categories';
+      } else if (isRoofYear) {
+        aiLoadingSubtitleEl.textContent = 'Enforcing Roof Year ≥ Year Built (never less) & selecting higher candidate year';
       } else if (isRoof) {
         aiLoadingSubtitleEl.textContent = 'Classifying Geometry, Pitch, Covering & Deck with Touchstone UNICEDE® underwriting rules';
       } else if (isWall) {
         aiLoadingSubtitleEl.textContent = 'Separating WallType & WallSiding with Touchstone UNICEDE® underwriting rules';
       } else if (isYear) {
         aiLoadingSubtitleEl.textContent = 'Enforcing 1753–2026 range & selecting lesser/older construction year for multi-year entries';
+      } else if (isStores) {
+        aiLoadingSubtitleEl.textContent = 'Enforcing positive whole numbers (round up) & picking maximum on ranges';
+      } else if (isName) {
+        aiLoadingSubtitleEl.textContent = 'Removing honorifics, titles, and cleaning noise characters into Title Case';
+      } else if (isPhone) {
+        aiLoadingSubtitleEl.textContent = 'Formatting 10-digit standard numbers and cleaning noise symbols';
+      } else if (isEmail) {
+        aiLoadingSubtitleEl.textContent = 'Trimming whitespace, syntax checking and standardizing lowercase emails';
       } else {
         aiLoadingSubtitleEl.textContent = 'Applying strict cleaning rules & building prefix resolution';
       }
@@ -3927,6 +3971,24 @@ async function triggerGeminiAI() {
         inputPayload = lines;
       }
       results = await window.GeminiService.classifyConstructionWithAI(inputPayload);
+    } else if (isRoofYear) {
+      let inputPayload;
+      const ybVal = roofYearInputYbEl ? roofYearInputYbEl.value : '';
+      const ryVal = roofYearInputRyEl ? roofYearInputRyEl.value : '';
+      if (ybVal.trim() || ryVal.trim()) {
+        inputPayload = {
+          yearBuilt: ybVal.split(/\r\n|\r|\n/),
+          roofYearBuilt: ryVal.split(/\r\n|\r|\n/)
+        };
+      } else {
+        inputPayload = rawText;
+      }
+      results = await window.GeminiService.classifyRoofYearWithAI(inputPayload, {
+        minYear: AppState.yearMin || 1753,
+        maxYear: AppState.yearMax || new Date().getFullYear(),
+        ruleMode: AppState.roofYearRuleMode || 'roof_ge_yb',
+        removeEmptyLines: AppState.roofYearRemoveEmpty
+      });
     } else if (isRoof) {
       results = await window.GeminiService.classifyRoofWithAI(lines, {
         format: AppState.roofFormat || 'code_only'
@@ -3941,6 +4003,19 @@ async function triggerGeminiAI() {
         maxYear: AppState.yearMax || new Date().getFullYear(),
         removeEmptyLines: AppState.yearRemoveEmpty
       });
+    } else if (isStores) {
+      results = await window.GeminiService.cleanStoresWithAI(lines, {
+        roundUpDecimals: AppState.storesRoundUp !== false,
+        pickMax: AppState.storesPickMax !== false,
+        alwaysPositive: AppState.storesPositive !== false,
+        removeEmptyLines: AppState.storesRemoveEmpty
+      });
+    } else if (isName) {
+      results = await window.GeminiService.cleanNamesWithAI(lines);
+    } else if (isPhone) {
+      results = await window.GeminiService.cleanPhonesWithAI(lines);
+    } else if (isEmail) {
+      results = await window.GeminiService.cleanEmailsWithAI(lines);
     } else {
       results = await window.GeminiService.cleanStreetsWithAI(lines, {
         casing: AppState.casing
@@ -3951,10 +4026,10 @@ async function triggerGeminiAI() {
     updateCodeFilterDropdown(results);
     refreshOutputView();
 
-    showToast(`✨ Successfully processed ${results.length} rows with Gemini 2.5 Flash!`, '🤖');
+    showToast(`✨ Successfully processed ${results.length} rows with ${pInfo.name} (${modelInfo.label})!`, '🤖');
   } catch (err) {
-    console.error('Gemini error:', err);
-    showToast(`Gemini error: ${err.message}`, '❌');
+    console.error('AI Processing error:', err);
+    showToast(`AI error: ${err.message}`, '❌');
   } finally {
     if (aiLoadingOverlayEl) {
       aiLoadingOverlayEl.style.display = 'none';
@@ -4144,6 +4219,17 @@ function initCodeFinderUI() {
     });
   }
 
+  const btnModalDetailEdit = document.getElementById('btn-modal-detail-edit');
+  if (btnModalDetailEdit) {
+    btnModalDetailEdit.addEventListener('click', () => {
+      if (currentDetailItem) {
+        const item = currentDetailItem;
+        closeDetailModal();
+        openCodeEditor(currentExplorerTab, item, false);
+      }
+    });
+  }
+
   if (btnDetailCopy) {
     btnDetailCopy.addEventListener('click', () => {
       if (currentDetailItem) {
@@ -4157,6 +4243,258 @@ function initCodeFinderUI() {
       if (currentDetailItem) {
         insertItemIntoEditor(currentDetailItem);
         closeDetailModal();
+      }
+    });
+  }
+
+  // 3b. Setup Custom Code Database Editor Modal
+  const editorModal = document.getElementById('code-editor-modal');
+  const formCodeEditor = document.getElementById('form-code-editor');
+  const btnCloseCodeEditor = document.getElementById('btn-close-code-editor');
+  const btnCloseCodeEditorFooter = document.getElementById('btn-close-code-editor-footer');
+  const btnSaveCodeEditor = document.getElementById('btn-save-code-editor');
+  const btnEditorResetCode = document.getElementById('btn-editor-reset-code');
+  const btnEditorDeleteCode = document.getElementById('btn-editor-delete-code');
+
+  const editorSectionInput = document.getElementById('editor-section');
+  const editorIsNewInput = document.getElementById('editor-is-new');
+  const editorCodeInput = document.getElementById('editor-code-input');
+  const editorCategoryInput = document.getElementById('editor-category-input');
+  const editorGroupInput = document.getElementById('editor-group-input');
+  const editorDescInput = document.getElementById('editor-desc-input');
+  const editorKeywordsInput = document.getElementById('editor-keywords-input');
+  const editorModalTitle = document.getElementById('code-editor-modal-title');
+  const editorAlertBox = document.getElementById('editor-alert-box');
+
+  function openCodeEditor(section = 'occupancy', item = null, isNew = false) {
+    if (!editorModal) return;
+    const sec = (section === 'construction') ? 'construction' : 'occupancy';
+    if (editorSectionInput) editorSectionInput.value = sec;
+    if (editorIsNewInput) editorIsNewInput.value = isNew ? 'true' : 'false';
+
+    if (editorAlertBox) {
+      editorAlertBox.style.display = 'none';
+      editorAlertBox.textContent = '';
+    }
+
+    if (isNew || !item) {
+      if (editorModalTitle) editorModalTitle.textContent = `➕ Add New ${sec === 'construction' ? 'Construction' : 'Occupancy'} Code`;
+      if (editorCodeInput) {
+        editorCodeInput.value = '';
+        editorCodeInput.removeAttribute('readonly');
+      }
+      if (editorCategoryInput) editorCategoryInput.value = '';
+      if (editorGroupInput) editorGroupInput.value = '';
+      if (editorDescInput) editorDescInput.value = '';
+      if (editorKeywordsInput) editorKeywordsInput.value = '';
+      if (btnEditorResetCode) btnEditorResetCode.style.display = 'none';
+      if (btnEditorDeleteCode) btnEditorDeleteCode.style.display = 'none';
+    } else {
+      if (editorModalTitle) editorModalTitle.textContent = `✏️ Edit ${sec === 'construction' ? 'Construction' : 'Occupancy'} Code ${item.code}`;
+      if (editorCodeInput) {
+        editorCodeInput.value = item.code || '';
+        editorCodeInput.setAttribute('readonly', 'true');
+      }
+      if (editorCategoryInput) editorCategoryInput.value = item.category || item.name || '';
+      if (editorGroupInput) editorGroupInput.value = item.group || item.subSection || '';
+      if (editorDescInput) editorDescInput.value = item.description || '';
+      if (editorKeywordsInput) {
+        editorKeywordsInput.value = Array.isArray(item.keywords) ? item.keywords.join(', ') : (item.keywords || '');
+      }
+
+      if (item.isCustom) {
+        if (btnEditorResetCode) btnEditorResetCode.style.display = 'none';
+        if (btnEditorDeleteCode) btnEditorDeleteCode.style.display = 'inline-block';
+      } else if (item.isModified) {
+        if (btnEditorResetCode) btnEditorResetCode.style.display = 'inline-block';
+        if (btnEditorDeleteCode) btnEditorDeleteCode.style.display = 'none';
+      } else {
+        if (btnEditorResetCode) btnEditorResetCode.style.display = 'none';
+        if (btnEditorDeleteCode) btnEditorDeleteCode.style.display = 'none';
+      }
+    }
+
+    editorModal.style.display = 'flex';
+    setTimeout(() => {
+      if (isNew && editorCodeInput) {
+        editorCodeInput.focus();
+      } else if (editorCategoryInput) {
+        editorCategoryInput.focus();
+      }
+    }, 80);
+  }
+
+  function closeCodeEditor() {
+    if (editorModal) editorModal.style.display = 'none';
+  }
+
+  function handleSaveCodeEditor() {
+    const sec = editorSectionInput ? editorSectionInput.value : 'occupancy';
+    const code = (editorCodeInput ? editorCodeInput.value : '').trim();
+    const category = (editorCategoryInput ? editorCategoryInput.value : '').trim();
+    const group = (editorGroupInput ? editorGroupInput.value : '').trim();
+    const description = (editorDescInput ? editorDescInput.value : '').trim();
+    const keywords = (editorKeywordsInput ? editorKeywordsInput.value : '').trim();
+
+    if (!code) {
+      alert('Please enter a valid code identifier (e.g. 399, 113).');
+      if (editorCodeInput) editorCodeInput.focus();
+      return;
+    }
+    if (!category) {
+      alert('Please enter a category / classification name.');
+      if (editorCategoryInput) editorCategoryInput.focus();
+      return;
+    }
+
+    if (window.CustomCodesDB) {
+      window.CustomCodesDB.saveCode(sec, code, {
+        category,
+        group,
+        description,
+        keywords
+      });
+    }
+
+    if (window.CodeFinder) {
+      window.CodeFinder.clearCache();
+    }
+
+    closeCodeEditor();
+    renderExplorerCards();
+    showToast(`Saved Code ${code} (${category}) to Database!`, '💾');
+
+    // Trigger re-clean if active tab matches
+    if (typeof processCleaning === 'function') {
+      processCleaning();
+    }
+  }
+
+  if (btnSaveCodeEditor) {
+    btnSaveCodeEditor.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleSaveCodeEditor();
+    });
+  }
+
+  if (formCodeEditor) {
+    formCodeEditor.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleSaveCodeEditor();
+    });
+  }
+
+  if (btnCloseCodeEditor) btnCloseCodeEditor.addEventListener('click', closeCodeEditor);
+  if (btnCloseCodeEditorFooter) btnCloseCodeEditorFooter.addEventListener('click', closeCodeEditor);
+
+  if (editorModal) {
+    editorModal.addEventListener('click', (e) => {
+      if (e.target === editorModal) closeCodeEditor();
+    });
+  }
+
+  if (btnEditorResetCode) {
+    btnEditorResetCode.addEventListener('click', () => {
+      const sec = editorSectionInput ? editorSectionInput.value : 'occupancy';
+      const code = (editorCodeInput ? editorCodeInput.value : '').trim();
+      if (!code) return;
+      if (confirm(`Revert Code ${code} back to standard Touchstone UNICEDE® defaults?`)) {
+        if (window.CustomCodesDB) window.CustomCodesDB.resetCode(sec, code);
+        if (window.CodeFinder) window.CodeFinder.clearCache();
+        closeCodeEditor();
+        renderExplorerCards();
+        showToast(`Reverted Code ${code} to factory default.`, '🔄');
+        if (typeof processCleaning === 'function') processCleaning();
+      }
+    });
+  }
+
+  if (btnEditorDeleteCode) {
+    btnEditorDeleteCode.addEventListener('click', () => {
+      const sec = editorSectionInput ? editorSectionInput.value : 'occupancy';
+      const code = (editorCodeInput ? editorCodeInput.value : '').trim();
+      if (!code) return;
+      if (confirm(`Delete custom Code ${code} from your database?`)) {
+        if (window.CustomCodesDB) window.CustomCodesDB.deleteCode(sec, code);
+        if (window.CodeFinder) window.CodeFinder.clearCache();
+        closeCodeEditor();
+        renderExplorerCards();
+        showToast(`Deleted custom Code ${code}.`, '🗑️');
+        if (typeof processCleaning === 'function') processCleaning();
+      }
+    });
+  }
+
+  // 3c. Setup Database Toolbar Actions (Add, Export, Import, Reset All)
+  const btnDbAddCode = document.getElementById('btn-db-add-code');
+  const btnDbExport = document.getElementById('btn-db-export-json');
+  const inputDbImport = document.getElementById('input-db-import-file');
+  const btnDbResetAll = document.getElementById('btn-db-reset-all');
+
+  if (btnDbAddCode) {
+    btnDbAddCode.addEventListener('click', () => {
+      openCodeEditor(currentExplorerTab, null, true);
+    });
+  }
+
+  document.querySelectorAll('.btn-open-add-code').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const tab = btn.getAttribute('data-tab') || 'occupancy';
+      openExplorer(tab);
+      openCodeEditor(tab, null, true);
+    });
+  });
+
+  if (btnDbExport) {
+    btnDbExport.addEventListener('click', () => {
+      if (!window.CustomCodesDB) return;
+      const jsonStr = window.CustomCodesDB.exportCompleteMasterJSON(true);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `CleanExcel_Underwriting_Taxonomy_DB_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Database exported successfully as JSON file!', '📥');
+    });
+  }
+
+  if (inputDbImport) {
+    inputDbImport.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const content = evt.target.result;
+          if (window.CustomCodesDB) {
+            const res = window.CustomCodesDB.importDatabaseJSON(content);
+            if (window.CodeFinder) window.CodeFinder.clearCache();
+            renderExplorerCards();
+            showToast(`Imported ${res.count} custom classifications successfully!`, '📂');
+            if (typeof processCleaning === 'function') processCleaning();
+          }
+        } catch (err) {
+          alert('Failed to import database JSON: ' + err.message);
+        }
+        inputDbImport.value = '';
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  if (btnDbResetAll) {
+    btnDbResetAll.addEventListener('click', () => {
+      if (confirm('Are you sure you want to reset all custom codes and edits back to factory Touchstone UNICEDE defaults?')) {
+        if (window.CustomCodesDB) window.CustomCodesDB.resetAll();
+        if (window.CodeFinder) window.CodeFinder.clearCache();
+        renderExplorerCards();
+        showToast('Reset database to standard Touchstone UNICEDE defaults.', '🔄');
+        if (typeof processCleaning === 'function') processCleaning();
       }
     });
   }
@@ -4394,7 +4732,8 @@ function initCodeFinderUI() {
           insertItemIntoEditor(item);
           closeExplorer();
         },
-        onDetails: () => openDetailModal(item)
+        onDetails: () => openDetailModal(item),
+        onEdit: () => openCodeEditor(currentExplorerTab, item, false)
       });
       grid.appendChild(card);
     });
@@ -4423,7 +4762,8 @@ function initCodeFinderUI() {
       const card = createFinderResultCard(item, sec, query, {
         onCopy: () => copyCodeToClipboard(item.code),
         onInsert: () => insertItemIntoEditor(item),
-        onDetails: () => openDetailModal(item)
+        onDetails: () => openDetailModal(item),
+        onEdit: () => openCodeEditor(sec, item, false)
       });
       container.appendChild(card);
     });
@@ -4438,6 +4778,18 @@ function initCodeFinderUI() {
     const desc = item.description || '';
     const highlightedTitle = highlightMatch(title, query);
     const highlightedDesc = highlightMatch(desc, query);
+
+    let badgeHtml = '';
+    if (item.isCustom) {
+      badgeHtml = `<span class="finder-badge-custom">Custom</span>`;
+    } else if (item.isModified) {
+      badgeHtml = `<span class="finder-badge-modified">Edited</span>`;
+    }
+
+    let editBtnHtml = '';
+    if (sec === 'occupancy' || sec === 'construction') {
+      editBtnHtml = `<button type="button" class="finder-btn-action finder-btn-edit" title="Edit this code description or keywords">✏️ Edit</button>`;
+    }
 
     let ruleAlertHtml = '';
     if (item.rules && item.rules.length > 0) {
@@ -4455,7 +4807,10 @@ function initCodeFinderUI() {
 
     card.innerHTML = `
       <div class="finder-card-header">
-        <span class="finder-code-badge">${escapeHtml(item.code)}</span>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span class="finder-code-badge">${escapeHtml(item.code)}</span>
+          ${badgeHtml}
+        </div>
         <span class="finder-group-tag">${escapeHtml(group)}</span>
       </div>
       <div class="finder-card-title">${highlightedTitle}</div>
@@ -4463,11 +4818,20 @@ function initCodeFinderUI() {
       <div class="finder-card-desc">${highlightedDesc}</div>
       ${keywordsHtml}
       <div class="finder-card-actions">
+        ${editBtnHtml}
         <button type="button" class="finder-btn-action finder-btn-details">📖 Details</button>
         <button type="button" class="finder-btn-action finder-btn-copy">📋 Copy Code</button>
         <button type="button" class="finder-btn-action finder-btn-insert">➕ Insert</button>
       </div>
     `;
+
+    const editBtn = card.querySelector('.finder-btn-edit');
+    if (editBtn) {
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        handlers.onEdit && handlers.onEdit();
+      });
+    }
 
     card.querySelector('.finder-btn-copy').addEventListener('click', (e) => {
       e.stopPropagation();

@@ -820,6 +820,9 @@ const AddressSplitter = {
  */
 const OccupancyClassifier = {
   get CODES() {
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.getMergedOccupancy) {
+      return CustomCodesDB.getMergedOccupancy();
+    }
     const td = _resolveTouchstoneData();
     return (td && td.OCCUPANCY) || {};
   },
@@ -833,6 +836,8 @@ const OccupancyClassifier = {
     { code: "342", patterns: [/church/i, /sanctuary/i, /chapel/i, /synagogue/i, /mosque/i, /temple/i, /religious/i, /cathedral/i, /house of worship/i, /parish/i, /ministry/i, /rectory/i, /diocese/i, /monastery/i, /seminary/i, /basilica/i, /pastoral/i, /crossings/i] },
     // Education & Schools
     { code: "346", patterns: [/school/i, /elementary/i, /middle school/i, /high school/i, /college/i, /university/i, /academy/i, /daycare/i, /pre-school/i, /kindergarten/i, /campus/i, /mullen academy/i] },
+    // Single unit residential / Permanent general residential
+    { code: "301", patterns: [/1\s*unit/i, /single\s*unit/i, /1\s*family\s*apartment/i, /one\s*unit/i, /1\s*apt\b/i, /1\s*bldg/i, /1\s*building/i, /single\s*dwelling/i] },
     // Group Institutional Housing: Nursing homes, Assisted Living, Extended Care, Dorms
     { code: "305", patterns: [/nursing home/i, /nurs(?:ing)? ctr/i, /nursing care/i, /convalescent/i, /extended care/i, /assisted living/i, /independent living/i, /senior living/i, /retirement home/i, /group home/i, /dormitory/i, /\bdorm\b/i, /residence hall/i, /motherhouse/i, /mother house/i, /convent/i, /rest home/i, /elderly care/i] },
     // Healthcare / Medical
@@ -855,8 +860,8 @@ const OccupancyClassifier = {
     { code: "315", patterns: [/office/i, /\bbank\b/i, /financial/i, /professional/i, /corporate/i, /law firm/i, /accounting/i, /insurance agency/i, /consulting/i, /admin office/i] },
     // Entertainment
     { code: "317", patterns: [/theater/i, /theatre/i, /cinema/i, /gymnasium/i, /\bgym\b/i, /fitness/i, /bowling/i, /arena/i, /stadium/i, /amusement/i, /arcade/i, /skating rink/i] },
-    // Parking
-    { code: "318", patterns: [/parking garage/i, /parking structure/i, /parking deck/i, /parking ramp/i] },
+    // Parking / Garages
+    { code: "318", patterns: [/\bgarages?\b/i, /parking/i, /parking garage/i, /parking structure/i, /parking deck/i, /parking ramp/i, /car park/i, /multilevel parking/i, /parking facility/i] },
     // Golf
     { code: "319", patterns: [/golf course/i, /clubhouse/i, /country club/i] },
     // High Tech
@@ -875,8 +880,11 @@ const OccupancyClassifier = {
     { code: "343", patterns: [/government/i, /city hall/i, /courthouse/i, /municipal/i, /post office/i, /civic center/i] },
     // Transport
     { code: "353", patterns: [/airport/i, /air terminal/i, /aviation/i] },
+    // Transport - Sea Ports / Docks / Harbors
     { code: "354", patterns: [/port\b/i, /marine terminal/i, /dock/i, /harbor/i, /wharf/i] },
+    // Aviation Hangar
     { code: "355", patterns: [/hangar/i, /aircraft hangar/i] },
+    // Rail
     { code: "352", patterns: [/railroad/i, /railway/i, /train station/i, /rail depot/i] },
     // Utilities
     { code: "364", patterns: [/power plant/i, /generating station/i, /substation/i, /electric utility/i] },
@@ -886,12 +894,125 @@ const OccupancyClassifier = {
     { code: "3001", patterns: [/solar farm/i, /solar array/i, /photovoltaic/i, /solar park/i] }
   ],
 
+  /**
+   * Resolves Apartment / Residential Unit count rule:
+   * - 1 unit / 1 bldg ➔ 301 (Permanent Dwelling: General Residential / 1 Unit)
+   * - 2, 3, 4 units / 2-4 family ➔ 303 (Permanent Dwelling: Multi Family 2-4 Units)
+   * - >= 5 units / apartment complex ➔ 306 (Apartments / Condominiums 5+ Units)
+   */
+  resolveApartmentUnits(text, otherCells = []) {
+    if (!text && (!otherCells || otherCells.length === 0)) return null;
+    const combined = [text, ...(Array.isArray(otherCells) ? otherCells : [])].filter(Boolean).join(' ');
+    if (!combined) return null;
+
+    const isApartmentOrResidential = /\b(?:apartment|apartments|apt|apts|condo|condos|condominium|condominiums|residential|living\s*units?|flats?|multi-?family|dwelling)\b/i.test(combined);
+    if (!isApartmentOrResidential) return null;
+
+    const allTokens = [text, ...(Array.isArray(otherCells) ? otherCells : [])].filter(Boolean);
+    let unitCount = null;
+
+    for (const token of allTokens) {
+      const trimmed = String(token).trim();
+
+      // Direct whole number in a cell (e.g. "1", "2", "3", "4", "5", "12", "24")
+      if (/^\d+$/.test(trimmed)) {
+        const num = parseInt(trimmed, 10);
+        if (num >= 1 && num <= 10000) {
+          unitCount = num;
+          break;
+        }
+      }
+
+      // Explicit patterns: "1 unit", "3 units", "4 bldg", "1 building", "2 apts", "1 family", "2-4 units", "5+ units"
+      const unitMatch = trimmed.match(/\b(\d+)\s*(?:units?|living\s*units?|apts?|apartments?|bldgs?|buildings?|families|family|flats?)\b/i);
+      if (unitMatch) {
+        unitCount = parseInt(unitMatch[1], 10);
+        break;
+      }
+
+      const reverseMatch = trimmed.match(/\b(?:units?|living\s*units?|apts?|bldgs?|buildings?|flats?)\s*[:#\-]?\s*(\d+)\b/i);
+      if (reverseMatch) {
+        unitCount = parseInt(reverseMatch[1], 10);
+        break;
+      }
+
+      if (/\b(?:single|one)\s*(?:unit|family|building|bldg|apt)\b/i.test(trimmed)) {
+        unitCount = 1;
+        break;
+      }
+      if (/\b(?:two)\s*(?:units?|families|buildings?|bldgs?|apts?)\b/i.test(trimmed)) {
+        unitCount = 2;
+        break;
+      }
+      if (/\b(?:three)\s*(?:units?|families|buildings?|bldgs?|apts?)\b/i.test(trimmed)) {
+        unitCount = 3;
+        break;
+      }
+      if (/\b(?:four)\s*(?:units?|families|buildings?|bldgs?|apts?)\b/i.test(trimmed)) {
+        unitCount = 4;
+        break;
+      }
+      if (/\b(?:five)\s*(?:units?|families|buildings?|bldgs?|apts?)\b/i.test(trimmed)) {
+        unitCount = 5;
+        break;
+      }
+      if (/\b2\s*-\s*4\s*units?\b/i.test(trimmed)) {
+        unitCount = 3;
+        break;
+      }
+      if (/\b5\s*\+\s*units?\b/i.test(trimmed)) {
+        unitCount = 5;
+        break;
+      }
+    }
+
+    if (unitCount !== null) {
+      if (unitCount === 1) {
+        return "301";
+      } else if (unitCount >= 2 && unitCount <= 4) {
+        return "303";
+      } else if (unitCount >= 5) {
+        return "306";
+      }
+    }
+
+    return null;
+  },
+
   matchTextToCode(text) {
     if (!text) return null;
+    const cleanText = String(text).trim();
+    if (!cleanText) return null;
+
+    // 1. Check custom user-defined keywords with top priority
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.getCustomKeywords) {
+      const customRules = CustomCodesDB.getCustomKeywords('occupancy');
+      for (let i = 0; i < customRules.length; i++) {
+        const cr = customRules[i];
+        if (cr.keywords && Array.isArray(cr.keywords)) {
+          for (let j = 0; j < cr.keywords.length; j++) {
+            const kw = cr.keywords[j];
+            if (kw) {
+              const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              const pat = new RegExp(`\\b${escaped}\\b`, 'i');
+              if (pat.test(cleanText) || cleanText.toLowerCase().includes(kw.toLowerCase())) {
+                return cr.code;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Check Apartment / Residential Unit count rule
+    const aptUnitCode = this.resolveApartmentUnits(cleanText);
+    if (aptUnitCode) return aptUnitCode;
+
+    // 3. Built-in pattern rules
     for (let i = 0; i < this.RULES.length; i++) {
       const r = this.RULES[i];
       for (let j = 0; j < r.patterns.length; j++) {
-        if (r.patterns[j].test(text)) {
+        if (r.patterns[j].test(cleanText)) {
           return r.code;
         }
       }
@@ -961,65 +1082,126 @@ const OccupancyClassifier = {
   },
 
   /**
-   * Compares 3 data fields and classifies into Touchstone UNICEDE Occupancy Code
+   * Compares multi-column inputs and classifies into Touchstone UNICEDE Occupancy Code
+   * Strict Priority Order: Column 1 (1st priority) ➔ Column 2 (2nd priority) ➔ Column 3 (3rd priority) ➔ Extras
    */
-  classifyRow(existingCode, bldgDesc, occDesc, extraDescs = []) {
-    const ex = String(existingCode || '').trim();
-    const bldg = String(bldgDesc || '').trim();
-    const occ = String(occDesc || '').trim();
+  classifyRow(col1, col2, col3, extraDescs = []) {
+    const c1 = String(col1 || '').trim();
+    const c2 = String(col2 || '').trim();
+    const c3 = String(col3 || '').trim();
     const extras = Array.isArray(extraDescs) ? extraDescs.map(e => String(e || '').trim()) : [];
 
-    // If occDesc has multiple components separated by semicolon (e.g. "NURSING HOME (97%); CHURCH (2%)"),
-    // the dominant/primary occupancy is the first part!
-    let primaryOcc = occ;
-    if (occ.includes(';')) {
-      primaryOcc = occ.split(';')[0].trim();
+    const isAllBlank = !c1 && !c2 && !c3 && extras.every(e => !e);
+    if (isAllBlank) {
+      return {
+        col1: '', col2: '', col3: '',
+        existingCode: '', bldgDesc: '', occDesc: '',
+        occCode: '',
+        category: '',
+        status: 'blank',
+        statusText: 'Blank',
+        comparisonStatus: 'blank',
+        comparisonMessage: 'Blank'
+      };
     }
 
-    // Check primary component first: building description or primary occupancy description
-    let matchedCode = this.matchTextToCode(bldg);
-    if (!matchedCode || matchedCode === '300') {
-      matchedCode = this.matchTextToCode(primaryOcc);
+    let matchedCode = null;
+
+    // Helper to evaluate a cell for occupancy classification
+    const evalCell = (cellText) => {
+      if (!cellText || cellText === '—' || cellText === '-' || cellText.toLowerCase() === 'n/a') return null;
+
+      // 1. Direct match on valid known numeric/custom code
+      if (this.CODES[cellText] && cellText !== '300') {
+        return cellText;
+      }
+
+      // 2. Multi-component check (if semicolon separated, test primary first)
+      if (cellText.includes(';')) {
+        const primary = cellText.split(';')[0].trim();
+        const mPrimary = this.matchTextToCode(primary);
+        if (mPrimary && mPrimary !== '300') return mPrimary;
+      }
+
+      // 3. Match text against dictionary & custom rules
+      const m = this.matchTextToCode(cellText);
+      if (m && m !== '300') return m;
+
+      return null;
+    };
+
+    // === Priority 1: Check Column 1 FIRST ===
+    if (c1) {
+      matchedCode = evalCell(c1);
     }
-    // Check extra columns (Col 4, Col 5...)
-    if (!matchedCode || matchedCode === '300') {
-      for (const extra of extras) {
-        if (extra) {
-          const m = this.matchTextToCode(extra);
-          if (m && m !== '300') {
+
+    // === Priority 2: If Col 1 didn't match, check Column 2 ===
+    if (!matchedCode && c2) {
+      matchedCode = evalCell(c2);
+    }
+
+    // === Priority 3: If Col 2 didn't match, check Column 3 ===
+    if (!matchedCode && c3) {
+      matchedCode = evalCell(c3);
+    }
+
+    // === Priority 4: Check Extra Columns (Col 4, Col 5...) sequentially ===
+    if (!matchedCode) {
+      for (let i = 0; i < extras.length; i++) {
+        if (extras[i]) {
+          const m = evalCell(extras[i]);
+          if (m) {
             matchedCode = m;
             break;
           }
         }
       }
     }
-    if (!matchedCode || matchedCode === '300') {
-      const combined = [bldg, occ, ...extras].filter(Boolean).join(' ');
-      matchedCode = this.matchTextToCode(combined);
+
+    // === Priority 5: Fallback to combined text across all populated columns ===
+    if (!matchedCode) {
+      const combined = [c1, c2, c3, ...extras].filter(Boolean).join(' ');
+      if (combined) {
+        const m = this.matchTextToCode(combined);
+        if (m && m !== '300') {
+          matchedCode = m;
+        }
+      }
     }
 
-    // Fallback: If nothing matched but an existing code was present and valid in Touchstone schema
-    if ((!matchedCode || matchedCode === '300') && ex && this.CODES[ex] && ex !== '300') {
-      matchedCode = ex;
+    // === Check Cross-Column Apartment & Unit Count Rule ===
+    // If the row is an apartment / residential dwelling, unit count across any column refines the code:
+    // 1 unit ➔ 301, 2-4 units ➔ 303, >=5 units ➔ 306
+    const aptCrossColCode = this.resolveApartmentUnits(c1, [c2, c3, ...extras]);
+    if (aptCrossColCode) {
+      const isExplicitNonResCode = c1 && /^\d{3,4}$/.test(c1) && !['300', '301', '302', '303', '306'].includes(c1);
+      if (!isExplicitNonResCode) {
+        matchedCode = aptCrossColCode;
+      }
+    }
+
+    // If still no match and Col 1 was an explicit code (even 300)
+    if (!matchedCode && c1 && this.CODES[c1]) {
+      matchedCode = c1;
     }
 
     matchedCode = matchedCode || '300';
     const info = this.CODES[matchedCode] || { code: matchedCode, category: 'Unknown occupancy' };
 
-    // Determine comparison status with existing code
+    // Determine comparison status with Col 1 if Col 1 was numeric code
     let statusKey = 'assigned';
-    let statusText = 'Assigned';
+    let statusText = `Assigned (${matchedCode})`;
 
-    if (ex) {
-      if (ex === matchedCode) {
+    if (c1 && /^\d{3,4}$/.test(c1)) {
+      if (c1 === matchedCode) {
         statusKey = 'match';
         statusText = `✓ Confirmed (${matchedCode})`;
-      } else if (ex === '300' && matchedCode !== '300') {
+      } else if (c1 === '300' && matchedCode !== '300') {
         statusKey = 'upgraded';
         statusText = `✨ Resolved (300 ➔ ${matchedCode})`;
       } else {
         statusKey = 'mismatch';
-        statusText = `⚠️ Review (${ex} ➔ ${matchedCode})`;
+        statusText = `⚠️ Review (${c1} ➔ ${matchedCode})`;
       }
     } else {
       statusKey = 'assigned';
@@ -1027,9 +1209,12 @@ const OccupancyClassifier = {
     }
 
     return {
-      existingCode: ex,
-      bldgDesc: bldg,
-      occDesc: occ,
+      col1: c1,
+      col2: c2,
+      col3: c3,
+      existingCode: c1,
+      bldgDesc: c2,
+      occDesc: c3,
       occCode: info.code,
       category: info.category,
       status: statusKey,
@@ -1131,6 +1316,9 @@ const OccupancyClassifier = {
  */
 const ConstructionClassifier = {
   get CODES() {
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.getMergedConstruction) {
+      return CustomCodesDB.getMergedConstruction();
+    }
     const td = _resolveTouchstoneData();
     return (td && td.CONSTRUCTION) || {};
   },
@@ -1271,9 +1459,29 @@ const ConstructionClassifier = {
     const clean = text.trim();
     if (!clean || clean === '—' || clean === '-' || clean.toLowerCase() === 'n/a') return null;
 
-    // Direct exact match on known valid numeric code (except 100 unless explicit)
+    // Direct exact match on known valid numeric or custom code (except 100 unless explicit)
     if (this.CODES[clean]) {
       return clean;
+    }
+
+    // Check custom user-defined keywords with top priority
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.getCustomKeywords) {
+      const customRules = CustomCodesDB.getCustomKeywords('construction');
+      for (let i = 0; i < customRules.length; i++) {
+        const cr = customRules[i];
+        if (cr.keywords && Array.isArray(cr.keywords)) {
+          for (let j = 0; j < cr.keywords.length; j++) {
+            const kw = cr.keywords[j];
+            if (kw) {
+              const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+              const pat = new RegExp(`\\b${escaped}\\b`, 'i');
+              if (pat.test(clean) || clean.toLowerCase().includes(kw.toLowerCase())) {
+                return cr.code;
+              }
+            }
+          }
+        }
+      }
     }
 
     // Strip out all percentages before any numeric code matching
@@ -1313,6 +1521,106 @@ const ConstructionClassifier = {
     }
 
     return null;
+  },
+
+  /**
+   * Evaluates Wood Construction Underwriting Rule (Stories & Year Built):
+   * 1. If Construction is Wood:
+   *    - Stories <= 4 (or less than 4 or 4) ➔ Code 101 (Wood Frame Modern)
+   *    - Stories > 4 and <= 7 (between 5 and 7):
+   *        - If Year Built > 2005 ➔ Code 101 (Wood Frame Modern)
+   *        - If Year Built <= 2005 (or missing) ➔ BLANK ("")
+   *    - Stories >= 8 (8 or greater) ➔ BLANK ("")
+   */
+  evaluateWoodConstructionRules(matchedCode, allCells = []) {
+    const combined = allCells.filter(Boolean).join(' ');
+    const isWoodCode = ['101', '102', '103', '104', '107', '108'].includes(matchedCode);
+    const hasWoodText = /\b(?:wood|timber|wood\s*frame|stick\s*built|wood\s*stud|plywood)\b/i.test(combined);
+    const isWood = isWoodCode || (matchedCode === '100' && hasWoodText);
+    if (!isWood) return null;
+
+    let stories = null;
+    let yearBuilt = null;
+
+    for (const cell of allCells) {
+      if (!cell) continue;
+      const str = String(cell).trim();
+
+      // Look for explicit story patterns: "4 stories", "10 floors", "8 st", "3 story", "10-story"
+      const storyMatch = str.match(/\b(\d+(?:\.\d+)?)\s*(?:stories|story|floors?|flrs?|stry|st)\b/i);
+      if (storyMatch) {
+        stories = parseFloat(storyMatch[1]);
+      } else if (/^\d{1,2}(?:\.\d+)?$/.test(str)) {
+        const num = parseFloat(str);
+        if (num >= 1 && num <= 80 && !this.CODES[str]) {
+          stories = num;
+        }
+      }
+
+      // Look for 4-digit Year Built (1753 - 2026)
+      const yearMatches = str.match(/\b(1[7-9]\d{2}|20[0-2]\d)\b/g);
+      if (yearMatches && yearMatches.length > 0) {
+        const parsedYears = yearMatches.map(y => parseInt(y, 10)).filter(y => y >= 1753 && y <= 2026);
+        if (parsedYears.length > 0) {
+          // Resolve multi-year to oldest year as per underwriting rules
+          yearBuilt = Math.min(...parsedYears);
+        }
+      }
+    }
+
+    // 1. Stories >= 8 ➔ Invalid for Wood Frame ➔ BLANK
+    if (stories !== null && stories >= 8) {
+      return {
+        code: '',
+        category: '',
+        status: 'invalid',
+        statusText: '⚠️ Wood Frame ≥ 8 Stories → Blank',
+        comparisonMessage: `⚠️ Wood Frame ≥ 8 Stories (${stories} stories) → Blank`
+      };
+    }
+
+    // 2. Stories <= 4 ➔ Direct Code 101 (Wood Frame Modern)
+    if (stories !== null && stories <= 4) {
+      return {
+        code: '101',
+        category: 'Wood Frame (Modern)',
+        status: 'assigned',
+        statusText: '✨ Wood Frame (≤ 4 Stories)',
+        comparisonMessage: `✓ Wood Frame (${stories} stories ≤ 4)`
+      };
+    }
+
+    // 3. Stories > 4 and <= 7 (between 5 and 7 stories): requires Year Built > 2005
+    if (stories !== null && stories > 4 && stories <= 7) {
+      if (yearBuilt !== null && yearBuilt > 2005) {
+        return {
+          code: '101',
+          category: 'Wood Frame (Modern)',
+          status: 'assigned',
+          statusText: `✨ Wood Frame ${stories} St (> 2005)`,
+          comparisonMessage: `✓ Wood Frame ${stories} Stories Built ${yearBuilt} (> 2005)`
+        };
+      } else {
+        // Year Built <= 2005 or missing ➔ BLANK
+        const reason = yearBuilt !== null ? `Built ${yearBuilt} (≤ 2005)` : `Missing YB > 2005`;
+        return {
+          code: '',
+          category: '',
+          status: 'invalid',
+          statusText: `⚠️ Wood ${stories} St (${reason}) → Blank`,
+          comparisonMessage: `⚠️ Wood Frame ${stories} Stories (${reason}) → Blank`
+        };
+      }
+    }
+
+    // 4. Default if stories not specified: if Year Built provided and > 2005 or standard wood -> 101
+    return {
+      code: '101',
+      category: 'Wood Frame (Modern)',
+      status: 'assigned',
+      statusText: '✨ Assigned (101)',
+      comparisonMessage: '✓ Wood Frame (Modern)'
+    };
   },
 
   parsePercentageComponents(text) {
@@ -1420,75 +1728,122 @@ const ConstructionClassifier = {
     return { existingCode: '', bldgDesc: '', conDesc: text };
   },
 
-  classifyRow(existingCode, bldgDesc, conDesc, extraDescs = []) {
-    let ex = String(existingCode || '').trim();
-    if (ex === '—' || ex === '-' || ex.toLowerCase() === 'n/a') ex = '';
-    const bldg = String(bldgDesc || '').trim();
-    const con = String(conDesc || '').trim();
+  /**
+   * Compares multi-column inputs and classifies into Touchstone UNICEDE Construction Code
+   * Strict Priority Order: Column 1 (1st priority) ➔ Column 2 (2nd priority) ➔ Column 3 (3rd priority) ➔ Extras
+   */
+  classifyRow(col1, col2, col3, extraDescs = []) {
+    let c1 = String(col1 || '').trim();
+    if (c1 === '—' || c1 === '-' || c1.toLowerCase() === 'n/a') c1 = '';
+    let c2 = String(col2 || '').trim();
+    if (c2 === '—' || c2 === '-' || c2.toLowerCase() === 'n/a') c2 = '';
+    let c3 = String(col3 || '').trim();
+    if (c3 === '—' || c3 === '-' || c3.toLowerCase() === 'n/a') c3 = '';
     const extras = Array.isArray(extraDescs) ? extraDescs.map(e => String(e || '').trim()) : [];
 
-    // Gather percentage components across all description columns (Col 2, Col 3, Col 4, Col 5...)
-    const descCols = [bldg, con, ...extras].filter(Boolean);
-    let allComponents = [];
-    descCols.forEach(colText => {
-      const comps = this.parsePercentageComponents(colText);
-      allComponents = allComponents.concat(comps);
-    });
+    const isAllBlank = !c1 && !c2 && !c3 && extras.every(e => !e);
+    if (isAllBlank) {
+      return {
+        col1: '', col2: '', col3: '',
+        existingCode: '', bldgDesc: '', conDesc: '',
+        conCode: '',
+        category: '',
+        status: 'blank',
+        statusText: 'Blank',
+        comparisonStatus: 'blank',
+        comparisonMessage: 'Blank'
+      };
+    }
 
-    const validPctComps = allComponents.filter(c => c && c.percent !== null);
-    validPctComps.sort((a, b) => b.percent - a.percent);
+    let matchedCode = null;
 
-    let dominantText = '';
-    let secondaryText = '';
+    // Helper to evaluate a cell for construction classification (handles percentages & rules)
+    const evalCell = (cellText) => {
+      if (!cellText || cellText === '—' || cellText === '-' || cellText.toLowerCase() === 'n/a') return null;
 
-    if (validPctComps.length > 0) {
-      dominantText = validPctComps[0].text;
-      if (validPctComps.length > 1) {
-        secondaryText = validPctComps[1].text;
+      // 1. Direct match on valid known numeric/custom code
+      if (this.CODES[cellText] && cellText !== '100') {
+        return cellText;
       }
-    } else {
-      // Neither column specifies percentages: check Col 3 first, then Col 2, then extras
-      dominantText = con || bldg || (extras[0] || '');
-      secondaryText = bldg || con;
-    }
 
-    // A. Match dominant description first
-    let matchedCode = dominantText ? this.matchTextToCode(dominantText) : null;
-
-    // B. If dominant description didn't resolve to a known code, try secondary description
-    if (!matchedCode || matchedCode === '100') {
-      if (secondaryText && secondaryText !== dominantText) {
-        matchedCode = this.matchTextToCode(secondaryText);
+      // 2. Check if percentage components exist in this cell
+      const pctComps = this.parsePercentageComponents(cellText).filter(c => c && c.percent !== null);
+      if (pctComps.length > 0) {
+        pctComps.sort((a, b) => b.percent - a.percent);
+        const top = pctComps[0].text;
+        const mTop = this.matchTextToCode(top);
+        if (mTop && mTop !== '100') return mTop;
       }
+
+      // 3. Match text against dictionary & rules
+      const m = this.matchTextToCode(cellText);
+      if (m && m !== '100') return m;
+
+      return null;
+    };
+
+    // === Priority 1: Check Column 1 FIRST ===
+    if (c1) {
+      matchedCode = evalCell(c1);
     }
 
-    // C. Try each description column individually
-    if (!matchedCode || matchedCode === '100') {
-      if (con) matchedCode = this.matchTextToCode(con);
+    // === Priority 2: If Col 1 didn't match, check Column 2 ===
+    if (!matchedCode && c2) {
+      matchedCode = evalCell(c2);
     }
-    if (!matchedCode || matchedCode === '100') {
-      if (bldg) matchedCode = this.matchTextToCode(bldg);
+
+    // === Priority 3: If Col 2 didn't match, check Column 3 ===
+    if (!matchedCode && c3) {
+      matchedCode = evalCell(c3);
     }
-    if (!matchedCode || matchedCode === '100') {
-      for (const extra of extras) {
-        if (extra) {
-          const m = this.matchTextToCode(extra);
-          if (m && m !== '100') {
+
+    // === Priority 4: Check Extra Columns (Col 4, Col 5...) sequentially ===
+    if (!matchedCode) {
+      for (let i = 0; i < extras.length; i++) {
+        if (extras[i]) {
+          const m = evalCell(extras[i]);
+          if (m) {
             matchedCode = m;
             break;
           }
         }
       }
     }
-    // D. Try combined descriptions
-    if (!matchedCode || matchedCode === '100') {
-      const combined = [bldg, con, ...extras].filter(Boolean).join(' ');
-      if (combined) matchedCode = this.matchTextToCode(combined);
+
+    // === Priority 5: Fallback to combined text across all populated columns ===
+    if (!matchedCode) {
+      const combined = [c1, c2, c3, ...extras].filter(Boolean).join(' ');
+      if (combined) {
+        const m = this.matchTextToCode(combined);
+        if (m && m !== '100') {
+          matchedCode = m;
+        }
+      }
     }
 
-    // E. Fallback to existing code if descriptions yielded unknown and existing code is valid
-    if ((!matchedCode || matchedCode === '100') && ex && this.CODES[ex] && ex !== '100') {
-      matchedCode = ex;
+    // If still no match and Col 1 was an explicit code (even 100)
+    if (!matchedCode && c1 && this.CODES[c1]) {
+      matchedCode = c1;
+    }
+
+    // === Check Wood Construction Underwriting Rule (Stories & Year Built) ===
+    const woodRuleResult = this.evaluateWoodConstructionRules(matchedCode, [c1, c2, c3, ...extras]);
+    if (woodRuleResult) {
+      return {
+        col1: c1,
+        col2: c2,
+        col3: c3,
+        existingCode: c1,
+        bldgDesc: c2,
+        conDesc: c3,
+        conCode: woodRuleResult.code,
+        category: woodRuleResult.category,
+        group: woodRuleResult.code ? 'Wood construction' : '',
+        status: woodRuleResult.status,
+        statusText: woodRuleResult.statusText,
+        comparisonStatus: woodRuleResult.status,
+        comparisonMessage: woodRuleResult.comparisonMessage
+      };
     }
 
     matchedCode = matchedCode || '100';
@@ -1497,16 +1852,16 @@ const ConstructionClassifier = {
     let statusKey = 'assigned';
     let statusText = 'Assigned';
 
-    if (ex) {
-      if (ex === matchedCode) {
+    if (c1 && /^\d{3,4}$/.test(c1)) {
+      if (c1 === matchedCode) {
         statusKey = 'match';
         statusText = '✓ Confirmed (' + matchedCode + ')';
-      } else if (ex === '100' && matchedCode !== '100') {
+      } else if (c1 === '100' && matchedCode !== '100') {
         statusKey = 'upgraded';
         statusText = '✨ Resolved (100 ➔ ' + matchedCode + ')';
       } else {
         statusKey = 'mismatch';
-        statusText = '⚠️ Review (' + ex + ' ➔ ' + matchedCode + ')';
+        statusText = '⚠️ Review (' + c1 + ' ➔ ' + matchedCode + ')';
       }
     } else {
       statusKey = 'assigned';
@@ -1514,9 +1869,12 @@ const ConstructionClassifier = {
     }
 
     return {
-      existingCode: ex,
-      bldgDesc: bldg,
-      conDesc: con,
+      col1: c1,
+      col2: c2,
+      col3: c3,
+      existingCode: c1,
+      bldgDesc: c2,
+      conDesc: c3,
       conCode: info.code,
       category: info.category,
       group: info.group,

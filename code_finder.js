@@ -38,8 +38,18 @@
   const CodeFinder = {
     // Section data stores
     get occupancyData() {
+      if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.getMergedList) {
+        return CustomCodesDB.getMergedList('occupancy');
+      }
       const td = _getTouchstoneData();
       return (td && td.getOccupancyList()) || [];
+    },
+
+    clearCache() {
+      this._cachedConstructionData = null;
+      this._cachedRoofData = null;
+      this._cachedWallData = null;
+      this._index = null;
     },
 
     /**
@@ -62,13 +72,15 @@
     },
 
     /**
-     * Extract construction taxonomy from ConstructionClassifier.CODES + underwriting rules
+     * Extract construction taxonomy from CustomCodesDB / ConstructionClassifier.CODES + underwriting rules
      */
     getConstructionData() {
       if (this._cachedConstructionData) return this._cachedConstructionData;
 
       const items = [];
-      const codesObj = (root.ConstructionClassifier && root.ConstructionClassifier.CODES) || {};
+      const codesObj = (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.getMergedConstruction)
+        ? CustomCodesDB.getMergedConstruction()
+        : ((root.ConstructionClassifier && root.ConstructionClassifier.CODES) || {});
 
       for (const [code, info] of Object.entries(codesObj)) {
         const item = {
@@ -76,41 +88,43 @@
           category: info.category || `Construction Code ${code}`,
           group: info.group || 'General Construction',
           description: info.description || '',
-          keywords: [],
-          rules: []
+          keywords: Array.isArray(info.keywords) ? [...info.keywords] : [],
+          rules: [],
+          isCustom: !!info.isCustom,
+          isModified: !!info.isModified
         };
 
         // Enrich with mandatory underwriting memory rules & ISO standards
         if (code === '113') {
           item.rules.push('⭐ MANDATORY UNDERWRITING RULE: STONE in Exterior Wall Finish / Construction MUST ALWAYS map to Code 113 (Rubble Stone Masonry).');
-          item.keywords.push('stone', 'stone facade', 'stone wall', 'stone finish', 'stone masonry', 'fieldstone', 'rubble');
+          if (!item.keywords.includes('stone')) item.keywords.push('stone', 'stone facade', 'stone wall', 'stone finish', 'stone masonry', 'fieldstone', 'rubble');
         } else if (code === '111') {
           item.rules.push('⭐ MANDATORY UNDERWRITING RULE: BRICK in Exterior Wall Finish / Construction MUST ALWAYS map to Code 111 (Masonry).');
           item.rules.push('🏢 ISO Class 4: Masonry Noncombustible ➔ Code 111 (Masonry).');
-          item.keywords.push('iso 4', 'iso 4 masonry noncombustible', 'masonry noncombustible', 'mnc', 'masonry nc', 'brick', 'brick facade', 'brick wall', 'brick finish', 'exterior brick', 'general masonry');
+          if (!item.keywords.includes('brick')) item.keywords.push('iso 4', 'iso 4 masonry noncombustible', 'masonry noncombustible', 'mnc', 'masonry nc', 'brick', 'brick facade', 'brick wall', 'brick finish', 'exterior brick', 'general masonry');
         } else if (code === '101') {
           item.rules.push('🏢 ISO Class 1: Frame ➔ Code 101 (Wood Frame Modern).');
-          item.keywords.push('iso 1', 'iso 1 frame', 'iso frame', 'frame', 'wood frame', 'stud wall', 'timber frame', '2x4', 'plywood sheathing');
+          if (!item.keywords.includes('frame')) item.keywords.push('iso 1', 'iso 1 frame', 'iso frame', 'frame', 'wood frame', 'stud wall', 'timber frame', '2x4', 'plywood sheathing');
         } else if (code === '136') {
-          item.keywords.push('tilt-up', 'tilt up', 'precast panel', 'concrete wall panel');
+          if (!item.keywords.includes('tilt-up')) item.keywords.push('tilt-up', 'tilt up', 'precast panel', 'concrete wall panel');
         } else if (code === '152') {
           item.rules.push('🏢 ISO Class 3: Noncombustible ➔ Code 152 (Light Metal / Non-Combustible).');
-          item.keywords.push('iso 3', 'iso 3 noncombustible', 'noncombustible', 'light metal', 'corrugated metal', 'pre-engineered metal', 'butler building', 'steel siding', 'pemb');
+          if (!item.keywords.includes('noncombustible')) item.keywords.push('iso 3', 'iso 3 noncombustible', 'noncombustible', 'light metal', 'corrugated metal', 'pre-engineered metal', 'butler building', 'steel siding', 'pemb');
         } else if (code === '114') {
-          item.keywords.push('unreinforced masonry', 'urm', 'bearing wall', 'unreinforced brick');
+          if (!item.keywords.includes('unreinforced masonry')) item.keywords.push('unreinforced masonry', 'urm', 'bearing wall', 'unreinforced brick');
         } else if (code === '116') {
-          item.keywords.push('reinforced masonry', 'rm', 'concrete block', 'cmu', 'grouted masonry');
+          if (!item.keywords.includes('reinforced masonry')) item.keywords.push('reinforced masonry', 'rm', 'concrete block', 'cmu', 'grouted masonry');
         } else if (code === '119') {
           item.rules.push('🏢 ISO Class 2: Joisted Masonry ➔ Code 119 (Joisted Masonry).');
-          item.keywords.push('iso 2', 'iso 2 joisted masonry', 'joisted masonry', 'jm', 'wood floor masonry', 'combustible roof');
+          if (!item.keywords.includes('joisted masonry')) item.keywords.push('iso 2', 'iso 2 joisted masonry', 'joisted masonry', 'jm', 'wood floor masonry', 'combustible roof');
         } else if (code === '131') {
           item.rules.push('🏢 ISO Class 5: Modified Fire Resistive ➔ Code 131 (Reinforced Concrete / MFR).');
           item.rules.push('🏢 ISO Class 6: Fire Resistive ➔ Code 131 (Reinforced Concrete / FR).');
-          item.keywords.push('iso 5', 'iso 5 modified fire resistive', 'modified fire resistive', 'mfr', 'iso 6', 'iso 6 fire resistive', 'fire resistive', 'fr', 'reinforced concrete', 'rc frame', 'concrete column', 'concrete beam');
+          if (!item.keywords.includes('fire resistive')) item.keywords.push('iso 5', 'iso 5 modified fire resistive', 'modified fire resistive', 'mfr', 'iso 6', 'iso 6 fire resistive', 'fire resistive', 'fr', 'reinforced concrete', 'rc frame', 'concrete column', 'concrete beam');
         } else if (code === '151') {
-          item.keywords.push('structural steel', 'steel frame', 'steel column', 'i-beam');
+          if (!item.keywords.includes('structural steel')) item.keywords.push('structural steel', 'steel frame', 'steel column', 'i-beam');
         } else if (code === '191') {
-          item.keywords.push('mobile home', 'manufactured home', 'tie-down');
+          if (!item.keywords.includes('mobile home')) item.keywords.push('mobile home', 'manufactured home', 'tie-down');
         }
 
         items.push(item);
@@ -609,6 +623,9 @@
   }
   if (typeof window !== 'undefined') {
     window.CodeFinder = CodeFinder;
+    window.addEventListener('cleanexcel:custom_db_updated', function() {
+      CodeFinder.clearCache();
+    });
   }
 
 })(typeof window !== 'undefined' ? window : global);

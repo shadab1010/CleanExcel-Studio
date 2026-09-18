@@ -253,11 +253,6 @@
       const map = colNames[section] || {};
       const key = 'col' + colNum;
       if (map[key] && map[key].trim()) return map[key].trim();
-      if (colNum === 1) return 'Existing Code';
-      if (colNum === 2) return (section === 'construction' ? 'Building Type' : 'Building Description');
-      if (colNum === 3) return (section === 'construction' ? 'Construction Description' : 'Occupancy Description');
-      if (colNum === 4) return (section === 'construction' ? 'Exterior Finish / Wall' : 'Secondary Occupancy / Notes');
-      if (colNum === 5) return (section === 'construction' ? 'Roof / Framing Details' : 'Operations / Tenant');
       return `Column ${colNum}`;
     }, [activeColumnId, colNames]);
 

@@ -91,3 +91,43 @@
   - **Rule (No Street)**: If the text contains neither a building number nor a street suffix, `street` is left BLANK (`—`) and `city` is populated with the city name.
   - **Rule (No City)**: If the text contains a building number and ends with a street suffix (e.g. `742 Evergreen Terrace IL 62704`), `street` is populated and `city` is left BLANK (`—`).
 - **Order-Independent Resilience**: Extracts Country, Postal Code, and State anywhere in the input (start, middle, or end) using distinct regex/dictionary signatures before classifying remaining text into street and city.
+
+## Custom Underwriting Codes Database & Taxonomy Manager
+- **Custom Codes Database Layer (`data/custom_codes_db.js`)**:
+  - Allows underwriters to add new custom codes, edit descriptions/categories, and define custom broker matching keywords.
+  - Custom rules take top priority in `OccupancyClassifier` and `ConstructionClassifier` in `cleaner.js`.
+  - Persists automatically to browser `localStorage` (`cleanexcel_underwriting_custom_db_v1`).
+  - Provides 1-click JSON database Export (backup) and Import (restore/sharing) from the Code Explorer modal.
+  - Allows reverting single modified codes or resetting all codes back to factory Touchstone UNICEDE® defaults.
+
+## Apartment & Multi-Unit Residential Occupancy Rules (Codes 301, 303, 306)
+- **1 Unit / 1 Building**: Maps to Touchstone UNICEDE Code **`301`** (`Permanent Dwelling: General Residential / 1 Unit`).
+  - Example: `Col 1 = "Apartment"`, `Col 2 = "1"` or `"1 unit"` &rarr; **`301`**
+  - Example: `Col 1 = "1"`, `Col 2 = "Apartment"` &rarr; **`301`**
+  - Example: `"1 unit apartment"` &rarr; **`301`**
+- **2 to 4 Units (Duplex / Triplex / Fourplex / 2-4 Family)**: Maps to Touchstone UNICEDE Code **`303`** (`Permanent Dwelling: Multi Family 2-4 Units`).
+  - Example: `Col 1 = "Apartment"`, `Col 2 = "2"` / `"3 units"` / `"4"` &rarr; **`303`**
+  - Example: `"3 units apartment"` &rarr; **`303`**
+- **5 or More Units (5+ Units / Apartment Complex)**: Maps to Touchstone UNICEDE Code **`306`** (`Apartments / Condominiums 5+ Units`).
+  - Example: `Col 1 = "Apartment"`, `Col 2 = "5"` / `"6 units"` / `"24"` &rarr; **`306`**
+  - Example: `"12 unit apartment complex"` &rarr; **`306`**
+- **Apartment without Unit Count**: Defaults to Touchstone UNICEDE Code **`306`** (`Apartments / Condominiums`).
+
+## Garage Occupancy Classification Rules (Code 318)
+- **GARAGE Rule**: `Garage`, `Garages`, `Parking`, `Parking garage`, `Parking structure`, `Detached garage`, `Only Garage`, `Storage garage` MUST ALWAYS map to Touchstone UNICEDE Occupancy Code **`318`** (`Parking Structures / Garages`).
+  - Example: `Col 1 = "Garage"` &rarr; **`318`** (`Parking Structures / Garages`)
+  - Example: `Col 1 = "only Garage"` &rarr; **`318`** (`Parking Structures / Garages`)
+  - Example: `Col 1 = "GARAGE"` &rarr; **`318`** (`Parking Structures / Garages`)
+  - Example: `Col 1 = "Garage", Col 2 = "—"` &rarr; **`318`** (`Parking Structures / Garages`)
+
+## Wood Construction with Number of Stories & Year Built Rules
+- **Rule 1 (Stories $\le$ 4 &rarr; Code 101)**: If construction is Wood (`Wood Frame`, `Timber`, `Wood Stud`, `Stick Built`) and number of stories is $\le 4$ (less than 4 or 4), output is **`101`** (`Wood Frame (Modern)`).
+- **Rule 2 (Stories 5 to 7 & Year Built > 2005 &rarr; Code 101)**: If construction is Wood, stories between 5 and 7 ($> 4$ and $\le 7$), and Year Built is greater than 2005 (`Year Built > 2005`), output is **`101`** (`Wood Frame (Modern)`).
+- **Rule 3 (Stories 5 to 7 & Year Built $\le$ 2005 &rarr; Blank)**: If construction is Wood, stories between 5 and 7, and Year Built is $\le 2005$ (or missing), output is **BLANK** (`""` / `⚠️ Wood Frame 5-7 Stories Built ≤ 2005 → Blank`).
+- **Rule 4 (Stories $\ge$ 8 &rarr; Blank)**: If construction is Wood and number of stories is $\ge 8$ (8 or greater, e.g. 8, 9, 10, 12 stories), output is **BLANK** (`""` / `⚠️ Wood Frame ≥ 8 Stories → Blank`).
+- **Non-Wood Constructions**: Masonry (`111`), Reinforced Concrete (`131`), Structural Steel (`151`), etc. are unaffected by Wood story/year limits.
+
+
+
+
+
