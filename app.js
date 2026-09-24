@@ -3902,6 +3902,7 @@ async function copyForExcel() {
 }
 window.copyForExcel = copyForExcel;
 window.showToast = showToast;
+window.processCleaning = processCleaning;
 
 /**
  * Download as native Excel spreadsheet (.xlsx / .xls)

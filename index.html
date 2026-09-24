@@ -3,9 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Neural Underwriting | Intelligent Column Data Sanitizer</title>
+  <title>Neural Underwriting | Touchstone UNICEDE® Intelligence Engine</title>
   <link rel="icon" type="image/svg+xml" href="neon_llama_logo_transparent.svg">
-  <meta name="description" content="Clean and standardize messy Excel columns instantly. Specially tailored Street Address cleaner preserving number ranges like 145-146 MIRAMAR BOULEVARD with 1-click Excel copy and export.">
+  <meta name="description" content="Instantly transform raw broker schedules into standardized Touchstone UNICEDE® underwriting assets. 224+ construction codes, 55+ occupancy taxonomies, zero server latency — 100% in-browser.">
+  <meta name="robots" content="index, follow">
+  <!-- Open Graph / Social Sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Neural Underwriting — Touchstone UNICEDE® Intelligence Engine">
+  <meta property="og:description" content="Instantly transform raw broker schedules into standardized Touchstone UNICEDE® underwriting assets with deterministic precision. Zero data upload. 100% client-side.">
+  <meta property="og:image" content="neon_llama_logo_transparent.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Neural Underwriting — Touchstone UNICEDE® Intelligence Engine">
+  <meta name="twitter:description" content="224+ Construction Codes • 55+ Occupancy Taxonomies • 0ms Latency • 100% In-Browser Deterministic Engine">
   
   <!-- Google Fonts: Anton SC, Orbitron, Inter, JetBrains Mono, Space Grotesk, Space Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -213,12 +222,12 @@
           <p class="synapse-section-label">PERFORMANCE METRICS</p>
           <div class="synapse-metrics-grid">
             <div class="synapse-metric-item">
-              <span class="synapse-metric-number">224+</span>
+              <span class="synapse-metric-number count-up-metric" data-target="224" data-suffix="+">0</span>
               <span class="synapse-metric-title">Construction Codes</span>
               <span class="synapse-metric-sub">Touchstone UNICEDE® 100–2720</span>
             </div>
             <div class="synapse-metric-item">
-              <span class="synapse-metric-number">55+</span>
+              <span class="synapse-metric-number count-up-metric" data-target="55" data-suffix="+">0</span>
               <span class="synapse-metric-title">Occupancy Taxonomies</span>
               <span class="synapse-metric-sub">Commercial, Industrial &amp; Residential</span>
             </div>
@@ -367,6 +376,7 @@
                 <div class="bento-icon">🏢</div>
                 <span class="bento-badge">Underwriting Stories</span>
               </div>
+              <h3 class="bento-heading">No of Stores / Stories Engine</h3>
               <p class="bento-desc">Standardizes building story heights: whole numbers with decimals rounded up (<code>3.5 ➔ 4</code>, <code>4.2 ➔ 5</code>), multi-values/ranges pick max (<code>2 &amp; 3 ➔ 3</code>, <code>2/3 ➔ 3</code>), negative values left blank (<code>-5 ➔ blank</code>), and <code>non</code>/blank left blank.</p>
               
               <div class="bento-rule-pills">
@@ -387,6 +397,7 @@
               <div class="bento-card-header">
                 <div class="bento-icon">🏛️</div>
                 <span class="bento-badge">UNICEDE® Codes 0–2</span>
+                <span class="bento-new-badge">NEW</span>
               </div>
               <h3 class="bento-heading">Short Column Classifier</h3>
               <p class="bento-desc">Identifies short column conditions in old concrete structures restricted by spandrel beams or infill walls. Models: <code>CA EQ</code>, <code>HI EQ</code>, <code>JP EQ</code>, <code>US EQ</code> (Optional).</p>
@@ -410,6 +421,7 @@
               <div class="bento-card-header">
                 <div class="bento-icon">🔗</div>
                 <span class="bento-badge">UNICEDE® 0–6</span>
+                <span class="bento-new-badge">NEW</span>
               </div>
               <h3 class="bento-heading">Foundation Connection Classifier</h3>
               <p class="bento-desc">Classifies building-to-foundation structural ties (Codes 0–6): Hurricane ties (1), Nails/Screws (2), Anchor Bolts (3), Gravity/Friction (4), Adhesive/Epoxy (5), Structurally Connected (6). Industrial anchorage: Unanchored (4), Anchored (6).</p>
@@ -586,6 +598,16 @@
          CLEAN STUDIO WORKSPACE VIEW (#studio-view)
          ==================================================================== -->
     <div id="studio-view" class="studio-view" style="display: none;">
+
+      <!-- Mobile/Small Screen Warning Banner (hidden on desktop) -->
+      <div class="studio-mobile-warning" id="studio-mobile-warning" role="alert" aria-live="polite">
+        <span class="mobile-warn-icon">📱</span>
+        <div class="mobile-warn-text">
+          <strong>Desktop Recommended</strong>
+          <span>Neural Underwriting Studio is optimized for screens ≥ 1024px wide. Some features may be limited on mobile.</span>
+        </div>
+        <button class="mobile-warn-close" onclick="document.getElementById('studio-mobile-warning').style.display='none'" aria-label="Dismiss warning">✕</button>
+      </div>
 
       <!-- SynapseX Giant Anton SC Watermark in Studio View -->
       <div class="studio-bg-watermark" aria-hidden="true">
@@ -2389,6 +2411,7 @@
           <div class="pane-title-group">
             <h3 id="raw-pane-title"><svg class="studio-pane-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg><span>Raw Excel Column Input</span></h3>
             <span class="row-badge" id="raw-count-badge">0 rows</span>
+            <span class="live-row-status" id="live-row-status" style="display:none;"></span>
           </div>
           <div class="pane-actions">
             <button id="btn-paste-2col" class="btn btn-primary btn-sm" title="Paste 2 Excel columns (Year Built & Roof Year) directly from clipboard" style="display: none;">
@@ -2596,6 +2619,7 @@
             <span>Modified: <strong class="stat-rows-cleaned" id="stat-rows-cleaned-top">0</strong> rows</span>
             <span>•</span>
             <span>Cleaned: <strong class="stat-chars-removed" id="stat-chars-removed-top">0</strong> symbols/chars</span>
+            <span id="export-size-estimate-top" class="export-size-badge" style="display: none;"></span>
           </div>
 
           <div class="footer-buttons">
@@ -2605,6 +2629,10 @@
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
               <span>Copy for Excel</span>
+            </button>
+            <button id="btn-copy-all-results" class="btn btn-secondary btn-sm btn-copy-all-trigger" title="Copy all cleaned results as tab-separated text for direct Excel paste">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Copy All</span>
             </button>
             <button id="btn-download-xlsx-top" class="btn btn-excel btn-sm btn-download-xlsx" title="Download directly as Microsoft Excel spreadsheet (.xlsx)">
               <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg>
@@ -2656,6 +2684,7 @@
             <span>Modified: <strong class="stat-rows-cleaned" id="stat-rows-cleaned">0</strong> rows</span>
             <span>•</span>
             <span>Cleaned: <strong class="stat-chars-removed" id="stat-chars-removed">0</strong> symbols/chars</span>
+            <span id="export-size-estimate" class="export-size-badge" style="display: none;"></span>
           </div>
 
           <div class="footer-buttons">
@@ -2665,6 +2694,10 @@
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
               <span>Copy for Excel</span>
+            </button>
+            <button id="btn-copy-all-results-bottom" class="btn btn-secondary btn-sm btn-copy-all-trigger" title="Copy all cleaned results as tab-separated text for direct Excel paste">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Copy All</span>
             </button>
             <button id="btn-download-xlsx" class="btn btn-excel btn-sm btn-download-xlsx" title="Download directly as Microsoft Excel spreadsheet (.xlsx)">
               <svg class="studio-action-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line></svg>
@@ -2945,6 +2978,19 @@
     </div>
   </div>
 
+  <!-- Session Restore Banner -->
+  <div class="session-restore-banner" id="session-restore-banner" style="display:none;" role="alert">
+    <span class="session-restore-icon">🔄</span>
+    <div class="session-restore-text">
+      <strong>Restore previous session?</strong>
+      <span id="session-restore-desc"></span>
+    </div>
+    <div class="session-restore-actions">
+      <button id="btn-session-restore" class="session-restore-btn primary">Restore</button>
+      <button id="btn-session-discard" class="session-restore-btn secondary">Discard</button>
+    </div>
+  </div>
+
   <!-- AI Processing Spinner Overlay -->
   <div class="ai-loading-overlay" id="ai-loading-overlay" style="display: none;">
     <div class="ai-loading-card">
@@ -2967,5 +3013,341 @@
   <script src="react_output.js?v=3.0"></script>
   <script src="gemini.js?v=4.0"></script>
   <script src="app.js?v=4.0"></script>
+
+  <!-- ===== Neural Underwriting Enhancement Suite v4.3 ===== -->
+  <script>
+  (function() {
+    'use strict';
+
+    /* ─────────────────────────────────────────────
+       1. URL Hash Deep-Link Router
+       Supports: #studio, #studio/roof, #studio/occupancy, etc.
+    ───────────────────────────────────────────── */
+    function handleHashRoute() {
+      const hash = window.location.hash.replace('#', '');
+      if (!hash) return;
+      const parts = hash.split('/');
+      const view  = parts[0]; // 'studio' or 'home'
+      const section = parts[1]; // 'roof', 'occupancy', etc.
+      if (view === 'studio' && window.switchAppView) {
+        window.switchAppView('studio');
+        if (section && window.switchActiveSection) {
+          setTimeout(() => window.switchActiveSection(section), 100);
+        }
+      }
+    }
+
+    // Update hash when user switches section
+    window.addEventListener('load', handleHashRoute);
+    window.addEventListener('hashchange', handleHashRoute);
+
+    /* ─────────────────────────────────────────────
+       2. Scroll-Triggered Count-Up Animation for Metrics
+    ───────────────────────────────────────────── */
+    function animateCountUp(el) {
+      const target = parseInt(el.dataset.target, 10);
+      const suffix = el.dataset.suffix || '';
+      if (isNaN(target) || el.dataset.animated) return;
+      el.dataset.animated = 'true';
+      const duration = 1400;
+      const start = performance.now();
+      function tick(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(eased * target) + suffix;
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function initCountUpObserver() {
+      const metrics = document.querySelectorAll('.count-up-metric');
+      if (!metrics.length) return;
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            animateCountUp(e.target);
+            obs.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.4 });
+      metrics.forEach(m => obs.observe(m));
+    }
+
+    /* ─────────────────────────────────────────────
+       3. Session Persistence — Auto-Save & Restore
+    ───────────────────────────────────────────── */
+    const SESSION_KEY = 'neural_uw_session_v1';
+    const SESSION_SECTION_KEY = 'neural_uw_section_v1';
+    let sessionSaveTimer = null;
+
+    function saveSession() {
+      const rawInput = document.getElementById('raw-input');
+      if (!rawInput) return;
+      const val = rawInput.value.trim();
+      if (!val) { localStorage.removeItem(SESSION_KEY); return; }
+      const section = (window.AppState && window.AppState.activeColumnId) || 'street';
+      const data = {
+        content: val,
+        section: section,
+        savedAt: Date.now(),
+        rowCount: val.split('\n').filter(l => l.trim()).length
+      };
+      try { localStorage.setItem(SESSION_KEY, JSON.stringify(data)); } catch(e) {}
+    }
+
+    function checkSessionRestore() {
+      try {
+        const saved = localStorage.getItem(SESSION_KEY);
+        if (!saved) return;
+        const data = JSON.parse(saved);
+        if (!data || !data.content) return;
+        const ageMin = Math.round((Date.now() - data.savedAt) / 60000);
+        if (ageMin > 1440) { localStorage.removeItem(SESSION_KEY); return; } // >24h, discard
+        const banner = document.getElementById('session-restore-banner');
+        const desc = document.getElementById('session-restore-desc');
+        const btn = document.getElementById('btn-session-restore');
+        const discard = document.getElementById('btn-session-discard');
+        if (!banner || !desc) return;
+        const timeText = ageMin < 1 ? 'just now' : ageMin < 60 ? `${ageMin} min ago` : `${Math.round(ageMin/60)}h ago`;
+        desc.textContent = `${data.rowCount} rows from ${timeText} (${data.section} engine)`;
+        banner.style.display = 'flex';
+        btn.addEventListener('click', () => {
+          const rawInput = document.getElementById('raw-input');
+          if (rawInput) {
+            rawInput.value = data.content;
+            rawInput.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          if (data.section && window.switchActiveSection) window.switchActiveSection(data.section);
+          banner.style.display = 'none';
+          localStorage.removeItem(SESSION_KEY);
+        });
+        discard.addEventListener('click', () => {
+          banner.style.display = 'none';
+          localStorage.removeItem(SESSION_KEY);
+        });
+      } catch(e) {}
+    }
+
+    /* ─────────────────────────────────────────────
+       4. Live Row Counter & Paste Auto-Detect
+    ───────────────────────────────────────────── */
+    function updateLiveRowStatus(textarea) {
+      const statusEl = document.getElementById('live-row-status');
+      const countBadge = document.getElementById('raw-count-badge');
+      if (!textarea || !statusEl) return;
+      const val = textarea.value;
+      const lines = val.split('\n');
+      const nonEmpty = lines.filter(l => l.trim()).length;
+      if (nonEmpty > 0) {
+        statusEl.style.display = 'inline-flex';
+        statusEl.textContent = `📋 ${nonEmpty} row${nonEmpty !== 1 ? 's' : ''} detected`;
+        statusEl.className = 'live-row-status live-row-active';
+      } else {
+        statusEl.style.display = 'none';
+        statusEl.className = 'live-row-status';
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+       5. Graceful Error Boundary for processCleaning
+    ───────────────────────────────────────────── */
+    function wrapProcessCleaningWithErrorBoundary() {
+      if (!window.processCleaning) return;
+      const orig = window.processCleaning;
+      window.processCleaning = function() {
+        try {
+          return orig.apply(this, arguments);
+        } catch(err) {
+          console.error('[Neural Underwriting] processCleaning error:', err);
+          // Show friendly toast if available
+          if (window.showToast) {
+            window.showToast('⚠️ ' + (err.message || 'Classification error — check input format.'), '⚠️');
+          } else {
+            const rawInput = document.getElementById('raw-input');
+            const lines = rawInput ? rawInput.value.split('\n') : [];
+            console.warn('[Neural Underwriting] Failed on', lines.length, 'rows. Error:', err);
+          }
+        }
+      };
+    }
+
+    /* ─────────────────────────────────────────────
+       6. Mobile Warning Auto-Show Logic
+    ───────────────────────────────────────────── */
+    function handleMobileWarning() {
+      const banner = document.getElementById('studio-mobile-warning');
+      if (!banner) return;
+      // Only show on narrow screens
+      if (window.innerWidth >= 1024) {
+        banner.style.display = 'none';
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+       7. Bento Card Click Navigation
+    ───────────────────────────────────────────── */
+    function initBentoCardNavigation() {
+      document.querySelectorAll('.bento-card[data-target-section]').forEach(card => {
+        if (!card.getAttribute('tabindex')) {
+          card.setAttribute('tabindex', '0');
+          card.setAttribute('role', 'button');
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              const section = card.dataset.targetSection;
+              if (section && window.switchAppView && window.switchActiveSection) {
+                window.switchAppView('studio');
+                setTimeout(() => window.switchActiveSection(section), 100);
+              }
+            }
+          });
+        }
+      });
+    }
+
+    /* ─────────────────────────────────────────────
+       Bootstrap all enhancements after DOM ready
+    ───────────────────────────────────────────── */
+    function bootstrap() {
+      // Count-up animations
+      initCountUpObserver();
+
+      // Bento accessibility
+      initBentoCardNavigation();
+
+      // Mobile warning
+      handleMobileWarning();
+      window.addEventListener('resize', handleMobileWarning);
+
+      // Session restore check (small delay to let app.js init first)
+      setTimeout(checkSessionRestore, 600);
+
+      // Error boundary
+      setTimeout(wrapProcessCleaningWithErrorBoundary, 200);
+
+      // Live row counter + session auto-save
+      const rawInput = document.getElementById('raw-input');
+      if (rawInput) {
+        rawInput.addEventListener('input', function() {
+          updateLiveRowStatus(this);
+          // Auto-save session (debounced 1s)
+          clearTimeout(sessionSaveTimer);
+          sessionSaveTimer = setTimeout(saveSession, 1000);
+        });
+        rawInput.addEventListener('paste', function() {
+          // Brief delay so paste content is in DOM
+          setTimeout(() => {
+            updateLiveRowStatus(this);
+            // Auto-trigger clean on paste if content > 0 rows
+            const nonEmpty = this.value.split('\n').filter(l => l.trim()).length;
+            if (nonEmpty > 0 && window.processCleaning) {
+              setTimeout(() => window.processCleaning(), 50);
+            }
+          }, 100);
+        });
+        // Initial count
+        updateLiveRowStatus(rawInput);
+      }
+
+      // Hash routing on load
+      handleHashRoute();
+
+      // Patch switchActiveSection for URL hash updates (done here so app.js has loaded)
+      const _origSwitchFn = window.switchActiveSection;
+      if (_origSwitchFn && !_origSwitchFn._hashPatched) {
+        window.switchActiveSection = function(section) {
+          _origSwitchFn.apply(this, arguments);
+          const studioView = document.getElementById('studio-view');
+          if (studioView && studioView.style.display !== 'none') {
+            history.replaceState(null, '', '#studio/' + section);
+          }
+        };
+        window.switchActiveSection._hashPatched = true;
+      }
+
+      // Clear session when user clicks "Clear All"
+      document.querySelectorAll('#btn-clear-all, #btn-pane-clear-all, .btn-clear-all-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+          try { localStorage.removeItem('neural_uw_session_v1'); } catch(e) {}
+          const liveStatus = document.getElementById('live-row-status');
+          if (liveStatus) liveStatus.style.display = 'none';
+        }, { capture: true });
+      });
+
+      // Copy All Results — Tab-separated, ready for Excel paste (top and bottom buttons)
+      document.querySelectorAll('.btn-copy-all-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const data = window.AppState && window.AppState.lastCleanedData;
+          if (!data || !data.length) {
+            if (window.showToast) window.showToast('No results to copy yet. Run cleaning first.', 'ℹ️');
+            return;
+          }
+          const tsv = data.map(r => r.cleaned !== undefined ? r.cleaned : (r.result || '')).join('\n');
+          navigator.clipboard.writeText(tsv).then(() => {
+            const rowCount = data.length;
+            if (window.showToast) window.showToast(`Copied ${rowCount} rows to clipboard — ready to paste into Excel!`, '📋');
+          }).catch(() => {
+            if (window.showToast) window.showToast('Copy failed — try the Copy for Excel button instead', '⚠️');
+          });
+        });
+      });
+
+      // Export size estimate — update on every clean (both top and bottom)
+      const origProcessCleaning = window.processCleaning;
+      if (origProcessCleaning && !origProcessCleaning._sizePatched) {
+        window.processCleaning = function() {
+          const result = origProcessCleaning.apply(this, arguments);
+          setTimeout(() => {
+            const data = window.AppState && window.AppState.lastCleanedData;
+            const sizeEls = document.querySelectorAll('#export-size-estimate, #export-size-estimate-top');
+            if (data && data.length) {
+              const rows = data.length;
+              const firstRow = data[0];
+              const cols = (firstRow && firstRow.parts) ? Object.keys(firstRow.parts).length : 1;
+              const text = `${rows} row${rows !== 1 ? 's' : ''} × ${cols} col${cols !== 1 ? 's' : ''} = ${rows * cols} cells`;
+              sizeEls.forEach(el => {
+                el.textContent = text;
+                el.style.display = 'inline';
+              });
+            } else {
+              sizeEls.forEach(el => {
+                el.style.display = 'none';
+              });
+            }
+          }, 100);
+          return result;
+        };
+        window.processCleaning._sizePatched = true;
+      }
+
+      // Global Keyboard Shortcuts: ⌘+Enter / Ctrl+Enter to Clean, Escape to close modals
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+          const studioView = document.getElementById('studio-view');
+          if (studioView && studioView.style.display !== 'none') {
+            e.preventDefault();
+            if (window.processCleaning) window.processCleaning();
+          }
+        }
+        if (e.key === 'Escape') {
+          const modals = ['#gemini-modal', '#code-finder-modal', '#code-detail-modal', '#code-editor-modal'];
+          modals.forEach(sel => {
+            const m = document.querySelector(sel);
+            if (m && m.style.display !== 'none') m.style.display = 'none';
+          });
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootstrap);
+    } else {
+      bootstrap();
+    }
+  })();
+  </script>
 </body>
 </html>
