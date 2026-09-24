@@ -8489,3 +8489,293 @@ body {
     padding: 10px 12px;
   }
 }
+
+/* ==========================================================================
+   CLEANEXCEL MEGA FOOTER COMPONENT
+   ========================================================================== */
+.cleanexcel-mega-footer {
+  width: 100%;
+  background: radial-gradient(circle at top center, rgba(15, 23, 42, 0.75) 0%, rgba(3, 7, 18, 0.98) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 56px 0 28px 0;
+  margin-top: 48px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 -20px 40px -15px rgba(0, 0, 0, 0.6);
+}
+
+.cleanexcel-mega-footer.studio-footer {
+  margin-top: 40px;
+  border-top: 1px solid rgba(59, 130, 246, 0.2);
+  background: radial-gradient(circle at top right, rgba(30, 58, 138, 0.15) 0%, rgba(2, 6, 23, 0.98) 70%);
+}
+
+.mega-footer-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.mega-footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1.1fr 1.1fr 1fr;
+  gap: 36px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 1100px) {
+  .mega-footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .mega-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+.mega-footer-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.mega-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.footer-brand-logo {
+  color: #38bdf8;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+}
+
+.footer-brand-text-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-brand-name {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+}
+
+.footer-brand-tagline {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #38bdf8;
+  font-weight: 600;
+}
+
+.mega-footer-desc {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 20px;
+}
+
+.footer-security-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footer-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.76rem;
+  font-family: var(--font-mono, monospace);
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 10px;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.badge-dot.green { background: #10b981; box-shadow: 0 0 6px #10b981; }
+.badge-dot.blue { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; }
+.badge-dot.purple { background: #a855f7; box-shadow: 0 0 6px #a855f7; }
+
+.mega-footer-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #f8fafc;
+  margin-bottom: 18px;
+}
+
+.mega-footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mega-footer-list li a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.83rem;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  padding: 3px 0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.mega-footer-list li a:hover {
+  color: #38bdf8;
+  transform: translateX(3px);
+}
+
+.footer-list-badge {
+  font-size: 0.7rem;
+  font-family: var(--font-mono, monospace);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.mega-footer-list li a:hover .footer-list-badge {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #7dd3fc;
+}
+
+.mega-footer-list li.divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 6px 0;
+}
+
+.footer-shortcuts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.footer-kbd {
+  display: inline-block;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #e2e8f0;
+  padding: 2px 7px;
+  border-radius: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.shortcut-val {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  color: #38bdf8;
+}
+
+.footer-spec-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: auto;
+}
+
+.spec-card-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  color: #38bdf8;
+  margin-bottom: 4px;
+}
+
+.spec-card-text {
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.mega-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24px;
+  font-size: 0.78rem;
+  font-family: var(--font-mono, monospace);
+  color: rgba(255, 255, 255, 0.5);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.mega-footer-bottom-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer-live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #34d399;
+  font-weight: 600;
+}
+
+.status-indicator-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+.footer-version-tag {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+}

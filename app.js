@@ -5077,11 +5077,26 @@ function initCodeFinderUI() {
   if (btnCloseExplorer) btnCloseExplorer.addEventListener('click', closeExplorer);
   if (btnCloseExplorerFooter) btnCloseExplorerFooter.addEventListener('click', closeExplorer);
 
-  document.querySelectorAll('.btn-open-universal-finder').forEach(btn => {
+  document.querySelectorAll('.btn-open-universal-finder, .footer-btn-trigger-finder').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const tab = btn.getAttribute('data-tab');
       openExplorer(tab);
+    });
+  });
+
+  document.querySelectorAll('.footer-btn-trigger-ai').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const openGeminiModalBtn = document.getElementById('btn-gemini-modal');
+      if (openGeminiModalBtn) openGeminiModalBtn.click();
+    });
+  });
+
+  document.querySelectorAll('.footer-btn-trigger-memory').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openExplorer('learned');
     });
   });
 
