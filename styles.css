@@ -6042,11 +6042,46 @@ body {
   font-size: 0.78rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  user-select: none;
 }
 
 .veng-ai-pill:hover {
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.3);
+}
+
+.veng-pill-svg {
+  display: inline-block;
+  flex-shrink: 0;
+  stroke: #ffffff;
+  opacity: 0.9;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.veng-ai-pill:hover .veng-pill-svg {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.veng-memory-pill {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(59, 130, 246, 0.25);
+  color: #93c5fd;
+}
+
+.veng-memory-pill .veng-pill-svg {
+  stroke: #60a5fa;
+}
+
+.veng-memory-pill:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.45);
+  color: #bfdbfe;
+}
+
+.veng-memory-pill .ai-badge-dot {
+  background: #3b82f6;
+  box-shadow: 0 0 6px #3b82f6;
 }
 
 .ai-badge-dot {
@@ -6055,25 +6090,6 @@ body {
   border-radius: 50%;
   background: #ffffff;
   box-shadow: 0 0 6px #ffffff;
-}
-
-.veng-theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.veng-theme-toggle:hover {
-  background: rgba(255, 255, 255, 0.12);
 }
 
 .veng-btn-launch {

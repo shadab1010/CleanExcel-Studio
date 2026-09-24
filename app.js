@@ -711,22 +711,23 @@ function updateGeminiModalUI() {
   const navPill = document.getElementById('btn-gemini-modal');
   const navText = navPill ? navPill.querySelector('.ai-pill-text') : null;
 
+  const modelInfo = window.GeminiService.getModelInfo();
+
   if (navPill) {
+    const shortName = modelInfo ? modelInfo.label.replace(/^(Gemini|Claude|GPT-|Llama\s*)/i, '').trim() : 'AI Active';
     if (isConfigured) {
-      navPill.title = `Universal AI Engine: ${pInfo.name} (${window.GeminiService.getModel()}) Active & Saved in Browser`;
-      if (navText) navText.textContent = `${pInfo.name}`;
-      const iconEl = navPill.querySelector('.ai-sparkle');
-      if (iconEl) iconEl.textContent = pInfo.icon || '✨';
+      navPill.className = 'veng-ai-pill active-key';
+      navPill.title = `Universal AI Engine: ${pInfo.name} (${modelInfo ? modelInfo.label : ''}) Active & Saved in Browser`;
+      if (navText) navText.textContent = shortName;
       const dot = navPill.querySelector('.ai-badge-dot');
       if (dot) {
         dot.style.background = '#10b981';
         dot.style.boxShadow = '0 0 8px rgba(16, 185, 129, 0.6)';
       }
     } else {
+      navPill.className = 'veng-ai-pill needs-key';
       navPill.title = 'Universal AI Engine: No Key Configured (Click to set API Key)';
-      if (navText) navText.textContent = 'AI Settings';
-      const iconEl = navPill.querySelector('.ai-sparkle');
-      if (iconEl) iconEl.textContent = '🌐';
+      if (navText) navText.textContent = 'Universal AI';
       const dot = navPill.querySelector('.ai-badge-dot');
       if (dot) {
         dot.style.background = '#f59e0b';
@@ -764,7 +765,6 @@ function updateGeminiModalUI() {
   // Re-populate and sync model selector
   initModelSelector();
 
-  const modelInfo = window.GeminiService.getModelInfo();
   if (modelInfo) {
     const labelEl = document.getElementById('gemini-model-label');
     const badgeEl = document.getElementById('gemini-model-badge');
@@ -772,13 +772,12 @@ function updateGeminiModalUI() {
     if (labelEl) labelEl.textContent = modelInfo.label;
     if (badgeEl) badgeEl.textContent = modelInfo.badge;
     if (descEl)  descEl.textContent  = modelInfo.desc;
-    // Update selected state in open dropdown
     document.querySelectorAll('.model-option').forEach(opt => {
       opt.classList.toggle('selected', opt.dataset.modelId === modelInfo.id);
     });
   }
 
-  // ── Active Configuration Card ────────────────────────────
+  // Active Configuration Card
   const configCard = document.getElementById('active-config-card');
   if (configCard) {
     if (isConfigured && modelInfo) {
@@ -786,26 +785,13 @@ function updateGeminiModalUI() {
       const nameEl    = document.getElementById('active-config-model-name');
       const descEl2   = document.getElementById('active-config-model-desc');
       const keyDispEl = document.getElementById('active-config-key-display');
-      if (provEl)    provEl.textContent    = `${pInfo.icon} ${pInfo.name}`;
+      if (provEl)    provEl.textContent    = `${pInfo.name}`;
       if (nameEl)    nameEl.textContent    = `${modelInfo.label}  ${modelInfo.badge}`;
       if (descEl2)   descEl2.textContent   = modelInfo.desc;
       if (keyDispEl) keyDispEl.textContent = window.GeminiService.getMaskedKeyDisplay();
       configCard.style.display = 'block';
     } else {
       configCard.style.display = 'none';
-    }
-  }
-
-  if (navPill) {
-    const shortName = modelInfo ? modelInfo.label.replace(/^(Gemini|Claude|GPT-|Llama\s*)/i, '').trim() : 'AI Active';
-    if (isConfigured) {
-      navPill.className = 'veng-ai-pill active-key';
-      navPill.title = `${pInfo.name} (${modelInfo ? modelInfo.label : ''}) Active. Click to manage.`;
-      if (navText) navText.textContent = `${pInfo.icon} ${shortName}`;
-    } else {
-      navPill.className = 'veng-ai-pill needs-key';
-      navPill.title = 'AI API key required. Click to connect any AI key.';
-      if (navText) navText.textContent = 'Setup AI Engine';
     }
   }
 
@@ -2358,29 +2344,9 @@ function bindEvents() {
     });
   });
 
-  // Theme switcher
-  const themeBtn = document.getElementById('btn-toggle-theme');
-  if (themeBtn) {
-    const applyTheme = (theme) => {
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('cleanexcel_theme', theme);
-      themeBtn.innerHTML = `<span class="veng-theme-icon">${theme === 'light' ? '☀️' : '🌙'}</span>`;
-      themeBtn.setAttribute('title', theme === 'light' ? 'Switch to Dark mode' : 'Switch to Light mode');
-      themeBtn.setAttribute('aria-label', theme === 'light' ? 'Switch to Dark mode' : 'Switch to Light mode');
-    };
-
-    // Load saved theme
-    const savedTheme = localStorage.getItem('cleanexcel_theme');
-    if (savedTheme) {
-      applyTheme(savedTheme);
-    }
-
-    themeBtn.addEventListener('click', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-      const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
-      applyTheme(nextTheme);
-    });
-  }
+  // Day mode removed: Always lock pure black dark theme
+  document.documentElement.removeAttribute('data-theme');
+  try { localStorage.removeItem('cleanexcel_theme'); } catch (e) {}
 
   // File upload
   const fileInputEl = document.getElementById('file-upload-input');

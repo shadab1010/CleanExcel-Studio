@@ -78,22 +78,18 @@
         </button>
       </nav>
 
-      <!-- Right: AI, Memory, Theme & Launch Studio -->
+      <!-- Right: AI, Memory & Launch Studio -->
       <div class="veng-nav-right">
-        <button id="btn-gemini-modal" class="veng-ai-pill" type="button" title="Google Gemini 2.5 Active. Click to customize API key.">
-          <span class="ai-sparkle">✨</span>
+        <button id="btn-gemini-modal" class="veng-ai-pill" type="button" title="Universal AI Engine Settings">
+          <svg class="veng-pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
           <span class="ai-pill-text">Gemini 2.5</span>
           <span class="ai-badge-dot"></span>
         </button>
 
-        <button id="btn-memory-modal" class="veng-ai-pill veng-memory-pill" type="button" title="Continuous Self-Training & Memory Database. Click to view learned patterns." style="background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.35); color: #93c5fd;">
-          <span class="ai-sparkle">🧠</span>
+        <button id="btn-memory-modal" class="veng-ai-pill veng-memory-pill" type="button" title="Continuous Memory Database (Learned Taxonomy)">
+          <svg class="veng-pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18a1 1 0 0 1-2 0v-1.07A7 7 0 0 1 5.07 11H4a1 1 0 0 1 0-2h1.07A7 7 0 0 1 11 3.07V2a1 1 0 0 1 2 0v1.07A7 7 0 0 1 18.93 9H20a1 1 0 0 1 0 2h-1.07A7 7 0 0 1 13 16.93z"></path></svg>
           <span class="ai-pill-text" id="header-memory-text">Memory</span>
-          <span class="ai-badge-dot" style="background: #3b82f6;"></span>
-        </button>
-
-        <button id="btn-toggle-theme" class="veng-theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
-          <span id="theme-toggle-icon">🌙</span>
+          <span class="ai-badge-dot"></span>
         </button>
 
         <button id="btn-launch-header" class="veng-btn-launch" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio')" title="Launch Clean Studio Workspace">
