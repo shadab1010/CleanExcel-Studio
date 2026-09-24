@@ -2293,23 +2293,24 @@ function bindEvents() {
     });
   }
 
-  // Clear button
-  const clearBtn = document.getElementById('btn-clear-all');
-  if (clearBtn) {
+  // Clear buttons (both top workspace command bar and raw pane action bar)
+  document.querySelectorAll('#btn-clear-all, #btn-pane-clear-all, .btn-clear-all-trigger').forEach(clearBtn => {
     clearBtn.addEventListener('click', () => {
-      if (AppState.activeColumnId === 'occupancy' || AppState.activeColumnId === 'construction') {
+      if (AppState.activeColumnId === 'occupancy' || AppState.activeColumnId === 'construction' || AppState.activeColumnId === 'roof_year') {
         getAllColumnTextareas().forEach(ta => { ta.value = ''; });
         if (occInputCodeEl) occInputCodeEl.value = '';
         if (occInputBldgEl) occInputBldgEl.value = '';
         if (occInputOccEl) occInputOccEl.value = '';
-        updateOccLineNumbers();
+        if (typeof updateOccLineNumbers === 'function') updateOccLineNumbers();
       }
-      rawInputEl.value = '';
-      updateLineNumbers();
+      if (rawInputEl) {
+        rawInputEl.value = '';
+        updateLineNumbers();
+      }
       processCleaning();
       showToast('Cleared input workspace', '🧹');
     });
-  }
+  });
 
   // Paste from clipboard button
   const pasteBtn = document.getElementById('btn-paste-clipboard');
