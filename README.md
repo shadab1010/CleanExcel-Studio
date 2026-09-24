@@ -1,4 +1,4 @@
-# ⚡ CleanExcel Studio v3.0
+# ⚡ Neural Underwriting v3.0
 
 > **Enterprise Data Sanitization & Catastrophe Risk Underwriting Modeling Studio**  
 > Clean unstructured Excel broker columns, resolve Touchstone UNICEDE® codes, enforce catastrophe vulnerability constraints, and export model-ready schedules in milliseconds.
@@ -55,7 +55,7 @@
 
 ## 🚀 Quick Start
 
-CleanExcel Studio is a zero-dependency, client-side web application. You can launch it using any local web server:
+Neural Underwriting is a zero-dependency, client-side web application. You can launch it using any local web server:
 
 ### Using Python
 ```bash

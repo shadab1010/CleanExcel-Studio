@@ -1705,31 +1705,31 @@ function bindEvents() {
       }
       if (rawInputEl) {
         if (colId === 'roof') {
-          rawInputEl.placeholder = 'Paste roof description data here (e.g. "Gable, 4:12 pitch, asphalt shingles, plywood deck")...\nCleanExcel Studio will automatically separate into:\n1. Roof Geometry\n2. Roof Pitch\n3. Roof Covering\n4. Roof Deck';
+          rawInputEl.placeholder = 'Paste roof description data here (e.g. "Gable, 4:12 pitch, asphalt shingles, plywood deck")...\nNeural Underwriting will automatically separate into:\n1. Roof Geometry\n2. Roof Pitch\n3. Roof Covering\n4. Roof Deck';
         } else if (colId === 'wall') {
-          rawInputEl.placeholder = 'Paste exterior wall finish data here (e.g. "50% Brick / 50% Vinyl Siding", "Stucco on Concrete Block")...\nCleanExcel Studio will automatically separate into:\n1. WallType (Backing / Structure)\n2. WallSiding (Weather Finish)\nApplying Underwriting Rules: Higher % • Weaker Material Tie-Breaker';
+          rawInputEl.placeholder = 'Paste exterior wall finish data here (e.g. "50% Brick / 50% Vinyl Siding", "Stucco on Concrete Block")...\nNeural Underwriting will automatically separate into:\n1. WallType (Backing / Structure)\n2. WallSiding (Weather Finish)\nApplying Underwriting Rules: Higher % • Weaker Material Tie-Breaker';
         } else if (colId === 'foundation_type' || colId === 'foundationType') {
-          rawInputEl.placeholder = 'Paste Foundation Type data here (e.g. "Mat / slab foundation", "Concrete basement", "Crawlspace cripple wall (wood)", "Pile foundation for high-rise tower", "Post & pier", "No basement")...\nCleanExcel Studio classifies into Touchstone UNICEDE® Foundation Type Codes (0–12):\n• Code 0: Unknown / Default\n• Code 1: Masonry basement • Code 2: Concrete basement\n• Code 4: Crawlspace cripple wall • Code 8: Mat / slab\n• Code 9: Pile • Code 10: No basement';
+          rawInputEl.placeholder = 'Paste Foundation Type data here (e.g. "Mat / slab foundation", "Concrete basement", "Crawlspace cripple wall (wood)", "Pile foundation for high-rise tower", "Post & pier", "No basement")...\nNeural Underwriting classifies into Touchstone UNICEDE® Foundation Type Codes (0–12):\n• Code 0: Unknown / Default\n• Code 1: Masonry basement • Code 2: Concrete basement\n• Code 4: Crawlspace cripple wall • Code 8: Mat / slab\n• Code 9: Pile • Code 10: No basement';
         } else if (colId === 'foundation_connection') {
-          rawInputEl.placeholder = 'Paste Foundation Connection data here (e.g. "Anchor bolts", "Hurricane ties", "Gravity / Friction", "Adhesive / Epoxy", "Structurally Connected", "Unanchored", "Anchored")...\nCleanExcel Studio classifies into Touchstone UNICEDE® Foundation Connection Codes (0–6)\n• Industrial Facilities: 4 = Unanchored • 6 = Anchored\n• Verisk EQ Bolting Retrofit: Code 4';
+          rawInputEl.placeholder = 'Paste Foundation Connection data here (e.g. "Anchor bolts", "Hurricane ties", "Gravity / Friction", "Adhesive / Epoxy", "Structurally Connected", "Unanchored", "Anchored")...\nNeural Underwriting classifies into Touchstone UNICEDE® Foundation Connection Codes (0–6)\n• Industrial Facilities: 4 = Unanchored • 6 = Anchored\n• Verisk EQ Bolting Retrofit: Code 4';
         } else if (colId === 'foundation') {
-          rawInputEl.placeholder = 'Paste Foundation descriptions here (e.g. "Mat / slab with anchor bolts", "Concrete basement", "Pile foundation for high-rise tower", "Crawlspace cripple wall (wood)")...\nCleanExcel Studio will automatically separate into:\n1. Foundation Type (Codes 0–12)\n2. Foundation Connection (Codes 0–6)\nEnforcing Touchstone UNICEDE® underwriting & hazard model rules.';
+          rawInputEl.placeholder = 'Paste Foundation descriptions here (e.g. "Mat / slab with anchor bolts", "Concrete basement", "Pile foundation for high-rise tower", "Crawlspace cripple wall (wood)")...\nNeural Underwriting will automatically separate into:\n1. Foundation Type (Codes 0–12)\n2. Foundation Connection (Codes 0–6)\nEnforcing Touchstone UNICEDE® underwriting & hazard model rules.';
         } else if (colId === 'short_column' || colId === 'shortColumn') {
-          rawInputEl.placeholder = 'Paste Short Column data here (e.g. "Yes", "No", "Spandrel beams restricting column height", "Infill walls", "0", "1", "2")...\nCleanExcel Studio classifies Touchstone UNICEDE® Short Column codes:\n• Code 0: Unknown / Default\n• Code 1: No (No Short Columns)\n• Code 2: Yes (Short Columns Present)\nModels: CA EQ, HI EQ, JP EQ, US EQ (Optional)';
+          rawInputEl.placeholder = 'Paste Short Column data here (e.g. "Yes", "No", "Spandrel beams restricting column height", "Infill walls", "0", "1", "2")...\nNeural Underwriting classifies Touchstone UNICEDE® Short Column codes:\n• Code 0: Unknown / Default\n• Code 1: No (No Short Columns)\n• Code 2: Yes (Short Columns Present)\nModels: CA EQ, HI EQ, JP EQ, US EQ (Optional)';
         } else if (colId === 'building_exterior_opening' || colId === 'buildingExteriorOpening' || colId === 'exterior_opening') {
-          rawInputEl.placeholder = 'Paste Building Exterior Opening data here (e.g. "Less than 50% open", "More than 50%", "<50%", ">50%", "0", "1", "2")...\nCleanExcel Studio classifies Touchstone UNICEDE® Building Exterior Opening codes:\n• Code 0: Unknown\n• Code 1: Less than 50% of wall open / default\n• Code 2: More than 50% of wall open\nModels: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional)';
+          rawInputEl.placeholder = 'Paste Building Exterior Opening data here (e.g. "Less than 50% open", "More than 50%", "<50%", ">50%", "0", "1", "2")...\nNeural Underwriting classifies Touchstone UNICEDE® Building Exterior Opening codes:\n• Code 0: Unknown\n• Code 1: Less than 50% of wall open / default\n• Code 2: More than 50% of wall open\nModels: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional)';
         } else if (colId === 'soft_story' || colId === 'softStory') {
-          rawInputEl.placeholder = 'Paste Soft Story data here (e.g. "Yes", "No", "First-floor garage", "Tuck-under parking", "Open front", "0", "1", "2")...\nCleanExcel Studio classifies Touchstone UNICEDE® Soft Story codes:\n• Code 0: Unknown / default\n• Code 1: No (No soft story weakness)\n• Code 2: Yes (Structural weakness at any floor, stories >= 2)\nModels: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional)';
+          rawInputEl.placeholder = 'Paste Soft Story data here (e.g. "Yes", "No", "First-floor garage", "Tuck-under parking", "Open front", "0", "1", "2")...\nNeural Underwriting classifies Touchstone UNICEDE® Soft Story codes:\n• Code 0: Unknown / default\n• Code 1: No (No soft story weakness)\n• Code 2: Yes (Structural weakness at any floor, stories >= 2)\nModels: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional)';
         } else if (colId === 'ornamentation' || colId === 'ornament') {
-          rawInputEl.placeholder = 'Paste Ornamentation data here (e.g. "None", "Average", "Extensive", "Unreinforced parapet walls", "Entryway roofs", "Cornices", "0", "1", "2", "3")...\nCleanExcel Studio classifies Touchstone UNICEDE® Ornamentation codes:\n• Code 0: Unknown / default\n• Code 1: None (no decorative elements)\n• Code 2: Average (moderate decorative trim)\n• Code 3: Extensive (unreinforced/unbraced parapets, entryway roofs, elaborate facade)\nModels: CA EQ, HI EQ, JP EQ, US EQ (Optional)';
+          rawInputEl.placeholder = 'Paste Ornamentation data here (e.g. "None", "Average", "Extensive", "Unreinforced parapet walls", "Entryway roofs", "Cornices", "0", "1", "2", "3")...\nNeural Underwriting classifies Touchstone UNICEDE® Ornamentation codes:\n• Code 0: Unknown / default\n• Code 1: None (no decorative elements)\n• Code 2: Average (moderate decorative trim)\n• Code 3: Extensive (unreinforced/unbraced parapets, entryway roofs, elaborate facade)\nModels: CA EQ, HI EQ, JP EQ, US EQ (Optional)';
         } else if (colId === 'building_shape' || colId === 'buildingShape' || colId === 'shape') {
-          rawInputEl.placeholder = 'Paste Building Shape data here (e.g. "Square", "Rectangle", "Circular", "L-shaped", "T-shaped", "U-shaped", "H-shaped", "Complex", "0"–"8")...\nCleanExcel Studio classifies Touchstone UNICEDE® Building Shape codes:\n• Code 0: Unknown / default\n• Code 1: Square • Code 2: Rectangle • Code 3: Circular\n• Code 4: L-shaped • Code 5: T-shaped • Code 6: U-shaped • Code 7: H-shaped\n• Code 8: Complex (irregular, multi-wing, cruciform)\nModels: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional)';
+          rawInputEl.placeholder = 'Paste Building Shape data here (e.g. "Square", "Rectangle", "Circular", "L-shaped", "T-shaped", "U-shaped", "H-shaped", "Complex", "0"–"8")...\nNeural Underwriting classifies Touchstone UNICEDE® Building Shape codes:\n• Code 0: Unknown / default\n• Code 1: Square • Code 2: Rectangle • Code 3: Circular\n• Code 4: L-shaped • Code 5: T-shaped • Code 6: U-shaped • Code 7: H-shaped\n• Code 8: Complex (irregular, multi-wing, cruciform)\nModels: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional)';
         } else if (colId === 'building_condition' || colId === 'buildingCondition' || colId === 'condition') {
-          rawInputEl.placeholder = 'Paste Building Condition data here (e.g. "Good", "Average", "Poor", "Well-maintained", "Cracking due to settlement", "Loose roof tiles", "0", "1", "2", "3")...\nCleanExcel Studio classifies Touchstone UNICEDE® Building Condition codes:\n• Code 0: Unknown / default\n• Code 1: Average (standard maintenance, normal aging - EQ default)\n• Code 2: Good (well-maintained, recent renovation, sound cladding)\n• Code 3: Poor (distressed, settlement cracks, loose tiles, chimney damage)\nModels: CA EQ, HI EQ, HI TC, JP EQ, NZ EQ, US EQ, US HU, US ST (Optional)';
+          rawInputEl.placeholder = 'Paste Building Condition data here (e.g. "Good", "Average", "Poor", "Well-maintained", "Cracking due to settlement", "Loose roof tiles", "0", "1", "2", "3")...\nNeural Underwriting classifies Touchstone UNICEDE® Building Condition codes:\n• Code 0: Unknown / default\n• Code 1: Average (standard maintenance, normal aging - EQ default)\n• Code 2: Good (well-maintained, recent renovation, sound cladding)\n• Code 3: Poor (distressed, settlement cracks, loose tiles, chimney damage)\nModels: CA EQ, HI EQ, HI TC, JP EQ, NZ EQ, US EQ, US HU, US ST (Optional)';
         } else if (colId === 'year') {
-          rawInputEl.placeholder = 'Paste Year Built column here (e.g. "1994", "Built in 1985", "1680", "2030")...\nCleanExcel Studio will validate between 1753 and 2026, blanking out-of-range rows.';
+          rawInputEl.placeholder = 'Paste Year Built column here (e.g. "1994", "Built in 1985", "1680", "2030")...\nNeural Underwriting will validate between 1753 and 2026, blanking out-of-range rows.';
         } else if (colId === 'stores' || colId === 'stories') {
-          rawInputEl.placeholder = 'Paste No of Stores / Stories data here (e.g. "3.5", "4.2", "2 & 3", "1,2", "2/3", "-5", "non", "none", "5")...\nCleanExcel Studio enforces Underwriting Rules:\n• Decimals round UP (3.5 ➔ 4, 4.2 ➔ 5)\n• Multi-values/ranges pick MAX (2 & 3 ➔ 3, 1,2 ➔ 2, 2/3 ➔ 3)\n• Negative values leave blank (-5 ➔ Blank)\n• Non / none / blank ➔ Blank';
+          rawInputEl.placeholder = 'Paste No of Stores / Stories data here (e.g. "3.5", "4.2", "2 & 3", "1,2", "2/3", "-5", "non", "none", "5")...\nNeural Underwriting enforces Underwriting Rules:\n• Decimals round UP (3.5 ➔ 4, 4.2 ➔ 5)\n• Multi-values/ranges pick MAX (2 & 3 ➔ 3, 1,2 ➔ 2, 2/3 ➔ 3)\n• Negative values leave blank (-5 ➔ Blank)\n• Non / none / blank ➔ Blank';
         } else {
           rawInputEl.placeholder = 'Paste your raw Excel column here (one record per line)...\n\nExample:\n123 MAIN ST STE 400\nAPT #5B 456 ELM AVE\nPO BOX 789 BLDG 2';
         }
@@ -5413,7 +5413,7 @@ function initCodeFinderUI() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `CleanExcel_Underwriting_Taxonomy_DB_${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `Neural_Underwriting_Taxonomy_DB_${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -5846,8 +5846,8 @@ function initCodeFinderUI() {
     } else if (currentExplorerTab === 'learned') {
       callout.style.display = 'block';
       callout.innerHTML = `
-        <strong>🧠 CleanExcel Continuous Self-Training & Memory System:</strong><br>
-        &bull; <strong>Self-Learning:</strong> Every time you run AI or make a manual fix/assignment, CleanExcel automatically trains itself and stores the rule.<br>
+        <strong>🧠 Neural Underwriting Continuous Self-Training & Memory System:</strong><br>
+        &bull; <strong>Self-Learning:</strong> Every time you run AI or make a manual fix/assignment, Neural Underwriting automatically trains itself and stores the rule.<br>
         &bull; <strong>Instant 0 ms Recall:</strong> The deterministic engines recall learned items with top priority before generic rules.<br>
         &bull; <strong>Persistent:</strong> Stored in your local database and retained across sessions. Export/import backups at any time.
       `;
@@ -5891,9 +5891,9 @@ function initCodeFinderUI() {
         grid.innerHTML = `
           <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text-muted);">
             <div style="font-size: 36px; margin-bottom: 12px;">🧠</div>
-            <h4 style="color: var(--text-primary); margin-bottom: 6px;">${q ? 'No Learned Patterns Found' : 'CleanExcel Self-Training Memory is Ready!'}</h4>
+            <h4 style="color: var(--text-primary); margin-bottom: 6px;">${q ? 'No Learned Patterns Found' : 'Neural Underwriting Self-Training Memory is Ready!'}</h4>
             <p style="max-width: 500px; margin: 0 auto; font-size: 13px; line-height: 1.5;">
-              ${q ? `No learned rules match "<strong>${escapeHtml(q)}</strong>".` : 'Whenever you run AI or make a manual fix/assignment on any row in Studio, CleanExcel automatically trains itself and stores the pattern into persistent memory with 0 ms instant recall!'}
+              ${q ? `No learned rules match "<strong>${escapeHtml(q)}</strong>".` : 'Whenever you run AI or make a manual fix/assignment on any row in Studio, Neural Underwriting automatically trains itself and stores the pattern into persistent memory with 0 ms instant recall!'}
             </p>
           </div>
         `;

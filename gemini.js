@@ -570,7 +570,7 @@ const GeminiService = {
     };
     if (providerId === 'openrouter') {
       headers['HTTP-Referer'] = window.location?.origin || 'http://localhost:5500';
-      headers['X-Title'] = 'CleanExcel Studio';
+      headers['X-Title'] = 'Neural Underwriting';
     }
 
     const payload = {
@@ -743,7 +743,7 @@ const GeminiService = {
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI, an expert address parser with worldwide international knowledge (US, UK, Germany, Canada, France, Australia, Japan, etc.).
+    const systemPrompt = `You are Neural Underwriting AI, an expert address parser with worldwide international knowledge (US, UK, Germany, Canada, France, Australia, Japan, etc.).
 Parse each input address into an array of JSON objects matching this exact structure:
 [
   {
@@ -910,7 +910,7 @@ Strict Rules:
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI Street Cleaner.
+    const systemPrompt = `You are Neural Underwriting AI Street Cleaner.
 Clean each address according to these strict rules:
 1. Strip these 29 noise symbols: ,./<>?;':"|[]{}=+-_()#$%^&*@!
 2. Strip these words: street, building, builfin, unit, st, bldg (case-insensitive).
@@ -1027,7 +1027,7 @@ Output ONLY a JSON array: [{"lineNum": <int>, "cleaned": "<UPPERCASE cleaned str
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI Insurance Occupancy Classifier.
+    const systemPrompt = `You are Neural Underwriting AI Insurance Occupancy Classifier.
 You analyze commercial, residential, industrial, and institutional occupancy and building descriptions to assign the official UNICEDE® / AIR-Worldwide Touchstone Occupancy Class Code.
 
 Key UNICEDE Touchstone Occupancy Code Schema:
@@ -1298,7 +1298,7 @@ Instructions:
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and property appraisal analyst specialized in Verisk Touchstone UNICEDE® Construction Class Codes.
+    const systemPrompt = `You are Neural Underwriting AI, an expert structural engineering and property appraisal analyst specialized in Verisk Touchstone UNICEDE® Construction Class Codes.
 Map each building and construction description to its official Verisk Touchstone construction code:
 
 Primary Reference Schema:
@@ -1546,7 +1546,7 @@ Instructions:
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and property cat modeling analyst specialized in Verisk Touchstone UNICEDE® Location Wall Detail Fields.
+    const systemPrompt = `You are Neural Underwriting AI, an expert structural engineering and property cat modeling analyst specialized in Verisk Touchstone UNICEDE® Location Wall Detail Fields.
 Your goal is to parse and classify each exterior wall input line into the 9 Touchstone Location Wall Detail fields:
 1. "wallTypeCode": The structural or backing wall material code (0 to 9)
 2. "wallSidingCode": The weather protection, siding, or exterior cladding material code (0 to 8)
@@ -1904,7 +1904,7 @@ Output ONLY a JSON array of objects:
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and catastrophe risk modeling analyst specialized in Verisk Touchstone UNICEDE® Roof Detail Fields.
+    const systemPrompt = `You are Neural Underwriting AI, an expert structural engineering and catastrophe risk modeling analyst specialized in Verisk Touchstone UNICEDE® Roof Detail Fields.
 Your goal is to parse and classify each roof input line into seven Touchstone fields:
 1. "geometryCode": Roof Geometry code (0 to 10)
 2. "pitchCode": Roof Pitch code (0 to 3)
@@ -2281,7 +2281,7 @@ Output ONLY a JSON array of objects:
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and catastrophe risk modeling analyst specialized in Verisk Touchstone UNICEDE® Foundation Detail Fields.
+    const systemPrompt = `You are Neural Underwriting AI, an expert structural engineering and catastrophe risk modeling analyst specialized in Verisk Touchstone UNICEDE® Foundation Detail Fields.
 Your goal is to parse and classify each foundation description line into two Touchstone fields:
 1. "foundationTypeCode": Foundation Type code (0 to 12)
 2. "foundationConnectionCode": Foundation Connection code (0 to 3)
@@ -2489,7 +2489,7 @@ Output ONLY a valid JSON array of objects:
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI, an expert insurance underwriting validator specializing in commercial and residential property Year Built fields.
+    const systemPrompt = `You are Neural Underwriting AI, an expert insurance underwriting validator specializing in commercial and residential property Year Built fields.
 Task: Extract and standardize the 4-digit Year Built for each record.
 
 UNDERWRITING RULES:
@@ -2677,7 +2677,7 @@ Output ONLY a valid JSON array of objects:
     let aiMap = new Map();
 
     if (nonBlankRows.length > 0) {
-      const systemPrompt = `You are CleanExcel Studio AI, an expert insurance underwriting validator for property Roof Year Built and Year Built.
+      const systemPrompt = `You are Neural Underwriting AI, an expert insurance underwriting validator for property Roof Year Built and Year Built.
 Task: Validate and standardize the Roof Year Built against the Year Built for each row.
 
 STRICT UNDERWRITING RULES:
@@ -2815,7 +2815,7 @@ Output strictly a JSON array of objects:
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI, an expert insurance underwriting validator for building Number of Stories / Floors.
+    const systemPrompt = `You are Neural Underwriting AI, an expert insurance underwriting validator for building Number of Stories / Floors.
 Task: Normalize building stories according to strict underwriting rules.
 
 UNDERWRITING RULES:
@@ -2961,7 +2961,7 @@ Output strictly a JSON array of objects:
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI Name Standardizer.
+    const systemPrompt = `You are Neural Underwriting AI Name Standardizer.
 Clean each person's full name:
 1. Remove titles/honorifics (Mr., Mrs., Ms., Dr., Prof., Jr., Sr., Esq., II, III, IV).
 2. Strip noise symbols and excess punctuation (,./<>?;':"|[]{}=+-_()#$%^&*@!).
@@ -3033,7 +3033,7 @@ Output ONLY a JSON array: [{"lineNum": <int: 1-based original line index>, "clea
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI Phone Number Standardizer.
+    const systemPrompt = `You are Neural Underwriting AI Phone Number Standardizer.
 Standardize phone numbers:
 1. 10-digit US/Canada numbers format as "(XXX) XXX-XXXX".
 2. 11-digit numbers starting with 1 format as "(XXX) XXX-XXXX".
@@ -3105,7 +3105,7 @@ Output ONLY a JSON array: [{"lineNum": <int: 1-based original line index>, "clea
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI Email Cleaner.
+    const systemPrompt = `You are Neural Underwriting AI Email Cleaner.
 Clean email addresses:
 1. Remove leading/trailing brackets, quotes, whitespace, or mailto: prefixes.
 2. Standardize to lowercase.
@@ -3183,7 +3183,7 @@ Output ONLY a JSON array: [{"lineNum": <int: 1-based original line index>, "clea
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI, an expert insurance catastrophe modeler and Verisk / Touchstone UNICEDE® exposure data specialist.
+    const systemPrompt = `You are Neural Underwriting AI, an expert insurance catastrophe modeler and Verisk / Touchstone UNICEDE® exposure data specialist.
 
 TASK: Classify raw property Foundation Connection descriptions into official Touchstone UNICEDE Foundation Connection Codes (0–6).
 
@@ -3329,7 +3329,7 @@ Output strictly a JSON array of objects:
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and property catastrophe modeling underwriting assistant specialized in Verisk Touchstone UNICEDE® Short Column classification.
+    const systemPrompt = `You are Neural Underwriting AI, an expert structural engineering and property catastrophe modeling underwriting assistant specialized in Verisk Touchstone UNICEDE® Short Column classification.
 Your goal is to parse and classify each short column input line into the Touchstone UNICEDE Short Column code (0, 1, or 2).
 
 TOUCHSTONE UNICEDE SHORT COLUMN SPECIFICATION:
@@ -3475,7 +3475,7 @@ Output ONLY a JSON array of objects:
       }));
     }
 
-    const systemPrompt = `You are CleanExcel Studio AI, an expert structural engineering and property catastrophe modeling underwriting assistant specialized in Verisk Touchstone UNICEDE® Building Exterior Opening classification.
+    const systemPrompt = `You are Neural Underwriting AI, an expert structural engineering and property catastrophe modeling underwriting assistant specialized in Verisk Touchstone UNICEDE® Building Exterior Opening classification.
 Your goal is to parse and classify each raw exterior wall opening description into the Touchstone UNICEDE Building Exterior Opening code (0, 1, or 2).
 
 TOUCHSTONE UNICEDE BUILDING EXTERIOR OPENING SPECIFICATION:

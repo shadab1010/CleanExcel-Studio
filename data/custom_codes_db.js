@@ -653,7 +653,7 @@
     exportDatabaseJSON(pretty = true) {
       const store = _getStorage();
       const payload = {
-        name: 'CleanExcel Studio - Underwriting Custom Codes & Self-Training Memory Database',
+        name: 'Neural Underwriting - Underwriting Custom Codes & Self-Training Memory Database',
         exportedAt: new Date().toISOString(),
         version: '2.0',
         stats: this.getStats(),
@@ -670,7 +670,7 @@
     exportCompleteMasterJSON(pretty = true) {
       const store = _getStorage();
       const payload = {
-        name: 'CleanExcel Studio - Complete Underwriting Taxonomy & Training Master Database',
+        name: 'Neural Underwriting - Complete Underwriting Taxonomy & Training Master Database',
         exportedAt: new Date().toISOString(),
         version: '2.0',
         stats: this.getStats(),
