@@ -10,7 +10,7 @@ function _resolveTouchstoneData() {
   if (typeof window !== 'undefined' && window.TouchstoneData) return window.TouchstoneData;
   if (typeof globalThis !== 'undefined' && globalThis.TouchstoneData) return globalThis.TouchstoneData;
   if (typeof require !== 'undefined') {
-    try { return require('./data/touchstone_data.js'); } catch (e) {}
+    try { return require('./data/touchstone_data.js'); } catch (e) { }
   }
   return null;
 }
@@ -436,7 +436,7 @@ const AddressSplitter = {
     if (!str) return { s: '', c: '' };
     const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const suffixPattern = this.STREET_SUFFIXES.map(s => escapeRegExp(s)).join('|');
-    
+
     // 1. Suffix boundary followed by city words (e.g. "742 Evergreen Terrace Springfield", "22 High Street WITNEY")
     const streetSplitRegex = new RegExp(`^(.*?\\b(?:${suffixPattern})\\b(?:\\s+(?:SW|SE|NW|NE|North|South|East|West))?)(?:\\s+(.+))$`, 'i');
     const m = str.match(streetSplitRegex);
@@ -984,6 +984,14 @@ const OccupancyClassifier = {
     const cleanText = String(text).trim();
     if (!cleanText) return null;
 
+    // 0. Check continuous self-training memory database with top priority
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('occupancy', cleanText);
+      if (learned) {
+        return typeof learned === 'object' ? String(learned.code || learned.occCode) : String(learned);
+      }
+    }
+
     // 1. Check custom user-defined keywords with top priority
     if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.getCustomKeywords) {
       const customRules = CustomCodesDB.getCustomKeywords('occupancy');
@@ -1279,11 +1287,32 @@ const OccupancyClassifier = {
         const occ = (occs[i] || '').trim();
         const rowExtra = extraCols.map(colArr => (colArr[i] || '').trim());
 
+        const originalParts = [ex, bldg, occ, ...rowExtra];
         const isAllBlank = !ex && !bldg && !occ && rowExtra.every(e => !e);
         if (isAllBlank && options.removeEmptyLines) continue;
 
+        if (isAllBlank) {
+          results.push({
+            lineNum: i + 1,
+            original: originalParts.join('\t').trim(),
+            existingCode: '',
+            bldgDesc: '',
+            occDesc: '',
+            extraCols: rowExtra,
+            allCols: originalParts,
+            occCode: '',
+            category: '',
+            status: 'empty',
+            statusText: 'Blank',
+            comparisonStatus: 'empty',
+            comparisonMessage: 'Blank',
+            cleaned: '',
+            changed: false
+          });
+          continue;
+        }
+
         const res = this.classifyRow(ex, bldg, occ, rowExtra);
-        const originalParts = [ex, bldg, occ, ...rowExtra];
         const cleanedParts = [res.existingCode, res.bldgDesc, res.occDesc, ...rowExtra, res.occCode, res.category].filter(c => c !== undefined && c !== '');
 
         results.push({
@@ -1311,6 +1340,25 @@ const OccupancyClassifier = {
     lines.forEach((line, idx) => {
       const trimmed = (line || '').trim();
       if (!trimmed && options.removeEmptyLines) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          existingCode: '',
+          bldgDesc: '',
+          occDesc: '',
+          occCode: '',
+          category: '',
+          status: 'empty',
+          statusText: 'Blank',
+          comparisonStatus: 'empty',
+          comparisonMessage: 'Blank',
+          cleaned: '',
+          changed: false
+        });
+        return;
+      }
 
       const res = this.classify(trimmed);
       results.push({
@@ -1483,6 +1531,14 @@ const ConstructionClassifier = {
     if (!text || typeof text !== 'string') return null;
     const clean = text.trim();
     if (!clean || clean === '—' || clean === '-' || clean.toLowerCase() === 'n/a') return null;
+
+    // 0. Check continuous self-training memory database with top priority
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('construction', clean);
+      if (learned) {
+        return typeof learned === 'object' ? String(learned.code || learned.conCode) : String(learned);
+      }
+    }
 
     // Direct exact match on known valid numeric or custom code (except 100 unless explicit)
     if (this.CODES[clean]) {
@@ -1945,11 +2001,33 @@ const ConstructionClassifier = {
         const con = (cons[i] || '').trim();
         const rowExtra = extraCols.map(colArr => (colArr[i] || '').trim());
 
+        const originalParts = [ex, bldg, con, ...rowExtra];
         const isAllBlank = !ex && !bldg && !con && rowExtra.every(e => !e);
         if (isAllBlank && options.removeEmptyLines) continue;
 
+        if (isAllBlank) {
+          results.push({
+            lineNum: i + 1,
+            original: originalParts.join('\t').trim(),
+            existingCode: '',
+            bldgDesc: '',
+            conDesc: '',
+            extraCols: rowExtra,
+            allCols: originalParts,
+            conCode: '',
+            category: '',
+            group: '',
+            status: 'empty',
+            statusText: 'Blank',
+            comparisonStatus: 'empty',
+            comparisonMessage: 'Blank',
+            cleaned: '',
+            changed: false
+          });
+          continue;
+        }
+
         const res = this.classifyRow(ex, bldg, con, rowExtra);
-        const originalParts = [ex, bldg, con, ...rowExtra];
         const cleanedParts = [res.existingCode, res.bldgDesc, res.conDesc, ...rowExtra, res.conCode, res.category].filter(c => c !== undefined && c !== '');
 
         results.push({
@@ -1978,6 +2056,26 @@ const ConstructionClassifier = {
     lines.forEach((line, idx) => {
       const trimmed = (line || '').trim();
       if (!trimmed && options.removeEmptyLines) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          existingCode: '',
+          bldgDesc: '',
+          conDesc: '',
+          conCode: '',
+          category: '',
+          group: '',
+          status: 'empty',
+          statusText: 'Blank',
+          comparisonStatus: 'empty',
+          comparisonMessage: 'Blank',
+          cleaned: '',
+          changed: false
+        });
+        return;
+      }
 
       const res = this.classify(trimmed);
       results.push({
@@ -2139,6 +2237,78 @@ const CleanersRegistry = {
     description: 'Touchstone / UNICEDE Location Wall Detail Fields: Analyzes exterior wall finishes into 1) WallType (structural/backing) and 2) WallSiding (weather protection), applying higher-% and weaker-material rules.',
     cleaner: null // Attached below
   },
+  foundation_type: {
+    id: 'foundation_type',
+    name: 'Foundation Type',
+    icon: '🏛️',
+    badge: 'UNICEDE® 0-12',
+    description: 'Touchstone / UNICEDE Foundation Type Classifier (Codes 0-12): Unknown (0), Masonry basement (1), Concrete basement (2), Masonry wall (3), Crawlspace cripple wall (4), Crawlspace masonry (5), Post & pier (6), Footing (7), Mat / slab (8), Pile (9), No basement (10), Engineering foundation (11), Crawlspace - raised (12).',
+    cleaner: null // Attached below
+  },
+  foundation_connection: {
+    id: 'foundation_connection',
+    name: 'Foundation Connection',
+    icon: '🔗',
+    badge: 'UNICEDE® 0-6',
+    description: 'Touchstone / UNICEDE Location Foundation Connection: Hurricane ties (1), Nails/Screws (2), Anchor Bolts (3), Gravity/Friction (4), Adhesive/Epoxy (5), Structurally Connected (6). Industrial anchorage: Unanchored (4), Anchored (6).',
+    cleaner: null // Attached below
+  },
+  foundation: {
+    id: 'foundation',
+    name: 'Foundation Type',
+    icon: '🏛️',
+    badge: 'UNICEDE® 0-12',
+    description: 'Touchstone / UNICEDE Foundation Type Classifier (Codes 0-12).',
+    cleaner: null // Attached below
+  },
+  short_column: {
+    id: 'short_column',
+    name: 'Short Column',
+    icon: '🏛️',
+    badge: 'UNICEDE® 0-2',
+    description: 'Touchstone / UNICEDE Short Column Classifier: Unknown/default (0), No (1), Yes (2). Applicable for CA EQ, HI EQ, JP EQ, US EQ models (old concrete structures, spandrel beams, infill walls).',
+    cleaner: null // Attached below
+  },
+  building_exterior_opening: {
+    id: 'building_exterior_opening',
+    name: 'Building Exterior Opening',
+    icon: '🪟',
+    badge: 'UNICEDE® 0-2',
+    description: 'Touchstone / UNICEDE Building Exterior Opening Classifier: Unknown (0), Less than 50% of wall open / default (1), More than 50% of wall open (2). Applicable for CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional). Shear walls with >50% openings have less seismic resistance.',
+    cleaner: null // Attached below
+  },
+  soft_story: {
+    id: 'soft_story',
+    name: 'Soft Story',
+    icon: '🏚️',
+    badge: 'UNICEDE® 0-2',
+    description: 'Touchstone / UNICEDE Soft Story Classifier: Unknown/default (0), No (1), Yes (2). Applicable for CA EQ, HI EQ, JP EQ, NZ EQ, US EQ models (stories >= 2, first-floor garages, open fronts, tuck-under parking, pancaking collapse vulnerability).',
+    cleaner: null // Attached below
+  },
+  ornamentation: {
+    id: 'ornamentation',
+    name: 'Ornamentation',
+    icon: '🏛️',
+    badge: 'UNICEDE® 0-3',
+    description: 'Touchstone / UNICEDE Ornamentation Classifier: Unknown/default (0), None (1), Average (2), Extensive (3). Applicable for CA EQ, HI EQ, JP EQ, US EQ models (Optional). Decorative elements (unreinforced/unbraced parapet walls, entryway roofs) that can fall during earthquake shaking.',
+    cleaner: null // Attached below
+  },
+  building_shape: {
+    id: 'building_shape',
+    name: 'Building Shape',
+    icon: '📐',
+    badge: 'UNICEDE® 0-8',
+    description: 'Touchstone / UNICEDE Building Shape Classifier: Unknown/default (0), Square (1), Rectangle (2), Circular (3), L-shaped (4), T-shaped (5), U-shaped (6), H-shaped (7), Complex (8). Applicable for CA EQ, HI EQ, JP EQ, NZ EQ, US EQ models (Optional). Classifies building footprint geometry and vulnerability.',
+    cleaner: null // Attached below
+  },
+  building_condition: {
+    id: 'building_condition',
+    name: 'Building Condition',
+    icon: '🏗️',
+    badge: 'UNICEDE® 0-3',
+    description: 'Touchstone / UNICEDE Building Condition Classifier: Unknown (0), Average (1), Good (2), Poor (3). Applicable for CA EQ, HI EQ, HI TC, JP EQ, NZ EQ, US EQ, US HU, US ST models (Optional). General qualitative description of the building cladding condition and maintenance.',
+    cleaner: null // Attached below
+  },
   stores: {
     id: 'stores',
     name: 'No of Stores',
@@ -2168,6 +2338,14 @@ const YearBuiltCleaner = {
     const str = String(raw).trim();
     if (!str || str === '—' || str === '-' || /^(n\/?a|unk|unknown|none|null|nil|tbd|0)$/i.test(str)) {
       return '';
+    }
+
+    // 0. Check continuous self-training memory database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('year', str);
+      if (learned !== undefined && learned !== null && learned !== '') {
+        return String(learned);
+      }
     }
 
     const minYear = typeof options.minYear === 'number' && !isNaN(options.minYear) ? options.minYear : this.defaultMinYear;
@@ -2540,7 +2718,12 @@ const RoofTaxonomy = {
   get PITCH() { const td = _resolveTouchstoneData(); return (td && td.ROOF && td.ROOF.PITCH) || {}; },
   get COVERING() { const td = _resolveTouchstoneData(); return (td && td.ROOF && td.ROOF.COVERING) || {}; },
   get DECK() { const td = _resolveTouchstoneData(); return (td && td.ROOF && td.ROOF.DECK) || {}; },
-  get ANCHORAGE() { const td = _resolveTouchstoneData(); return (td && td.ROOF && td.ROOF.ANCHORAGE) || {}; }
+  get COVERING_ATTACHMENT() { const td = _resolveTouchstoneData(); return (td && td.ROOF && td.ROOF.COVERING_ATTACHMENT) || {}; },
+  get DECK_ATTACHMENT() { const td = _resolveTouchstoneData(); return (td && td.ROOF && td.ROOF.DECK_ATTACHMENT) || {}; },
+  get ANCHORAGE() { const td = _resolveTouchstoneData(); return (td && td.ROOF && td.ROOF.ANCHORAGE) || {}; },
+  get HAIL() { const td = _resolveTouchstoneData(); return (td && td.ROOF && td.ROOF.HAIL) || {}; },
+  get TANK() { const td = _resolveTouchstoneData(); return (td && td.ROOF && td.ROOF.TANK) || {}; },
+  get CHIMNEY() { const td = _resolveTouchstoneData(); return (td && td.ROOF && td.ROOF.CHIMNEY) || {}; }
 };
 
 const RoofClassifier = {
@@ -2593,6 +2776,25 @@ const RoofClassifier = {
     '5': 30, // Metal deck w/ concrete
     '6': 20, // Pre-cast concrete slabs
     '7': 10, // Reinforced concrete slabs (strongest)
+    '0': 0
+  },
+
+  COVERING_ATTACHMENT_WEAKNESS: {
+    '4': 100, // Mortar (brittle / weakest)
+    '2': 80,  // Nails/staples
+    '3': 50,  // Adhesive/epoxy
+    '1': 20,  // Screws (strongest)
+    '0': 0
+  },
+
+  DECK_ATTACHMENT_WEAKNESS: {
+    '2': 80,  // Nails (generic)
+    '5': 70,  // 6d nails @ 6/12
+    '6': 60,  // 8d nails @ 6/12
+    '7': 50,  // 8d nails @ 6/6 (HVHZ hurricane resistance)
+    '3': 40,  // Adhesive/epoxy
+    '1': 20,  // Screws/bolts
+    '4': 10,  // Structurally connected (strongest)
     '0': 0
   },
 
@@ -2650,6 +2852,21 @@ const RoofClassifier = {
       '7': ['reinforced concrete slabs', 'reinforced concrete', 'cast in place concrete', 'cast in place', 'cip concrete', 'poured concrete', 'monolithic concrete', 'concrete slab', 'concrete deck', 'concrete roof deck', 'rc slab', 'poured concrete deck'],
       '8': ['light metal', 'light metal deck', 'light gauge steel deck', 'bare metal deck', 'bare steel deck', 'uninsulated metal deck', 'uninsulated steel deck', 'corrugated steel deck']
     },
+    COVERING_ATTACHMENT: {
+      '1': ['screws', 'screwed', 'mechanical screws', 'self tapping screws', 'fastened with screws', 'screwed covering', 'stress plates screws', 'mechanically attached screws'],
+      '2': ['nails', 'staples', 'nailed', 'stapled', 'roofing nails', 'wire staples', 'nailed shingles', 'nails staples', 'shingle nails'],
+      '3': ['adhesive', 'epoxy', 'adhered', 'fully adhered', 'glued', 'foam adhesive', 'tile adhesive', 'hot asphalt adhesive', 'cold adhesive', 'chemically bonded', 'adhesive covering'],
+      '4': ['mortar', 'mortar set', 'mortar bed', 'mud set', 'cement mortar', 'mortar bedded', 'wet laid tile', 'mortar set tile']
+    },
+    DECK_ATTACHMENT: {
+      '1': ['screws bolts', 'screws', 'bolts', 'deck screws', 'bolted deck', 'screw attached deck', 'lag bolts', 'puddle welded', 'welded deck', 'fastened with screws'],
+      '2': ['nails', 'nailed deck', 'deck nails', 'face nailed', 'nailed sheathing', 'nailed subfloor'],
+      '3': ['adhesive epoxy', 'structural adhesive', 'glued deck', 'adhesive deck', 'subfloor adhesive', 'foam adhesive deck'],
+      '4': ['structurally connected', 'shear studs', 'monolithic deck', 'composite deck connection', 'welded steel deck', 'integral connection'],
+      '5': ['6d nails @ 6 spacing 12 on center', '6d nails 6 12', '6d @ 6/12', '6d 6 12', '6d nails 6 inch', '6d nails', '6d at 6 12', '6d @ 6 12', '6d 6 on center'],
+      '6': ['8d nails @ 6 spacing 12 on center', '8d nails 6 12', '8d @ 6/12', '8d 6 12', '8d nails 6 inch', '8d nails', '8d at 6 12', '8d @ 6 12'],
+      '7': ['8d nails @ 6 spacing 6 on center', '8d nails 6 6', '8d @ 6/6', '8d 6 6', '8d at 6 6', '8d @ 6 6', 'hvhz deck nailing', 'miami dade deck nailing']
+    },
     ANCHORAGE: {
       '1': ['hurricane ties', 'hurricane ties 1', 'hurricane tie', 'hurricane straps', 'hurricane strap', 'hurricane clips', 'hurricane clip', 'seismic ties', 'seismic tie', 'seismic straps', 'uplift straps', 'truss ties', 'rafter ties', 'hurricane tie down'],
       '2': ['nails screws', 'nails screws 2', 'nails', 'screws', 'nailed', 'screwed', 'toe nailing', 'toe nailed', 'toenailed', 'toe nail', 'toenail', 'screws nails'],
@@ -2658,6 +2875,22 @@ const RoofClassifier = {
       '5': ['adhesive epoxy', 'adhesive epoxy 5', 'epoxy', 'chemical anchor', 'resin anchor', 'epoxy anchor', 'structural adhesive', 'glued connection', 'epoxy anchored'],
       '6': ['structurally connected', 'structurally connected 6', 'structural connection', 'structurally anchored', 'concrete tie beam', 'tie beam', 'monolithic tie', 'welded connection', 'embedded plates', 'bond beam'],
       '7': ['clips', 'clips 7', 'framing clips', 'metal clips', 'roof clips', 'simpson clips', 'framing clip', 'metal clip', 'roof clip']
+    },
+    HAIL: {
+      '1': ['impact class a', 'impact resistant a', 'class a hail', 'class 1 hail', 'ul 2218 class 1'],
+      '2': ['impact class b', 'impact resistant b', 'class b hail', 'class 2 hail', 'ul 2218 class 2'],
+      '3': ['impact class c', 'impact resistant c', 'class c hail', 'class 3 hail', 'ul 2218 class 3'],
+      '4': ['impact class d', 'impact resistant d', 'class d hail', 'class 4 hail', 'ul 2218 class 4', 'fm 4473 class 4', 'class 4 impact']
+    },
+    TANK: {
+      '1': ['no tank', 'no rooftop tank', 'without tank'],
+      '2': ['tank', 'rooftop tank', 'water tank', 'chiller tank', 'fuel tank', 'roof tank']
+    },
+    CHIMNEY: {
+      '1': ['no chimney', 'without chimney'],
+      '2': ['chimney less than 2', 'chimney <2ft', 'short chimney', 'chimney under 2 feet'],
+      '3': ['chimney 2-5ft', 'chimney 2 to 5', 'standard chimney', 'chimney 3ft', 'chimney 4ft'],
+      '4': ['chimney more than 5', 'chimney >5ft', 'tall chimney', 'chimney 6ft', 'chimney 8ft']
     }
   },
 
@@ -2771,6 +3004,7 @@ const RoofClassifier = {
    */
   findFuzzyCandidates(text, synonymCategory, defaultPct, threshold = 0.70) {
     const candidates = [];
+    if (!synonymCategory) return candidates;
     const normInput = this.normalizeText(text);
     if (!normInput) return candidates;
 
@@ -2919,6 +3153,17 @@ const RoofClassifier = {
       return null;
     }
 
+    // Explicit verbal / inequality pitch cues
+    if (/(?:>|more\s*than|greater\s*than)\s*30(?:\s*(?:deg|degree|degrees|°))?\b/i.test(lower) ||
+      /\b(?:high\s*pitch|high\s*slope|steep\s*pitch|steep\s*slope|steep|sharp\s*pitch)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: getPct(/(?:>|more\s*than|greater\s*than)\s*30/i), isExplicit: true });
+    } else if (/(?:<|less\s*than|under)\s*10(?:\s*(?:deg|degree|degrees|°))?\b/i.test(lower) ||
+      /\b(?:low\s*pitch|low\s*slope|shallow\s*pitch|nearly\s*flat|flat\s*pitch)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: getPct(/(?:<|less\s*than|under)\s*10/i), isExplicit: true });
+    } else if (/\b(?:10\s*(?:to|-)\s*30|medium\s*pitch|medium\s*slope|mod(?:erate)?\s*pitch|standard\s*pitch|normal\s*pitch)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: getPct(/\b(?:medium\s*pitch|medium\s*slope)\b/), isExplicit: true });
+    }
+
     // Ratio check (e.g. 4:12, 12:12, 12:12 to 24:12)
     const ratioMatch = lower.match(/\b(\d+(?:\.\d+)?)\s*(?:[:/]|in|-)\s*12\b/);
     if (ratioMatch) {
@@ -2933,24 +3178,13 @@ const RoofClassifier = {
 
     // Degree check
     const degMatch = lower.match(/\b(\d+(?:\.\d+)?)\s*(?:deg|degree|degrees|°)\b/);
-    if (degMatch) {
+    if (degMatch && !candidates.some(c => c.isExplicit)) {
       const deg = parseFloat(degMatch[1]);
       let code = '2';
       if (deg < 10) code = '1';
       else if (deg <= 30.5) code = '2';
       else code = '3';
       candidates.push({ code, percent: defaultPct, isExplicit: true, deg: deg });
-    }
-
-    // Verbal pitch cues
-    if (/\b(?:low\s*pitch|low\s*slope|shallow\s*pitch|nearly\s*flat|flat\s*pitch|<10|less\s*than\s*10)\b/i.test(lower)) {
-      candidates.push({ code: '1', percent: getPct(/\b(?:low\s*pitch|low\s*slope|shallow\s*pitch)\b/), isExplicit: true });
-    }
-    if (/\b(?:high\s*pitch|high\s*slope|steep\s*pitch|steep\s*slope|steep|sharp\s*pitch|>30|greater\s*than\s*30|more\s*than\s*30)\b/i.test(lower)) {
-      candidates.push({ code: '3', percent: getPct(/\b(?:high\s*pitch|high\s*slope|steep\s*pitch|steep\s*slope|steep)\b/), isExplicit: true });
-    }
-    if (/\b(?:medium\s*pitch|medium\s*slope|mod(?:erate)?\s*pitch|mod(?:erate)?\s*slope|standard\s*pitch|normal\s*pitch|10\s*to\s*30)\b/i.test(lower)) {
-      candidates.push({ code: '2', percent: getPct(/\b(?:medium\s*pitch|medium\s*slope)\b/), isExplicit: true });
     }
 
     // Implied pitch from Flat geometry
@@ -3103,7 +3337,7 @@ const RoofClassifier = {
     // 7. Single-ply membrane (Handles "single ply", "single-ply", "singleply", "1-ply", "epdm", "tpo", "pvc", etc.)
     if (!candidates.some(c => c.code === '10') &&
       (/\b(?:(?:single|1|one)[-\s]?ply(?:\s*(?:membrane|roof(?:ing)?|sheet))?|epdm|tpo|pvc(?:\s*membrane)?|rubber\s*(?:membrane|roof)|elastomeric\s*membrane|adhered\s*membrane|membrane,?\s*single[-\s]?ply|thermoplastic)\b/i.test(lower) ||
-      (/\bmembrane\b/i.test(lower) && !/\b(?:bur|waterproof\s*deck)\b/i.test(lower)))) {
+        (/\bmembrane\b/i.test(lower) && !/\b(?:bur|waterproof\s*deck)\b/i.test(lower)))) {
       candidates.push({ code: '7', percent: getPct(/\b(?:single[-\s]?ply|epdm|tpo|pvc|rubber|membrane)\b/) });
     }
 
@@ -3159,6 +3393,132 @@ const RoofClassifier = {
   },
 
   /**
+   * Detect all covering attachment candidates in a text segment
+   */
+  findCoveringAttachmentCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+
+    function getPct(regex) {
+      if (defaultPct !== null && defaultPct !== undefined) return defaultPct;
+      const mPrefix = text.match(new RegExp(`(\\d+(?:\\.\\d+)?)\\s*%\\s*${regex.source}`, 'i'));
+      if (mPrefix) return parseFloat(mPrefix[1]);
+      const mSuffix = text.match(new RegExp(`${regex.source}\\s*(?:\\(?\\s*(\\d+(?:\\.\\d+)?)\\s*%\\s*\\)?)`, 'i'));
+      if (mSuffix && mSuffix[1]) return parseFloat(mSuffix[1]);
+      return null;
+    }
+
+    // Explicit code check (e.g. "Covering Attachment: 1", "Roof Covering Attachment (2)")
+    const explicitMatch = text.match(/(?:cov(?:ering)?\s*attach(?:ment)?|covering\s*fasten(?:ing)?)[\s:]*(?:code\s*|#|\(\s*)?([0-4])(?:\s*\)|\b)/i);
+    if (explicitMatch && RoofTaxonomy.COVERING_ATTACHMENT[explicitMatch[1]]) {
+      candidates.push({ code: explicitMatch[1], percent: defaultPct, isExplicitCode: true });
+    }
+
+    // 4. Mortar
+    if (/\b(?:mortar(?:\s*set|\s*bed|\s*bedded)?|mud\s*set|wet\s*laid(?:\s*tile)?|cement\s*mortar|bedded\s*in\s*mortar)\b/i.test(lower)) {
+      candidates.push({ code: '4', percent: getPct(/\b(?:mortar|mud\s*set|wet\s*laid)\b/) });
+    }
+
+    // 3. Adhesive/epoxy
+    if (/\b(?:fully\s*adhered|adhered(?:\s*membrane)?|foam\s*adhesive|tile\s*adhesive|hot\s*(?:mop|asphalt)\s*adhesive|cold\s*adhesive|epoxy\s*(?:adhered|bonded)|glued\s*(?:membrane|covering)|chemical\s*adhesive)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: getPct(/\b(?:adhered|adhesive|epoxy|glued)\b/) });
+    }
+
+    // 2. Nails/staples
+    if (/\b(?:roofing\s*nails?|nails?\s*(?:\/|\s*or\s*|\s*and\s*)?staples?|staples?(?:\s*fastened)?|nailed\s*(?:shingles?|tiles?|covering)|stapled\s*felt|wire\s*staples?)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: getPct(/\b(?:nails?\s*(?:\/|and)?\s*staples?|roofing\s*nails?|stapled)\b/) });
+    }
+
+    // 1. Screws
+    if (/\b(?:mechanical\s*screws?|self\s*tapping\s*screws?|screwed\s*(?:membrane|covering|panels?)|stress\s*plates?\s*screws?|fastened\s*with\s*screws|screws\s*covering)\b/i.test(lower) ||
+      (/\bwith\s*screws\b/i.test(lower) && !/\b(?:deck|subfloor|truss|rafter)\b/i.test(lower))) {
+      candidates.push({ code: '1', percent: getPct(/\b(?:screws?|screwed)\b/) });
+    }
+
+    // Fuzzy matching fallback
+    if (candidates.length === 0 && this.SYNONYMS.COVERING_ATTACHMENT) {
+      candidates.push(...this.findFuzzyCandidates(text, this.SYNONYMS.COVERING_ATTACHMENT, defaultPct, 0.72));
+    }
+
+    return candidates;
+  },
+
+  /**
+   * Detect all deck attachment candidates in a text segment
+   */
+  findDeckAttachmentCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+
+    function getPct(regex) {
+      if (defaultPct !== null && defaultPct !== undefined) return defaultPct;
+      const mPrefix = text.match(new RegExp(`(\\d+(?:\\.\\d+)?)\\s*%\\s*${regex.source}`, 'i'));
+      if (mPrefix) return parseFloat(mPrefix[1]);
+      const mSuffix = text.match(new RegExp(`${regex.source}\\s*(?:\\(?\\s*(\\d+(?:\\.\\d+)?)\\s*%\\s*\\)?)`, 'i'));
+      if (mSuffix && mSuffix[1]) return parseFloat(mSuffix[1]);
+      return null;
+    }
+
+    // Explicit code check (e.g. "Deck Attachment: 5", "Deck Attach (7)")
+    const explicitMatch = text.match(/(?:deck\s*attach(?:ment)?|deck\s*fasten(?:ing)?)[\s:]*(?:code\s*|#|\(\s*)?([0-7])(?:\s*\)|\b)/i);
+    if (explicitMatch && RoofTaxonomy.DECK_ATTACHMENT[explicitMatch[1]]) {
+      candidates.push({ code: explicitMatch[1], percent: defaultPct, isExplicitCode: true });
+    }
+
+    // 7. 8d nails @ 6 spacing, 6 on center (HVHZ schedule)
+    if (/\b8d\s*(?:nails?)?\s*@?\s*6(?:\s*(?:in|inch|")?|[\s\/\-])(?:spacing,?\s*)?6\b/i.test(lower) ||
+      /\b8d\s*@\s*6\s*[\/,]\s*6\b/i.test(lower) ||
+      /\b8d\s*6\s*6\b/i.test(lower) ||
+      /\b(?:hvhz|miami[-\s]?dade)\s*(?:deck\s*)?nailing\b/i.test(lower)) {
+      candidates.push({ code: '7', percent: getPct(/\b8d.*6.*6\b/) });
+    }
+
+    // 6. 8d nails @ 6 spacing, 12 on center
+    if (/\b8d\s*(?:nails?)?\s*@?\s*6(?:\s*(?:in|inch|")?|[\s\/\-])(?:spacing,?\s*)?12\b/i.test(lower) ||
+      /\b8d\s*@\s*6\s*[\/,]\s*12\b/i.test(lower) ||
+      /\b8d\s*6\s*12\b/i.test(lower)) {
+      candidates.push({ code: '6', percent: getPct(/\b8d.*6.*12\b/) });
+    }
+
+    // 5. 6d nails @ 6 spacing, 12 on center
+    if (/\b6d\s*(?:nails?)?\s*@?\s*6(?:\s*(?:in|inch|")?|[\s\/\-])(?:spacing,?\s*)?12\b/i.test(lower) ||
+      /\b6d\s*@\s*6\s*[\/,]\s*12\b/i.test(lower) ||
+      /\b6d\s*6\s*12\b/i.test(lower)) {
+      candidates.push({ code: '5', percent: getPct(/\b6d.*6.*12\b/) });
+    }
+
+    // 4. Structurally connected deck
+    if (/\b(?:structurally\s*connected\s*deck|welded\s*(?:metal|steel)\s*deck|puddle\s*welds?|shear\s*studs?|monolithic\s*concrete\s*deck|composite\s*deck\s*connection)\b/i.test(lower) ||
+      (/\bstructurally\s*connected\b/i.test(lower) && /\bdeck\b/i.test(lower))) {
+      candidates.push({ code: '4', percent: getPct(/\b(?:structurally\s*connected|welded\s*deck|shear\s*studs?)\b/) });
+    }
+
+    // 3. Adhesive/epoxy deck
+    if (/\b(?:deck(?:ing)?\s*adhesive|subfloor\s*adhesive|foam\s*adhesive\s*deck|glued\s*(?:deck|sheathing)|epoxy\s*bonded\s*deck)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: getPct(/\b(?:deck\s*adhesive|glued\s*deck)\b/) });
+    }
+
+    // 1. Screws/bolts
+    if (/\b(?:deck\s*screws?|bolted\s*deck|screw\s*attached\s*deck|lag\s*bolts?\s*deck)\b/i.test(lower) ||
+      (/\b(?:screws?\s*(?:\/|\s*and\s*|\s*or\s*)?bolts?)\b/i.test(lower) && /\bdeck\b/i.test(lower))) {
+      candidates.push({ code: '1', percent: getPct(/\b(?:screws?\s*bolts?|deck\s*screws?|bolted\s*deck)\b/) });
+    }
+
+    // 2. Nails (generic deck nails)
+    if (!candidates.some(c => ['5', '6', '7'].includes(c.code)) &&
+      /\b(?:nailed\s*(?:deck|sheathing|subfloor)|deck\s*nails?|face\s*nailed\s*deck)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: getPct(/\bnailed\s*deck\b/) });
+    }
+
+    // Fuzzy matching fallback
+    if (candidates.length === 0 && this.SYNONYMS.DECK_ATTACHMENT) {
+      candidates.push(...this.findFuzzyCandidates(text, this.SYNONYMS.DECK_ATTACHMENT, defaultPct, 0.72));
+    }
+
+    return candidates;
+  },
+
+  /**
    * Detect all roof anchorage candidates in a text segment
    */
   findAnchorageCandidates(text, defaultPct) {
@@ -3185,14 +3545,28 @@ const RoofClassifier = {
       candidates.push({ code: '1', percent: getPct(/\b(?:hurricane\s*(?:ties?|straps?|clips?|anchors?|tie[\s-]down)|seismic\s*(?:ties?|straps?)|uplift\s*straps?|rafter\s*ties?|truss\s*ties?)\b/) });
     }
 
-    // 2. Nails/Screws
-    if (/\b(?:nails?(?:\s*\/\s*screws?)?|screws?(?:\s*\/\s*nails?)?|toe[\s-]?nail(?:ed|ing)?|nailed|screwed|fasteners?)\b/i.test(lower)) {
-      candidates.push({ code: '2', percent: getPct(/\b(?:nails?(?:\s*\/\s*screws?)?|screws?(?:\s*\/\s*nails?)?|toe[\s-]?nail(?:ed|ing)?|nailed|screwed)\b/) });
-    }
-
     // 3. Anchor bolts
     if (/\b(?:anchor\s*bolts?|anchored\s*(?:by|with)?\s*bolts?|through[\s-]?bolts?|expansion\s*bolts?|bolted\s*(?:connection|anchorage)?)\b/i.test(lower)) {
       candidates.push({ code: '3', percent: getPct(/\b(?:anchor\s*bolts?|through[\s-]?bolts?|expansion\s*bolts?|bolted)\b/) });
+    }
+
+    // 6. Structurally Connected
+    if (/\b(?:structurally\s*connected\s*(?:to\s*wall|connection)?|monolithic(?:ally)?\s*(?:connected|tied)?|concrete\s*tie[\s-]?beam|reinforced\s*tie[\s-]?beam|welded\s*(?:anchorage|truss\s*connection)?|embedded\s*plates?)\b/i.test(lower) &&
+      !/\bdeck\b/i.test(lower)) {
+      candidates.push({ code: '6', percent: getPct(/\b(?:structurally\s*connected|tie[\s-]?beam|welded)\b/) });
+    } else if (/\b(?:concrete\s*tie[\s-]?beam|reinforced\s*tie[\s-]?beam|monolithic\s*tie\s*beam)\b/i.test(lower)) {
+      candidates.push({ code: '6', percent: getPct(/\btie[\s-]?beam\b/) });
+    }
+
+    // 7. Clips (when not hurricane clips)
+    if (/\b(?:framing\s*clips?|metal\s*clips?|roof\s*clips?|simpson\s*clips?)\b/i.test(lower) ||
+      (/\bclips?\b/i.test(lower) && !/\b(?:hurricane|paper)\b/i.test(lower) && !/\bdeck\b/i.test(lower))) {
+      candidates.push({ code: '7', percent: getPct(/\b(?:clips?|framing\s*clips?|metal\s*clips?|roof\s*clips?|simpson\s*clips?)\b/) });
+    }
+
+    // 5. Adhesive epoxy
+    if (/\b(?:adhesive\s*epoxy\s*(?:anchors?|anchorage)?|epoxy\s*(?:anchors?|anchored)|chemical\s*anchors?|resin\s*anchors?)\b/i.test(lower)) {
+      candidates.push({ code: '5', percent: getPct(/\b(?:adhesive\s*epoxy|epoxy\s*anchor|chemical\s*anchor)\b/) });
     }
 
     // 4. Gravity/friction
@@ -3200,19 +3574,13 @@ const RoofClassifier = {
       candidates.push({ code: '4', percent: getPct(/\b(?:gravity|friction|unanchored)\b/) });
     }
 
-    // 5. Adhesive epoxy
-    if (/\b(?:adhesive\s*epoxy|epoxy\s*(?:anchors?|anchored|adhesive)?|chemical\s*anchors?|resin\s*anchors?|adhesives?\s*anchors?)\b/i.test(lower)) {
-      candidates.push({ code: '5', percent: getPct(/\b(?:adhesive|epoxy)\b/) });
-    }
-
-    // 6. Structurally Connected
-    if (/\b(?:structurally\s*connected|structural\s*connection|structurally\s*anchored|monolithic(?:ally)?\s*(?:connected|tied)?|concrete\s*tie[\s-]?beam|reinforced\s*tie[\s-]?beam|welded\s*(?:connection|anchorage)?|embedded\s*plates?)\b/i.test(lower)) {
-      candidates.push({ code: '6', percent: getPct(/\b(?:structurally\s*connected|structural\s*connection|tie[\s-]?beam|welded)\b/) });
-    }
-
-    // 7. Clips (when not hurricane clips)
-    if (/\b(?:clips?|framing\s*clips?|metal\s*clips?|roof\s*clips?|simpson\s*clips?)\b/i.test(lower) && !/\bhurricane\b/i.test(lower)) {
-      candidates.push({ code: '7', percent: getPct(/\b(?:clips?|framing\s*clips?|metal\s*clips?|roof\s*clips?|simpson\s*clips?)\b/) });
+    // 2. Nails/Screws (Toe-nailing or general roof-to-wall connection)
+    // Only detect if explicitly toe-nailed or explicit roof anchorage nails/screws (not covering/deck attachment words)
+    if (/\b(?:toe[\s-]?nail(?:ed|ing|s)?|anchorage[\s:]*\s*nails?|anchored\s*with\s*(?:nails|screws)|rafter\s*toe\s*nailing|truss\s*nailing)\b/i.test(lower) ||
+      (/\b(?:nails?\s*\/\s*screws?|screws?\s*\/\s*nails?)\b/i.test(lower) && !/\b(?:shingle|felt|tile|deck)\b/i.test(lower))) {
+      candidates.push({ code: '2', percent: getPct(/\b(?:toe[\s-]?nail(?:ed|ing)?|nails?\s*\/\s*screws?)\b/) });
+    } else if (/\b(?:screws|nails)\b/i.test(lower) && !candidates.length && !/\b(?:shingle|felt|tile|deck|plywood|osb|metal\s*panel)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: getPct(/\b(?:nails|screws)\b/) });
     }
 
     // Fuzzy matching fallback if regex didn't match
@@ -3220,6 +3588,58 @@ const RoofClassifier = {
       candidates.push(...this.findFuzzyCandidates(text, this.SYNONYMS.ANCHORAGE, defaultPct, 0.70));
     }
 
+    return candidates;
+  },
+
+  /**
+   * Detect Hail Impact Resistance candidates
+   */
+  findHailCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+    if (/\b(?:(?:impact\s*resistant\s*|class\s*|ul\s*2218\s*class\s*|fm\s*4473\s*class\s*)(?:4|d)\b|class\s*4\s*impact|2[-\s]?inch\s*steel\s*ball)\b/i.test(lower)) {
+      candidates.push({ code: '4', percent: defaultPct });
+    } else if (/\b(?:(?:impact\s*resistant\s*|class\s*|ul\s*2218\s*class\s*|fm\s*4473\s*class\s*)(?:3|c)\b|class\s*3\s*impact|1\.75\s*inch\s*steel)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: defaultPct });
+    } else if (/\b(?:(?:impact\s*resistant\s*|class\s*|ul\s*2218\s*class\s*|fm\s*4473\s*class\s*)(?:2|b)\b|class\s*2\s*impact|1\.5\s*inch\s*steel)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: defaultPct });
+    } else if (/\b(?:(?:impact\s*resistant\s*|class\s*|ul\s*2218\s*class\s*|fm\s*4473\s*class\s*)(?:1|a)\b|class\s*1\s*impact|1\.25\s*inch\s*steel)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: defaultPct });
+    }
+    return candidates;
+  },
+
+  /**
+   * Detect Rooftop Tank candidates
+   */
+  findTankCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+    if (/\b(?:no\s*(?:rooftop\s*)?tank|without\s*tank|tank:\s*no)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: defaultPct });
+    } else if (/\b(?:rooftop\s*tank|roof\s*tank|water\s*tank\s*on\s*roof|chiller\s*tank|fuel\s*tank\s*on\s*roof|tank:\s*yes)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: defaultPct });
+    }
+    return candidates;
+  },
+
+  /**
+   * Detect Chimney candidates
+   */
+  findChimneyCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+    if (/\b(?:no\s*chimney|without\s*chimney|chimney:\s*no)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: defaultPct });
+    } else if (/\b(?:chimney\s*(?:<|less\s*than|under)\s*2\s*(?:ft|feet)?|chimney\s*short)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: defaultPct });
+    } else if (/\b(?:chimney\s*(?:>|more\s*than|greater\s*than|over)\s*5\s*(?:ft|feet)?|tall\s*chimney|chimney\s*(?:6|7|8|10)\s*(?:ft|feet)?)\b/i.test(lower)) {
+      candidates.push({ code: '4', percent: defaultPct });
+    } else if (/\b(?:chimney\s*(?:2\s*[-–to]\s*5|2-5)\s*(?:ft|feet)?|chimney\s*(?:3|4)\s*(?:ft|feet)?)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: defaultPct });
+    } else if (/\bchimney\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: defaultPct });
+    }
     return candidates;
   },
 
@@ -3260,8 +3680,8 @@ const RoofClassifier = {
         const pB = b.percent !== null && b.percent !== undefined ? b.percent : -1;
         if (pB !== pA) return pB - pA; // Higher % wins
         // Tie-breaker: weaker material (higher weakness score)
-        const wA = weaknessMap[a.code] || 0;
-        const wB = weaknessMap[b.code] || 0;
+        const wA = (weaknessMap && weaknessMap[a.code]) || 0;
+        const wB = (weaknessMap && weaknessMap[b.code]) || 0;
         return wB - wA;
       });
       return unique[0].code;
@@ -3269,8 +3689,8 @@ const RoofClassifier = {
 
     // No percentages present: pick WEAKER material (higher weakness score)
     unique.sort((a, b) => {
-      const wA = weaknessMap[a.code] || 0;
-      const wB = weaknessMap[b.code] || 0;
+      const wA = (weaknessMap && weaknessMap[a.code]) || 0;
+      const wB = (weaknessMap && weaknessMap[b.code]) || 0;
       return wB - wA;
     });
 
@@ -3301,7 +3721,7 @@ const RoofClassifier = {
   },
 
   /**
-   * Parse a single row or tab-delimited row into the 4 components
+   * Parse a single row or tab-delimited row into the 7 primary components + additional fields
    * Applies Underwriting Rules:
    * 1. If percentage values exist, pick HIGHER %
    * 2. If no percentage values exist, pick WEAKER material (most vulnerable)
@@ -3328,18 +3748,115 @@ const RoofClassifier = {
         deck: '',
         deckName: '',
         deckShort: '',
+        covAttachCode: '',
+        covAttach: '',
+        covAttachName: '',
+        covAttachShort: '',
+        coveringAttachmentCode: '',
+        coveringAttachment: '',
+        deckAttachCode: '',
+        deckAttach: '',
+        deckAttachName: '',
+        deckAttachShort: '',
+        deckAttachmentCode: '',
+        deckAttachment: '',
         anchorageCode: '',
         anchorage: '',
         anchorageName: '',
         anchorageShort: '',
+        hailCode: '',
+        hail: '',
+        hailName: '',
+        hailShort: '',
+        tankCode: '',
+        tank: '',
+        tankName: '',
+        tankShort: '',
+        chimneyCode: '',
+        chimney: '',
+        chimneyName: '',
+        chimneyShort: '',
         recognizedCount: 0,
         status: 'empty',
         statusText: 'Blank'
       };
     }
 
+    // 0. Check continuous self-training memory database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learnedRoof = CustomCodesDB.matchLearned('roof', str);
+      if (learnedRoof && typeof learnedRoof === 'object') {
+        const geomCode = String(learnedRoof.geometryCode || learnedRoof.geomCode || learnedRoof.geom || '0');
+        const pitchCode = String(learnedRoof.pitchCode || learnedRoof.pitch || '0');
+        const covCode = String(learnedRoof.coveringCode || learnedRoof.covCode || learnedRoof.cov || '0');
+        const deckCode = String(learnedRoof.deckCode || learnedRoof.deck || '0');
+        const covAttachCode = String(learnedRoof.covAttachCode || learnedRoof.covAttach || learnedRoof.coveringAttachmentCode || '0');
+        const deckAttachCode = String(learnedRoof.deckAttachCode || learnedRoof.deckAttach || learnedRoof.deckAttachmentCode || '0');
+        const anchorCode = String(learnedRoof.anchorageCode || learnedRoof.anchorCode || learnedRoof.anchor || '0');
+
+        const geomObj = RoofTaxonomy.GEOMETRY[geomCode];
+        const pitchObj = RoofTaxonomy.PITCH[pitchCode];
+        const covObj = RoofTaxonomy.COVERING[covCode];
+        const deckObj = RoofTaxonomy.DECK[deckCode];
+        const covAttachObj = RoofTaxonomy.COVERING_ATTACHMENT[covAttachCode];
+        const deckAttachObj = RoofTaxonomy.DECK_ATTACHMENT[deckAttachCode];
+        const anchorObj = RoofTaxonomy.ANCHORAGE[anchorCode];
+
+        const format = options.format || 'code_only';
+        function formatField(obj) {
+          if (!obj) return '';
+          if (format === 'code_only') return obj.code;
+          if (format === 'name_only') return obj.name;
+          if (format === 'short_code') return `${obj.shortName} (${obj.code})`;
+          return `${obj.name} (${obj.code})`;
+        }
+
+        const recCount = (geomCode && geomCode !== '0' ? 1 : 0) + (pitchCode && pitchCode !== '0' ? 1 : 0) + (covCode && covCode !== '0' ? 1 : 0) + (deckCode && deckCode !== '0' ? 1 : 0) + (covAttachCode && covAttachCode !== '0' ? 1 : 0) + (deckAttachCode && deckAttachCode !== '0' ? 1 : 0) + (anchorCode && anchorCode !== '0' ? 1 : 0);
+
+        return {
+          original: rawRow,
+          geometryCode: geomCode,
+          geometry: formatField(geomObj) || geomCode,
+          geometryName: geomObj ? geomObj.name : '',
+          geometryShort: geomObj ? geomObj.shortName : '',
+          pitchCode: pitchCode,
+          pitch: formatField(pitchObj) || pitchCode,
+          pitchName: pitchObj ? pitchObj.name : '',
+          pitchShort: pitchObj ? pitchObj.shortName : '',
+          coveringCode: covCode,
+          covering: formatField(covObj) || covCode,
+          coveringName: covObj ? covObj.name : '',
+          coveringShort: covObj ? covObj.shortName : '',
+          deckCode: deckCode,
+          deck: formatField(deckObj) || deckCode,
+          deckName: deckObj ? deckObj.name : '',
+          deckShort: deckObj ? deckObj.shortName : '',
+          covAttachCode: covAttachCode,
+          covAttach: formatField(covAttachObj) || covAttachCode,
+          covAttachName: covAttachObj ? covAttachObj.name : '',
+          covAttachShort: covAttachObj ? covAttachObj.shortName : '',
+          coveringAttachmentCode: covAttachCode,
+          coveringAttachment: formatField(covAttachObj) || covAttachCode,
+          deckAttachCode: deckAttachCode,
+          deckAttach: formatField(deckAttachObj) || deckAttachCode,
+          deckAttachName: deckAttachObj ? deckAttachObj.name : '',
+          deckAttachShort: deckAttachObj ? deckAttachObj.shortName : '',
+          deckAttachmentCode: deckAttachCode,
+          deckAttachment: formatField(deckAttachObj) || deckAttachCode,
+          anchorageCode: anchorCode,
+          anchorage: formatField(anchorObj) || anchorCode,
+          anchorageName: anchorObj ? anchorObj.name : '',
+          anchorageShort: anchorObj ? anchorObj.shortName : '',
+          hailCode: '0', hail: '', tankCode: '0', tank: '', chimneyCode: '0', chimney: '',
+          recognizedCount: recCount,
+          status: 'match',
+          statusText: '🧠 Trained & Learned (From Memory)'
+        };
+      }
+    }
+
     // Unknown / 0-unknown: any input that is purely "unknown" or "0-unknown" (or variants)
-    // maps all five roof fields to code 0 (Unknown/default).
+    // maps all seven roof fields to code 0 (Unknown/default).
     if (/^(?:0\s*[-\/]\s*)?unknown\s*(?:[-\/]\s*0)?$/i.test(str) || /^0\s*[-\/]?\s*unknown$/i.test(str)) {
       const unknownDisplay = (fmt) => fmt === 'code_only' ? '0' : fmt === 'name_only' ? 'Unknown/default' : fmt === 'short_code' ? 'Unknown (0)' : 'Unknown/default (0)';
       const fmt = options.format || 'code_only';
@@ -3361,13 +3878,37 @@ const RoofClassifier = {
         deck: unknownDisplay(fmt),
         deckName: 'Unknown/default',
         deckShort: 'Unknown',
+        covAttachCode: '0',
+        covAttach: unknownDisplay(fmt),
+        covAttachName: 'Unknown/default',
+        covAttachShort: 'Unknown',
+        coveringAttachmentCode: '0',
+        coveringAttachment: unknownDisplay(fmt),
+        deckAttachCode: '0',
+        deckAttach: unknownDisplay(fmt),
+        deckAttachName: 'Unknown/default',
+        deckAttachShort: 'Unknown',
+        deckAttachmentCode: '0',
+        deckAttachment: unknownDisplay(fmt),
         anchorageCode: '0',
         anchorage: unknownDisplay(fmt),
         anchorageName: 'Unknown/default',
         anchorageShort: 'Unknown',
-        recognizedCount: 5,
+        hailCode: '0',
+        hail: '0',
+        hailName: 'Unknown/Non-impact-resistant',
+        hailShort: 'Non-impact',
+        tankCode: '0',
+        tank: '0',
+        tankName: 'Unknown/default',
+        tankShort: 'Unknown',
+        chimneyCode: '0',
+        chimney: '0',
+        chimneyName: 'Unknown/default',
+        chimneyShort: 'Unknown',
+        recognizedCount: 7,
         status: 'match',
-        statusText: '✓ Complete (All 5 Fields Identified)'
+        statusText: '✓ Complete (All 7 Fields Defaulted to 0)'
       };
     }
 
@@ -3385,14 +3926,24 @@ const RoofClassifier = {
     const pitchCandidates = [];
     const deckCandidates = [];
     const covCandidates = [];
+    const covAttachCandidates = [];
+    const deckAttachCandidates = [];
     const anchorCandidates = [];
+    const hailCandidates = [];
+    const tankCandidates = [];
+    const chimneyCandidates = [];
 
     for (const seg of segments) {
       geomCandidates.push(...this.findGeometryCandidates(seg.text, seg.percent));
       pitchCandidates.push(...this.findPitchCandidates(seg.text, seg.percent));
       deckCandidates.push(...this.findDeckCandidates(seg.text, seg.percent));
       covCandidates.push(...this.findCoveringCandidates(seg.text, seg.percent));
+      covAttachCandidates.push(...this.findCoveringAttachmentCandidates(seg.text, seg.percent));
+      deckAttachCandidates.push(...this.findDeckAttachmentCandidates(seg.text, seg.percent));
       anchorCandidates.push(...this.findAnchorageCandidates(seg.text, seg.percent));
+      hailCandidates.push(...this.findHailCandidates(seg.text, seg.percent));
+      tankCandidates.push(...this.findTankCandidates(seg.text, seg.percent));
+      chimneyCandidates.push(...this.findChimneyCandidates(seg.text, seg.percent));
     }
 
     // Fallback full-text scan if any field wasn't found via segments
@@ -3400,7 +3951,12 @@ const RoofClassifier = {
     if (pitchCandidates.length === 0) pitchCandidates.push(...this.findPitchCandidates(fullText, null));
     if (deckCandidates.length === 0) deckCandidates.push(...this.findDeckCandidates(fullText, null));
     if (covCandidates.length === 0) covCandidates.push(...this.findCoveringCandidates(fullText, null));
+    if (covAttachCandidates.length === 0) covAttachCandidates.push(...this.findCoveringAttachmentCandidates(fullText, null));
+    if (deckAttachCandidates.length === 0) deckAttachCandidates.push(...this.findDeckAttachmentCandidates(fullText, null));
     if (anchorCandidates.length === 0) anchorCandidates.push(...this.findAnchorageCandidates(fullText, null));
+    if (hailCandidates.length === 0) hailCandidates.push(...this.findHailCandidates(fullText, null));
+    if (tankCandidates.length === 0) tankCandidates.push(...this.findTankCandidates(fullText, null));
+    if (chimneyCandidates.length === 0) chimneyCandidates.push(...this.findChimneyCandidates(fullText, null));
 
     // Resolve Geometry
     let geomCode = this.resolveCandidates(geomCandidates, this.GEOMETRY_WEAKNESS, 'geometry');
@@ -3427,67 +3983,53 @@ const RoofClassifier = {
       geomCode = str;
     }
 
-    // Resolve Covering, Deck & Anchorage
+    // Resolve Covering, Deck, Attachments & Anchorage
     let covCode = this.resolveCandidates(covCandidates, this.COVERING_WEAKNESS, 'covering');
     let deckCode = this.resolveCandidates(deckCandidates, this.DECK_WEAKNESS, 'deck');
+    let covAttachCode = this.resolveCandidates(covAttachCandidates, this.COVERING_ATTACHMENT_WEAKNESS, 'covering_attachment');
+    let deckAttachCode = this.resolveCandidates(deckAttachCandidates, this.DECK_ATTACHMENT_WEAKNESS, 'deck_attachment');
     let anchorCode = this.resolveCandidates(anchorCandidates, this.ANCHORAGE_WEAKNESS, 'anchorage');
+    let hailCode = this.resolveCandidates(hailCandidates, null, 'hail');
+    let tankCode = this.resolveCandidates(tankCandidates, null, 'tank');
+    let chimneyCode = this.resolveCandidates(chimneyCandidates, null, 'chimney');
 
     // Resolve labels
     const geomObj = RoofTaxonomy.GEOMETRY[geomCode];
     const pitchObj = RoofTaxonomy.PITCH[pitchCode];
     const covObj = RoofTaxonomy.COVERING[covCode];
     const deckObj = RoofTaxonomy.DECK[deckCode];
+    const covAttachObj = RoofTaxonomy.COVERING_ATTACHMENT[covAttachCode];
+    const deckAttachObj = RoofTaxonomy.DECK_ATTACHMENT[deckAttachCode];
     const anchorObj = RoofTaxonomy.ANCHORAGE[anchorCode];
+    const hailObj = RoofTaxonomy.HAIL[hailCode];
+    const tankObj = RoofTaxonomy.TANK[tankCode];
+    const chimneyObj = RoofTaxonomy.CHIMNEY[chimneyCode];
 
     const format = options.format || 'code_only';
 
-    let geomDisplay = '';
-    if (geomObj) {
-      if (format === 'code_only') geomDisplay = geomObj.code;
-      else if (format === 'name_only') geomDisplay = geomObj.name;
-      else if (format === 'short_code') geomDisplay = `${geomObj.shortName} (${geomObj.code})`;
-      else geomDisplay = `${geomObj.name} (${geomObj.code})`;
+    function formatField(obj) {
+      if (!obj) return '';
+      if (format === 'code_only') return obj.code;
+      if (format === 'name_only') return obj.name;
+      if (format === 'short_code') return `${obj.shortName} (${obj.code})`;
+      return `${obj.name} (${obj.code})`;
     }
 
-    let pitchDisplay = '';
-    if (pitchObj) {
-      if (format === 'code_only') pitchDisplay = pitchObj.code;
-      else if (format === 'name_only') pitchDisplay = pitchObj.name;
-      else if (format === 'short_code') pitchDisplay = `${pitchObj.shortName} (${pitchObj.code})`;
-      else pitchDisplay = `${pitchObj.name} (${pitchObj.code})`;
-    }
+    const geomDisplay = formatField(geomObj);
+    const pitchDisplay = formatField(pitchObj);
+    const covDisplay = formatField(covObj);
+    const deckDisplay = formatField(deckObj);
+    const covAttachDisplay = formatField(covAttachObj);
+    const deckAttachDisplay = formatField(deckAttachObj);
+    const anchorDisplay = formatField(anchorObj);
 
-    let covDisplay = '';
-    if (covObj) {
-      if (format === 'code_only') covDisplay = covObj.code;
-      else if (format === 'name_only') covDisplay = covObj.name;
-      else if (format === 'short_code') covDisplay = `${covObj.shortName} (${covObj.code})`;
-      else covDisplay = `${covObj.name} (${covObj.code})`;
-    }
-
-    let deckDisplay = '';
-    if (deckObj) {
-      if (format === 'code_only') deckDisplay = deckObj.code;
-      else if (format === 'name_only') deckDisplay = deckObj.name;
-      else if (format === 'short_code') deckDisplay = `${deckObj.shortName} (${deckObj.code})`;
-      else deckDisplay = `${deckObj.name} (${deckObj.code})`;
-    }
-
-    let anchorDisplay = '';
-    if (anchorObj) {
-      if (format === 'code_only') anchorDisplay = anchorObj.code;
-      else if (format === 'name_only') anchorDisplay = anchorObj.name;
-      else if (format === 'short_code') anchorDisplay = `${anchorObj.shortName} (${anchorObj.code})`;
-      else anchorDisplay = `${anchorObj.name} (${anchorObj.code})`;
-    }
-
-    const recognizedCount = (geomCode ? 1 : 0) + (pitchCode ? 1 : 0) + (covCode ? 1 : 0) + (deckCode ? 1 : 0) + (anchorCode ? 1 : 0);
+    const recognizedCount = (geomCode ? 1 : 0) + (pitchCode ? 1 : 0) + (covCode ? 1 : 0) + (deckCode ? 1 : 0) + (covAttachCode ? 1 : 0) + (deckAttachCode ? 1 : 0) + (anchorCode ? 1 : 0);
 
     let status = 'assigned';
-    let statusText = `Separated (${recognizedCount}/5 Fields)`;
-    if (recognizedCount === 5) {
+    let statusText = `Separated (${recognizedCount}/7 Fields)`;
+    if (recognizedCount === 7) {
       status = 'match';
-      statusText = '✓ Complete (All 5 Fields Identified)';
+      statusText = '✓ Complete (All 7 Fields Identified)';
     } else if (recognizedCount === 0) {
       status = 'mismatch';
       statusText = '⚠️ Unrecognized Roof Format';
@@ -3511,10 +4053,36 @@ const RoofClassifier = {
       deck: deckDisplay,
       deckName: deckObj ? deckObj.name : '',
       deckShort: deckObj ? deckObj.shortName : '',
+      covAttachCode: covAttachCode || '',
+      covAttach: covAttachDisplay,
+      covAttachName: covAttachObj ? covAttachObj.name : '',
+      covAttachShort: covAttachObj ? covAttachObj.shortName : '',
+      coveringAttachmentCode: covAttachCode || '',
+      coveringAttachment: covAttachDisplay,
+      coveringAttachmentName: covAttachObj ? covAttachObj.name : '',
+      deckAttachCode: deckAttachCode || '',
+      deckAttach: deckAttachDisplay,
+      deckAttachName: deckAttachObj ? deckAttachObj.name : '',
+      deckAttachShort: deckAttachObj ? deckAttachObj.shortName : '',
+      deckAttachmentCode: deckAttachCode || '',
+      deckAttachment: deckAttachDisplay,
+      deckAttachmentName: deckAttachObj ? deckAttachObj.name : '',
       anchorageCode: anchorCode || '',
       anchorage: anchorDisplay,
       anchorageName: anchorObj ? anchorObj.name : '',
       anchorageShort: anchorObj ? anchorObj.shortName : '',
+      hailCode: hailCode || '',
+      hail: hailObj ? hailObj.name : '',
+      hailName: hailObj ? hailObj.name : '',
+      hailShort: hailObj ? hailObj.shortName : '',
+      tankCode: tankCode || '',
+      tank: tankObj ? tankObj.name : '',
+      tankName: tankObj ? tankObj.name : '',
+      tankShort: tankObj ? tankObj.shortName : '',
+      chimneyCode: chimneyCode || '',
+      chimney: chimneyObj ? chimneyObj.name : '',
+      chimneyName: chimneyObj ? chimneyObj.name : '',
+      chimneyShort: chimneyObj ? chimneyObj.shortName : '',
       recognizedCount,
       status,
       statusText
@@ -3532,13 +4100,60 @@ const RoofClassifier = {
       const trimmed = (line || '').trim();
       if (!trimmed && options.removeEmptyLines) return;
 
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          geometry: '—',
+          geometryCode: '',
+          geometryName: '',
+          geometryShort: '',
+          pitch: '—',
+          pitchCode: '',
+          pitchName: '',
+          pitchShort: '',
+          covering: '—',
+          coveringCode: '',
+          coveringName: '',
+          coveringShort: '',
+          deck: '—',
+          deckCode: '',
+          deckName: '',
+          deckShort: '',
+          covAttach: '—',
+          covAttachCode: '',
+          covAttachName: '',
+          covAttachShort: '',
+          coveringAttachment: '—',
+          coveringAttachmentCode: '',
+          deckAttach: '—',
+          deckAttachCode: '',
+          deckAttachName: '',
+          deckAttachShort: '',
+          deckAttachment: '—',
+          deckAttachmentCode: '',
+          anchorage: '—',
+          anchorageCode: '',
+          anchorageName: '',
+          anchorageShort: '',
+          recognizedCount: 0,
+          status: 'empty',
+          statusText: 'Blank',
+          changed: false
+        });
+        return;
+      }
+
       const parsed = this.parseRoofRow(line, options);
-      // Cleaned output contains pure codes for direct Excel columns (Geom\tPitch\tCov\tDeck\tAnchor)
+      // Cleaned output contains pure codes for direct Excel columns (7 primary Touchstone fields)
       const cleaned = [
         parsed.geometryCode || '',
         parsed.pitchCode || '',
         parsed.coveringCode || '',
         parsed.deckCode || '',
+        parsed.covAttachCode || '',
+        parsed.deckAttachCode || '',
         parsed.anchorageCode || ''
       ].join('\t');
 
@@ -3562,10 +4177,28 @@ const RoofClassifier = {
         deckCode: parsed.deckCode,
         deckName: parsed.deckName,
         deckShort: parsed.deckShort,
+        covAttach: parsed.covAttach,
+        covAttachCode: parsed.covAttachCode,
+        covAttachName: parsed.covAttachName,
+        covAttachShort: parsed.covAttachShort,
+        coveringAttachment: parsed.coveringAttachment,
+        coveringAttachmentCode: parsed.coveringAttachmentCode,
+        deckAttach: parsed.deckAttach,
+        deckAttachCode: parsed.deckAttachCode,
+        deckAttachName: parsed.deckAttachName,
+        deckAttachShort: parsed.deckAttachShort,
+        deckAttachment: parsed.deckAttachment,
+        deckAttachmentCode: parsed.deckAttachmentCode,
         anchorage: parsed.anchorage,
         anchorageCode: parsed.anchorageCode,
         anchorageName: parsed.anchorageName,
         anchorageShort: parsed.anchorageShort,
+        hail: parsed.hail,
+        hailCode: parsed.hailCode,
+        tank: parsed.tank,
+        tankCode: parsed.tankCode,
+        chimney: parsed.chimney,
+        chimneyCode: parsed.chimneyCode,
         recognizedCount: parsed.recognizedCount,
         changed: true,
         status: parsed.status,
@@ -3595,7 +4228,14 @@ CleanersRegistry.roof.cleaner = RoofClassifier;
  */
 const WallTaxonomy = {
   get WALL_TYPE() { const td = _resolveTouchstoneData(); return (td && td.WALL && td.WALL.WALL_TYPE) || {}; },
-  get WALL_SIDING() { const td = _resolveTouchstoneData(); return (td && td.WALL && td.WALL.WALL_SIDING) || {}; }
+  get WALL_SIDING() { const td = _resolveTouchstoneData(); return (td && td.WALL && td.WALL.WALL_SIDING) || {}; },
+  get GLASS_TYPE() { const td = _resolveTouchstoneData(); return (td && td.WALL && td.WALL.GLASS_TYPE) || {}; },
+  get GLASS_PERCENTAGE() { const td = _resolveTouchstoneData(); return (td && td.WALL && td.WALL.GLASS_PERCENTAGE) || {}; },
+  get WINDOW_PROTECTION() { const td = _resolveTouchstoneData(); return (td && td.WALL && td.WALL.WINDOW_PROTECTION) || {}; },
+  get EXTERIOR_DOORS() { const td = _resolveTouchstoneData(); return (td && td.WALL && td.WALL.EXTERIOR_DOORS) || {}; },
+  get BUILDING_EXTERIOR_OPENING() { const td = _resolveTouchstoneData(); return (td && td.WALL && td.WALL.BUILDING_EXTERIOR_OPENING) || {}; },
+  get BRICK_VENEER() { const td = _resolveTouchstoneData(); return (td && td.WALL && td.WALL.BRICK_VENEER) || {}; },
+  get FIRE_RATING_WALL_SIDING() { const td = _resolveTouchstoneData(); return (td && td.WALL && td.WALL.FIRE_RATING_WALL_SIDING) || {}; }
 };
 
 const WallClassifier = {
@@ -3627,6 +4267,60 @@ const WallClassifier = {
     '0': 0
   },
 
+  GLASS_TYPE_WEAKNESS: {
+    '1': 100, // Annealed (breaks into large shards)
+    '3': 70,  // Heat strengthened
+    '5': 50,  // Insulating glass units (IGU)
+    '2': 40,  // Tempered (crumbles safely)
+    '4': 20,  // Laminated (impact resistant)
+    '0': 0
+  },
+
+  GLASS_PCT_WEAKNESS: {
+    '4': 100, // Greater than 60%
+    '3': 70,  // Between 20% and 60%
+    '2': 40,  // Between 5% and 20%
+    '1': 20,  // Less than 5%
+    '0': 0
+  },
+
+  WINDOW_PROT_WEAKNESS: {
+    '1': 100, // No protection
+    '2': 60,  // Non-engineered shutters
+    '3': 20,  // Engineered shutters
+    '0': 0
+  },
+
+  EXT_DOORS_WEAKNESS: {
+    '5': 100, // Sliding doors
+    '2': 80,  // Double width doors
+    '1': 60,  // Single width doors
+    '6': 40,  // Reinforced sliding doors
+    '4': 30,  // Reinforced double width doors
+    '3': 20,  // Reinforced single width doors
+    '0': 0
+  },
+
+  OPENING_WEAKNESS: {
+    '2': 100, // More than 50% wall open
+    '1': 30,  // Less than 50% wall open
+    '0': 0
+  },
+
+  BRICK_VENEER_WEAKNESS: {
+    '1': 100, // More than 90%
+    '0': 70,  // 50-90% (Default)
+    '2': 50,  // 25-50%
+    '3': 20,  // 0-25%
+  },
+
+  FIRE_RATING_WEAKNESS: {
+    '3': 100, // Class C
+    '2': 60,  // Class B
+    '1': 20,  // Class A
+    '0': 0
+  },
+
   /**
    * Split text into semantic segments, preserving percentages
    */
@@ -3647,10 +4341,8 @@ const WallClassifier = {
     } else if (text.includes(',') && (text.match(/%/g) || []).length > 1) {
       parts = text.split(',');
     } else if (/\band\b|\b&\b/i.test(text) && !text.includes('%')) {
-      // e.g. "Brick Veneer and Vinyl Siding", "Stucco and Clapboard"
       parts = text.split(/\band\b|\b&\b/i);
     } else if (text.includes('/') && !text.includes('%')) {
-      // e.g. "Brick / Vinyl", "Masonry / Wood Siding"
       parts = text.split('/');
     } else {
       parts = [text];
@@ -3796,8 +4488,245 @@ const WallClassifier = {
     if (/\b(?:brick\s*veneer|masonry\s*veneer|face\s*brick|brick\s*facade|brick\s*siding|brick\s*exterior|brick\s*cladding|masonry\s*cladding|brick\s*front|brick\s*finish)\b/i.test(lower)) {
       candidates.push({ code: '1', percent: getPct(/\b(?:brick\s*veneer|masonry\s*veneer|face\s*brick|brick\s*siding)\b/) });
     } else if (/\bbrick\b/i.test(lower) && !/\b(?:brick\s*bearing|solid\s*brick|unreinforced\s*brick)\b/i.test(lower)) {
-      // In exterior wall finish contexts, generic "Brick" defaults to Brick Veneer (1)
       candidates.push({ code: '1', percent: getPct(/\bbrick\b/) });
+    }
+
+    return candidates;
+  },
+
+  /**
+   * Detect Glass Type candidates (Glass Type: Codes 0–5)
+   */
+  findGlassTypeCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+
+    // 4. Laminated impact glass
+    if (/\b(?:laminated(?:\s*glass)?|impact\s*glass|hurricane\s*glass|pvb|sentry-?glas|missile\s*(?:impact|resistant)\s*glass|security\s*glass)\b/i.test(lower)) {
+      candidates.push({ code: '4', percent: defaultPct });
+    }
+
+    // 5. Insulating glass units (IGU / double / triple pane)
+    if (/\b(?:insulating\s*glass(?:\s*units?)?|igu\b|insulated\s*glass|double\s*pane|triple\s*pane|double\s*glazed|triple\s*glazed|thermal\s*glazing|dual\s*pane)\b/i.test(lower)) {
+      candidates.push({ code: '5', percent: defaultPct });
+    }
+
+    // 2. Tempered safety glass
+    if (/\b(?:tempered(?:\s*glass)?|toughened\s*glass|safety\s*glass|fully\s*tempered)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: defaultPct });
+    }
+
+    // 3. Heat strengthened glass
+    if (/\b(?:heat\s*strengthened|semi-?tempered|hs\s*glass)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: defaultPct });
+    }
+
+    // 1. Annealed float / plate glass
+    if (/\b(?:annealed(?:\s*glass)?|float\s*glass|plate\s*glass|standard\s*plate\s*glass|regular\s*glass|monolithic\s*annealed)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: defaultPct });
+    }
+
+    return candidates;
+  },
+
+  /**
+   * Detect Glass Percentage candidates (Glass Percentage: Codes 0–4)
+   */
+  findGlassPercentageCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+
+    // Check for explicit comparison prefixes e.g. "<5% glass", "< 5%", "less than 5%", ">60%"
+    if (/\b(?:less\s*than\s*5%|< ?5%|under\s*5%(?:\s*glass)?|minimal\s*glass|solid\s*wall\s*minimal\s*windows)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: 3 });
+      return candidates;
+    }
+    if (/\b(?:greater\s*than\s*60%|> ?60%|more\s*than\s*60%|curtain\s*wall|all-?glass\s*(?:facade|envelope)|glass\s*tower|glazed\s*curtainwall)\b/i.test(lower)) {
+      candidates.push({ code: '4', percent: 80 });
+      return candidates;
+    }
+    if (/\b(?:between\s*20%\s*and\s*60%|20-?60%\s*glass|20%\s*to\s*60%\s*glass|ribbon\s*windows|high\s*fenestration)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: 40 });
+      return candidates;
+    }
+    if (/\b(?:between\s*5%\s*and\s*20%|5-?20%\s*glass|5%\s*to\s*20%\s*glass|moderate\s*glazing|standard\s*windows)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: 12 });
+      return candidates;
+    }
+
+    // Check for explicit glass percentage pattern e.g. "15% glass", "glazing 45%", "glass: 70%"
+    const mGlassPct = text.match(/(?:(?:glass|glazing|fenestration|window\s*area)\s*(?:is|:|=)?\s*([<>~]?\s*\d+(?:\.\d+)?)\s*%|([<>~]?\s*\d+(?:\.\d+)?)\s*%\s*(?:glass|glazing|fenestration|window\s*area))/i);
+    if (mGlassPct) {
+      const rawStr = (mGlassPct[1] || mGlassPct[2] || '').trim();
+      const isLess = rawStr.startsWith('<');
+      const isGreater = rawStr.startsWith('>');
+      const val = parseFloat(rawStr.replace(/[<>~]/g, ''));
+      if (isLess && val <= 5) candidates.push({ code: '1', percent: val });
+      else if (isGreater && val >= 60) candidates.push({ code: '4', percent: val });
+      else if (val < 5) candidates.push({ code: '1', percent: val });
+      else if (val <= 20) candidates.push({ code: '2', percent: val });
+      else if (val <= 60) candidates.push({ code: '3', percent: val });
+      else candidates.push({ code: '4', percent: val });
+      return candidates;
+    }
+
+    return candidates;
+  },
+
+  /**
+   * Detect Window Protection candidates (Window Protection: Codes 0–3)
+   */
+  findWindowProtectionCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+
+    // 3. Engineered shutters
+    if (/\b(?:engineered\s*shutters?|hurricane\s*shutters?|impact\s*shutters?|roll-?down\s*shutters?|motorized\s*shutters?|miami-?dade\s*(?:noa|shutters?)|astm\s*e1996|impact\s*screens?|storm\s*shutters?\s*engineered|certified\s*shutters?|bermuda\s*shutters?\s*impact)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: defaultPct });
+    }
+
+    // 2. Non-engineered shutters
+    if (/\b(?:non-?engineered\s*shutters?|plywood\s*(?:covers?|panels?|shutters?)|storm\s*panels?\s*(?:uncertified|plywood)?|temporary\s*shutters?|wood(?:en)?\s*shutters?|manual\s*storm\s*panels?|accordion\s*shutters?\s*non-?engineered|unrated\s*shutters?)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: defaultPct });
+    }
+
+    // 1. No protection
+    if (/\b(?:no\s*(?:window\s*)?protection|unprotected\s*windows?|no\s*shutters?|without\s*shutters?|standard\s*glazing\s*unprotected)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: defaultPct });
+    }
+
+    return candidates;
+  },
+
+  /**
+   * Detect Exterior Doors candidates (Exterior Doors: Codes 0–6)
+   */
+  findExteriorDoorsCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+
+    // 6. Reinforced sliding doors
+    if (/\b(?:reinforced\s*sliding\s*(?:glass\s*)?doors?|impact\s*sliding\s*doors?|hurricane\s*sliding\s*doors?|heavy\s*duty\s*sliding\s*doors?)\b/i.test(lower)) {
+      candidates.push({ code: '6', percent: defaultPct });
+    }
+
+    // 5. Sliding doors
+    if (/\b(?:sliding\s*(?:glass\s*)?doors?|patio\s*doors?|glass\s*sliders?|sliding\s*patio\s*doors?)\b/i.test(lower) && !candidates.some(c => c.code === '6')) {
+      candidates.push({ code: '5', percent: defaultPct });
+    }
+
+    // 4. Reinforced double width doors
+    if (/\b(?:reinforced\s*double\s*(?:width\s*)?doors?|impact\s*double\s*doors?|reinforced\s*french\s*doors?|heavy\s*duty\s*double\s*doors?|hurricane\s*double\s*doors?)\b/i.test(lower)) {
+      candidates.push({ code: '4', percent: defaultPct });
+    }
+
+    // 3. Reinforced single width doors
+    if (/\b(?:reinforced\s*single\s*(?:width\s*)?doors?|impact\s*single\s*doors?|reinforced\s*(?:entry|exterior)\s*doors?|heavy\s*duty\s*single\s*doors?|hurricane\s*single\s*doors?)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: defaultPct });
+    }
+
+    // 2. Double width doors
+    if (/\b(?:double\s*(?:width\s*)?doors?|french\s*doors?|double\s*entry\s*doors?|pair\s*of\s*doors?|2\s*leaf\s*doors?|double\s*exterior\s*doors?)\b/i.test(lower) && !candidates.some(c => c.code === '4')) {
+      candidates.push({ code: '2', percent: defaultPct });
+    }
+
+    // 1. Single width doors
+    if (/\b(?:single\s*(?:width\s*)?doors?|single\s*door|standard\s*entry\s*door|single\s*exterior\s*door|1\s*leaf\s*door)\b/i.test(lower) && !candidates.some(c => c.code === '3')) {
+      candidates.push({ code: '1', percent: defaultPct });
+    }
+
+    return candidates;
+  },
+
+  /**
+   * Detect Building Exterior Opening candidates (Building Exterior Opening: Codes 0–2)
+   */
+  findBuildingExteriorOpeningCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+
+    // 2. More than 50% wall open
+    if (/\b(?:more\s*than\s*50%(?:\s*of)?(?:\s*wall)?\s*open|> ?50%\s*open|>= ?50%\s*open|open\s*storefront|large\s*openings?|ground\s*floor\s*open|open\s*facade)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: 75 });
+      return candidates;
+    }
+
+    // 1. Less than 50% wall open
+    if (/\b(?:less\s*than\s*50%(?:\s*of)?(?:\s*wall)?\s*open|< ?50%\s*open|<= ?50%\s*open|standard\s*openings?|punched\s*openings?|solid\s*walls?)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: 25 });
+      return candidates;
+    }
+
+    // Check for explicit opening percentage e.g. "60% open", "openings: 30%"
+    const mOpenPct = text.match(/(?:(?:wall\s*openings?|exterior\s*openings?|open\s*wall)\s*(?:is|:|=)?\s*([<>~]?\s*\d+(?:\.\d+)?)\s*%|([<>~]?\s*\d+(?:\.\d+)?)\s*%\s*(?:wall\s*open|openings?|open))/i);
+    if (mOpenPct) {
+      const rawStr = (mOpenPct[1] || mOpenPct[2] || '').trim();
+      const isGreater = rawStr.startsWith('>');
+      const val = parseFloat(rawStr.replace(/[<>~]/g, ''));
+      if (isGreater || val > 50) candidates.push({ code: '2', percent: val });
+      else candidates.push({ code: '1', percent: val });
+      return candidates;
+    }
+
+    return candidates;
+  },
+
+  /**
+   * Detect Brick Veneer percentage candidates (Brick Veneer: Codes 0–3)
+   */
+  findBrickVeneerCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+
+    // Look for explicit brick veneer % e.g. "95% brick veneer", "brick veneer 30%"
+    const mBV = text.match(/(?:(?:brick\s*veneer|masonry\s*veneer)\s*(?:is|:|=)?\s*(\d+(?:\.\d+)?)\s*%|(\d+(?:\.\d+)?)\s*%\s*(?:brick\s*veneer|masonry\s*veneer))/i);
+    if (mBV) {
+      const val = parseFloat(mBV[1] || mBV[2]);
+      if (val > 90) candidates.push({ code: '1', percent: val });
+      else if (val >= 25 && val <= 50) candidates.push({ code: '2', percent: val });
+      else if (val < 25) candidates.push({ code: '3', percent: val });
+      else candidates.push({ code: '0', percent: val }); // 50-90% default
+      return candidates;
+    }
+
+    // 1. More than 90%
+    if (/\b(?:more\s*than\s*90%\s*brick\s*veneer|> ?90%\s*(?:brick\s*veneer|veneer)|all\s*brick\s*veneer|100%\s*brick\s*veneer)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: defaultPct });
+    }
+
+    // 2. 25-50%
+    if (/\b(?:25-?50%\s*(?:brick\s*veneer|veneer)|25%\s*to\s*50%\s*brick\s*veneer|partial\s*brick\s*veneer)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: defaultPct });
+    }
+
+    // 3. 0-25%
+    if (/\b(?:0-?25%\s*(?:brick\s*veneer|veneer)|0%\s*to\s*25%\s*brick\s*veneer|minimal\s*brick\s*veneer|brick\s*wainscot)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: defaultPct });
+    }
+
+    return candidates;
+  },
+
+  /**
+   * Detect Fire Rating for Wall Siding candidates (Fire Rating: Codes 0–3)
+   */
+  findFireRatingWallSidingCandidates(text, defaultPct) {
+    const candidates = [];
+    const lower = text.toLowerCase();
+
+    // 1. Fire Rated Class A
+    if (/\b(?:fire\s*rated\s*class\s*a|class\s*a\s*fire(?:\s*rating)?|class\s*a\s*siding|non-?combustible\s*siding|flame\s*spread\s*class\s*a)\b/i.test(lower)) {
+      candidates.push({ code: '1', percent: defaultPct });
+    }
+
+    // 2. Fire Rated Class B
+    if (/\b(?:fire\s*rated\s*class\s*b|class\s*b\s*fire(?:\s*rating)?|class\s*b\s*siding|treated\s*wood\s*siding\s*class\s*b)\b/i.test(lower)) {
+      candidates.push({ code: '2', percent: defaultPct });
+    }
+
+    // 3. Fire Rated Class C
+    if (/\b(?:fire\s*rated\s*class\s*c|class\s*c\s*fire(?:\s*rating)?|class\s*c\s*siding|standard\s*untreated\s*wood\s*siding)\b/i.test(lower)) {
+      candidates.push({ code: '3', percent: defaultPct });
     }
 
     return candidates;
@@ -3835,23 +4764,22 @@ const WallClassifier = {
     const withPct = unique.filter(c => c.percent !== null && c.percent !== undefined && !isNaN(c.percent));
 
     if (withPct.length > 0) {
-      // Sort by percentage descending; tie-breaker: weaker material (higher weakness score)
       unique.sort((a, b) => {
         const pA = a.percent !== null ? a.percent : -1;
         const pB = b.percent !== null ? b.percent : -1;
         if (pB !== pA) return pB - pA; // Higher % wins
-        // Tie-breaker (e.g. 50% vs 50%): weaker material wins (higher weakness score)
-        const wA = weaknessMap[a.code] || 0;
-        const wB = weaknessMap[b.code] || 0;
+        // Tie-breaker: weaker material wins
+        const wA = (weaknessMap && weaknessMap[a.code]) || 0;
+        const wB = (weaknessMap && weaknessMap[b.code]) || 0;
         return wB - wA;
       });
       return unique[0].code;
     }
 
-    // No percentages present: pick WEAKER material (higher weakness score)
+    // No percentages present: pick WEAKER material
     unique.sort((a, b) => {
-      const wA = weaknessMap[a.code] || 0;
-      const wB = weaknessMap[b.code] || 0;
+      const wA = (weaknessMap && weaknessMap[a.code]) || 0;
+      const wB = (weaknessMap && weaknessMap[b.code]) || 0;
       return wB - wA;
     });
 
@@ -3859,7 +4787,7 @@ const WallClassifier = {
   },
 
   /**
-   * Parse a single row or tab-delimited input into WallType and WallSiding
+   * Parse a single row or tab-delimited input into all 9 Touchstone Wall Detail fields
    */
   parseWallRow(rawRow, options = {}) {
     if (!rawRow) rawRow = '';
@@ -3875,14 +4803,85 @@ const WallClassifier = {
         wallSiding: '',
         wallSidingName: '',
         wallSidingShort: '',
+        glassTypeCode: '0',
+        glassType: '',
+        glassTypeName: '',
+        glassPercentageCode: '0',
+        glassPercentage: '',
+        glassPercentageName: '',
+        windowProtectionCode: '0',
+        windowProtection: '',
+        windowProtectionName: '',
+        exteriorDoorsCode: '0',
+        exteriorDoors: '',
+        exteriorDoorsName: '',
+        buildingOpeningCode: '0',
+        buildingOpening: '',
+        buildingOpeningName: '',
+        brickVeneerCode: '0',
+        brickVeneer: '',
+        brickVeneerName: '',
+        fireRatingCode: '0',
+        fireRating: '',
+        fireRatingName: '',
         recognizedCount: 0,
         status: 'empty',
         statusText: 'Blank'
       };
     }
 
-    // Unknown / 0-unknown: any input that is purely "unknown" or "0-unknown" (or variants)
-    // maps both wall fields to code 0 (Unknown/default).
+    // 0. Check continuous self-training memory database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learnedWall = CustomCodesDB.matchLearned('wall', str);
+      if (learnedWall) {
+        let wType = '';
+        let wSiding = '';
+        if (typeof learnedWall === 'object') {
+          wType = String(learnedWall.wallTypeCode ?? learnedWall.wallType ?? learnedWall.type ?? '');
+          wSiding = String(learnedWall.wallSidingCode ?? learnedWall.wallSiding ?? learnedWall.siding ?? '');
+        } else if (typeof learnedWall === 'string') {
+          const parts = learnedWall.split(/[\t,]/);
+          wType = parts[0]?.trim() || '';
+          wSiding = parts[1]?.trim() || '';
+        }
+        if (wType || wSiding) {
+          const typeObj = WallTaxonomy.WALL_TYPE[wType];
+          const sidingObj = WallTaxonomy.WALL_SIDING[wSiding];
+          const format = options.format || 'code_only';
+          const recCount = (wType ? 1 : 0) + (wSiding ? 1 : 0);
+          return {
+            original: rawRow,
+            wallTypeCode: wType,
+            wallType: format === 'code_only' ? wType : (typeObj ? `${typeObj.name} (${wType})` : wType),
+            wallTypeName: typeObj ? typeObj.name : '',
+            wallTypeShort: typeObj ? typeObj.shortName : '',
+            wallSidingCode: wSiding,
+            wallSiding: format === 'code_only' ? wSiding : (sidingObj ? `${sidingObj.name} (${wSiding})` : wSiding),
+            wallSidingName: sidingObj ? sidingObj.name : '',
+            wallSidingShort: sidingObj ? sidingObj.shortName : '',
+            glassTypeCode: '0',
+            glassType: '0',
+            glassPercentageCode: '0',
+            glassPercentage: '0',
+            windowProtectionCode: '0',
+            windowProtection: '0',
+            exteriorDoorsCode: '0',
+            exteriorDoors: '0',
+            buildingOpeningCode: '0',
+            buildingOpening: '0',
+            brickVeneerCode: '0',
+            brickVeneer: '0',
+            fireRatingCode: '0',
+            fireRating: '0',
+            recognizedCount: recCount,
+            status: recCount === 2 ? 'match' : (recCount === 1 ? 'assigned' : 'mismatch'),
+            statusText: recCount === 2 ? '✓ Learned (Both Fields)' : (recCount === 1 ? '✓ Learned (1 Field)' : '⚠️ Unrecognized')
+          };
+        }
+      }
+    }
+
+    // Unknown / 0-unknown: any input that is purely "unknown" or "0-unknown"
     if (/^(?:0\s*[-\/]\s*)?unknown\s*(?:[-\/]\s*0)?$/i.test(str) || /^0\s*[-\/]?\s*unknown$/i.test(str)) {
       const unknownDisplay = (fmt) => fmt === 'code_only' ? '0' : fmt === 'name_only' ? 'Unknown/default' : fmt === 'short_code' ? 'Unknown (0)' : 'Unknown/default (0)';
       const fmt = options.format || 'code_only';
@@ -3896,17 +4895,39 @@ const WallClassifier = {
         wallSiding: unknownDisplay(fmt),
         wallSidingName: 'Unknown/default',
         wallSidingShort: 'Unknown',
-        recognizedCount: 2,
+        glassTypeCode: '0',
+        glassType: '0',
+        glassPercentageCode: '0',
+        glassPercentage: '0',
+        windowProtectionCode: '0',
+        windowProtection: '0',
+        exteriorDoorsCode: '0',
+        exteriorDoors: '0',
+        buildingOpeningCode: '0',
+        buildingOpening: '0',
+        brickVeneerCode: '0',
+        brickVeneer: '0',
+        fireRatingCode: '0',
+        fireRating: '0',
+        recognizedCount: 9,
         status: 'match',
-        statusText: '✓ Complete (Both Fields Identified)'
+        statusText: '✓ Complete (All Wall Fields Defaulted to 0)'
       };
     }
 
-    // Check if row is already tab-separated numbers (e.g. "1\t4" or "2\t7")
-    const numTabMatch = str.match(/^([0-9])\s*[\t,]\s*([0-9])$/);
+    // Check if row is tab-separated numbers (e.g. "1\t4" or "3\t1\t2\t2\t3\t2\t1\t0\t1")
+    const numTabMatch = str.match(/^([0-9])\s*[\t,]\s*([0-9])(?:\s*[\t,]\s*([0-9]))?(?:\s*[\t,]\s*([0-9]))?(?:\s*[\t,]\s*([0-9]))?(?:\s*[\t,]\s*([0-9]))?(?:\s*[\t,]\s*([0-9]))?(?:\s*[\t,]\s*([0-9]))?(?:\s*[\t,]\s*([0-9]))?$/);
     if (numTabMatch) {
-      const wType = numTabMatch[1];
-      const wSiding = numTabMatch[2];
+      const wType = numTabMatch[1] || '';
+      const wSiding = numTabMatch[2] || '';
+      const gType = numTabMatch[3] || '0';
+      const gPct = numTabMatch[4] || '0';
+      const wProt = numTabMatch[5] || '0';
+      const extDr = numTabMatch[6] || '0';
+      const bOpen = numTabMatch[7] || '0';
+      const bVen = numTabMatch[8] || '0';
+      const fRate = numTabMatch[9] || '0';
+
       const typeObj = WallTaxonomy.WALL_TYPE[wType];
       const sidingObj = WallTaxonomy.WALL_SIDING[wSiding];
       const format = options.format || 'code_only';
@@ -3920,9 +4941,23 @@ const WallClassifier = {
         wallSiding: format === 'code_only' ? wSiding : (sidingObj ? `${sidingObj.name} (${wSiding})` : wSiding),
         wallSidingName: sidingObj ? sidingObj.name : '',
         wallSidingShort: sidingObj ? sidingObj.shortName : '',
+        glassTypeCode: gType,
+        glassType: gType,
+        glassPercentageCode: gPct,
+        glassPercentage: gPct,
+        windowProtectionCode: wProt,
+        windowProtection: wProt,
+        exteriorDoorsCode: extDr,
+        exteriorDoors: extDr,
+        buildingOpeningCode: bOpen,
+        buildingOpening: bOpen,
+        brickVeneerCode: bVen,
+        brickVeneer: bVen,
+        fireRatingCode: fRate,
+        fireRating: fRate,
         recognizedCount: 2,
         status: 'match',
-        statusText: '✓ Complete (Both Fields Identified)'
+        statusText: '✓ Complete (Wall Fields Identified)'
       };
     }
 
@@ -3938,23 +4973,42 @@ const WallClassifier = {
 
     const typeCandidates = [];
     const sidingCandidates = [];
+    const glassTypeCandidates = [];
+    const glassPctCandidates = [];
+    const winProtCandidates = [];
+    const extDoorsCandidates = [];
+    const bOpenCandidates = [];
+    const bVenCandidates = [];
+    const fRateCandidates = [];
 
     for (const seg of segments) {
       typeCandidates.push(...this.findWallTypeCandidates(seg.text, seg.percent));
       sidingCandidates.push(...this.findWallSidingCandidates(seg.text, seg.percent));
+      glassTypeCandidates.push(...this.findGlassTypeCandidates(seg.text, seg.percent));
+      glassPctCandidates.push(...this.findGlassPercentageCandidates(seg.text, seg.percent));
+      winProtCandidates.push(...this.findWindowProtectionCandidates(seg.text, seg.percent));
+      extDoorsCandidates.push(...this.findExteriorDoorsCandidates(seg.text, seg.percent));
+      bOpenCandidates.push(...this.findBuildingExteriorOpeningCandidates(seg.text, seg.percent));
+      bVenCandidates.push(...this.findBrickVeneerCandidates(seg.text, seg.percent));
+      fRateCandidates.push(...this.findFireRatingWallSidingCandidates(seg.text, seg.percent));
     }
 
-    // Fallback full-text scan if either category wasn't found via segments
+    // Fallback full-text scan if any category wasn't found via segments
     if (typeCandidates.length === 0) typeCandidates.push(...this.findWallTypeCandidates(fullText, null));
     if (sidingCandidates.length === 0) sidingCandidates.push(...this.findWallSidingCandidates(fullText, null));
+    if (glassTypeCandidates.length === 0) glassTypeCandidates.push(...this.findGlassTypeCandidates(fullText, null));
+    if (glassPctCandidates.length === 0) glassPctCandidates.push(...this.findGlassPercentageCandidates(fullText, null));
+    if (winProtCandidates.length === 0) winProtCandidates.push(...this.findWindowProtectionCandidates(fullText, null));
+    if (extDoorsCandidates.length === 0) extDoorsCandidates.push(...this.findExteriorDoorsCandidates(fullText, null));
+    if (bOpenCandidates.length === 0) bOpenCandidates.push(...this.findBuildingExteriorOpeningCandidates(fullText, null));
+    if (bVenCandidates.length === 0) bVenCandidates.push(...this.findBrickVeneerCandidates(fullText, null));
+    if (fRateCandidates.length === 0) fRateCandidates.push(...this.findFireRatingWallSidingCandidates(fullText, null));
 
     // Resolve WallType and WallSiding applying Underwriting Rules
     let wallTypeCode = this.resolveCandidates(typeCandidates, this.WALL_TYPE_WEAKNESS, 'wallType');
     let wallSidingCode = this.resolveCandidates(sidingCandidates, this.WALL_SIDING_WEAKNESS, 'wallSiding');
 
     // Contextual cross-resolution:
-    // If WallSiding is Veneer brick (1) and no WallType is specified:
-    // If text mentions wood frame, WallType = 3 (Plywood); if text mentions CMU/block, WallType = 2
     if (wallSidingCode === '1' && !wallTypeCode) {
       if (/\b(?:frame|wood|stud)\b/i.test(fullText)) {
         wallTypeCode = '3';
@@ -3963,7 +5017,6 @@ const WallClassifier = {
       }
     }
 
-    // If WallSiding is Stucco (7) and no WallType is specified:
     if (wallSidingCode === '7' && !wallTypeCode) {
       if (/\b(?:cmu|block|masonry)\b/i.test(fullText)) {
         wallTypeCode = '2';
@@ -3972,14 +5025,39 @@ const WallClassifier = {
       }
     }
 
-    // If WallType is URM (1) and no siding is specified, the brick acts as both structure and siding
     if (wallTypeCode === '1' && !wallSidingCode) {
       wallSidingCode = '1';
+    }
+
+    // Resolve Additional Wall Detail fields (Codes default to '0' Unknown if not specified)
+    let glassTypeCode = this.resolveCandidates(glassTypeCandidates, this.GLASS_TYPE_WEAKNESS, 'glassType') || '0';
+    let glassPercentageCode = this.resolveCandidates(glassPctCandidates, this.GLASS_PCT_WEAKNESS, 'glassPercentage') || '0';
+    let windowProtectionCode = this.resolveCandidates(winProtCandidates, this.WINDOW_PROT_WEAKNESS, 'windowProtection') || '0';
+    let exteriorDoorsCode = this.resolveCandidates(extDoorsCandidates, this.EXT_DOORS_WEAKNESS, 'exteriorDoors') || '0';
+    let buildingOpeningCode = this.resolveCandidates(bOpenCandidates, this.OPENING_WEAKNESS, 'buildingOpening') || '0';
+    let brickVeneerCode = this.resolveCandidates(bVenCandidates, this.BRICK_VENEER_WEAKNESS, 'brickVeneer') || '0';
+    let fireRatingCode = this.resolveCandidates(fRateCandidates, this.FIRE_RATING_WEAKNESS, 'fireRating') || '0';
+
+    // Auto-derive Class A Fire Rating for known non-combustible sidings if not explicitly rated
+    if (fireRatingCode === '0') {
+      if (wallSidingCode === '8' || wallSidingCode === '1' || wallSidingCode === '5') {
+        // Fiber cement (8), Brick (1), Stone (5) are inherently Class A
+        if (/\b(?:class\s*a|non-?combustible|fire\s*rated)\b/i.test(fullText)) {
+          fireRatingCode = '1';
+        }
+      }
     }
 
     // Resolve labels
     const wallTypeObj = WallTaxonomy.WALL_TYPE[wallTypeCode];
     const wallSidingObj = WallTaxonomy.WALL_SIDING[wallSidingCode];
+    const glassTypeObj = WallTaxonomy.GLASS_TYPE[glassTypeCode];
+    const glassPctObj = WallTaxonomy.GLASS_PERCENTAGE[glassPercentageCode];
+    const winProtObj = WallTaxonomy.WINDOW_PROTECTION[windowProtectionCode];
+    const extDoorsObj = WallTaxonomy.EXTERIOR_DOORS[exteriorDoorsCode];
+    const bOpenObj = WallTaxonomy.BUILDING_EXTERIOR_OPENING[buildingOpeningCode];
+    const bVenObj = WallTaxonomy.BRICK_VENEER[brickVeneerCode];
+    const fRateObj = WallTaxonomy.FIRE_RATING_WALL_SIDING[fireRatingCode];
 
     const format = options.format || 'code_only';
 
@@ -3999,13 +5077,20 @@ const WallClassifier = {
       else wallSidingDisplay = `${wallSidingObj.name} (${wallSidingObj.code})`;
     }
 
-    const recognizedCount = (wallTypeCode ? 1 : 0) + (wallSidingCode ? 1 : 0);
+    let recognizedCount = (wallTypeCode ? 1 : 0) + (wallSidingCode ? 1 : 0);
+    if (glassTypeCode !== '0') recognizedCount++;
+    if (glassPercentageCode !== '0') recognizedCount++;
+    if (windowProtectionCode !== '0') recognizedCount++;
+    if (exteriorDoorsCode !== '0') recognizedCount++;
+    if (buildingOpeningCode !== '0') recognizedCount++;
+    if (brickVeneerCode !== '0') recognizedCount++;
+    if (fireRatingCode !== '0') recognizedCount++;
 
     let status = 'assigned';
-    let statusText = `Separated (${recognizedCount}/2 Fields)`;
-    if (recognizedCount === 2) {
+    let statusText = `Separated (${recognizedCount} Wall Fields)`;
+    if (wallTypeCode && wallSidingCode) {
       status = 'match';
-      statusText = '✓ Complete (Both Fields Identified)';
+      statusText = `✓ Complete (${recognizedCount} Wall Detail Fields Identified)`;
     } else if (recognizedCount === 0) {
       status = 'mismatch';
       statusText = '⚠️ Unrecognized Wall Format';
@@ -4021,6 +5106,34 @@ const WallClassifier = {
       wallSiding: wallSidingDisplay,
       wallSidingName: wallSidingObj ? wallSidingObj.name : '',
       wallSidingShort: wallSidingObj ? wallSidingObj.shortName : '',
+      glassTypeCode: glassTypeCode,
+      glassType: glassTypeCode !== '0' ? (glassTypeObj ? `${glassTypeObj.name} (${glassTypeCode})` : glassTypeCode) : '0',
+      glassTypeName: glassTypeObj ? glassTypeObj.name : 'Unknown/default',
+      glassTypeShort: glassTypeObj ? glassTypeObj.shortName : 'Unknown',
+      glassPercentageCode: glassPercentageCode,
+      glassPercentage: glassPercentageCode !== '0' ? (glassPctObj ? `${glassPctObj.name} (${glassPercentageCode})` : glassPercentageCode) : '0',
+      glassPercentageName: glassPctObj ? glassPctObj.name : 'Unknown/default',
+      glassPercentageShort: glassPctObj ? glassPctObj.shortName : 'Unknown',
+      windowProtectionCode: windowProtectionCode,
+      windowProtection: windowProtectionCode !== '0' ? (winProtObj ? `${winProtObj.name} (${windowProtectionCode})` : windowProtectionCode) : '0',
+      windowProtectionName: winProtObj ? winProtObj.name : 'Unknown/default',
+      windowProtectionShort: winProtObj ? winProtObj.shortName : 'Unknown',
+      exteriorDoorsCode: exteriorDoorsCode,
+      exteriorDoors: exteriorDoorsCode !== '0' ? (extDoorsObj ? `${extDoorsObj.name} (${exteriorDoorsCode})` : exteriorDoorsCode) : '0',
+      exteriorDoorsName: extDoorsObj ? extDoorsObj.name : 'Unknown/default',
+      exteriorDoorsShort: extDoorsObj ? extDoorsObj.shortName : 'Unknown',
+      buildingOpeningCode: buildingOpeningCode,
+      buildingOpening: buildingOpeningCode !== '0' ? (bOpenObj ? `${bOpenObj.name} (${buildingOpeningCode})` : buildingOpeningCode) : '0',
+      buildingOpeningName: bOpenObj ? bOpenObj.name : 'Unknown',
+      buildingOpeningShort: bOpenObj ? bOpenObj.shortName : 'Unknown',
+      brickVeneerCode: brickVeneerCode,
+      brickVeneer: brickVeneerCode !== '0' ? (bVenObj ? `${bVenObj.name} (${brickVeneerCode})` : brickVeneerCode) : '0',
+      brickVeneerName: bVenObj ? bVenObj.name : 'Unknown/default',
+      brickVeneerShort: bVenObj ? bVenObj.shortName : 'Unknown',
+      fireRatingCode: fireRatingCode,
+      fireRating: fireRatingCode !== '0' ? (fRateObj ? `${fRateObj.name} (${fireRatingCode})` : fireRatingCode) : '0',
+      fireRatingName: fRateObj ? fRateObj.name : 'Unknown/No Rating',
+      fireRatingShort: fRateObj ? fRateObj.shortName : 'Unknown',
       recognizedCount,
       status,
       statusText
@@ -4038,8 +5151,36 @@ const WallClassifier = {
       const trimmed = (line || '').trim();
       if (!trimmed && options.removeEmptyLines) return;
 
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          wallType: '—',
+          wallTypeCode: '',
+          wallTypeName: '',
+          wallTypeShort: '',
+          wallSiding: '—',
+          wallSidingCode: '',
+          wallSidingName: '',
+          wallSidingShort: '',
+          glassTypeCode: '0',
+          glassPercentageCode: '0',
+          windowProtectionCode: '0',
+          exteriorDoorsCode: '0',
+          buildingOpeningCode: '0',
+          brickVeneerCode: '0',
+          fireRatingCode: '0',
+          recognizedCount: 0,
+          changed: false,
+          status: 'empty',
+          statusText: 'Blank'
+        });
+        return;
+      }
+
       const parsed = this.parseWallRow(line, options);
-      // Cleaned output contains pure codes for direct Excel columns (WallType\tWallSiding)
+      // Cleaned output contains primary codes for direct Excel columns (WallType\tWallSiding)
       const cleaned = [parsed.wallTypeCode || '', parsed.wallSidingCode || ''].join('\t');
 
       results.push({
@@ -4054,6 +5195,34 @@ const WallClassifier = {
         wallSidingCode: parsed.wallSidingCode,
         wallSidingName: parsed.wallSidingName,
         wallSidingShort: parsed.wallSidingShort,
+        glassType: parsed.glassType,
+        glassTypeCode: parsed.glassTypeCode,
+        glassTypeName: parsed.glassTypeName,
+        glassTypeShort: parsed.glassTypeShort,
+        glassPercentage: parsed.glassPercentage,
+        glassPercentageCode: parsed.glassPercentageCode,
+        glassPercentageName: parsed.glassPercentageName,
+        glassPercentageShort: parsed.glassPercentageShort,
+        windowProtection: parsed.windowProtection,
+        windowProtectionCode: parsed.windowProtectionCode,
+        windowProtectionName: parsed.windowProtectionName,
+        windowProtectionShort: parsed.windowProtectionShort,
+        exteriorDoors: parsed.exteriorDoors,
+        exteriorDoorsCode: parsed.exteriorDoorsCode,
+        exteriorDoorsName: parsed.exteriorDoorsName,
+        exteriorDoorsShort: parsed.exteriorDoorsShort,
+        buildingOpening: parsed.buildingOpening,
+        buildingOpeningCode: parsed.buildingOpeningCode,
+        buildingOpeningName: parsed.buildingOpeningName,
+        buildingOpeningShort: parsed.buildingOpeningShort,
+        brickVeneer: parsed.brickVeneer,
+        brickVeneerCode: parsed.brickVeneerCode,
+        brickVeneerName: parsed.brickVeneerName,
+        brickVeneerShort: parsed.brickVeneerShort,
+        fireRating: parsed.fireRating,
+        fireRatingCode: parsed.fireRatingCode,
+        fireRatingName: parsed.fireRatingName,
+        fireRatingShort: parsed.fireRatingShort,
         recognizedCount: parsed.recognizedCount,
         changed: true,
         status: parsed.status,
@@ -4067,6 +5236,620 @@ const WallClassifier = {
 
 // Wire up wall cleaner reference
 CleanersRegistry.wall.cleaner = WallClassifier;
+
+/**
+ * CleanExcel - Touchstone UNICEDE® Foundation Connection Classifier Engine
+ * 
+ * Analyzes and classifies foundation connection descriptions into Touchstone UNICEDE Codes 0–6:
+ *  - Code 0: Unknown/default (0)
+ *  - Code 1: Hurricane ties (1) (hurricane straps, seismic ties, uplift straps, hold-downs, clips)
+ *  - Code 2: Nails/Screws (2) (toe-nailing, screws, nails, wood screws)
+ *  - Code 3: Anchor Bolts (3) (sill plate bolts, foundation bolts, anchor bolts, expansion bolts, J-bolts)
+ *  - Code 4: Gravity/Friction (4) (unanchored, dead load only, gravity, friction, resting on foundation)
+ *            [For industrial facilities: Unanchored equipment]
+ *  - Code 5: Adhesive/Epoxy (5) (chemical adhesive anchor, structural epoxy, resin anchor)
+ *  - Code 6: Structurally Connected (6) (monolithic concrete tie, welded connection, embed plates, continuous rebar)
+ *            [For industrial facilities: Anchored equipment]
+ * 
+ * Verisk Retrofit Rule:
+ *  - For Verisk Earthquake Model for the United States, you must specify Gravity/Friction (4) if you want to use the Retrofit Measures option Foundation anchorage (bolting) (4).
+ */
+const FoundationConnectionClassifier = {
+  get TAXONOMY() {
+    const td = _resolveTouchstoneData();
+    if (td && td.FOUNDATION && td.FOUNDATION.FOUNDATION_CONNECTION) {
+      return td.FOUNDATION.FOUNDATION_CONNECTION;
+    }
+    return {
+      "0": { code: "0", name: "Unknown/default", shortName: "Unknown / Default", industrialEquiv: "Unknown/default" },
+      "1": { code: "1", name: "Hurricane ties", shortName: "Hurricane ties" },
+      "2": { code: "2", name: "Nails/Screws", shortName: "Nails / Screws" },
+      "3": { code: "3", name: "Anchor Bolts", shortName: "Anchor Bolts" },
+      "4": { code: "4", name: "Gravity/Friction", shortName: "Gravity / Friction", industrialEquiv: "Unanchored" },
+      "5": { code: "5", name: "Adhesive/Epoxy", shortName: "Adhesive / Epoxy" },
+      "6": { code: "6", name: "Structurally Connected", shortName: "Structurally Connected", industrialEquiv: "Anchored" }
+    };
+  },
+
+  PATTERNS: [
+    // Code 1: Hurricane ties
+    {
+      code: '1',
+      regex: /\b(?:hurricane\s*(?:ties?|straps?|clips?)|seismic\s*(?:ties?|clips?|straps?)|uplift\s*straps?|hold\s*[-–—]?\s*downs?|simpson\s*(?:ties?|strong[- ]tie|straps?)|tie\s*[-–—]?\s*downs?|foundation\s*clips?)\b/i
+    },
+    // Code 5: Adhesive/Epoxy (check before generic anchor/screws)
+    {
+      code: '5',
+      regex: /\b(?:adhesive\s*(?:\/|\band\b)?\s*epoxy|epoxy\s*(?:anchors?|dowels?|bonding|adhesive)?|chemical\s*(?:anchors?|adhesive)|resin\s*anchors?|structural\s*epoxy|glued\s*to\s*foundation|epoxy)\b/i
+    },
+    // Code 6: Structurally Connected (and industrial: Anchored)
+    {
+      code: '6',
+      regex: /\b(?:structurally\s*connected|structural\s*connection|monolithic(?:\s*(?:concrete|tie\s*beam|connection))?|welded(?:\s*(?:connection|plates?|embeds?))?|embed(?:\s*plates?)?|continuous\s*rebar|cast[- ]in[- ]place\s*embed|\banchored\s*equipment\b|\banchored\b(?!\s*bolt)|\banchor\b(?!\s*bolt))\b/i
+    },
+    // Code 3: Anchor Bolts
+    {
+      code: '3',
+      regex: /\b(?:anchor\s*bolts?|foundation\s*bolts?|sill\s*(?:plate\s*)?bolts?|bolted(?:\s*foundation|\s*sill|\s*to\s*foundation)?|bolting|expansion\s*bolts?|j\s*[-–—]?\s*bolts?|wedge\s*anchors?|foundation\s*anchorage\s*\(\s*bolting\s*\)|mechanical\s*anchor\s*bolts?)\b/i
+    },
+    // Code 4: Gravity/Friction (and industrial: Unanchored)
+    {
+      code: '4',
+      regex: /\b(?:gravity\s*(?:\/|\band\b)?\s*friction|gravity(?:\s*load)?|friction(?:\s*only)?|unanchored(?:\s*equipment)?|dead\s*(?:weight|load)(?:\s*only)?|resting\s*on\s*foundation|unbolted|no\s*(?:mechanical\s*)?connection|none|not\s*anchored)\b/i
+    },
+    // Code 2: Nails/Screws
+    {
+      code: '2',
+      regex: /\b(?:nails?\s*(?:\/|\band\b)?\s*screws?|toe\s*[-–—]?\s*nail(?:ing|ed|s)?|framing\s*nails?|wood\s*screws?|mechanical\s*screws?|nailed|screwed|face\s*nailed|\bnails?\b|\bscrews?\b)\b/i
+    },
+    // Code 0: Unknown/default
+    {
+      code: '0',
+      regex: /\b(?:unknown|default|unk|tbd|unspecified)\b/i
+    }
+  ],
+
+  /**
+   * Classifies a raw foundation connection description or code
+   */
+  classify(raw, options = {}) {
+    if (raw === undefined || raw === null) return { code: '', name: '', shortName: '', status: 'empty', statusText: 'Blank' };
+    const str = String(raw).trim();
+    if (!str) return { code: '', name: '', shortName: '', status: 'empty', statusText: 'Blank' };
+
+    // 0. Check continuous self-training learned memory
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('foundation_connection', str) || CustomCodesDB.matchLearned('foundation', str);
+      if (learned !== null && learned !== undefined && learned !== '') {
+        const c = typeof learned === 'object' ? (learned.foundationConnectionCode || learned.code || '') : String(learned);
+        if (c && this.TAXONOMY[c]) {
+          const item = this.TAXONOMY[c];
+          return this._formatResult(str, c, item, options, true);
+        }
+      }
+    }
+
+    // 1. Direct numeric code match (0 to 6)
+    const directCode = str.match(/(?:(?:foundation\s*connection|connection|code)\s*[:=]?\s*|^|\b)([0-6])(?:\b|$)/i);
+    if (directCode && str.length <= 8) {
+      const code = directCode[1];
+      const item = this.TAXONOMY[code];
+      return this._formatResult(str, code, item, options);
+    }
+
+    // 2. Pattern matching
+    for (const p of this.PATTERNS) {
+      if (p.regex.test(str)) {
+        const item = this.TAXONOMY[p.code];
+        return this._formatResult(str, p.code, item, options);
+      }
+    }
+
+    // Default unknown / unrecognized
+    return {
+      original: str,
+      code: '',
+      name: '',
+      shortName: '',
+      cleaned: '',
+      perils: ['CA EQ', 'HI EQ', 'HI TC', 'JP EQ', 'NZ EQ', 'US EQ', 'US HU', 'US ST'],
+      status: 'mismatch',
+      statusText: '⚠️ Unrecognized Connection',
+      changed: true
+    };
+  },
+
+  _formatResult(original, code, item, options = {}, isLearned = false) {
+    const format = options.format || 'code_only';
+    const name = item ? item.name : '';
+    const shortName = item ? item.shortName : '';
+    const perils = item && item.perils ? item.perils : ['CA EQ', 'HI EQ', 'HI TC', 'JP EQ', 'NZ EQ', 'US EQ', 'US HU', 'US ST'];
+    const industrialEquiv = item && item.industrialEquiv ? item.industrialEquiv : null;
+    const retrofitNote = item && item.retrofitNote ? item.retrofitNote : null;
+
+    let cleaned = code;
+    if (format === 'name_only') cleaned = name;
+    else if (format === 'name_code') cleaned = `${name} (${code})`;
+    else if (format === 'short_code') cleaned = `${shortName} (${code})`;
+    else if (format === 'code_name') cleaned = `${code} - ${shortName}`;
+
+    const status = isLearned ? 'assigned' : (code === '0' ? 'unchanged' : 'assigned');
+    const statusText = isLearned ? `🧠 Learned (${shortName})` : `✓ Code ${code} (${shortName})`;
+
+    return {
+      original,
+      code,
+      name,
+      shortName,
+      cleaned,
+      perils,
+      industrialEquiv,
+      retrofitNote,
+      status,
+      statusText,
+      changed: original !== cleaned
+    };
+  },
+
+  cleanColumn(input, options = {}) {
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
+    const results = [];
+
+    lines.forEach((line, idx) => {
+      const trimmed = (line !== undefined && line !== null) ? String(line).trim() : '';
+      if (options.removeEmptyLines && !trimmed) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          code: '',
+          name: '',
+          shortName: '',
+          foundationConnectionCode: '',
+          foundationConnection: '—',
+          foundationConnectionName: '',
+          foundationConnectionShort: '',
+          perils: 'CA EQ, HI EQ, HI TC, JP EQ, NZ EQ, US EQ, US HU, US ST',
+          changed: false,
+          status: 'empty',
+          statusText: 'Blank'
+        });
+        return;
+      }
+
+      const res = this.classify(trimmed, options);
+      results.push({
+        lineNum: idx + 1,
+        original: line,
+        cleaned: res.cleaned,
+        code: res.code,
+        name: res.name,
+        shortName: res.shortName,
+        foundationConnectionCode: res.code,
+        foundationConnection: res.cleaned,
+        foundationConnectionName: res.name,
+        foundationConnectionShort: res.shortName,
+        perils: res.perils && Array.isArray(res.perils) ? res.perils.join(', ') : 'CA EQ, HI EQ, HI TC, JP EQ, NZ EQ, US EQ, US HU, US ST',
+        industrialEquiv: res.industrialEquiv,
+        retrofitNote: res.retrofitNote,
+        changed: res.changed,
+        status: res.status,
+        statusText: res.statusText
+      });
+    });
+
+    return results;
+  }
+};
+
+/**
+ * CleanExcel - Touchstone UNICEDE® Foundation Type Classifier Engine
+ * 
+ * Analyzes and classifies foundation type descriptions into Touchstone UNICEDE Codes 0–12:
+ *  - Code 0: Unknown/default (0)
+ *  - Code 1: Masonry basement (1) (brick/cmu basement, applicable for US, UK, Central Europe Inland Flood models, required when Floor of Interest = -1)
+ *  - Code 2: Concrete basement (2) (cast-in-place concrete basement, required when Floor of Interest = -1)
+ *  - Code 3: Masonry wall (3) (Touchstone maps this to Crawlspace cripple wall (4) upon import)
+ *  - Code 4: Crawlspace cripple wall (wood) (4) (wood stud cripple wall, mandatory in Verisk EQ Model for US when applying Retrofit Bracing of cripple walls (1))
+ *  - Code 5: Crawlspace masonry (wood) (5) (masonry stem wall crawlspace)
+ *  - Code 6: Post & pier (6) (timber posts/piers, stilt foundation, raised pilings)
+ *  - Code 7: Footing (7) (spread footing, strip footing, shallow continuous footing)
+ *  - Code 8: Mat / slab (8) (slab-on-grade, raft foundation, floating slab, typical for mid-rise buildings)
+ *  - Code 9: Pile (9) (driven piles, drilled caissons, deep foundation, typical for high-rise buildings & earthquake performance)
+ *  - Code 10: No basement (10) (slab-on-grade without basement; not applicable for Verisk US EQ model)
+ *  - Code 11: Engineering foundation (11) (special engineered foundation, seismic base isolation, micropiles)
+ *  - Code 12: Crawlspace - raised (wood) (12) (elevated wood floor over open foundation, raised crawlspace)
+ * 
+ * Perils Supported:
+ *  - CA EQ, CE IF, EU ETC, HI EQ, IT IF (v11.5), JP IF, JP EQ, JP TY, NZ EQ, SK TY (v13), UK/ROI IF (v13.0), US EQ, US HU, US IF
+ */
+const FoundationTypeClassifier = {
+  taxonomy: {
+    get FOUNDATION_TYPE() {
+      const td = _resolveTouchstoneData();
+      return (td && td.FOUNDATION && td.FOUNDATION.FOUNDATION_TYPE) || {
+        "0": { code: "0", name: "Unknown/default", shortName: "Unknown / Default" },
+        "1": { code: "1", name: "Masonry basement", shortName: "Masonry basement" },
+        "2": { code: "2", name: "Concrete basement", shortName: "Concrete basement" },
+        "3": { code: "3", name: "Masonry wall", shortName: "Masonry wall" },
+        "4": { code: "4", name: "Crawlspace cripple wall (wood)", shortName: "Crawlspace cripple wall" },
+        "5": { code: "5", name: "Crawlspace masonry (wood)", shortName: "Crawlspace masonry" },
+        "6": { code: "6", name: "Post & pier", shortName: "Post & pier" },
+        "7": { code: "7", name: "Footing", shortName: "Footing" },
+        "8": { code: "8", name: "Mat / slab", shortName: "Mat / slab" },
+        "9": { code: "9", name: "Pile", shortName: "Pile" },
+        "10": { code: "10", name: "No basement", shortName: "No basement" },
+        "11": { code: "11", name: "Engineering foundation", shortName: "Engineering foundation" },
+        "12": { code: "12", name: "Crawlspace - raised (wood)", shortName: "Crawlspace - raised" }
+      };
+    }
+  },
+
+  TYPE_PATTERNS: [
+    // 12. Crawlspace - raised (wood)
+    { code: '12', regex: /\b(?:crawlspace\s*[-–—]?\s*raised|raised\s*(?:wood\s*)?crawlspace|elevated\s*crawlspace|raised\s*floor\s*(?:foundation|system)|raised\s*wood\s*crawl)\b/i },
+    // 4. Crawlspace cripple wall (wood)
+    { code: '4', regex: /\b(?:cripple\s*wall|crawlspace\s*cripple\s*wall|wood\s*cripple\s*wall|pony\s*wall|cripple\s*studs?|bracing\s*of\s*cripple\s*walls?)\b/i },
+    // 5. Crawlspace masonry (wood)
+    { code: '5', regex: /\b(?:crawlspace\s*masonry|masonry\s*crawlspace|cmu\s*crawlspace|brick\s*crawlspace|block\s*crawl\s*space|masonry\s*stem\s*wall)\b/i },
+    // 3. Masonry wall (Touchstone maps to 4 upon import)
+    { code: '3', regex: /\b(?:masonry\s*(?:foundation\s*)?wall|masonry\s*perimeter\s*wall|stem\s*wall\s*masonry|brick\s*wall\s*foundation)\b/i },
+    // 1. Masonry basement
+    { code: '1', regex: /\b(?:masonry\s*basement|brick\s*basement|cmu\s*basement|block\s*basement|stone\s*basement|masonry\s*cellar|brick\s*cellar)\b/i },
+    // 2. Concrete basement
+    { code: '2', regex: /\b(?:concrete\s*basement|poured\s*(?:concrete\s*)?basement|reinforced\s*concrete\s*basement|rc\s*basement|cast[- ]in[- ]place\s*basement|full\s*(?:concrete\s*)?basement|poured\s*cellar|concrete\s*cellar)\b/i },
+    // 6. Post & pier
+    { code: '6', regex: /\b(?:post\s*(?:&|and)\s*pier|pier\s*(?:&|and)\s*(?:beam|post)|timber\s*posts?|pilings?\s*(?:&|and)\s*piers?|stilt\s*(?:foundation|house)?|elevated\s*pilings?|piers?\s*foundation)\b/i },
+    // 7. Footing
+    { code: '7', regex: /\b(?:spread\s*footings?|strip\s*footings?|pad\s*footings?|shallow\s*footings?|continuous\s*footings?|concrete\s*footings?|\bfootings?\b|shallow\s*foundation)\b/i },
+    // 10. No basement (check before generic slab)
+    { code: '10', regex: /\b(?:no\s*basement|without\s*basement|non[- ]basement|zero\s*basement|no\s*cellar|at[- ]grade\s*foundation|slab\s*without\s*basement)\b/i },
+    // 8. Mat / slab
+    { code: '8', regex: /\b(?:mat\s*(?:foundation|slab)?|slab\s*[-–—]?\s*on\s*[-–—]?\s*grade|slab[- ]on[- ]grade|raft\s*foundation|monolithic\s*slab|floating\s*slab|concrete\s*slab\s*(?:foundation)?|mat\s*\/\s*slab|\bslab\b|mid[- ]rise\s*foundation)\b/i },
+    // 9. Pile
+    { code: '9', regex: /\b(?:pile\s*foundations?|deep\s*foundations?|driven\s*piles?|concrete\s*piles?|steel\s*(?:h[- ])?piles?|auger[- ]cast\s*piles?|caissons?|drilled\s*shafts?|friction\s*piles?|end\s*bearing\s*piles?|\bpiles?\b|high[- ]rise\s*foundation)\b/i },
+    // 11. Engineering foundation
+    { code: '11', regex: /\b(?:engineer(?:ing|ed)\s*foundations?|special\s*foundations?|geotechnical\s*foundations?|custom\s*engineered\s*foundations?|rock\s*anchors?\s*foundation|seismic\s*base\s*isolation)\b/i },
+    // 0. Unknown / Default
+    { code: '0', regex: /\b(?:unknown|default|unk|tbd|none|n\/a)\b/i }
+  ],
+
+  classifyFoundationType(raw, options = {}) {
+    if (raw === undefined || raw === null) return null;
+    const str = String(raw).trim();
+    if (!str) return null;
+
+    // Check continuous self-training database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('foundation_type', str) || CustomCodesDB.matchLearned('foundation', str);
+      if (learned !== null && learned !== undefined && learned !== '') {
+        const c = typeof learned === 'object' ? (learned.foundationTypeCode || learned.code || '') : String(learned);
+        if (c && this.taxonomy.FOUNDATION_TYPE[c]) {
+          return this.taxonomy.FOUNDATION_TYPE[c];
+        }
+      }
+    }
+
+    const cleanStr = str.toLowerCase();
+
+    // 1. Direct explicit numeric code match (0 to 12)
+    const codeMatch = cleanStr.match(/(?:\bcode\s*|#|\(\s*|\[\s*|^)(\b(?:1[0-2]|[0-9])\b)(?:\s*\)|\s*\]|\b|$)/);
+    if (codeMatch && (cleanStr.length <= 4 || /\b(?:code|#)\s*(?:1[0-2]|[0-9])\b/i.test(cleanStr) || /\(\s*(?:1[0-2]|[0-9])\s*\)/.test(cleanStr))) {
+      const c = codeMatch[1];
+      if (this.taxonomy.FOUNDATION_TYPE[c]) {
+        return this.taxonomy.FOUNDATION_TYPE[c];
+      }
+    }
+
+    // 2. Exact pattern matching
+    for (const p of this.TYPE_PATTERNS) {
+      if (p.regex.test(str)) {
+        if (this.taxonomy.FOUNDATION_TYPE[p.code]) {
+          return this.taxonomy.FOUNDATION_TYPE[p.code];
+        }
+      }
+    }
+
+    // 3. Generic basement fallback
+    if (/\bbasement\b/i.test(cleanStr)) {
+      if (/\b(?:concrete|poured|rc|cast[- ]in[- ]place)\b/i.test(cleanStr)) {
+        return this.taxonomy.FOUNDATION_TYPE['2']; // Concrete basement
+      } else if (/\b(?:masonry|brick|cmu|block|stone)\b/i.test(cleanStr)) {
+        return this.taxonomy.FOUNDATION_TYPE['1']; // Masonry basement
+      } else {
+        return this.taxonomy.FOUNDATION_TYPE['2']; // Default basement to Concrete basement
+      }
+    }
+
+    // 4. Generic crawlspace fallback
+    if (/\bcrawl\s*space\b|\bcrawlspace\b/i.test(cleanStr)) {
+      if (/\b(?:masonry|brick|cmu|block)\b/i.test(cleanStr)) {
+        return this.taxonomy.FOUNDATION_TYPE['5']; // Crawlspace masonry
+      } else if (/\b(?:cripple|stud)\b/i.test(cleanStr)) {
+        return this.taxonomy.FOUNDATION_TYPE['4']; // Crawlspace cripple wall
+      } else if (/\braised\b/i.test(cleanStr)) {
+        return this.taxonomy.FOUNDATION_TYPE['12']; // Crawlspace - raised
+      } else {
+        return this.taxonomy.FOUNDATION_TYPE['4']; // Default crawlspace to cripple wall
+      }
+    }
+
+    // 5. Taxonomy keywords matching
+    const tax = this.taxonomy.FOUNDATION_TYPE;
+    for (const [code, item] of Object.entries(tax)) {
+      if (item.keywords && Array.isArray(item.keywords)) {
+        for (const kw of item.keywords) {
+          if (cleanStr.includes(kw.toLowerCase())) {
+            return item;
+          }
+        }
+      }
+    }
+
+    return null;
+  },
+
+  cleanColumn(input, options = {}) {
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
+    const results = [];
+
+    lines.forEach((line, idx) => {
+      const trimmed = (line || '').trim();
+      if (!trimmed && options.removeEmptyLines) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          code: '',
+          foundationTypeCode: '',
+          foundationType: '—',
+          foundationTypeName: '',
+          foundationTypeShort: '',
+          perils: 'CA EQ, CE IF, EU ETC, HI EQ, IT IF, JP IF, JP EQ, JP TY, NZ EQ, SK TY, UK/ROI IF, US EQ, US HU, US IF',
+          status: 'empty',
+          statusText: 'Blank',
+          changed: false
+        });
+        return;
+      }
+
+      const match = this.classifyFoundationType(line, options);
+      const code = match ? match.code : '';
+      const name = match ? match.name : '';
+      const shortName = match ? match.shortName : '';
+
+      const format = options.format || 'code_only';
+      let display = code;
+      if (format === 'name_only') display = name || trimmed;
+      else if (format === 'name_code') display = match ? `${name} (${code})` : trimmed;
+      else if (format === 'short_code') display = match ? `${shortName} (${code})` : trimmed;
+
+      let status = 'assigned';
+      let statusText = match ? `✓ Cleaned (${name} - Code ${code})` : '⚠️ Unrecognized Foundation Type';
+
+      if (!match) {
+        status = 'mismatch';
+        statusText = '⚠️ Unrecognized Foundation Type';
+      } else if (trimmed === code) {
+        status = 'unchanged';
+        statusText = `✓ Valid Code (${code})`;
+      }
+
+      results.push({
+        lineNum: idx + 1,
+        original: line,
+        cleaned: code,
+        code: code,
+        foundationTypeCode: code,
+        foundationType: display,
+        foundationTypeName: name,
+        foundationTypeShort: shortName,
+        perils: match && match.perils ? match.perils.join(', ') : 'CA EQ, CE IF, EU ETC, HI EQ, IT IF, JP IF, JP EQ, JP TY, NZ EQ, SK TY, UK/ROI IF, US EQ, US HU, US IF',
+        status,
+        statusText,
+        changed: trimmed !== code
+      });
+    });
+
+    return results;
+  }
+};
+
+/**
+ * CleanExcel - Foundation Detail (Type & Connection) Multi-Column Classifier Engine
+ * Touchstone / UNICEDE Location Foundation Detail Fields (Codes 0-12 & 0-6)
+ */
+const FoundationClassifier = {
+  get TAXONOMY() {
+    if (typeof TouchstoneData !== 'undefined' && TouchstoneData.FOUNDATION) {
+      return TouchstoneData.FOUNDATION;
+    }
+    return {
+      FOUNDATION_TYPE: FoundationTypeClassifier.taxonomy.FOUNDATION_TYPE,
+      FOUNDATION_CONNECTION: FoundationConnectionClassifier.TAXONOMY
+    };
+  },
+
+  parseFoundationRow(rawRow, options = {}) {
+    if (!rawRow || !rawRow.trim()) {
+      return {
+        original: rawRow || '',
+        foundationTypeCode: '',
+        foundationType: '—',
+        foundationTypeName: '',
+        foundationTypeShort: '',
+        foundationConnectionCode: '',
+        foundationConnection: '—',
+        foundationConnectionName: '',
+        foundationConnectionShort: '',
+        recognizedCount: 0,
+        status: 'empty',
+        statusText: 'Blank'
+      };
+    }
+
+    const str = rawRow.trim();
+
+    // Check learned database first
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('foundation', str) || CustomCodesDB.matchLearned('foundation_type', str);
+      if (learned && typeof learned === 'object') {
+        const typeCode = learned.foundationTypeCode || learned.typeCode || '';
+        const connCode = learned.foundationConnectionCode || learned.connCode || '';
+        return this._buildResult(rawRow, typeCode, connCode, options);
+      }
+    }
+
+    let detectedType = '';
+    let detectedConn = '';
+
+    // Handle tab-separated multi-column inputs (e.g. "12\t1" or "Mat slab\tBolted")
+    if (str.includes('\t')) {
+      const parts = str.split('\t').map(p => p.trim());
+      const typePart = parts[0] || '';
+      const connPart = parts[1] || '';
+
+      if (typePart) {
+        const typeRes = FoundationTypeClassifier.classifyFoundationType(typePart, options);
+        if (typeRes && typeRes.code) detectedType = typeRes.code;
+      }
+      if (connPart) {
+        const connRes = FoundationConnectionClassifier.classify(connPart, options);
+        if (connRes && connRes.code) detectedConn = connRes.code;
+      }
+    }
+
+    // If not detected via tab separation, try Type Classifier
+    if (!detectedType) {
+      const typeRes = FoundationTypeClassifier.classifyFoundationType(str, options);
+      if (typeRes && typeRes.code) detectedType = typeRes.code;
+    }
+
+    // Try Connection Classifier
+    if (!detectedConn) {
+      const connRes = FoundationConnectionClassifier.classify(str, options);
+      if (connRes && connRes.code && connRes.code !== '0') detectedConn = connRes.code;
+    }
+
+    return this._buildResult(rawRow, detectedType, detectedConn, options);
+  },
+
+  _buildResult(rawRow, typeCode, connCode, options = {}) {
+    const format = options.format || 'code_only';
+    const tax = this.TAXONOMY;
+
+    const typeObj = (tax && tax.FOUNDATION_TYPE && tax.FOUNDATION_TYPE[typeCode]) || null;
+    const connObj = (tax && tax.FOUNDATION_CONNECTION && tax.FOUNDATION_CONNECTION[connCode]) || null;
+
+    let typeDisplay = typeCode || '—';
+    if (typeObj) {
+      if (format === 'name_only') typeDisplay = typeObj.name;
+      else if (format === 'name_code') typeDisplay = `${typeObj.name} (${typeObj.code})`;
+      else if (format === 'short_code') typeDisplay = `${typeObj.shortName} (${typeObj.code})`;
+    }
+
+    let connDisplay = connCode || '—';
+    if (connObj) {
+      if (format === 'name_only') connDisplay = connObj.name;
+      else if (format === 'name_code') connDisplay = `${connObj.name} (${connObj.code})`;
+      else if (format === 'short_code') connDisplay = `${connObj.shortName} (${connObj.code})`;
+    }
+
+    const recognizedCount = (typeCode ? 1 : 0) + (connCode ? 1 : 0);
+
+    let status = 'assigned';
+    let statusText = typeCode ? `✓ Identified (${typeObj ? typeObj.shortName : 'Code ' + typeCode})` : '⚠️ Unrecognized Foundation';
+    if (recognizedCount === 2) {
+      status = 'match';
+      statusText = '✓ Complete (Type & Connection)';
+    } else if (recognizedCount === 0) {
+      status = 'mismatch';
+      statusText = '⚠️ Unrecognized Foundation Format';
+    }
+
+    return {
+      original: rawRow,
+      foundationTypeCode: typeCode || '',
+      foundationType: typeDisplay,
+      foundationTypeName: typeObj ? typeObj.name : '',
+      foundationTypeShort: typeObj ? typeObj.shortName : '',
+      foundationConnectionCode: connCode || '',
+      foundationConnection: connDisplay,
+      foundationConnectionName: connObj ? connObj.name : '',
+      foundationConnectionShort: connObj ? connObj.shortName : '',
+      recognizedCount,
+      status,
+      statusText
+    };
+  },
+
+  cleanColumn(input, options = {}) {
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
+    const results = [];
+
+    lines.forEach((line, idx) => {
+      const trimmed = (line || '').trim();
+      if (!trimmed && options.removeEmptyLines) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          foundationType: '—',
+          foundationTypeCode: '',
+          foundationTypeName: '',
+          foundationTypeShort: '',
+          foundationConnection: '—',
+          foundationConnectionCode: '',
+          foundationConnectionName: '',
+          foundationConnectionShort: '',
+          recognizedCount: 0,
+          changed: false,
+          status: 'empty',
+          statusText: 'Blank'
+        });
+        return;
+      }
+
+      const parsed = this.parseFoundationRow(line, options);
+      const cleaned = parsed.foundationConnectionCode
+        ? `${parsed.foundationTypeCode || '0'}\t${parsed.foundationConnectionCode}`
+        : (parsed.foundationTypeCode || '');
+
+      results.push({
+        lineNum: idx + 1,
+        original: line,
+        cleaned: cleaned,
+        foundationType: parsed.foundationType,
+        foundationTypeCode: parsed.foundationTypeCode,
+        foundationTypeName: parsed.foundationTypeName,
+        foundationTypeShort: parsed.foundationTypeShort,
+        foundationConnection: parsed.foundationConnection,
+        foundationConnectionCode: parsed.foundationConnectionCode,
+        foundationConnectionName: parsed.foundationConnectionName,
+        foundationConnectionShort: parsed.foundationConnectionShort,
+        recognizedCount: parsed.recognizedCount,
+        changed: true,
+        status: parsed.status,
+        statusText: parsed.statusText
+      });
+    });
+
+    return results;
+  }
+};
+
+// Wire up foundation_type, foundation, and foundation_connection cleaner references
+CleanersRegistry.foundation_type.cleaner = FoundationTypeClassifier;
+CleanersRegistry.foundationType = CleanersRegistry.foundation_type;
+CleanersRegistry.foundation.cleaner = FoundationTypeClassifier;
+CleanersRegistry.foundation_connection.cleaner = FoundationConnectionClassifier;
+CleanersRegistry.foundationConnection = CleanersRegistry.foundation_connection;
 
 /**
  * CleanExcel - Number of Stories / Stores Underwriting Cleaner Engine
@@ -4094,6 +5877,14 @@ const NoOfStoresCleaner = {
     // Handle "non", "none", "n/a", "-", "0", etc.
     if (/^(?:non|none|no|n\/?a|n\.a\.?|null|nil|not\s*applicable|unknown|unk|tbd|—+|-+|\.|\/|0|zero)$/i.test(str)) {
       return '';
+    }
+
+    // 0. Check continuous self-training memory database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('stores', str);
+      if (learned !== null && learned !== undefined && learned !== '') {
+        return String(learned);
+      }
     }
 
     // Common number words dictionary
@@ -4222,9 +6013,1065 @@ const NoOfStoresCleaner = {
 CleanersRegistry.stores.cleaner = NoOfStoresCleaner;
 CleanersRegistry.stories = CleanersRegistry.stores;
 
+/**
+ * CleanExcel - Touchstone UNICEDE® Short Column Classifier Engine
+ * 
+ * Rules & Details:
+ *  - Perils: CA EQ, HI EQ, JP EQ, US EQ
+ *  - Requirement: Optional
+ *  - Codes:
+ *    - 0: Unknown/default (0)
+ *    - 1: No (1)
+ *    - 2: Yes (2)
+ *  - Underwriting Technical Details:
+ *    Applies to old concrete structures in which the fill height of some column
+ *    has been restricted by spandrel beams or infill walls. If some of the columns
+ *    along the perimeter are shorter than the adjacent columns, there is high chance
+ *    that the shorter columns can no longer bear the loads for which they were originally designed.
+ */
+const ShortColumnClassifier = {
+  taxonomy: {
+    get SHORT_COLUMN() {
+      const td = _resolveTouchstoneData();
+      return (td && td.SHORT_COLUMN) || {};
+    }
+  },
+
+  classifyShortColumn(raw, options = {}) {
+    if (raw === undefined || raw === null) return null;
+    const str = String(raw).trim();
+    if (!str) return null;
+
+    // Check continuous self-training database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('short_column', str);
+      if (learned !== null && learned !== undefined && learned !== '') {
+        const c = String(learned);
+        if (this.taxonomy.SHORT_COLUMN[c]) {
+          return this.taxonomy.SHORT_COLUMN[c];
+        }
+      }
+    }
+
+    const cleanStr = str.toLowerCase();
+
+    // 1. Direct explicit numeric code match
+    const codeMatch = cleanStr.match(/(?:\bcode\s*|#|\(\s*|\[\s*|^)([0-2])(?:\s*\)|\s*\]|\b|$)/);
+    if (codeMatch && (cleanStr.length <= 4 || /\b(?:code|#)\s*[0-2]\b/i.test(cleanStr) || /\(\s*[0-2]\s*\)/.test(cleanStr))) {
+      const c = codeMatch[1];
+      if (this.taxonomy.SHORT_COLUMN[c]) {
+        return this.taxonomy.SHORT_COLUMN[c];
+      }
+    }
+
+    // 2. Keyword & Semantics Matching
+    // Yes (2): Short columns present, spandrel beams, infill walls, restricted fill height, perimeter short columns
+    if (
+      /\b(?:yes|true|y\b|short\s*columns?|short\s*col\b|has\s*short\s*columns?|spandrel(?:\s*beams?)?|infill\s*walls?|restricted\s*height|fill\s*height\s*restricted|shorter\s*perimeter\s*columns?|short\s*column\s*present|present)\b/i.test(cleanStr) &&
+      !/\b(?:no|none|without|not\s*present|absent|non[- ]short)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.SHORT_COLUMN['2'] || { code: '2', name: 'Yes', shortName: 'Yes' };
+    }
+
+    // No (1): No short columns, without short columns, false, none, absent, zero
+    if (
+      /\b(?:no\b|false|n\b|none|no\s*short\s*columns?|without\s*short\s*columns?|not\s*present|zero\s*short\s*columns?|absent|non[- ]short)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.SHORT_COLUMN['1'] || { code: '1', name: 'No', shortName: 'No' };
+    }
+
+    // Unknown/default (0): unknown, default, unk, tbd, unspecified, 0
+    if (
+      /\b(?:unknown|default|unk\b|tbd|unspecified|0)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.SHORT_COLUMN['0'] || { code: '0', name: 'Unknown/default', shortName: 'Unknown / Default' };
+    }
+
+    // Fuzzy matching against taxonomy keywords
+    const scTaxonomy = this.taxonomy.SHORT_COLUMN;
+    for (const [code, item] of Object.entries(scTaxonomy)) {
+      if (item.keywords && Array.isArray(item.keywords)) {
+        for (const kw of item.keywords) {
+          if (cleanStr.includes(kw.toLowerCase())) {
+            return item;
+          }
+        }
+      }
+    }
+
+    return null;
+  },
+
+  cleanColumn(input, options = {}) {
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
+    const results = [];
+
+    lines.forEach((line, idx) => {
+      const trimmed = (line || '').trim();
+      if (!trimmed && options.removeEmptyLines) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          code: '',
+          shortColumnCode: '',
+          shortColumn: '—',
+          shortColumnName: '',
+          shortColumnShort: '',
+          perils: 'CA EQ, HI EQ, JP EQ, US EQ',
+          changed: false,
+          status: 'empty',
+          statusText: 'Blank'
+        });
+        return;
+      }
+
+      const match = this.classifyShortColumn(line, options);
+      const code = match ? match.code : '';
+      const name = match ? match.name : '';
+      const shortName = match ? match.shortName : '';
+
+      const format = options.format || 'code_only';
+      let display = code;
+      if (format === 'name_only') display = name || trimmed;
+      else if (format === 'name_code') display = match ? `${name} (${code})` : trimmed;
+      else if (format === 'short_code') display = match ? `${shortName} (${code})` : trimmed;
+
+      let status = 'assigned';
+      let statusText = match ? `✓ Cleaned (${name} - Code ${code})` : '⚠️ Unrecognized Short Column';
+
+      if (!match) {
+        status = 'mismatch';
+        statusText = '⚠️ Unrecognized Short Column Value';
+      } else if (trimmed === code) {
+        status = 'unchanged';
+        statusText = `✓ Valid Code (${code})`;
+      }
+
+      results.push({
+        lineNum: idx + 1,
+        original: line,
+        cleaned: code,
+        code: code,
+        shortColumnCode: code,
+        shortColumn: display,
+        shortColumnName: name,
+        shortColumnShort: shortName,
+        perils: match && match.perils ? match.perils.join(', ') : 'CA EQ, HI EQ, JP EQ, US EQ',
+        requirement: match ? match.requirement : 'Optional',
+        changed: trimmed !== code,
+        status: status,
+        statusText: statusText
+      });
+    });
+
+    return results;
+  }
+};
+
+// Wire up short_column cleaner reference and alias
+CleanersRegistry.short_column.cleaner = ShortColumnClassifier;
+CleanersRegistry.shortColumn = CleanersRegistry.short_column;
+
+/**
+ * CleanExcel - Building Exterior Opening Classifier Engine
+ * Touchstone UNICEDE® Building Exterior Opening:
+ *  - 0: Unknown (0) (CA EQ, HI EQ, JP EQ, NZ EQ, US EQ - Optional)
+ *  - 1: Less than 50% of wall open / default (1) (Default / standard window openings)
+ *  - 2: More than 50% of wall open (2) (Large openings / storefront / curtain wall, reduced seismic resistance)
+ */
+const BuildingExteriorOpeningClassifier = {
+  taxonomy: {
+    get BUILDING_EXTERIOR_OPENING() {
+      const td = _resolveTouchstoneData();
+      return (td && td.BUILDING_EXTERIOR_OPENING) || {};
+    }
+  },
+
+  classifyBuildingExteriorOpening(raw, options = {}) {
+    if (raw === undefined || raw === null) return null;
+    const str = String(raw).trim();
+    if (!str) return null;
+
+    // Check continuous self-training database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('building_exterior_opening', str);
+      if (learned !== null && learned !== undefined && learned !== '') {
+        const c = String(learned);
+        if (this.taxonomy.BUILDING_EXTERIOR_OPENING[c]) {
+          return this.taxonomy.BUILDING_EXTERIOR_OPENING[c];
+        }
+      }
+    }
+
+    const cleanStr = str.toLowerCase();
+
+    // 1. Direct explicit numeric code match
+    const codeMatch = cleanStr.match(/(?:\bcode\s*|#|\(\s*|\[\s*|^)([0-2])(?:\s*\)|\s*\]|\b|$)/);
+    if (codeMatch && (cleanStr.length <= 4 || /\b(?:code|#)\s*[0-2]\b/i.test(cleanStr) || /\(\s*[0-2]\s*\)/.test(cleanStr))) {
+      const c = codeMatch[1];
+      if (this.taxonomy.BUILDING_EXTERIOR_OPENING[c]) {
+        return this.taxonomy.BUILDING_EXTERIOR_OPENING[c];
+      }
+    }
+
+    // 2. Numerical percentage detection (e.g. ">50%", "75%", "< 50%", "30%", "60 percent")
+    const percentMatch = cleanStr.match(/([><=]?\s*\d+(?:\.\d+)?)\s*(?:%|percent)/i);
+    if (percentMatch) {
+      const numStr = percentMatch[1].replace(/\s+/g, '');
+      if (numStr.startsWith('>') || numStr.startsWith('over') || numStr.startsWith('more')) {
+        return this.taxonomy.BUILDING_EXTERIOR_OPENING['2'] || { code: '2', name: 'More than 50% of wall open', shortName: 'More than 50% open (2)' };
+      }
+      if (numStr.startsWith('<') || numStr.startsWith('under') || numStr.startsWith('less')) {
+        return this.taxonomy.BUILDING_EXTERIOR_OPENING['1'] || { code: '1', name: 'Less than 50% of wall open / default', shortName: 'Less than 50% open (1)' };
+      }
+      const val = parseFloat(numStr.replace(/[^0-9.]/g, ''));
+      if (!isNaN(val)) {
+        if (val > 50) {
+          return this.taxonomy.BUILDING_EXTERIOR_OPENING['2'] || { code: '2', name: 'More than 50% of wall open', shortName: 'More than 50% open (2)' };
+        } else {
+          return this.taxonomy.BUILDING_EXTERIOR_OPENING['1'] || { code: '1', name: 'Less than 50% of wall open / default', shortName: 'Less than 50% open (1)' };
+        }
+      }
+    }
+
+    // 3. Keyword & Semantics Matching
+    // Code 2: More than 50% of wall open
+    if (
+      /\b(?:more\s*than\s*50|greater\s*than\s*50|over\s*50|> ?50|50\s*%\s*\+|50\s*plus|more\s*than\s*half|> ?half|high\s*opening|many\s*openings|storefront|glass\s*facade|curtain\s*wall|heavy\s*glazing|large\s*openings|significant\s*openings|reduced\s*seismic\s*resistance)\b/i.test(cleanStr) &&
+      !/\b(?:less|under|<|fewer|minimal|default)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_EXTERIOR_OPENING['2'] || { code: '2', name: 'More than 50% of wall open', shortName: 'More than 50% open (2)' };
+    }
+
+    // Code 1: Less than 50% of wall open / default
+    if (
+      /\b(?:less\s*than\s*50|under\s*50|< ?50|fewer\s*openings|low\s*opening|punched\s*windows|minimal\s*openings|standard\s*openings|standard\s*windows|default\s*opening|less\s*than\s*half|< ?half|shear\s*wall\s*intact|solid\s*wall)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_EXTERIOR_OPENING['1'] || { code: '1', name: 'Less than 50% of wall open / default', shortName: 'Less than 50% open (1)' };
+    }
+
+    // Code 0: Unknown / default
+    if (
+      /\b(?:unknown|unk\b|tbd|unspecified|0)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_EXTERIOR_OPENING['0'] || { code: '0', name: 'Unknown', shortName: 'Unknown (0)' };
+    }
+
+    // Fuzzy matching against taxonomy keywords
+    const beoTaxonomy = this.taxonomy.BUILDING_EXTERIOR_OPENING;
+    for (const [code, item] of Object.entries(beoTaxonomy)) {
+      if (item.keywords && Array.isArray(item.keywords)) {
+        for (const kw of item.keywords) {
+          if (cleanStr.includes(kw.toLowerCase())) {
+            return item;
+          }
+        }
+      }
+    }
+
+    return null;
+  },
+
+  cleanColumn(input, options = {}) {
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
+    const results = [];
+
+    lines.forEach((line, idx) => {
+      const trimmed = (line || '').trim();
+      if (!trimmed && options.removeEmptyLines) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          code: '',
+          buildingExteriorOpeningCode: '',
+          buildingExteriorOpening: '—',
+          buildingExteriorOpeningName: '',
+          buildingExteriorOpeningShort: '',
+          perils: 'CA EQ, HI EQ, JP EQ, NZ EQ, US EQ',
+          changed: false,
+          status: 'empty',
+          statusText: 'Blank'
+        });
+        return;
+      }
+
+      const match = this.classifyBuildingExteriorOpening(line, options);
+      const code = match ? match.code : '';
+      const name = match ? match.name : '';
+      const shortName = match ? match.shortName : '';
+
+      const format = options.format || 'code_only';
+      let display = code;
+      if (format === 'name_only') display = name || trimmed;
+      else if (format === 'name_code') display = match ? `${name} (${code})` : trimmed;
+      else if (format === 'short_code') display = match ? `${shortName}` : trimmed;
+
+      let status = 'assigned';
+      let statusText = match ? `✓ Cleaned (${shortName || name})` : '⚠️ Unrecognized Exterior Opening';
+
+      if (!match) {
+        status = 'mismatch';
+        statusText = '⚠️ Unrecognized Exterior Opening Value';
+      } else if (trimmed === code) {
+        status = 'unchanged';
+        statusText = `✓ Valid Code (${code})`;
+      }
+
+      results.push({
+        lineNum: idx + 1,
+        original: line,
+        cleaned: code,
+        code: code,
+        buildingExteriorOpeningCode: code,
+        buildingExteriorOpening: display,
+        buildingExteriorOpeningName: name,
+        buildingExteriorOpeningShort: shortName,
+        perils: match && match.perils ? match.perils.join(', ') : 'CA EQ, HI EQ, JP EQ, NZ EQ, US EQ',
+        requirement: match ? match.requirement : 'Optional',
+        note: match ? match.note : '',
+        changed: trimmed !== code,
+        status: status,
+        statusText: statusText
+      });
+    });
+
+    return results;
+  }
+};
+
+// Wire up building_exterior_opening cleaner reference and aliases
+CleanersRegistry.building_exterior_opening.cleaner = BuildingExteriorOpeningClassifier;
+CleanersRegistry.buildingExteriorOpening = CleanersRegistry.building_exterior_opening;
+CleanersRegistry.exterior_opening = CleanersRegistry.building_exterior_opening;
+
+/**
+ * CleanExcel - Soft Story Classifier Engine
+ * Touchstone / UNICEDE® Soft Story Codes:
+ *  0: Unknown/default (0)
+ *  1: No (1)
+ *  2: Yes (2)
+ *
+ * Models: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional, Defaults to 0)
+ * Applicable only if the number of stories is 2 or greater.
+ * First-floor garages and taller first floors are likely to exhibit soft-story behavior.
+ */
+const SoftStoryClassifier = {
+  taxonomy: {
+    get SOFT_STORY() {
+      const td = _resolveTouchstoneData();
+      return (td && td.SOFT_STORY) || {};
+    }
+  },
+
+  classifySoftStory(raw, options = {}) {
+    if (raw === undefined || raw === null) return null;
+    const str = String(raw).trim();
+    if (!str) return null;
+
+    // Check continuous self-training database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('soft_story', str);
+      if (learned !== null && learned !== undefined && learned !== '') {
+        const c = String(learned);
+        if (this.taxonomy.SOFT_STORY[c]) {
+          return this.taxonomy.SOFT_STORY[c];
+        }
+      }
+    }
+
+    const cleanStr = str.toLowerCase();
+
+    // 1. Direct explicit numeric code match
+    const codeMatch = cleanStr.match(/(?:\bcode\s*|#|\(\s*|\[\s*|^)([0-2])(?:\s*\)|\s*\]|\b|$)/);
+    if (codeMatch && (cleanStr.length <= 4 || /\b(?:code|#)\s*[0-2]\b/i.test(cleanStr) || /\(\s*[0-2]\s*\)/.test(cleanStr))) {
+      const c = codeMatch[1];
+      if (this.taxonomy.SOFT_STORY[c]) {
+        return this.taxonomy.SOFT_STORY[c];
+      }
+    }
+
+    // 2. Keyword & Semantics Matching
+    // Yes (2): Soft story present, weak story, tuck-under parking, first-floor garage, ground floor garage, open front, taller first floor, lateral weakness, pancaking
+    if (
+      /\b(?:yes|true|y\b|soft\s*stor(?:y|ies)|soft\s*storeys?|weak\s*stor(?:y|ies)|weak\s*storeys?|first\s*floor\s*garages?|1st\s*floor\s*garages?|ground\s*floor\s*garages?|tuck[- ]under(?:\s*parking)?|open\s*front|taller\s*first\s*floor|lateral\s*weakness|pancaking|collapse\s*vulnerability|structural\s*weakness|weak\s*first\s*floor|weak\s*floor)\b/i.test(cleanStr) &&
+      !/\b(?:no|none|without|not\s*present|absent|non[- ]soft|no\s*soft)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.SOFT_STORY['2'] || { code: '2', name: 'Yes', shortName: 'Yes' };
+    }
+
+    // No (1): No soft story, false, none, absent, stiff, regular, uniform stiffness
+    if (
+      /\b(?:no\b|false|n\b|none|without\s*soft\s*stor(?:y|ies)|no\s*soft\s*stor(?:y|ies)|not\s*present|absent|non[- ]soft|stiff|regular|uniform\s*stiffness|adequate\s*lateral\s*stiffness)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.SOFT_STORY['1'] || { code: '1', name: 'No', shortName: 'No' };
+    }
+
+    // Unknown/default (0): unknown, default, unk, tbd, unspecified, 0
+    if (
+      /\b(?:unknown|default|unk\b|tbd|unspecified|0)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.SOFT_STORY['0'] || { code: '0', name: 'Unknown/default', shortName: 'Unknown / Default' };
+    }
+
+    // Fuzzy matching against taxonomy keywords
+    const ssTaxonomy = this.taxonomy.SOFT_STORY;
+    for (const [code, item] of Object.entries(ssTaxonomy)) {
+      if (item.keywords && Array.isArray(item.keywords)) {
+        for (const kw of item.keywords) {
+          if (cleanStr.includes(kw.toLowerCase())) {
+            return item;
+          }
+        }
+      }
+    }
+
+    return null;
+  },
+
+  cleanColumn(input, options = {}) {
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
+    const results = [];
+
+    lines.forEach((line, idx) => {
+      const trimmed = (line || '').trim();
+      if (!trimmed && options.removeEmptyLines) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          code: '',
+          softStoryCode: '',
+          softStory: '—',
+          softStoryName: '',
+          softStoryShort: '',
+          perils: 'CA EQ, HI EQ, JP EQ, NZ EQ, US EQ',
+          requirement: 'Optional',
+          note: '',
+          changed: false,
+          status: 'empty',
+          statusText: 'Blank'
+        });
+        return;
+      }
+
+      const match = this.classifySoftStory(line, options);
+      const code = match ? match.code : '';
+      const name = match ? match.name : '';
+      const shortName = match ? match.shortName : '';
+
+      const format = options.format || 'code_only';
+      let display = code;
+      if (format === 'name_only') display = name || trimmed;
+      else if (format === 'name_code') display = match ? `${name} (${code})` : trimmed;
+      else if (format === 'short_code') display = match ? `${shortName} (${code})` : trimmed;
+
+      let status = 'assigned';
+      let statusText = match ? `✓ Cleaned (${name} - Code ${code})` : '⚠️ Unrecognized Soft Story Value';
+
+      if (!match) {
+        status = 'mismatch';
+        statusText = '⚠️ Unrecognized Soft Story Value';
+      } else if (trimmed === code) {
+        status = 'unchanged';
+        statusText = `✓ Valid Code (${code})`;
+      }
+
+      results.push({
+        lineNum: idx + 1,
+        original: line,
+        cleaned: code,
+        code: code,
+        softStoryCode: code,
+        softStory: display,
+        softStoryName: name,
+        softStoryShort: shortName,
+        perils: match && match.perils ? match.perils.join(', ') : 'CA EQ, HI EQ, JP EQ, NZ EQ, US EQ',
+        requirement: match ? match.requirement : 'Optional',
+        note: match ? match.note : '',
+        changed: trimmed !== code,
+        status: status,
+        statusText: statusText
+      });
+    });
+
+    return results;
+  }
+};
+
+// Wire up soft_story cleaner reference and aliases
+CleanersRegistry.soft_story.cleaner = SoftStoryClassifier;
+CleanersRegistry.softStory = CleanersRegistry.soft_story;
+
+/**
+ * CleanExcel - Touchstone UNICEDE® Ornamentation Classifier Engine
+ * 
+ * Rules & Details:
+ *  - Perils: CA EQ, HI EQ, JP EQ, US EQ
+ *  - Requirement: Optional
+ *  - Codes:
+ *    - 0: Unknown/default (0)
+ *    - 1: None (1)
+ *    - 2: Average (2)
+ *    - 3: Extensive (3)
+ *  - Underwriting Technical Details:
+ *    Describes the amount of decorative elements attached to exterior of the building at this location.
+ *    Decorative elements may fall during an earthquake. Examples include unreinforced or unbraced parapet
+ *    walls or entryway roofs, which can break off during excessive shaking.
+ */
+const OrnamentationClassifier = {
+  taxonomy: {
+    get ORNAMENTATION() {
+      const td = _resolveTouchstoneData();
+      return (td && td.ORNAMENTATION) || {};
+    }
+  },
+
+  classifyOrnamentation(raw, options = {}) {
+    if (raw === undefined || raw === null) return null;
+    const str = String(raw).trim();
+    if (!str) return null;
+
+    // Check continuous self-training database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('ornamentation', str);
+      if (learned !== null && learned !== undefined && learned !== '') {
+        const c = String(learned);
+        if (this.taxonomy.ORNAMENTATION[c]) {
+          return this.taxonomy.ORNAMENTATION[c];
+        }
+      }
+    }
+
+    const cleanStr = str.toLowerCase();
+
+    // 1. Direct explicit numeric code match
+    const codeMatch = cleanStr.match(/(?:\bcode\s*|#|\(\s*|\[\s*|^)([0-3])(?:\s*\)|\s*\]|\b|$)/);
+    if (codeMatch && (cleanStr.length <= 4 || /\b(?:code|#)\s*[0-3]\b/i.test(cleanStr) || /\(\s*[0-3]\s*\)/.test(cleanStr))) {
+      const c = codeMatch[1];
+      if (this.taxonomy.ORNAMENTATION[c]) {
+        return this.taxonomy.ORNAMENTATION[c];
+      }
+    }
+
+    // 2. Keyword & Semantics Matching
+    // Code 3: Extensive (unreinforced parapet, unbraced parapet, entryway roofs, extensive ornamentation, heavy decorative)
+    if (
+      /\b(?:extensive|heavy|high|complex|elaborate|unreinforced\s*parapet|unbraced\s*parapet|parapet\s*walls?|entryway\s*roofs?|heavy\s*ornamentation|extensive\s*decorative|highly\s*decorative|cornices?|gargoyles?|facade\s*elements?|many\s*ornaments?|ornate)\b/i.test(cleanStr) &&
+      !/\b(?:no\b|none|without|average|moderate|plain|standard)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.ORNAMENTATION['3'] || { code: '3', name: 'Extensive', shortName: 'Extensive' };
+    }
+
+    // Code 2: Average (average, moderate, standard, typical, medium, some ornamentation)
+    if (
+      /\b(?:average|moderate|standard|typical|medium|some\s*ornamentation|moderate\s*decorative|average\s*ornamentation|some\s*decorative|normal\s*ornamentation)\b/i.test(cleanStr) &&
+      !/\b(?:no\b|none|without|extensive|heavy|unreinforced\s*parapet)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.ORNAMENTATION['2'] || { code: '2', name: 'Average', shortName: 'Average' };
+    }
+
+    // Code 1: None (none, no ornamentation, no decorative elements, unornamented, plain, zero, false)
+    if (
+      /\b(?:none\b|no\s*ornamentation|no\s*decorative\s*elements?|unornamented|plain\b|without\s*ornamentation|zero\s*ornamentation|no\s*parapet|absent|false)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.ORNAMENTATION['1'] || { code: '1', name: 'None', shortName: 'None' };
+    }
+
+    // Code 0: Unknown / default (unknown, default, unk, tbd, unspecified, 0)
+    if (
+      /\b(?:unknown|default|unk\b|tbd|unspecified|0)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.ORNAMENTATION['0'] || { code: '0', name: 'Unknown/default', shortName: 'Unknown / Default' };
+    }
+
+    // Fuzzy matching against taxonomy keywords
+    const ornTaxonomy = this.taxonomy.ORNAMENTATION;
+    for (const [code, item] of Object.entries(ornTaxonomy)) {
+      if (item.keywords && Array.isArray(item.keywords)) {
+        for (const kw of item.keywords) {
+          if (cleanStr.includes(kw.toLowerCase())) {
+            return item;
+          }
+        }
+      }
+    }
+
+    return null;
+  },
+
+  cleanColumn(input, options = {}) {
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
+    const results = [];
+
+    lines.forEach((line, idx) => {
+      const trimmed = (line || '').trim();
+      if (!trimmed && options.removeEmptyLines) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          code: '',
+          ornamentationCode: '',
+          ornamentation: '—',
+          ornamentationName: '',
+          ornamentationShort: '',
+          perils: 'CA EQ, HI EQ, JP EQ, US EQ',
+          changed: false,
+          status: 'empty',
+          statusText: 'Blank'
+        });
+        return;
+      }
+
+      const match = this.classifyOrnamentation(line, options);
+      const code = match ? match.code : '';
+      const name = match ? match.name : '';
+      const shortName = match ? match.shortName : '';
+
+      const format = options.format || 'code_only';
+      let display = code;
+      if (format === 'name_only') display = name || trimmed;
+      else if (format === 'name_code') display = match ? `${name} (${code})` : trimmed;
+      else if (format === 'short_code') display = match ? `${shortName} (${code})` : trimmed;
+
+      let status = 'assigned';
+      let statusText = match ? `✓ Cleaned (${name} - Code ${code})` : '⚠️ Unrecognized Ornamentation Value';
+
+      if (!match) {
+        status = 'mismatch';
+        statusText = '⚠️ Unrecognized Ornamentation Value';
+      } else if (trimmed === code) {
+        status = 'unchanged';
+        statusText = `✓ Valid Code (${code})`;
+      }
+
+      results.push({
+        lineNum: idx + 1,
+        original: line,
+        cleaned: code,
+        code: code,
+        ornamentationCode: code,
+        ornamentation: display,
+        ornamentationName: name,
+        ornamentationShort: shortName,
+        perils: match && match.perils ? match.perils.join(', ') : 'CA EQ, HI EQ, JP EQ, US EQ',
+        requirement: match ? match.requirement : 'Optional',
+        note: match ? match.note : '',
+        changed: trimmed !== code,
+        status: status,
+        statusText: statusText
+      });
+    });
+
+    return results;
+  }
+};
+
+// Wire up ornamentation cleaner reference and aliases
+CleanersRegistry.ornamentation.cleaner = OrnamentationClassifier;
+CleanersRegistry.ornament = CleanersRegistry.ornamentation;
+
+/**
+ * CleanExcel - Touchstone UNICEDE® Building Shape Classifier Engine
+ * Rules & Details:
+ *  - Perils: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ
+ *  - Requirement: Optional
+ *  - Codes:
+ *    - 0: Unknown/default (0)
+ *    - 1: Square (1)
+ *    - 2: Rectangle (2)
+ *    - 3: Circular (3)
+ *    - 4: L-shaped (4)
+ *    - 5: T-shaped (5)
+ *    - 6: U-shaped (6)
+ *    - 7: H-shaped (7)
+ *    - 8: Complex (8)
+ *  - Underwriting Technical Details:
+ *    One of the values to describe the overall shape of the footprint of the building at this location.
+ *    Shape is critical for the performance of a structure, especially for large commercial buildings.
+ *    In general, simple regular forms, like squares and rectangles, perform better than combinations
+ *    of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.
+ */
+const BuildingShapeClassifier = {
+  taxonomy: {
+    get BUILDING_SHAPE() {
+      const td = _resolveTouchstoneData();
+      return (td && td.BUILDING_SHAPE) || {};
+    }
+  },
+
+  classifyBuildingShape(raw, options = {}) {
+    if (raw === undefined || raw === null) return null;
+    const str = String(raw).trim();
+    if (!str) return null;
+
+    // Check continuous self-training database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('building_shape', str);
+      if (learned !== null && learned !== undefined && learned !== '') {
+        const c = String(learned);
+        if (this.taxonomy.BUILDING_SHAPE[c]) {
+          return this.taxonomy.BUILDING_SHAPE[c];
+        }
+      }
+    }
+
+    const cleanStr = str.toLowerCase();
+
+    // 1. Direct explicit numeric code match
+    const codeMatch = cleanStr.match(/(?:\bcode\s*|#|\(\s*|\[\s*|^)([0-8])(?:\s*\)|\s*\]|\b|$)/);
+    if (codeMatch && (cleanStr.length <= 4 || /\b(?:code|#)\s*[0-8]\b/i.test(cleanStr) || /\(\s*[0-8]\s*\)/.test(cleanStr))) {
+      const c = codeMatch[1];
+      if (this.taxonomy.BUILDING_SHAPE[c]) {
+        return this.taxonomy.BUILDING_SHAPE[c];
+      }
+    }
+
+    // 2. Keyword & Semantics Matching
+    // Code 7: H-shaped (h-shaped, h shape, h-shape, h-footprint)
+    if (
+      /\b(?:h[- ]shaped?|h\s*shape|h[- ]footprint|h[- ]layout)\b/i.test(cleanStr) ||
+      /^h$/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_SHAPE['7'] || { code: '7', name: 'H-shaped', shortName: 'H-shaped (7)' };
+    }
+
+    // Code 6: U-shaped (u-shaped, u shape, u-shape, horseshoe, courtyard, c-shaped, u-footprint)
+    if (
+      /\b(?:u[- ]shaped?|u\s*shape|horseshoe|courtyard|c[- ]shaped?|c\s*shape|u[- ]footprint|u[- ]layout|open\s*courtyard)\b/i.test(cleanStr) ||
+      /^u$/i.test(cleanStr) || /^c$/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_SHAPE['6'] || { code: '6', name: 'U-shaped', shortName: 'U-shaped (6)' };
+    }
+
+    // Code 5: T-shaped (t-shaped, t shape, t-shape, tee shaped, t-footprint)
+    if (
+      /\b(?:t[- ]shaped?|t\s*shape|tee[- ]shaped?|tee\s*shape|t[- ]footprint|t[- ]layout)\b/i.test(cleanStr) ||
+      /^t$/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_SHAPE['5'] || { code: '5', name: 'T-shaped', shortName: 'T-shaped (5)' };
+    }
+
+    // Code 4: L-shaped (l-shaped, l shape, l-shape, ell shaped, re-entrant l, l-footprint)
+    if (
+      /\b(?:l[- ]shaped?|l\s*shape|ell[- ]shaped?|ell\s*shape|re[- ]entrant\s*l|l[- ]footprint|l[- ]layout)\b/i.test(cleanStr) ||
+      /^l$/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_SHAPE['4'] || { code: '4', name: 'L-shaped', shortName: 'L-shaped (4)' };
+    }
+
+    // Code 3: Circular (circular, circle, round, curved, cylinder, cylindrical, oval, elliptical, rotunda)
+    if (
+      /\b(?:circular|circle|round|curved|cylinder|cylindrical|oval|elliptical|rotunda|curved\s*footprint|curved\s*shape)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_SHAPE['3'] || { code: '3', name: 'Circular', shortName: 'Circular (3)' };
+    }
+
+    // Code 1: Square (square, square shape, square footprint, quadrilateral, box, regular square)
+    if (
+      /\b(?:square|square\s*shape|square\s*footprint|regular\s*square|quadrilateral|perfect\s*square)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_SHAPE['1'] || { code: '1', name: 'Square', shortName: 'Square (1)' };
+    }
+
+    // Code 2: Rectangle (rectangle, rectangular, oblong, box shape, rectangular footprint, standard box)
+    if (
+      /\b(?:rectangle|rectangular|rect\b|rect\.|oblong|box\s*shape|rectangular\s*footprint|standard\s*box|box\s*footprint)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_SHAPE['2'] || { code: '2', name: 'Rectangle', shortName: 'Rectangle (2)' };
+    }
+
+    // Code 8: Complex (complex, irregular, multi-wing, cruciform, cross-shaped, y-shaped, z-shaped, polygonal, asymmetrical, angular, star-shaped)
+    if (
+      /\b(?:complex|irregular|multi[- ]wings?|cruciform|cross[- ]shaped?|cross\s*shape|y[- ]shaped?|y\s*shape|z[- ]shaped?|z\s*shape|polygonal|asymmetrical?|angular|star[- ]shaped?|star\s*shape|irregular\s*footprint|non[- ]regular)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_SHAPE['8'] || { code: '8', name: 'Complex', shortName: 'Complex (8)' };
+    }
+
+    // Code 0: Unknown / default (unknown, default, unk, tbd, unspecified, 0)
+    if (
+      /\b(?:unknown|default|unk\b|tbd|unspecified|0)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_SHAPE['0'] || { code: '0', name: 'Unknown/default', shortName: 'Unknown / Default' };
+    }
+
+    // Fuzzy matching against taxonomy keywords
+    const shapeTaxonomy = this.taxonomy.BUILDING_SHAPE;
+    for (const [code, item] of Object.entries(shapeTaxonomy)) {
+      if (item.keywords && Array.isArray(item.keywords)) {
+        for (const kw of item.keywords) {
+          if (cleanStr.includes(kw.toLowerCase())) {
+            return item;
+          }
+        }
+      }
+    }
+
+    return null;
+  },
+
+  cleanColumn(input, options = {}) {
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
+    const results = [];
+
+    lines.forEach((line, idx) => {
+      const trimmed = (line || '').trim();
+      if (!trimmed && options.removeEmptyLines) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          code: '',
+          buildingShapeCode: '',
+          buildingShape: '—',
+          buildingShapeName: '',
+          buildingShapeShort: '',
+          perils: 'CA EQ, HI EQ, JP EQ, NZ EQ, US EQ',
+          requirement: 'Optional',
+          note: '',
+          changed: false,
+          status: 'empty',
+          statusText: 'Blank'
+        });
+        return;
+      }
+
+      const match = this.classifyBuildingShape(line, options);
+      const code = match ? match.code : '';
+      const name = match ? match.name : '';
+      const shortName = match ? match.shortName : '';
+
+      const format = options.format || 'code_only';
+      let display = code;
+      if (format === 'name_only') display = name || trimmed;
+      else if (format === 'name_code') display = match ? `${name} (${code})` : trimmed;
+      else if (format === 'short_code') display = match ? `${shortName} (${code})` : trimmed;
+
+      let status = 'assigned';
+      let statusText = match ? `✓ Cleaned (${name} - Code ${code})` : '⚠️ Unrecognized Building Shape';
+
+      if (!match) {
+        status = 'mismatch';
+        statusText = '⚠️ Unrecognized Building Shape';
+      } else if (trimmed === code) {
+        status = 'unchanged';
+        statusText = `✓ Valid Code (${code})`;
+      }
+
+      results.push({
+        lineNum: idx + 1,
+        original: line,
+        cleaned: code,
+        code: code,
+        buildingShapeCode: code,
+        buildingShape: display,
+        buildingShapeName: name,
+        buildingShapeShort: shortName,
+        perils: match && match.perils ? match.perils.join(', ') : 'CA EQ, HI EQ, JP EQ, NZ EQ, US EQ',
+        requirement: match ? match.requirement : 'Optional',
+        note: match ? match.note : '',
+        changed: trimmed !== code,
+        status: status,
+        statusText: statusText
+      });
+    });
+
+    return results;
+  }
+};
+
+// Wire up building shape cleaner reference and aliases
+CleanersRegistry.building_shape.cleaner = BuildingShapeClassifier;
+CleanersRegistry.buildingShape = CleanersRegistry.building_shape;
+CleanersRegistry.shape = CleanersRegistry.building_shape;
+
+/**
+ * ============================================================================
+ * CleanExcel Studio - Touchstone UNICEDE® Building Condition Classifier (Codes 0-3)
+ * ============================================================================
+ * 
+ * Touchstone / UNICEDE Location Building Condition Classifier:
+ * One of the following general qualitative descriptions of the condition of the building
+ * at this location, based on visual inspection of the building cladding and maintenance:
+ *   - 0: Unknown (0) - Unknown or default building maintenance and cladding condition.
+ *   - 1: Average (1) - Standard maintenance, typical minor wear, normal aging. Default for earthquake models.
+ *   - 2: Good (2) - Well-maintained, recent renovation, sound cladding, intact roof/chimney.
+ *   - 3: Poor (3) - Signs of distress or duress (cracking due to aging/settlement/overload, loose roof tiles, damaged cladding/chimney, deferred maintenance, previous storm/quake damage).
+ * 
+ * Supported Perils: CA EQ, HI EQ, HI TC, JP EQ, NZ EQ, US EQ, US HU, US ST
+ * Status: Optional. Defaults to a value in the Touchstone user interface (generally Unknown (0), but Average for EQ models).
+ */
+const BuildingConditionClassifier = {
+  taxonomy: {
+    get BUILDING_CONDITION() {
+      const td = _resolveTouchstoneData();
+      return (td && td.BUILDING_CONDITION) || {};
+    }
+  },
+
+  classifyBuildingCondition(raw, options = {}) {
+    if (raw === undefined || raw === null) return null;
+    const str = String(raw).trim();
+    if (!str) return null;
+
+    // Check continuous self-training database
+    if (typeof CustomCodesDB !== 'undefined' && CustomCodesDB.matchLearned) {
+      const learned = CustomCodesDB.matchLearned('building_condition', str);
+      if (learned !== null && learned !== undefined && learned !== '') {
+        const c = String(learned);
+        if (this.taxonomy.BUILDING_CONDITION[c]) {
+          return this.taxonomy.BUILDING_CONDITION[c];
+        }
+      }
+    }
+
+    const cleanStr = str.toLowerCase();
+
+    // 1. Direct explicit numeric code match (0 to 3)
+    const codeMatch = cleanStr.match(/(?:\bcode\s*|#|\(\s*|\[\s*|^)([0-3])(?:\s*\)|\s*\]|\b|$)/);
+    if (codeMatch && (cleanStr.length <= 4 || /\b(?:code|#)\s*[0-3]\b/i.test(cleanStr) || /\(\s*[0-3]\s*\)/.test(cleanStr))) {
+      const c = codeMatch[1];
+      if (this.taxonomy.BUILDING_CONDITION[c]) {
+        return this.taxonomy.BUILDING_CONDITION[c];
+      }
+    }
+
+    // 2. Keyword & Semantics Matching
+    // Code 3: Poor (signs of distress/duress, cracking, settlement, loose tiles, chimney damage, aging roof, deteriorated, deferred maintenance, overloaded, previous damage, dilapidated)
+    if (
+      /\b(?:poor|bad|distressed?|duress|cracking|cracks|settlement|ground\s*settlement|damaged?|loose\s*(?:roof\s*)?tiles?|chimney\s*damage|aging\s*roof|deteriorated?|deferred\s*maintenance|overloaded?|overloading|previous\s*(?:storm|hurricane|cyclone|quake|earthquake)\s*damage|severe\s*wear|substandard|dilapidated|blighted|severe\s*distress|decayed?|failing|compromised)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_CONDITION['3'] || { code: '3', name: 'Poor', shortName: 'Poor (3)' };
+    }
+
+    // Code 2: Good (well-maintained, recent renovation, sound cladding, intact roof/chimney, superior upkeep, excellent, pristine, mint, new)
+    if (
+      /\b(?:good|excellent|superior|well[- ]maintained|well\s*kept|mint|new|renovated|recent\s*renovation|pristine|sound(?:\s*cladding)?|high\s*grade|high\s*quality|intact\s*roof|optimal|great)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_CONDITION['2'] || { code: '2', name: 'Good', shortName: 'Good (2)' };
+    }
+
+    // Code 1: Average (standard maintenance, normal, moderate, typical, fair, adequate, medium, satisfactory, acceptable, ordinary, typical wear, normal aging)
+    if (
+      /\b(?:average|standard|normal|moderate|typical|fair|adequate|medium|standard\s*maintenance|satisfactory|acceptable|ordinary|typical\s*wear|normal\s*aging)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_CONDITION['1'] || { code: '1', name: 'Average', shortName: 'Average (1)' };
+    }
+
+    // Code 0: Unknown / default (unknown, default, unk, tbd, unspecified, 0, na, n/a)
+    if (
+      /\b(?:unknown|default|unk\b|tbd|unspecified|not\s*specified|n\/?a|0)\b/i.test(cleanStr)
+    ) {
+      return this.taxonomy.BUILDING_CONDITION['0'] || { code: '0', name: 'Unknown', shortName: 'Unknown (0)' };
+    }
+
+    // Fuzzy matching against taxonomy keywords
+    const conditionTaxonomy = this.taxonomy.BUILDING_CONDITION;
+    for (const [code, item] of Object.entries(conditionTaxonomy)) {
+      if (item.keywords && Array.isArray(item.keywords)) {
+        for (const kw of item.keywords) {
+          if (cleanStr.includes(kw.toLowerCase())) {
+            return item;
+          }
+        }
+      }
+    }
+
+    return null;
+  },
+
+  cleanColumn(input, options = {}) {
+    const lines = typeof input === 'string' ? parseExcelRows(input) : (Array.isArray(input) ? input : []);
+    const results = [];
+
+    lines.forEach((line, idx) => {
+      const trimmed = (line || '').trim();
+      if (!trimmed && options.removeEmptyLines) return;
+
+      if (!trimmed) {
+        results.push({
+          lineNum: idx + 1,
+          original: line,
+          cleaned: '',
+          code: '',
+          buildingConditionCode: '',
+          buildingCondition: '—',
+          buildingConditionName: '',
+          buildingConditionShort: '',
+          perils: 'CA EQ, HI EQ, HI TC, JP EQ, NZ EQ, US EQ, US HU, US ST',
+          requirement: 'Optional',
+          note: '',
+          changed: false,
+          status: 'empty',
+          statusText: 'Blank'
+        });
+        return;
+      }
+
+      const match = this.classifyBuildingCondition(line, options);
+      const code = match ? match.code : '';
+      const name = match ? match.name : '';
+      const shortName = match ? match.shortName : '';
+
+      const format = options.format || 'code_only';
+      let display = code;
+      if (format === 'name_only') display = name || trimmed;
+      else if (format === 'name_code') display = match ? `${name} (${code})` : trimmed;
+      else if (format === 'short_code') display = match ? `${shortName} (${code})` : trimmed;
+
+      let status = 'assigned';
+      let statusText = match ? `✓ Cleaned (${name} - Code ${code})` : '⚠️ Unrecognized Building Condition';
+
+      if (!match) {
+        status = 'mismatch';
+        statusText = '⚠️ Unrecognized Building Condition';
+      } else if (trimmed === code) {
+        status = 'unchanged';
+        statusText = `✓ Valid Code (${code})`;
+      }
+
+      results.push({
+        lineNum: idx + 1,
+        original: line,
+        cleaned: code,
+        code: code,
+        buildingConditionCode: code,
+        buildingCondition: display,
+        buildingConditionName: name,
+        buildingConditionShort: shortName,
+        perils: match && match.perils ? match.perils.join(', ') : 'CA EQ, HI EQ, HI TC, JP EQ, NZ EQ, US EQ, US HU, US ST',
+        requirement: match ? match.requirement : 'Optional',
+        note: match ? match.note : '',
+        changed: trimmed !== code,
+        status: status,
+        statusText: statusText
+      });
+    });
+
+    return results;
+  }
+};
+
+// Wire up building condition cleaner reference and aliases
+CleanersRegistry.building_condition.cleaner = BuildingConditionClassifier;
+CleanersRegistry.buildingCondition = CleanersRegistry.building_condition;
+CleanersRegistry.condition = CleanersRegistry.building_condition;
+
 // Export for module systems or attach to global window
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { StreetCleaner, AddressSplitter, OccupancyClassifier, ConstructionClassifier, YearBuiltCleaner, RoofYearCleaner, RoofClassifier, WallClassifier, NoOfStoresCleaner, CleanersRegistry };
+  module.exports = { StreetCleaner, AddressSplitter, OccupancyClassifier, ConstructionClassifier, YearBuiltCleaner, RoofYearCleaner, RoofClassifier, WallClassifier, FoundationTypeClassifier, FoundationClassifier, FoundationConnectionClassifier, ShortColumnClassifier, BuildingExteriorOpeningClassifier, SoftStoryClassifier, OrnamentationClassifier, BuildingShapeClassifier, BuildingConditionClassifier, NoOfStoresCleaner, CleanersRegistry };
 }
 if (typeof window !== 'undefined') {
   window.StreetCleaner = StreetCleaner;
@@ -4235,10 +7082,20 @@ if (typeof window !== 'undefined') {
   window.RoofYearCleaner = RoofYearCleaner;
   window.RoofClassifier = RoofClassifier;
   window.WallClassifier = WallClassifier;
+  window.FoundationTypeClassifier = FoundationTypeClassifier;
+  window.FoundationClassifier = FoundationClassifier;
+  window.FoundationConnectionClassifier = FoundationConnectionClassifier;
+  window.ShortColumnClassifier = ShortColumnClassifier;
+  window.BuildingExteriorOpeningClassifier = BuildingExteriorOpeningClassifier;
+  window.SoftStoryClassifier = SoftStoryClassifier;
+  window.OrnamentationClassifier = OrnamentationClassifier;
+  window.BuildingShapeClassifier = BuildingShapeClassifier;
+  window.BuildingConditionClassifier = BuildingConditionClassifier;
   window.NoOfStoresCleaner = NoOfStoresCleaner;
   window.CleanersRegistry = CleanersRegistry;
   window.parseExcelRows = parseExcelRows;
 }
+
 
 
 

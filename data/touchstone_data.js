@@ -2917,6 +2917,179 @@
       ]
     }
   },
+  "COVERING_ATTACHMENT": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "Unknown",
+      "description": "Unknown or unclassified roof covering attachment method.",
+      "keywords": []
+    },
+    "1": {
+      "code": "1",
+      "name": "Screws",
+      "shortName": "Screws",
+      "description": "Screws: Mechanical screws with metal or plastic stress plates securing roof covering / membrane / metal panels to deck.",
+      "keywords": [
+        "screws",
+        "screwed",
+        "screw fastened",
+        "self-tapping screws",
+        "screwed covering",
+        "mechanically attached screws"
+      ]
+    },
+    "2": {
+      "code": "2",
+      "name": "Nails/staples",
+      "shortName": "Nails/staples",
+      "description": "Nails or staples: Standard roofing nails or staples fastening shingles, shakes, or tiles.",
+      "keywords": [
+        "nails",
+        "staples",
+        "nailed",
+        "stapled",
+        "roofing nails",
+        "wire staples",
+        "nailed shingles",
+        "nails staples"
+      ]
+    },
+    "3": {
+      "code": "3",
+      "name": "Adhesive/epoxy",
+      "shortName": "Adhesive/epoxy",
+      "description": "Adhesive / Epoxy: Fully adhered membrane or tile secured with hot asphalt, cold adhesive, foam adhesive, or structural epoxy.",
+      "keywords": [
+        "adhesive",
+        "epoxy",
+        "adhered",
+        "fully adhered",
+        "glued",
+        "foam adhesive",
+        "tile adhesive",
+        "hot asphalt adhesive"
+      ]
+    },
+    "4": {
+      "code": "4",
+      "name": "Mortar",
+      "shortName": "Mortar",
+      "description": "Mortar: Clay or concrete tiles bedded in mortar (traditional wet-laid or mortar-set tile roofing). High susceptibility to seismic/wind shatter.",
+      "keywords": [
+        "mortar",
+        "mortar set",
+        "mortar bed",
+        "mud set",
+        "cement mortar",
+        "bedded in mortar"
+      ]
+    }
+  },
+  "DECK_ATTACHMENT": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "Unknown",
+      "description": "Unknown or unclassified roof deck attachment method.",
+      "keywords": []
+    },
+    "1": {
+      "code": "1",
+      "name": "Screws/bolts",
+      "shortName": "Screws/bolts",
+      "description": "Screws / bolts: Heavy-duty structural screws, puddle welds, or bolts fastening deck sheathing to framing joists/trusses.",
+      "keywords": [
+        "screws bolts",
+        "screws",
+        "bolts",
+        "deck screws",
+        "bolted deck",
+        "screw attached deck"
+      ]
+    },
+    "2": {
+      "code": "2",
+      "name": "Nails",
+      "shortName": "Nails",
+      "description": "Nails: Standard nailed deck sheathing (toe-nailed or face-nailed into roof trusses/rafters).",
+      "keywords": [
+        "nails",
+        "nailed deck",
+        "deck nails",
+        "face nailed",
+        "nailed sheathing"
+      ]
+    },
+    "3": {
+      "code": "3",
+      "name": "Adhesive/epoxy",
+      "shortName": "Adhesive/epoxy",
+      "description": "Adhesive / epoxy: Structural subfloor/decking adhesive or elastomeric foam bonding sheathing to trusses.",
+      "keywords": [
+        "adhesive",
+        "epoxy",
+        "structural adhesive",
+        "glued deck",
+        "adhesive deck"
+      ]
+    },
+    "4": {
+      "code": "4",
+      "name": "Structurally connected",
+      "shortName": "Structurally connected",
+      "description": "Structurally connected: Monolithic cast concrete deck with embedded rebar, welded steel deck, or shear studs.",
+      "keywords": [
+        "structurally connected",
+        "welded deck",
+        "shear studs",
+        "monolithic deck",
+        "composite deck connection"
+      ]
+    },
+    "5": {
+      "code": "5",
+      "name": "6d nails @ 6 spacing, 12 on center",
+      "shortName": "6d @ 6/12",
+      "description": "6d nails @ 6\" edge spacing, 12\" field spacing on center (Standard minimum residential code nailing pattern).",
+      "keywords": [
+        "6d nails 6 12",
+        "6d @ 6/12",
+        "6d 6 12",
+        "6d nails 6 inch",
+        "6d nails",
+        "6d at 6 12"
+      ]
+    },
+    "6": {
+      "code": "6",
+      "name": "8d nails @ 6 spacing, 12 on center",
+      "shortName": "8d @ 6/12",
+      "description": "8d nails @ 6\" edge spacing, 12\" field spacing on center (Enhanced nailing schedule for wind uplift resistance).",
+      "keywords": [
+        "8d nails 6 12",
+        "8d @ 6/12",
+        "8d 6 12",
+        "8d nails 6 inch",
+        "8d nails",
+        "8d at 6 12"
+      ]
+    },
+    "7": {
+      "code": "7",
+      "name": "8d nails @ 6 spacing, 6 on center",
+      "shortName": "8d @ 6/6",
+      "description": "8d nails @ 6\" edge spacing, 6\" field spacing on center (High-velocity hurricane zone HVHZ nailing schedule, e.g. Miami-Dade / Broward).",
+      "keywords": [
+        "8d nails 6 6",
+        "8d @ 6/6",
+        "8d 6 6",
+        "8d at 6 6",
+        "hvhz deck nailing",
+        "miami dade deck nailing"
+      ]
+    }
+  },
   "ANCHORAGE": {
     "0": {
       "code": "0",
@@ -3023,6 +3196,103 @@
       ]
     }
   },
+  "HAIL": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/Non-impact-resistant",
+      "shortName": "Non-impact",
+      "description": "Unknown or non-impact-resistant roof covering (Standard Class 0).",
+      "keywords": ["non-impact", "unknown hail", "standard roof"]
+    },
+    "1": {
+      "code": "1",
+      "name": "Impact-resistant A — least impact-resistant",
+      "shortName": "Impact Class A / 1",
+      "description": "Impact-resistant Class A / Class 1: Tested to resist 1.25-inch steel ball drops (UL 2218 / FM 4473 Class 1).",
+      "keywords": ["impact class a", "class 1 hail", "class a hail", "ul 2218 class 1"]
+    },
+    "2": {
+      "code": "2",
+      "name": "Impact-resistant B",
+      "shortName": "Impact Class B / 2",
+      "description": "Impact-resistant Class B / Class 2: Tested to resist 1.5-inch steel ball drops (UL 2218 / FM 4473 Class 2).",
+      "keywords": ["impact class b", "class 2 hail", "class b hail", "ul 2218 class 2"]
+    },
+    "3": {
+      "code": "3",
+      "name": "Impact-resistant C",
+      "shortName": "Impact Class C / 3",
+      "description": "Impact-resistant Class C / Class 3: Tested to resist 1.75-inch steel ball drops (UL 2218 / FM 4473 Class 3).",
+      "keywords": ["impact class c", "class 3 hail", "class c hail", "ul 2218 class 3"]
+    },
+    "4": {
+      "code": "4",
+      "name": "Impact-resistant D — most impact-resistant",
+      "shortName": "Impact Class D / 4",
+      "description": "Impact-resistant Class D / Class 4: Highest impact rating, tested to resist 2.0-inch steel ball drops (UL 2218 / FM 4473 Class 4).",
+      "keywords": ["impact class d", "class 4 hail", "class d hail", "ul 2218 class 4", "fm 4473 class 4", "class 4 impact"]
+    }
+  },
+  "TANK": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "Unknown",
+      "description": "Unknown/default rooftop tank presence.",
+      "keywords": []
+    },
+    "1": {
+      "code": "1",
+      "name": "No",
+      "shortName": "No",
+      "description": "No rooftop tank present on building roof.",
+      "keywords": ["no tank", "no rooftop tank", "without tank"]
+    },
+    "2": {
+      "code": "2",
+      "name": "Yes",
+      "shortName": "Yes",
+      "description": "Yes, rooftop water tank, chiller tank, or fuel tank installed on roof.",
+      "keywords": ["tank", "rooftop tank", "water tank on roof", "roof tank", "chiller tank"]
+    }
+  },
+  "CHIMNEY": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "Unknown",
+      "description": "Unknown/default chimney presence.",
+      "keywords": []
+    },
+    "1": {
+      "code": "1",
+      "name": "No",
+      "shortName": "No",
+      "description": "No chimney present on building roof.",
+      "keywords": ["no chimney", "without chimney"]
+    },
+    "2": {
+      "code": "2",
+      "name": "Yes, height less than 2 feet",
+      "shortName": "Yes (<2 ft)",
+      "description": "Yes, masonry or metal chimney with height less than 2 feet above roof plane.",
+      "keywords": ["chimney <2ft", "chimney less than 2", "short chimney", "chimney under 2ft"]
+    },
+    "3": {
+      "code": "3",
+      "name": "Yes, height 2–5 feet",
+      "shortName": "Yes (2–5 ft)",
+      "description": "Yes, chimney with height between 2 and 5 feet above roof plane.",
+      "keywords": ["chimney 2-5ft", "chimney 2 to 5", "standard chimney", "chimney 3ft", "chimney 4ft"]
+    },
+    "4": {
+      "code": "4",
+      "name": "Yes, height more than 5 feet",
+      "shortName": "Yes (>5 ft)",
+      "description": "Yes, tall chimney with height greater than 5 feet above roof plane (higher earthquake overturning / wind risk).",
+      "keywords": ["chimney >5ft", "tall chimney", "chimney more than 5", "chimney 6ft", "chimney 8ft"]
+    }
+  },
   "WEAKNESS": {
     "GEOMETRY": {
       "0": 0,
@@ -3068,6 +3338,33 @@
       "6": 20,
       "7": 10,
       "8": 80
+    },
+    "COVERING_ATTACHMENT": {
+      "0": 0,
+      "4": 100, // Mortar (weakest/most brittle against wind/seismic)
+      "2": 80,  // Nails/staples
+      "3": 50,  // Adhesive/epoxy
+      "1": 20   // Screws (strongest mechanical hold)
+    },
+    "DECK_ATTACHMENT": {
+      "0": 0,
+      "2": 80,  // Nails (generic)
+      "5": 70,  // 6d nails @ 6/12
+      "6": 60,  // 8d nails @ 6/12
+      "7": 50,  // 8d nails @ 6/6 (high wind)
+      "3": 40,  // Adhesive/epoxy
+      "1": 20,  // Screws/bolts
+      "4": 10   // Structurally connected (strongest)
+    },
+    "ANCHORAGE": {
+      "0": 0,
+      "4": 100, // Gravity/friction (weakest)
+      "2": 80,  // Nails/Screws (toe-nailing)
+      "7": 60,  // Clips
+      "1": 40,  // Hurricane Ties
+      "3": 30,  // Anchor bolts
+      "5": 25,  // Adhesive epoxy
+      "6": 10   // Structurally Connected (strongest)
     }
   }
 };
@@ -3078,19 +3375,23 @@
       "code": "0",
       "name": "Unknown/default",
       "shortName": "Unknown",
-      "description": "Unknown structural wall backing.",
-      "keywords": []
+      "description": "Unknown structural wall backing (default).",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+      "keywords": ["unknown", "default", "unspecified"]
     },
     "1": {
       "code": "1",
       "name": "Brick/unreinforced masonry",
       "shortName": "Brick / URM",
       "description": "Brick / Unreinforced Masonry (URM) structural wall. Load-bearing masonry walls without reinforcing steel rebar.",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
       "keywords": [
         "brick",
         "unreinforced masonry",
         "urm",
-        "brick bearing wall"
+        "brick bearing wall",
+        "solid brick wall",
+        "masonry bearing"
       ]
     },
     "2": {
@@ -3098,12 +3399,14 @@
       "name": "Reinforced masonry",
       "shortName": "Reinforced masonry",
       "description": "Reinforced Masonry (grouted concrete masonry units CMU with internal steel rebar). High lateral load resistance.",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
       "keywords": [
         "reinforced masonry",
         "cmu",
         "concrete block",
         "grouted cmu",
-        "rebar masonry"
+        "rebar masonry",
+        "reinforced concrete block"
       ]
     },
     "3": {
@@ -3111,10 +3414,13 @@
       "name": "Plywood",
       "shortName": "Plywood",
       "description": "Plywood structural wall sheathing over wood or light steel studs.",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
       "keywords": [
         "plywood",
         "plywood sheathing",
-        "wood stud plywood"
+        "wood stud plywood",
+        "cdx plywood",
+        "wood sheathing"
       ]
     },
     "4": {
@@ -3122,10 +3428,13 @@
       "name": "Wood planks",
       "shortName": "Wood planks",
       "description": "Solid wood planks (horizontal or diagonal timber wall sheathing).",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
       "keywords": [
         "wood planks",
         "diagonal planks",
-        "board sheathing"
+        "board sheathing",
+        "tongue and groove",
+        "horizontal planks"
       ]
     },
     "5": {
@@ -3133,11 +3442,14 @@
       "name": "Particle board/OSB",
       "shortName": "OSB / Particle board",
       "description": "Particle board or Oriented Strand Board (OSB) structural wall sheathing.",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
       "keywords": [
         "particle board",
         "osb",
         "oriented strand board",
-        "waferboard wall"
+        "waferboard wall",
+        "aspenite",
+        "chipboard"
       ]
     },
     "6": {
@@ -3145,11 +3457,15 @@
       "name": "Metal panels",
       "shortName": "Metal panels",
       "description": "Light gauge metal panels or structural steel wall framing.",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
       "keywords": [
         "metal panels",
         "light metal",
         "steel stud",
-        "metal frame"
+        "metal frame",
+        "corrugated metal panel",
+        "sandwich panel",
+        "insulated metal panel"
       ]
     },
     "7": {
@@ -3157,11 +3473,14 @@
       "name": "Pre-cast concrete elements",
       "shortName": "Pre-cast concrete",
       "description": "Pre-cast concrete wall elements and tilt-up panels assembled on site.",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
       "keywords": [
         "precast concrete",
         "pre-cast concrete",
         "tilt-up concrete",
-        "precast panel"
+        "tilt up",
+        "precast panel",
+        "hollow-core wall"
       ]
     },
     "8": {
@@ -3169,10 +3488,13 @@
       "name": "Cast-in-place concrete",
       "shortName": "Cast-in-place concrete",
       "description": "Cast-in-place monolithic reinforced concrete structural bearing walls. Highest structural strength.",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
       "keywords": [
         "cast-in-place concrete",
         "poured concrete wall",
-        "monolithic concrete"
+        "monolithic concrete",
+        "reinforced concrete wall",
+        "cip concrete"
       ]
     },
     "9": {
@@ -3180,11 +3502,13 @@
       "name": "Gypsum board",
       "shortName": "Gypsum board",
       "description": "Gypsum board or exterior drywall sheathing. Highly vulnerable to water and windborne missiles.",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
       "keywords": [
         "gypsum board",
         "exterior drywall",
         "densglass",
-        "gypsum sheathing"
+        "gypsum sheathing",
+        "glass-mat gypsum"
       ]
     }
   },
@@ -3193,20 +3517,23 @@
       "code": "0",
       "name": "Unknown/default",
       "shortName": "Unknown",
-      "description": "Unknown exterior wall siding/finish.",
-      "keywords": []
+      "description": "Unknown exterior wall siding/weather envelope.",
+      "perils": ["AU WF", "CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST", "US WF"],
+      "keywords": ["unknown", "default", "unspecified"]
     },
     "1": {
       "code": "1",
       "name": "Veneer brick/masonry",
       "shortName": "Brick / Masonry veneer",
       "description": "Veneer brick or masonry facing. Single width of exterior brick or stone anchored to structural backing wall.",
+      "perils": ["AU WF", "CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST", "US WF"],
       "keywords": [
         "brick veneer",
         "brick siding",
         "masonry veneer",
         "brick exterior",
-        "face brick"
+        "face brick",
+        "brick facade"
       ]
     },
     "2": {
@@ -3214,11 +3541,13 @@
       "name": "Wood shingles",
       "shortName": "Wood shingles",
       "description": "Wood shingles or cedar shakes used as exterior siding finish.",
+      "perils": ["AU WF", "CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST", "US WF"],
       "keywords": [
         "wood shingles",
         "cedar shingles",
         "shake siding",
-        "wood shakes"
+        "wood shakes",
+        "cedar shakes"
       ]
     },
     "3": {
@@ -3226,12 +3555,14 @@
       "name": "Clapboards",
       "shortName": "Clapboards",
       "description": "Clapboards (horizontal wood lap siding, beveled timber siding).",
+      "perils": ["AU WF", "CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST", "US WF"],
       "keywords": [
         "clapboard",
         "clapboards",
         "wood lap siding",
         "horizontal wood siding",
-        "bevel siding"
+        "bevel siding",
+        "weatherboard"
       ]
     },
     "4": {
@@ -3239,6 +3570,7 @@
       "name": "Aluminum/vinyl siding",
       "shortName": "Aluminum / Vinyl siding",
       "description": "Aluminum or vinyl siding panels (lightweight extruded vinyl or aluminum lap siding). Most vulnerable to wind peel-off & hail.",
+      "perils": ["AU WF", "CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST", "US WF"],
       "keywords": [
         "vinyl siding",
         "aluminum siding",
@@ -3253,13 +3585,15 @@
       "name": "Stone panels",
       "shortName": "Stone panels",
       "description": "Natural or cut stone panels (granite, limestone, fieldstone veneer cladding).",
+      "perils": ["AU WF", "CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST", "US WF"],
       "keywords": [
         "stone panels",
         "stone siding",
         "stone veneer",
         "fieldstone siding",
         "granite panels",
-        "limestone veneer"
+        "limestone veneer",
+        "stone facade"
       ]
     },
     "6": {
@@ -3267,11 +3601,13 @@
       "name": "Exterior insulation finishing system",
       "shortName": "EIFS / Synthetic stucco",
       "description": "Exterior Insulation and Finish System (EIFS / synthetic stucco over rigid insulation board). Vulnerable to hail impact and water moisture.",
+      "perils": ["AU WF", "CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST", "US WF"],
       "keywords": [
         "eifs",
         "synthetic stucco",
         "dryvit",
-        "exterior insulation finishing system"
+        "exterior insulation finishing system",
+        "sto finish"
       ]
     },
     "7": {
@@ -3279,26 +3615,746 @@
       "name": "Stucco",
       "shortName": "Stucco",
       "description": "Traditional cementitious stucco (Portland cement plaster over wire mesh lath). Non-combustible, brittle under shear.",
+      "perils": ["AU WF", "CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST", "US WF"],
       "keywords": [
         "stucco",
         "traditional stucco",
         "cement plaster",
-        "hardcoat stucco"
+        "hardcoat stucco",
+        "plaster finish",
+        "render"
       ]
     },
     "8": {
       "code": "8",
       "name": "Fiber cement board",
       "shortName": "Fiber cement board",
-      "description": "Fiber cement board siding (HardiePlank, engineered cementitious composite lap siding). Class A fire rated.",
+      "description": "Fiber cement board siding (HardiePlank, engineered cementitious composite lap siding). Class A fire rated (added in June 2024 for US WF).",
+      "perils": ["AU WF", "CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST", "US WF"],
       "keywords": [
         "fiber cement",
         "hardieplank",
         "hardie board",
         "cementitious siding",
-        "james hardie"
+        "james hardie",
+        "cement board siding"
       ]
     }
+  },
+  "GLASS_TYPE": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "Unknown / Default",
+      "description": "Unknown or default glass type (Touchstone default code 0).",
+      "perils": ["HI TC", "US HU", "US ST", "US WF"],
+      "keywords": ["unknown glass", "default glass", "unspecified glass"]
+    },
+    "1": {
+      "code": "1",
+      "name": "Annealed",
+      "shortName": "Annealed",
+      "description": "Annealed glass (standard float glass / plate glass). Breaks into large jagged shards under thermal or wind load stress.",
+      "perils": ["HI TC", "US HU", "US ST", "US WF"],
+      "keywords": ["annealed", "annealed glass", "float glass", "standard plate glass", "regular glass"]
+    },
+    "2": {
+      "code": "2",
+      "name": "Tempered",
+      "shortName": "Tempered",
+      "description": "Tempered safety glass (heat-treated glass that crumbles into small granular pebbles when fractured). 4x stronger than annealed.",
+      "perils": ["HI TC", "US HU", "US ST", "US WF"],
+      "keywords": ["tempered", "tempered glass", "toughened glass", "safety glass", "fully tempered"]
+    },
+    "3": {
+      "code": "3",
+      "name": "Heat strengthened",
+      "shortName": "Heat strengthened",
+      "description": "Heat strengthened glass (semi-tempered glass, 2x stronger than annealed, resists thermal stress cracking).",
+      "perils": ["HI TC", "US HU", "US ST", "US WF"],
+      "keywords": ["heat strengthened", "heat-strengthened glass", "semi-tempered", "hs glass"]
+    },
+    "4": {
+      "code": "4",
+      "name": "Laminated",
+      "shortName": "Laminated",
+      "description": "Laminated impact glass (two or more glass plies bonded with a PVB/SentryGlas interlayer). Superior impact and missile debris resistance.",
+      "perils": ["HI TC", "US HU", "US ST", "US WF"],
+      "keywords": ["laminated", "laminated glass", "impact glass", "hurricane glass", "pvb laminated", "security glass", "windborne missile glass"]
+    },
+    "5": {
+      "code": "5",
+      "name": "Insulating glass units",
+      "shortName": "Insulating glass (IGU)",
+      "description": "Insulating glass units (IGU / double-pane or triple-pane glazed units with sealed air or argon gas space).",
+      "perils": ["HI TC", "US HU", "US ST", "US WF"],
+      "keywords": ["insulating glass units", "igu", "insulated glass", "double pane", "triple pane", "double glazed", "thermal glazing", "dual pane"]
+    }
+  },
+  "GLASS_PERCENTAGE": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "Unknown / Default",
+      "description": "Unknown or default percentage of wall area covered by glass.",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["unknown glass percentage", "default glass pct"]
+    },
+    "1": {
+      "code": "1",
+      "name": "Less than 5%",
+      "shortName": "< 5% Glass",
+      "description": "Less than 5% of wall area covered by glass (minimal windows / high wall solidity).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["less than 5%", "<5%", "< 5%", "under 5% glass", "minimal glass", "solid wall", "punched windows small"]
+    },
+    "2": {
+      "code": "2",
+      "name": "Between 5% and 20%",
+      "shortName": "5%–20% Glass",
+      "description": "Between 5% and 20% of exterior wall area covered by glass (typical residential / modest commercial).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["between 5% and 20%", "5-20%", "5% to 20%", "10% glass", "15% glass", "moderate glazing"]
+    },
+    "3": {
+      "code": "3",
+      "name": "Between 20% and 60%",
+      "shortName": "20%–60% Glass",
+      "description": "Between 20% and 60% of exterior wall area covered by glass (standard commercial office / high fenestration).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["between 20% and 60%", "20-60%", "20% to 60%", "30% glass", "40% glass", "50% glass", "large ribbon windows"]
+    },
+    "4": {
+      "code": "4",
+      "name": "Greater than 60%",
+      "shortName": "> 60% Glass",
+      "description": "Greater than 60% of wall area covered by glass (curtain wall / all-glass building envelope / high vulnerability).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["greater than 60%", ">60%", "> 60%", "more than 60%", "70% glass", "80% glass", "90% glass", "curtain wall", "all-glass facade", "glass tower", "glazed curtainwall"]
+    }
+  },
+  "WINDOW_PROTECTION": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "Unknown / Default",
+      "description": "Unknown or default window wind protection system.",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["unknown protection", "default window protection"]
+    },
+    "1": {
+      "code": "1",
+      "name": "No protection",
+      "shortName": "No protection",
+      "description": "No wind or impact protection system used for windows (standard unprotected glazing).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["no protection", "unprotected", "none", "no shutters", "standard glass no protection", "without shutters"]
+    },
+    "2": {
+      "code": "2",
+      "name": "Non-engineered shutters",
+      "shortName": "Non-engineered shutters",
+      "description": "Non-engineered storm shutters (plywood panels, generic storm panels, or non-certified accordion/bahama shutters).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["non-engineered shutters", "plywood covers", "plywood shutters", "storm panels uncertified", "temporary shutters", "non engineered", "wooden shutters", "manual storm panels"]
+    },
+    "3": {
+      "code": "3",
+      "name": "Engineered shutters",
+      "shortName": "Engineered shutters",
+      "description": "Engineered hurricane shutters (Miami-Dade NOA certified, motorized roll-down shutters, impact-rated storm screens, ASTM E1996/E1886 compliant).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["engineered shutters", "hurricane shutters", "impact shutters", "roll down shutters", "motorized hurricane shutters", "miami-dade shutters", "astm e1996", "certified shutters", "bermuda shutters impact"]
+    }
+  },
+  "EXTERIOR_DOORS": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "Unknown / Default",
+      "description": "Unknown or default exterior door type.",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["unknown doors", "default exterior doors"]
+    },
+    "1": {
+      "code": "1",
+      "name": "Single width doors",
+      "shortName": "Single width doors",
+      "description": "Standard unreinforced single width exterior doors.",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["single width doors", "single door", "standard entry door", "single exterior door", "single leaf door", "1 door"]
+    },
+    "2": {
+      "code": "2",
+      "name": "Double width doors",
+      "shortName": "Double width doors",
+      "description": "Standard unreinforced double width exterior doors (French doors, double entry).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["double width doors", "double doors", "french doors", "double entry door", "double leaf door", "pair of doors"]
+    },
+    "3": {
+      "code": "3",
+      "name": "Reinforced single width doors",
+      "shortName": "Reinforced single door",
+      "description": "Reinforced single width exterior doors (impact rated single door, heavy duty deadbolts and steel reinforcement).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["reinforced single width doors", "reinforced single door", "impact single door", "heavy duty single door", "reinforced entry door", "hurricane single door"]
+    },
+    "4": {
+      "code": "4",
+      "name": "Reinforced double width doors",
+      "shortName": "Reinforced double door",
+      "description": "Reinforced double width exterior doors (impact rated double doors with heavy-duty top and bottom lock pins / astragal reinforcement).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["reinforced double width doors", "reinforced double doors", "impact double doors", "reinforced french doors", "heavy duty double doors", "hurricane double doors"]
+    },
+    "5": {
+      "code": "5",
+      "name": "Sliding doors",
+      "shortName": "Sliding doors",
+      "description": "Standard unreinforced sliding glass exterior doors (patio sliders). Deflect considerably under wind load.",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["sliding doors", "sliding glass door", "patio door", "glass slider", "sliding patio door"]
+    },
+    "6": {
+      "code": "6",
+      "name": "Reinforced sliding doors",
+      "shortName": "Reinforced sliding doors",
+      "description": "Reinforced sliding glass exterior doors (impact rated sliding doors with reinforced frames, tracks, and laminated glass).",
+      "perils": ["HI TC", "US HU", "US ST"],
+      "keywords": ["reinforced sliding doors", "impact sliding doors", "reinforced glass slider", "hurricane sliding doors", "heavy duty sliding glass"]
+    }
+  },
+  "BUILDING_EXTERIOR_OPENING": {
+    "0": {
+      "code": "0",
+      "name": "Unknown",
+      "shortName": "Unknown",
+      "description": "Unknown percentage of exterior walls that are open (windows or doors).",
+      "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+      "keywords": ["unknown exterior opening", "unknown openings"]
+    },
+    "1": {
+      "code": "1",
+      "name": "Less than 50% of wall open / default",
+      "shortName": "< 50% Wall Open",
+      "description": "Less than 50% of exterior walls are open (standard window/door openings; default).",
+      "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+      "keywords": ["less than 50% of wall open", "< 50% wall open", "<50% open", "standard wall openings", "solid exterior walls"]
+    },
+    "2": {
+      "code": "2",
+      "name": "More than 50% of wall open",
+      "shortName": "> 50% Wall Open",
+      "description": "More than 50% of exterior walls are open (large window walls, storefronts; evaluated as having less seismic resistance).",
+      "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+      "keywords": ["more than 50% of wall open", "> 50% wall open", ">50% open", "open storefront", "continuous ribbon openings", "high openness"]
+    }
+  },
+  "BRICK_VENEER": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "50%–90% (Default)",
+      "description": "Unknown or default percentage of exterior walls that are brick veneer (represents 50%–90%). Used with Code 103 Masonry Veneer.",
+      "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+      "keywords": ["50-90% brick veneer", "default brick veneer", "50% to 90% brick veneer"]
+    },
+    "1": {
+      "code": "1",
+      "name": "More than 90%",
+      "shortName": "> 90% Brick Veneer",
+      "description": "More than 90% of exterior walls are brick veneer. Used with Code 103 Masonry Veneer.",
+      "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+      "keywords": ["more than 90% brick veneer", ">90% brick veneer", "> 90% veneer", "95% brick veneer", "100% brick veneer", "all brick veneer"]
+    },
+    "2": {
+      "code": "2",
+      "name": "25-50%",
+      "shortName": "25%–50% Brick Veneer",
+      "description": "Between 25% and 50% of exterior walls are brick veneer. Used with Code 103 Masonry Veneer.",
+      "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+      "keywords": ["25-50% brick veneer", "25% to 50% brick veneer", "30% brick veneer", "40% brick veneer", "partial brick veneer"]
+    },
+    "3": {
+      "code": "3",
+      "name": "0-25%",
+      "shortName": "0%–25% Brick Veneer",
+      "description": "Between 0% and 25% of exterior walls are brick veneer. Used with Code 103 Masonry Veneer.",
+      "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+      "keywords": ["0-25% brick veneer", "0% to 25% brick veneer", "10% brick veneer", "15% brick veneer", "minimal brick veneer", "brick wainscot"]
+    }
+  },
+  "FIRE_RATING_WALL_SIDING": {
+    "0": {
+      "code": "0",
+      "name": "Unknown/No Rating",
+      "shortName": "Unknown / No Rating",
+      "description": "Unknown or no fire rating for exterior wall siding (Touchstone default code 0).",
+      "perils": ["AU WF", "US WF"],
+      "keywords": ["unknown fire rating", "no fire rating", "unrated siding"]
+    },
+    "1": {
+      "code": "1",
+      "name": "Fire Rated Class A",
+      "shortName": "Class A Fire Rated",
+      "description": "Fire Rated Class A wall siding (Flame Spread Index 0–25, non-combustible fiber cement, brick, stone, metal panels). Superior wildfire protection.",
+      "perils": ["AU WF", "US WF"],
+      "keywords": ["fire rated class a", "class a", "class a fire rating", "class a siding", "non-combustible siding", "flame spread class a"]
+    },
+    "2": {
+      "code": "2",
+      "name": "Fire Rated Class B",
+      "shortName": "Class B Fire Rated",
+      "description": "Fire Rated Class B wall siding (Flame Spread Index 26–75, fire-retardant pressure-treated wood siding).",
+      "perils": ["AU WF", "US WF"],
+      "keywords": ["fire rated class b", "class b", "class b fire rating", "class b siding", "treated wood siding class b"]
+    },
+    "3": {
+      "code": "3",
+      "name": "Fire Rated Class C",
+      "shortName": "Class C Fire Rated",
+      "description": "Fire Rated Class C wall siding (Flame Spread Index 76–200, standard untreated wood shingles, vinyl siding, plywood siding).",
+      "perils": ["AU WF", "US WF"],
+      "keywords": ["fire rated class c", "class c", "class c fire rating", "class c siding", "standard untreated wood siding"]
+    }
+  }
+};
+
+const FOUNDATION = {
+  FOUNDATION_TYPE: {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "Unknown / Default",
+      "description": "Unknown or default foundation type (Touchstone default code 0).",
+      "keywords": ["unknown", "default", "unk", "tbd", "unspecified"]
+    },
+    "1": {
+      "code": "1",
+      "name": "Masonry basement",
+      "shortName": "Masonry basement",
+      "description": "Masonry basement foundation walls (brick or concrete masonry unit / CMU basement). Applicable for US, UK, Central Europe Inland Flood models. Required when Floor of Interest = -1 (Basement).",
+      "keywords": ["masonry basement", "brick basement", "cmu basement", "block basement", "masonry cellar", "stone basement"]
+    },
+    "2": {
+      "code": "2",
+      "name": "Concrete basement",
+      "shortName": "Concrete basement",
+      "description": "Cast-in-place reinforced concrete basement foundation walls. Applicable for US, UK, Central Europe Inland Flood models. Required when Floor of Interest = -1 (Basement).",
+      "keywords": ["concrete basement", "poured concrete basement", "reinforced concrete basement", "rc basement", "concrete cellar", "full concrete basement"]
+    },
+    "3": {
+      "code": "3",
+      "name": "Masonry wall",
+      "shortName": "Masonry wall",
+      "description": "Masonry foundation perimeter wall. Note: Touchstone maps code 3 to Crawlspace cripple wall (4) (wood) upon import.",
+      "keywords": ["masonry wall", "masonry perimeter wall", "brick foundation wall", "stone foundation wall", "cmu foundation wall", "stem wall masonry"]
+    },
+    "4": {
+      "code": "4",
+      "name": "Crawlspace cripple wall (wood)",
+      "shortName": "Crawlspace cripple wall",
+      "description": "Wood-framed cripple wall over crawlspace foundation. Mandatory selection in Verisk Earthquake Model for US when applying Retrofit Measures option Bracing of cripple walls (1).",
+      "keywords": ["crawlspace cripple wall", "cripple wall", "wood cripple wall", "crawl space cripple wall", "crawlspace with cripple wall", "pony wall", "wood stem wall"]
+    },
+    "5": {
+      "code": "5",
+      "name": "Crawlspace masonry (wood)",
+      "shortName": "Crawlspace masonry",
+      "description": "Masonry stem wall / crawlspace supporting wood-framed floor system.",
+      "keywords": ["crawlspace masonry", "masonry crawlspace", "crawl space masonry", "cmu crawlspace", "brick crawlspace", "block crawl space"]
+    },
+    "6": {
+      "code": "6",
+      "name": "Post & pier",
+      "shortName": "Post & pier",
+      "description": "Post and pier foundation (timber posts or concrete piers supporting girders above ground level, open crawl space / stilt foundation).",
+      "keywords": ["post & pier", "post and pier", "pier and beam", "piers", "timber posts", "stilt foundation", "pilings and piers", "post and beam"]
+    },
+    "7": {
+      "code": "7",
+      "name": "Footing",
+      "shortName": "Footing",
+      "description": "Shallow spread footing foundation (strip footings, pad footings). Common in single-family dwellings.",
+      "keywords": ["footing", "spread footing", "strip footing", "pad footing", "concrete footing", "continuous footing", "shallow footing"]
+    },
+    "8": {
+      "code": "8",
+      "name": "Mat / slab",
+      "shortName": "Mat / slab",
+      "description": "Mat foundation or slab-on-grade (raft foundation, thick reinforced concrete slab distributing load). Most mid-rise buildings and commercial properties are built on mat/slab foundations.",
+      "keywords": ["mat", "slab", "mat foundation", "slab on grade", "slab-on-grade", "raft foundation", "monolithic slab", "floating slab", "concrete slab foundation", "mat / slab"]
+    },
+    "9": {
+      "code": "9",
+      "name": "Pile",
+      "shortName": "Pile",
+      "description": "Deep pile foundation (driven steel H-piles, concrete piles, auger-cast piles, drilled caissons/shafts). High-rise buildings tend to be supported on pile foundations; piles are generally superior performers in earthquakes.",
+      "keywords": ["pile", "piles", "pile foundation", "deep foundation", "driven piles", "concrete piles", "steel piles", "caissons", "drilled shafts", "friction piles", "end bearing piles"]
+    },
+    "10": {
+      "code": "10",
+      "name": "No basement",
+      "shortName": "No basement",
+      "description": "Structure built without a basement (slab-on-grade or at-grade foundation). Applicable for UK/Central Europe Inland Flood models. Not applicable for Verisk US Earthquake Model.",
+      "keywords": ["no basement", "without basement", "slab without basement", "no cellar", "non-basement", "zero basement", "above grade"]
+    },
+    "11": {
+      "code": "11",
+      "name": "Engineering foundation",
+      "shortName": "Engineering foundation",
+      "description": "Specialized engineered foundation system designed for specific geotechnical, seismic, or flood conditions (ground improvement, micropiles, rock anchors, compensated foundations).",
+      "keywords": ["engineering foundation", "engineered foundation", "special foundation", "engineered deep foundation", "geotechnical foundation", "custom engineered foundation"]
+    },
+    "12": {
+      "code": "12",
+      "name": "Crawlspace - raised (wood)",
+      "shortName": "Crawlspace - raised",
+      "description": "Raised wood-framed floor over crawlspace foundation (elevated residential crawlspace).",
+      "keywords": ["crawlspace - raised", "crawlspace raised", "raised crawlspace", "raised wood crawlspace", "elevated crawlspace", "raised floor foundation", "raised crawl space"]
+    }
+  },
+  FOUNDATION_CONNECTION: {
+    "0": {
+      "code": "0",
+      "name": "Unknown/default",
+      "shortName": "Unknown / Default",
+      "description": "Unknown or default foundation connection type (Touchstone default code 0).",
+      "industrialEquiv": "Unknown/default",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+      "keywords": ["unknown", "default", "unk", "tbd", "unspecified", "0"]
+    },
+    "1": {
+      "code": "1",
+      "name": "Hurricane ties",
+      "shortName": "Hurricane ties",
+      "description": "Hurricane ties, uplift straps, hold-downs, seismic clips, or engineered tie-downs securing structure to foundation.",
+      "industrialEquiv": null,
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+      "keywords": ["hurricane ties", "hurricane tie", "hurricane straps", "hurricane strap", "seismic ties", "seismic clips", "uplift straps", "hold downs", "hold-downs", "tie-downs", "simpson tie", "foundation clips", "1"]
+    },
+    "2": {
+      "code": "2",
+      "name": "Nails/Screws",
+      "shortName": "Nails / Screws",
+      "description": "Framing connected to foundation sill with nails or screws (toe-nailing, mechanical screws, face nailed).",
+      "industrialEquiv": null,
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+      "keywords": ["nails", "screws", "nails/screws", "nail", "screw", "toe nail", "toe-nailed", "toenailing", "nailed", "screwed", "wood screws", "framing nails", "2"]
+    },
+    "3": {
+      "code": "3",
+      "name": "Anchor Bolts",
+      "shortName": "Anchor Bolts",
+      "description": "Sill plate anchored to foundation with standard anchor bolts, expansion bolts, or J-bolts (structural bolting).",
+      "industrialEquiv": null,
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+      "keywords": ["anchor bolts", "anchor bolt", "bolted", "foundation bolts", "sill bolts", "bolted foundation", "expansion bolts", "j-bolts", "j bolts", "wedge anchors", "bolting", "foundation anchorage (bolting)", "3"]
+    },
+    "4": {
+      "code": "4",
+      "name": "Gravity/Friction",
+      "shortName": "Gravity / Friction",
+      "description": "Structure resting by dead load / gravity / friction on foundation without positive mechanical hold-down. (For industrial facilities: Unanchored equipment).",
+      "industrialEquiv": "Unanchored",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+      "retrofitNote": "For Verisk Earthquake Model for the United States, you must specify Gravity/Friction (4) if you want to use the Retrofit Measures option Foundation anchorage (bolting) (4).",
+      "keywords": ["gravity", "friction", "gravity/friction", "unanchored", "dead weight", "dead load", "resting on foundation", "unbolted", "no connection", "none", "not anchored", "unanchored equipment", "4"]
+    },
+    "5": {
+      "code": "5",
+      "name": "Adhesive/Epoxy",
+      "shortName": "Adhesive / Epoxy",
+      "description": "Chemical adhesive anchors, structural epoxy bonding, or resin anchors connecting structure/dowels to foundation.",
+      "industrialEquiv": null,
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+      "keywords": ["adhesive", "epoxy", "adhesive/epoxy", "chemical anchor", "epoxy anchor", "resin anchor", "structural epoxy", "glued", "epoxy dowels", "5"]
+    },
+    "6": {
+      "code": "6",
+      "name": "Structurally Connected",
+      "shortName": "Structurally Connected",
+      "description": "Monolithic concrete connection, continuous rebar tie beam, embedded weld plates, or fully anchored structural frame. (For industrial facilities: Anchored equipment).",
+      "industrialEquiv": "Anchored",
+      "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+      "keywords": ["structurally connected", "structural connection", "anchored", "monolithic", "welded", "embed plates", "weld plates", "continuous rebar", "cast-in-place embed", "anchored equipment", "fully anchored", "6"]
+    }
+  }
+};
+
+const SHORT_COLUMN = {
+  "0": {
+    "code": "0",
+    "name": "Unknown/default",
+    "shortName": "Unknown / Default",
+    "description": "Unknown or default short column condition.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+    "requirement": "Optional",
+    "keywords": ["unknown", "default", "unk", "tbd", "unspecified", "0"]
+  },
+  "1": {
+    "code": "1",
+    "name": "No",
+    "shortName": "No",
+    "description": "No short columns in the building at this location.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+    "requirement": "Optional",
+    "keywords": ["no", "none", "false", "without short columns", "no short columns", "not present", "1", "n"]
+  },
+  "2": {
+    "code": "2",
+    "name": "Yes",
+    "shortName": "Yes",
+    "description": "Short columns present in the building at this location. This field applies to old concrete structures in which the fill height of some column has been restricted by spandrel beams or infill walls. If some of the columns along the perimeter are shorter than the adjacent columns, there is high chance that the shorter columns can no longer bear the loads for which they were originally designed.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+    "requirement": "Optional",
+    "keywords": ["yes", "true", "short column", "short columns", "present", "spandrel beams", "spandrel", "infill walls", "infill", "restricted height", "perimeter short column", "short columns present", "2", "y"]
+  }
+};
+
+const BUILDING_EXTERIOR_OPENING = {
+  "0": {
+    "code": "0",
+    "name": "Unknown",
+    "shortName": "Unknown (0)",
+    "description": "Unknown or default percentage of exterior walls that are open.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "A shear wall with many openings for windows and doors has less resistance to earthquake loads. Buildings with walls that are more than 50% open are evaluated as having less seismic resistance than they would otherwise.",
+    "keywords": ["unknown", "default", "unk", "tbd", "unspecified", "0"]
+  },
+  "1": {
+    "code": "1",
+    "name": "Less than 50% of wall open / default",
+    "shortName": "Less than 50% open (1)",
+    "description": "Less than 50% of exterior walls are open (that is, that have windows or doors) for the building at this location. Standard default exterior opening ratio.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "A shear wall with many openings for windows and doors has less resistance to earthquake loads. Buildings with walls that are more than 50% open are evaluated as having less seismic resistance than they would otherwise.",
+    "keywords": ["less than 50%", "< 50%", "<50%", "less than 50% of wall open", "less than 50% of wall open / default", "less than 50% open", "under 50%", "default", "minimal openings", "low opening ratio", "punched windows", "standard openings", "1"]
+  },
+  "2": {
+    "code": "2",
+    "name": "More than 50% of wall open",
+    "shortName": "More than 50% open (2)",
+    "description": "More than 50% of exterior walls are open (that is, that have windows or doors) for the building at this location. Shear walls with more than 50% openings have less resistance to earthquake loads.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "A shear wall with many openings for windows and doors has less resistance to earthquake loads. Buildings with walls that are more than 50% open are evaluated as having less seismic resistance than they would otherwise.",
+    "keywords": ["more than 50%", "> 50%", ">50%", "more than 50% of wall open", "more than 50% open", "over 50%", "greater than 50%", "50%+", "many openings", "large window openings", "storefront glass", "glass curtain wall", "high opening ratio", "significant openings", "2"]
+  }
+};
+
+const SOFT_STORY = {
+  "0": {
+    "code": "0",
+    "name": "Unknown/default",
+    "shortName": "Unknown / Default",
+    "description": "Unknown or default soft story condition.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "This field is applicable only if the number of stories is 2 or greater. First-floor garages and taller first floors are likely to exhibit soft-story behavior.",
+    "keywords": ["unknown", "default", "unk", "tbd", "unspecified", "0"]
+  },
+  "1": {
+    "code": "1",
+    "name": "No",
+    "shortName": "No",
+    "description": "No soft story structural weakness in the building at this location.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "This field is applicable only if the number of stories is 2 or greater.",
+    "keywords": ["no", "none", "false", "without soft story", "no soft story", "not present", "1", "n", "regular", "stiff", "uniform stiffness"]
+  },
+  "2": {
+    "code": "2",
+    "name": "Yes",
+    "shortName": "Yes",
+    "description": "Structural weakness at any floor in the building at this location. This field is applicable only if the number of stories is 2 or greater. First-floor garages and taller first floors are likely to exhibit soft-story behavior. The weakness is usually in the lateral load-resisting capacity of the floor and can often result in total (pancaking) collapse of the floor. In residential buildings, it is most often found in the first floor due to large openings or garages. In multi-story buildings, it can be present at any floor, although a large number of case histories exist with collapse of the first floor.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "This field is applicable only if the number of stories is 2 or greater. First-floor garages and taller first floors are likely to exhibit soft-story behavior.",
+    "keywords": ["yes", "true", "soft story", "soft-story", "soft storey", "soft-storey", "first floor garage", "first-floor garage", "ground floor garage", "taller first floor", "tuck-under", "tuck-under parking", "open front", "lateral weakness", "pancaking", "weak story", "weak-story", "structural weakness", "2", "y"]
+  }
+};
+
+const ORNAMENTATION = {
+  "0": {
+    "code": "0",
+    "name": "Unknown/default",
+    "shortName": "Unknown / Default",
+    "description": "Unknown or default ornamentation condition.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Decorative elements may fall during an earthquake. Examples include unreinforced or unbraced parapet walls or entryway roofs, which can break off during excessive shaking.",
+    "keywords": ["unknown", "default", "unk", "tbd", "unspecified", "0"]
+  },
+  "1": {
+    "code": "1",
+    "name": "None",
+    "shortName": "None",
+    "description": "No decorative elements attached to exterior of the building at this location.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Decorative elements may fall during an earthquake. Examples include unreinforced or unbraced parapet walls or entryway roofs, which can break off during excessive shaking.",
+    "keywords": ["none", "no ornamentation", "no decorative elements", "unornamented", "plain", "without ornamentation", "zero", "1", "no", "false"]
+  },
+  "2": {
+    "code": "2",
+    "name": "Average",
+    "shortName": "Average",
+    "description": "Average amount of decorative elements attached to exterior of the building at this location.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Decorative elements may fall during an earthquake. Examples include unreinforced or unbraced parapet walls or entryway roofs, which can break off during excessive shaking.",
+    "keywords": ["average", "moderate", "standard", "typical", "some ornamentation", "moderate decorative", "average ornamentation", "medium", "2"]
+  },
+  "3": {
+    "code": "3",
+    "name": "Extensive",
+    "shortName": "Extensive",
+    "description": "Extensive decorative elements attached to exterior of the building at this location. Decorative elements may fall during an earthquake. Examples include unreinforced or unbraced parapet walls or entryway roofs, which can break off during excessive shaking.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Decorative elements may fall during an earthquake. Examples include unreinforced or unbraced parapet walls or entryway roofs, which can break off during excessive shaking.",
+    "keywords": ["extensive", "high", "heavy", "complex", "unreinforced parapet", "unbraced parapet", "parapet walls", "entryway roofs", "heavy ornamentation", "extensive decorative elements", "highly decorative", "elaborate", "cornice", "cornices", "gargoyles", "facade elements", "3"]
+  }
+};
+
+const BUILDING_SHAPE = {
+  "0": {
+    "code": "0",
+    "name": "Unknown/default",
+    "shortName": "Unknown / Default",
+    "description": "Unknown or default building shape footprint.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Shape is critical for the performance of a structure, especially for large commercial buildings. In general, simple regular forms, like squares and rectangles, perform better than combinations of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.",
+    "keywords": ["unknown", "default", "unk", "tbd", "unspecified", "0"]
+  },
+  "1": {
+    "code": "1",
+    "name": "Square",
+    "shortName": "Square (1)",
+    "description": "Square footprint building geometry. Simple regular form providing balanced torsional resistance.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Shape is critical for the performance of a structure, especially for large commercial buildings. In general, simple regular forms, like squares and rectangles, perform better than combinations of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.",
+    "keywords": ["square", "square shape", "square footprint", "quadrilateral", "box", "regular square", "1"]
+  },
+  "2": {
+    "code": "2",
+    "name": "Rectangle",
+    "shortName": "Rectangle (2)",
+    "description": "Rectangular footprint building geometry. Simple regular form with uniform aspect ratio.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Shape is critical for the performance of a structure, especially for large commercial buildings. In general, simple regular forms, like squares and rectangles, perform better than combinations of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.",
+    "keywords": ["rectangle", "rectangular", "oblong", "box shape", "rectangular footprint", "standard box", "2"]
+  },
+  "3": {
+    "code": "3",
+    "name": "Circular",
+    "shortName": "Circular (3)",
+    "description": "Circular or curved footprint building geometry (cylindrical, round, rotunda, or elliptical shape).",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Shape is critical for the performance of a structure, especially for large commercial buildings. In general, simple regular forms, like squares and rectangles, perform better than combinations of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.",
+    "keywords": ["circular", "circle", "round", "curved", "cylinder", "cylindrical", "oval", "elliptical", "rotunda", "curved footprint", "3"]
+  },
+  "4": {
+    "code": "4",
+    "name": "L-shaped",
+    "shortName": "L-shaped (4)",
+    "description": "L-shaped building footprint with re-entrant corner. Re-entrant corners create stress concentrations and torsional response during seismic shaking.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Shape is critical for the performance of a structure, especially for large commercial buildings. In general, simple regular forms, like squares and rectangles, perform better than combinations of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.",
+    "keywords": ["l-shaped", "l shape", "l-shape", "l shaped", "l", "ell shaped", "l-footprint", "re-entrant l", "4"]
+  },
+  "5": {
+    "code": "5",
+    "name": "T-shaped",
+    "shortName": "T-shaped (5)",
+    "description": "T-shaped building footprint with re-entrant corners.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Shape is critical for the performance of a structure, especially for large commercial buildings. In general, simple regular forms, like squares and rectangles, perform better than combinations of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.",
+    "keywords": ["t-shaped", "t shape", "t-shape", "t shaped", "t", "tee shaped", "t-footprint", "5"]
+  },
+  "6": {
+    "code": "6",
+    "name": "U-shaped",
+    "shortName": "U-shaped (6)",
+    "description": "U-shaped building footprint (horseshoe or open courtyard layout).",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Shape is critical for the performance of a structure, especially for large commercial buildings. In general, simple regular forms, like squares and rectangles, perform better than combinations of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.",
+    "keywords": ["u-shaped", "u shape", "u-shape", "u shaped", "u", "horseshoe", "courtyard", "c-shaped", "u-footprint", "6"]
+  },
+  "7": {
+    "code": "7",
+    "name": "H-shaped",
+    "shortName": "H-shaped (7)",
+    "description": "H-shaped building footprint with central connector wing.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Shape is critical for the performance of a structure, especially for large commercial buildings. In general, simple regular forms, like squares and rectangles, perform better than combinations of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.",
+    "keywords": ["h-shaped", "h shape", "h-shape", "h shaped", "h", "h-footprint", "7"]
+  },
+  "8": {
+    "code": "8",
+    "name": "Complex",
+    "shortName": "Complex (8)",
+    "description": "Complex, irregular, or multi-wing building footprint (sharp re-entrant corners, cruciform, star, or asymmetrical layout). Vulnerable to seismic torsional forces.",
+    "perils": ["CA EQ", "HI EQ", "JP EQ", "NZ EQ", "US EQ"],
+    "requirement": "Optional",
+    "note": "Shape is critical for the performance of a structure, especially for large commercial buildings. In general, simple regular forms, like squares and rectangles, perform better than combinations of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.",
+    "keywords": ["complex", "irregular", "multi-wing", "cruciform", "cross-shaped", "cross shape", "y-shaped", "z-shaped", "polygonal", "asymmetrical", "angular", "star-shaped", "irregular footprint", "non-regular", "8"]
+  }
+};
+
+const BUILDING_CONDITION = {
+  "0": {
+    "code": "0",
+    "name": "Unknown",
+    "shortName": "Unknown (0)",
+    "description": "Unknown or default building maintenance and cladding condition.",
+    "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+    "requirement": "Optional",
+    "note": "The external appearance of cladding and maintenance gives a qualitative estimate of expected performance. Defaults to Unknown (0) in general, though wind models may vary.",
+    "keywords": ["unknown", "default", "unk", "tbd", "unspecified", "0"]
+  },
+  "1": {
+    "code": "1",
+    "name": "Average",
+    "shortName": "Average (1)",
+    "description": "Average building condition: Standard maintenance with typical minor wear, normal aging, and no severe distress. Default for earthquake models.",
+    "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+    "requirement": "Optional",
+    "note": "For earthquakes: Buildings with signs of distress or duress (aging/cracking/ground settlement) experience additional damage. For earthquakes, the default is 'Average'.",
+    "keywords": ["average", "standard", "normal", "moderate", "typical", "fair", "adequate", "medium", "standard maintenance", "1"]
+  },
+  "2": {
+    "code": "2",
+    "name": "Good",
+    "shortName": "Good (2)",
+    "description": "Good building condition: Well-maintained, recent renovation, sound cladding, intact roof/chimney, and superior upkeep.",
+    "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+    "requirement": "Optional",
+    "note": "Superior cladding and structural maintenance reduce vulnerability under wind and seismic forces.",
+    "keywords": ["good", "excellent", "superior", "well-maintained", "well maintained", "mint", "new", "renovated", "pristine", "sound", "high grade", "2"]
+  },
+  "3": {
+    "code": "3",
+    "name": "Poor",
+    "shortName": "Poor (3)",
+    "description": "Poor building condition: Signs of distress or duress (cracking from aging/settlement/overload, loose roof tiles, damaged cladding or chimney, deferred maintenance, previous storm/quake damage).",
+    "perils": ["CA EQ", "HI EQ", "HI TC", "JP EQ", "NZ EQ", "US EQ", "US HU", "US ST"],
+    "requirement": "Optional",
+    "note": "For earthquakes & hurricanes: Buildings with signs of distress or duress (aging roof/cladding, loose tiles, chimney damage, previous storm damage, settlement cracks) suffer severe additional damage.",
+    "keywords": ["poor", "bad", "distressed", "duress", "cracking", "settlement", "damaged", "loose tiles", "chimney damage", "aging roof", "deteriorated", "deferred maintenance", "overloaded", "previous damage", "severe wear", "substandard", "dilapidated", "3"]
   }
 };
 
@@ -3307,6 +4363,13 @@
     CONSTRUCTION,
     ROOF,
     WALL,
+    FOUNDATION,
+    SHORT_COLUMN,
+    BUILDING_EXTERIOR_OPENING,
+    SOFT_STORY,
+    ORNAMENTATION,
+    BUILDING_SHAPE,
+    BUILDING_CONDITION,
 
     // Helper utilities
     getOccupancyList() {
@@ -3314,6 +4377,30 @@
     },
     getConstructionList() {
       return Object.values(this.CONSTRUCTION);
+    },
+    getFoundationList() {
+      return Object.values(this.FOUNDATION.FOUNDATION_TYPE);
+    },
+    getFoundationConnectionList() {
+      return Object.values(this.FOUNDATION.FOUNDATION_CONNECTION);
+    },
+    getShortColumnList() {
+      return Object.values(this.SHORT_COLUMN);
+    },
+    getBuildingExteriorOpeningList() {
+      return Object.values(this.BUILDING_EXTERIOR_OPENING);
+    },
+    getSoftStoryList() {
+      return Object.values(this.SOFT_STORY);
+    },
+    getOrnamentationList() {
+      return Object.values(this.ORNAMENTATION);
+    },
+    getBuildingShapeList() {
+      return Object.values(this.BUILDING_SHAPE);
+    },
+    getBuildingConditionList() {
+      return Object.values(this.BUILDING_CONDITION);
     }
   };
 
@@ -3322,3 +4409,4 @@
   }
   root.TouchstoneData = TouchstoneData;
 })(typeof globalThis !== 'undefined' ? globalThis : (typeof window !== 'undefined' ? window : this));
+

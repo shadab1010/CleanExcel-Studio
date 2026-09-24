@@ -20,28 +20,78 @@ This document records persistent project memory, domain rules, and user underwri
 
 ---
 
-## 2. Touchstone UNICEDE® Roof Detail Classifier Rules
+## 2. Touchstone UNICEDE® Roof Detail Classifier Rules (7 Fields + Additional Fields)
 
 ### Multi-Component Rules:
 1. **Rule 1 (With %)**: When explicit percentages are present, pick the material with the **higher %** (e.g. `SINGLE PLY MEMBRANE (50%); SHINGLES, ASPHALT (47%)` &rarr; Single-ply `7` wins).
 2. **Rule 2 (No %)**: When no percentages are present, pick the **weaker material** (most vulnerable).
 3. **Rule 3 (Tied %)**: If two materials tie at the same percentage, pick the **weaker material**.
 
-### Standard Covering Codes:
-- **`1`**: Asphalt shingles (composition, architectural, 3-tab)
-- **`2`**: Wood shingles / Wood shakes
-- **`3`**: Clay / concrete tiles (Spanish, barrel, terracotta, S-tile)
-- **`4`**: Light metal panels (corrugated metal/steel/tin, copper, R-panel, 5V crimp)
-- **`5`**: Slate (natural slate, Vermont slate)
-- **`6`**: Built-up roof with gravel (BUR w/ gravel, tar & gravel, pea gravel)
-- **`7`**: Single-ply membrane (EPDM, TPO, PVC, rubber membrane)
-- **`8`**: Standing seam metal roofs (SSMR, architectural standing seam)
-- **`9`**: Built-up roof without gravel (Smooth BUR, Modified Bitumen, Mod-Bit, SBS, APP, torch-down)
-- **`10`**: Single-ply membrane ballasted
-- **`11`**: Hurricane wind-rated roof coverings (Miami-Dade NOA, FM 1-90, FM 1-120)
-- **`12`**: Photovoltaic (solar roof, solar shingles, rooftop solar panels, BIPV)
+### The 7 Primary Touchstone Roof Detail Sections & Codes:
 
-### Standard Roof Anchorage Codes:
+#### 1. Roof Geometry (Codes 0–10):
+- **`0`**: Unknown/default (0)
+- **`1`**: Flat (1)
+- **`2`**: Gable end without bracing (2)
+- **`3`**: Hip (3)
+- **`4`**: Complex (4)
+- **`5`**: Stepped (5)
+- **`6`**: Shed (6)
+- **`7`**: Mansard (7)
+- **`8`**: Gable end with bracing (8)
+- **`9`**: Pyramid (9)
+- **`10`**: Gambrel (10)
+
+#### 2. Roof Pitch (Codes 0–3):
+- **`0`**: Unknown/default (0)
+- **`1`**: Low — less than 10° (1)
+- **`2`**: Medium — 10° to 30° (2)
+- **`3`**: High — more than 30° (3)
+
+#### 3. Roof Covering (Codes 0–12):
+- **`0`**: Unknown/default (0)
+- **`1`**: Asphalt shingles (1) (composition, architectural, 3-tab)
+- **`2`**: Wooden shingles (2) (wood shakes, cedar shingles)
+- **`3`**: Clay/concrete tiles (3) (Spanish, barrel, terracotta, S-tile)
+- **`4`**: Light metal panels (4) (corrugated metal/steel/tin, copper, R-panel, 5V crimp)
+- **`5`**: Slate (5) (natural slate, Vermont slate)
+- **`6`**: Built-up roof with gravel (6) (BUR w/ gravel, tar & gravel, pea gravel)
+- **`7`**: Single-ply membrane (7) (EPDM, TPO, PVC, rubber membrane)
+- **`8`**: Standing seam metal roofs (8) (SSMR, architectural standing seam)
+- **`9`**: Built-up roof without gravel (9) (Smooth BUR, Modified Bitumen, Mod-Bit, SBS, APP, torch-down)
+- **`10`**: Single-ply membrane ballasted (10)
+- **`11`**: Hurricane Wind-Rated Roof Coverings (11) (Miami-Dade NOA, FM 1-90, FM 1-120)
+- **`12`**: Photovoltaic (12) (solar roof, solar shingles, rooftop solar panels, BIPV)
+
+#### 4. Roof Deck (Codes 0–8):
+- **`0`**: Unknown/default (0)
+- **`1`**: Plywood (1)
+- **`2`**: Wood planks (2)
+- **`3`**: Particle board/OSB (3)
+- **`4`**: Metal deck with insulation board (4)
+- **`5`**: Metal deck with concrete (5)
+- **`6`**: Pre-cast concrete slabs (6)
+- **`7`**: Reinforced concrete slabs (7)
+- **`8`**: Light metal (8)
+
+#### 5. Roof Covering Attachment (Codes 0–4):
+- **`0`**: Unknown/default (0)
+- **`1`**: Screws (1) (mechanical screws, self-tapping screws)
+- **`2`**: Nails/staples (2) (roofing nails, staples)
+- **`3`**: Adhesive/epoxy (3) (fully adhered, foam adhesive, tile adhesive, epoxy)
+- **`4`**: Mortar (4) (mortar set, mud set tile, cement mortar bed)
+
+#### 6. Roof Deck Attachment (Codes 0–7):
+- **`0`**: Unknown/default (0)
+- **`1`**: Screws/bolts (1) (deck screws, lag bolts)
+- **`2`**: Nails (2) (generic deck nails, face nailed)
+- **`3`**: Adhesive/epoxy (3) (decking adhesive, subfloor glue)
+- **`4`**: Structurally connected (4) (welded metal deck, puddle welds, shear studs, monolithic tie)
+- **`5`**: 6d nails @ 6 spacing, 12 on center (5)
+- **`6`**: 8d nails @ 6 spacing, 12 on center (6)
+- **`7`**: 8d nails @ 6 spacing, 6 on center (7)
+
+#### 7. Roof Anchorage (Codes 0–7):
 - **`0`**: Unknown/default (0)
 - **`1`**: Hurricane Ties (1) — hurricane straps, seismic ties, uplift straps
 - **`2`**: Nails/Screws (2) — toe-nailing, screws, nails
@@ -50,6 +100,13 @@ This document records persistent project memory, domain rules, and user underwri
 - **`5`**: Adhesive epoxy (5) — chemical adhesive anchor, structural epoxy
 - **`6`**: Structurally Connected (6) — monolithic concrete tie beam, welded connection, bond beam
 - **`7`**: Clips (7) — framing clips, metal clips, roof clips
+
+### Additional Roof Fields:
+- **Roof Hail Impact Resistance**: `0` = Unknown/Non-impact-resistant, `1` = Impact-resistant A, `2` = Impact-resistant B, `3` = Impact-resistant C, `4` = Impact-resistant D.
+- **Tank**: `0` = Unknown/default, `1` = No, `2` = Yes.
+- **Chimney**: `0` = Unknown/default, `1` = No, `2` = Yes, height < 2 feet, `3` = Yes, height 2–5 feet, `4` = Yes, height > 5 feet.
+- **Roof Year Built**: `0` = Unknown/default, Numeric year `1000`–`2100`.
+- All fields are optional and default to `0` (Unknown/default).
 
 ---
 
@@ -280,7 +337,308 @@ This document records persistent project memory, domain rules, and user underwri
 > - `Squash Court` / `Racquetball Court` &rarr; **`317`** (`Entertainment & Recreation`)
 > - `Sports Court` / `Athletic Court` &rarr; **`317`** (`Entertainment & Recreation`)
 
+---
 
+---
 
+## 15. Touchstone UNICEDE® Foundation Type Classifier Rules (Codes 0–12)
 
+> **User Instruction**:
+> Store and classify **Foundation Type** in Touchstone / UNICEDE®:
+> One of the following values to describe the type of construction used for the foundation of the building at this location:
+> - **`0`**: Unknown/default (0)
+> - **`1`**: Masonry basement (1) (brick/masonry basement walls, sub-grade masonry)
+> - **`2`**: Concrete basement (2) (poured concrete, reinforced concrete basement)
+> - **`3`**: Masonry wall (3) *(Note: Touchstone maps this to Crawlspace cripple wall (4) (wood) upon import)*
+> - **`4`**: Crawlspace cripple wall (4) (wood) (cripple wall, pony wall, wood stud crawlspace)
+> - **`5`**: Crawlspace masonry (5) (wood) (masonry stem wall, perimeter block crawlspace)
+> - **`6`**: Post & pier (6) (timber posts, concrete piers, stilts, raised pilings)
+> - **`7`**: Footing (7) (spread footing, strip footing, shallow continuous concrete footing)
+> - **`8`**: Mat / slab (8) (slab-on-grade, raft foundation, floating slab, structural mat — typical for mid-rise buildings)
+> - **`9`**: Pile (9) (driven piles, drilled caissons, deep foundation, friction/end-bearing piles — typical for high-rise buildings & earthquake performance)
+> - **`10`**: No basement (10) (slab-on-grade without basement, crawlspace without basement)
+> - **`11`**: Engineering foundation (11) (special engineered foundation, seismic base isolation, micropiles)
+> - **`12`**: Crawlspace - raised (wood) (12) (elevated wood floor over open foundation, raised crawlspace)
 
+### Peril & Regional Model Applicability:
+- `CA EQ` (California Earthquake)
+- `CE IF` (Central Europe Inland Flood)
+- `EU ETC` (European Extratropical Cyclone)
+- `HI EQ` (Hawaii Earthquake)
+- `IT IF` (Italy Inland Flood, added support in v11.5)
+- `JP IF` (Japan Inland Flood)
+- `JP EQ` (Japan Earthquake)
+- `JP TY` (Japan Typhoon)
+- `NZ EQ` (New Zealand Earthquake)
+- `SK TY` (South Korea Typhoon, added support in v13)
+- `UK/ROI IF` (UK & Republic of Ireland Inland Flood, added support in v13.0)
+- `US EQ` (United States Earthquake)
+- `US HU` (United States Hurricane)
+- `US IF` (United States Inland Flood)
+
+### Special Cases & Underwriting Rules:
+1. **UK and Central Europe Inland Flood Models**:
+   - Only the following values are applicable:
+     - `0`: Unknown/default (0)
+     - `1`: Masonry basement (1)
+     - `2`: Concrete basement (2)
+     - `10`: No basement (10)
+2. **Verisk Earthquake Model for the United States**:
+   - The **No basement (10)** value is **not applicable**.
+   - You must select **Crawlspace cripple wall (4) (wood)** if you want to use the Retrofit Measures option **Bracing of cripple walls (1)**.
+3. **UK, Germany, Austria, Switzerland, Czech Republic, Serbia, Macedonia, and Albania**:
+   - The combination of **Floor of Interest = Basement (-1)** and **Foundation Type = No basement (10)** is **not applicable**.
+4. **Floor of Interest = Basement (-1)**:
+   - Must select **Masonry basement (1)** or **Concrete basement (2)** as the Foundation Type.
+5. **Structural & Height Guidelines**:
+   - Single-family dwellings are often built on basements or shallow foundation.
+   - Most **mid-rise buildings** are built on **mat / slab foundation (8)**.
+   - **High-rise buildings** tend to be supported on **pile foundation (9)** (piles are generally better performers in earthquakes).
+6. **Ignored Construction / Occupancy Codes in Touchstone**:
+   - Touchstone ignores foundation type for:
+     - IFM (`400` series occupancy class codes)
+     - Mobile homes (`191`–`194` construction class codes)
+     - `200` series construction class codes (including automobiles and pleasure boats)
+     - Industrial occupancies (`321`–`330` occupancy class codes)
+
+---
+
+## 16. Touchstone UNICEDE® Location Wall Detail Classifier Rules (9 Secondary Risk Characteristics)
+
+> **User Instruction**:
+> Store, analyze, and classify all **9 Location Wall Detail Fields** in Touchstone / UNICEDE® when any type of wall details or descriptions are pasted:
+> 1. **Wall Type (Codes 0–9)**
+> 2. **Wall Siding (Codes 0–8)**
+> 3. **Glass Type (Codes 0–5)**
+> 4. **Glass Percentage (Codes 0–4)**
+> 5. **Window Protection (Codes 0–3)**
+> 6. **Exterior Doors (Codes 0–6)**
+> 7. **Building Exterior Opening (Codes 0–2)**
+> 8. **Brick Veneer (Codes 0–3)**
+> 9. **Fire Rating for Wall Siding (Codes 0–3)**
+
+### Multi-Component Rules:
+1. **Rule 1 (With %)**: When explicit percentages are present, pick the material with the **higher %** (e.g. `VINYL SIDING (60%); STUCCO (40%)` &rarr; Vinyl Siding `4` wins).
+2. **Rule 2 (No %)**: When no percentages are present, pick the **weaker material** (most vulnerable to wind/seismic damage).
+3. **Rule 3 (Tied %)**: If two materials tie at the same percentage, pick the **weaker material**.
+
+---
+
+### The 9 Touchstone Wall Detail Fields & Codes:
+
+#### 1. Wall Type (Codes 0–9):
+- **`0`**: Unknown/default (0)
+- **`1`**: Brick/unreinforced masonry (1)
+- **`2`**: Reinforced masonry (2)
+- **`3`**: Plywood (3)
+- **`4`**: Wood planks (4)
+- **`5`**: Particle board/OSB (oriented strand board) (5)
+- **`6`**: Metal panels (6)
+- **`7`**: Pre-cast concrete elements (7)
+- **`8`**: Cast-in-place concrete (8)
+- **`9`**: Gypsum board (9)
+- *Perils Supported*: `CA EQ`, `HI EQ`, `HI TC`, `JP EQ`, `NZ EQ`, `US EQ`, `US HU`, `US ST` (Straight-Line Winds, Tornadoes).
+- *Validation*: Optional, defaults to `0`.
+
+#### 2. Wall Siding (Codes 0–8):
+- **`0`**: Unknown/default (0)
+- **`1`**: Veneer brick/masonry (1)
+- **`2`**: Wood shingles (2)
+- **`3`**: Clapboards (3)
+- **`4`**: Aluminum/vinyl siding (4)
+- **`5`**: Stone panels (5)
+- **`6`**: Exterior insulation finishing system (EIFS) (6)
+- **`7`**: Stucco (7)
+- **`8`**: Fiber cement board (8) *(added in June 2024 for US WF)*
+- *Perils Supported*: `AU WF` (added in Touchstone 2025), `CA EQ`, `HI EQ`, `HI TC`, `JP EQ`, `NZ EQ`, `US EQ`, `US HU`, `US ST` (Winds, Tornadoes, Hail), `US WF`.
+- *Validation*: Optional, defaults to `0`.
+
+#### 3. Glass Type (Codes 0–5):
+- **`0`**: Unknown/default (0)
+- **`1`**: Annealed (1)
+- **`2`**: Tempered (2)
+- **`3`**: Heat strengthened (3)
+- **`4`**: Laminated (4)
+- **`5`**: Insulating glass units (5) (IGU, double glazed, insulated glazing)
+- *Perils Supported*: `HI TC`, `US HU`, `US ST` (Winds, Tornadoes, Hail), `US WF`.
+- *Validation*: Optional, defaults to `0`.
+
+#### 4. Glass Percentage (Codes 0–4):
+- **`0`**: Unknown/default (0)
+- **`1`**: Less than 5% (1)
+- **`2`**: Between 5% and 20% (2)
+- **`3`**: Between 20% and 60% (3)
+- **`4`**: Greater than 60% (4) (curtain wall, all-glass facade)
+- *Perils Supported*: `HI TC`, `US HU`, `US ST` (Winds, Tornadoes, Hail).
+- *Validation*: Optional, defaults to `0`. The greater the percent of glass in a wall, the greater the vulnerability to damage.
+
+#### 5. Window Protection (Codes 0–3):
+- **`0`**: Unknown/default (0)
+- **`1`**: No protection (1)
+- **`2`**: Non-engineered shutters (2) (plywood covers, storm panels)
+- **`3`**: Engineered shutters (3) (tested storm shutters, roll-down, accordion, impact shutters)
+- *Perils Supported*: `HI TC`, `US HU`, `US ST` (Winds, Tornadoes, Hail).
+- *Validation*: Optional, defaults to `0`.
+
+#### 6. Exterior Doors (Codes 0–6):
+- **`0`**: Unknown/default (0)
+- **`1`**: Single width doors (1)
+- **`2`**: Double width doors (2)
+- **`3`**: Reinforced single width doors (3)
+- **`4`**: Reinforced double width doors (4)
+- **`5`**: Sliding doors (5)
+- **`6`**: Reinforced sliding doors (6)
+- *Perils Supported*: `HI TC`, `US HU`, `US ST` (Winds, Tornadoes).
+- *Validation*: Optional, defaults to `0`. Exterior doors and frames deflect considerably under high wind loads and are a primary failure mode.
+
+#### 7. Building Exterior Opening (Codes 0–2):
+- **`0`**: Unknown (0)
+- **`1`**: Less than 50% of wall open / default (1)
+- **`2`**: More than 50% of wall open (2)
+- *Perils Supported*: `CA EQ`, `HI EQ`, `JP EQ`, `NZ EQ`, `US EQ`.
+- *Validation*: Optional. A shear wall with many openings for windows and doors has less resistance to earthquake loads.
+
+#### 8. Brick Veneer (Codes 0–3):
+- **`0`**: Unknown/default (0) (represents 50–90%)
+- **`1`**: More than 90% (1)
+- **`2`**: 25–50% (2)
+- **`3`**: 0–25% (3)
+- *Perils Supported*: `CA EQ`, `HI EQ`, `JP EQ`, `US EQ`.
+- *Validation*: Optional. Used in conjunction with Touchstone construction code `103` (Masonry Veneer). Brick veneer is typically unreinforced and vulnerable to ground shaking.
+
+#### 9. Fire Rating for Wall Siding (Codes 0–3):
+- **`0`**: Unknown/No Rating (0)
+- **`1`**: Fire Rated Class A (1) (highest fire resistance)
+- **`2`**: Fire Rated Class B (2)
+- **`3`**: Fire Rated Class C (3)
+- *Perils Supported*: `AU WF` (added support), `US WF`. *(Added in June 2024)*.
+- *Validation*: Optional, defaults to `0`.
+
+---
+
+## 17. Touchstone UNICEDE® Short Column Classifier Rules (Codes 0–2)
+
+> **User Instruction**:
+> Store and classify **Short Column** in Touchstone / UNICEDE®:
+> One of the following values to indicate whether there are short columns in the building at this location:
+> - **`0`**: Unknown/default (0)
+> - **`1`**: No (1)
+> - **`2`**: Yes (2)
+> - **Status**: `Optional`
+> - **Applicable Perils / Models**:
+>   - `CA EQ` (California Earthquake)
+>   - `HI EQ` (Hawaii Earthquake)
+>   - `JP EQ` (Japan Earthquake)
+>   - `US EQ` (United States Earthquake)
+> ### Technical Underwriting Details:
+> This field applies to old concrete structures in which the fill height of some column has been restricted by spandrel beams or infill walls. If some of the columns along the perimeter are shorter than the adjacent columns, there is high chance that the shorter columns can no longer bear the loads for which they were originally designed.
+
+---
+
+## 18. Touchstone UNICEDE® Soft Story Classifier Rules (Codes 0–2)
+
+> **User Instruction**:
+> Store and classify **Soft Story** in Touchstone / UNICEDE®:
+> One of the following values to indicate whether there is structural weakness at any floor in the building at this location:
+> - **`0`**: Unknown/default (0)
+> - **`1`**: No (1)
+> - **`2`**: Yes (2)
+> - **Status**: `Optional`. Defaults to a value in the Touchstone user interface (`0`).
+> - **Applicable Perils / Models**:
+>   - `CA EQ` (California Earthquake)
+>   - `HI EQ` (Hawaii Earthquake)
+>   - `JP EQ` (Japan Earthquake)
+>   - `NZ EQ` (New Zealand Earthquake)
+>   - `US EQ` (United States Earthquake)
+>
+> ### Underwriting & Technical Rules:
+> - **Applicability**: This field is applicable only if the number of **stories is 2 or greater** (`Stories ≥ 2`).
+> - **Soft-Story Behavior**: First-floor garages and taller first floors are likely to exhibit soft-story behavior (e.g. ground-floor parking, tuck-under garages).
+> - **Vulnerability & Failure Mode**: The weakness is usually in the lateral load-resisting capacity of the floor and can often result in total (pancaking) collapse of the floor. In residential buildings, it is most often found in the first floor due to large openings or garages. In multi-story buildings, it can be present at any floor, although a large number of case histories exist with collapse of the first floor.
+
+---
+
+## 19. Touchstone UNICEDE® Building Shape Classifier Rules (Codes 0–8)
+
+> **User Instruction**:
+> Add section **Building Shape** and use this image as logic:
+> One of the following values to describe the overall shape of the footprint of the building at this location:
+> - **`0`**: Unknown/default (0)
+> - **`1`**: Square (1)
+> - **`2`**: Rectangle (2)
+> - **`3`**: Circular (3)
+> - **`4`**: L-shaped (4)
+> - **`5`**: T-shaped (5)
+> - **`6`**: U-shaped (6)
+> - **`7`**: H-shaped (7)
+> - **`8`**: Complex (8)
+> - **Status**: `Optional`
+> - **Defaults**: Defaults to a value in the Touchstone user interface (`0` - Unknown/default).
+> - **Applicable Perils / Models**:
+>   - `CA EQ` (California Earthquake)
+>   - `HI EQ` (Hawaii Earthquake)
+>   - `JP EQ` (Japan Earthquake)
+>   - `NZ EQ` (New Zealand Earthquake)
+>   - `US EQ` (United States Earthquake)
+>
+---
+
+## 20. Touchstone UNICEDE® Ornamentation Classifier Rules (Codes 0–3)
+
+> **User Instruction**:
+> Add section **Ornamentation** and use this image as logic:
+> One of the following values to describe the amount of decorative elements attached to exterior of the building at this location:
+> - **`0`**: Unknown/default (0)
+> - **`1`**: None (1)
+> - **`2`**: Average (2)
+> - **`3`**: Extensive (3)
+> - **Status**: `Optional`
+> - **Defaults**: Defaults to a value in the Touchstone user interface (`0` - Unknown/default).
+> - **Applicable Perils / Models**:
+>   - `CA EQ` (California Earthquake)
+>   - `HI EQ` (Hawaii Earthquake)
+>   - `JP EQ` (Japan Earthquake)
+>   - `US EQ` (United States Earthquake)
+>
+> ### Underwriting & Seismic Hazard Notes:
+> - **Seismic Hazard**: Decorative elements may fall during an earthquake.
+> - **Examples of Decorative Elements / Falling Hazards**:
+>   - Unreinforced or unbraced parapet walls
+>   - Entryway roofs and canopies
+>   - Heavy ornamental cornices, gargoyles, terra cotta facade features
+>   - These elements can break off during excessive ground shaking, creating significant life-safety hazards and facade damage.
+
+---
+
+## 21. Touchstone UNICEDE® Building Condition Classifier Rules (Codes 0–3)
+
+> **User Instruction**:
+> Add section **Building Condition** and use this image as logic:
+> One of the following general qualitative descriptions of the condition of the building at this location, based on visual inspection of the building cladding and maintenance:
+> - **`0`**: Unknown (0)
+> - **`1`**: Average (1)
+> - **`2`**: Good (2)
+> - **`3`**: Poor (3)
+> - **Status**: `Optional`
+> - **Defaults**: Defaults to a value in the Touchstone user interface (generally `0: Unknown`, but default is `1: Average` for earthquake models).
+> - **Applicable Perils / Models**:
+>   - `CA EQ` (California Earthquake)
+>   - `HI EQ` (Hawaii Earthquake)
+>   - `HI TC` (Hawaii Tropical Cyclone)
+>   - `JP EQ` (Japan Earthquake)
+>   - `NZ EQ` (New Zealand Earthquake)
+>   - `US EQ` (United States Earthquake)
+>   - `US HU` (United States Hurricane)
+>   - `US ST` (Straight-Line Winds, Tornadoes)
+>
+> ### Underwriting & Physical Performance Engineering Notes:
+> - **Cladding & Maintenance Significance**: The external appearance of cladding and maintenance gives a qualitative estimate of expected structural and envelope performance.
+> - **For Earthquakes**:
+>   - Buildings with signs of distress or duress, such as cracking due to aging and ground settlement or overloading, or cracking due to damage from previous earthquakes, are likely to experience additional damage during an earthquake.
+>   - For earthquakes, the default is **Average (1)**.
+> - **For Hurricanes & Tropical Cyclones**:
+>   - Buildings with signs of distress or duress are likely to experience additional damage during a tropical cyclone.
+>   - Examples of distress signs include:
+>     - Aging roof, exterior walls, or cladding
+>     - Loose roof tiles or chimney damage
+>     - Unrepaired damage from previous tropical cyclones or windstorms.

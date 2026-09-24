@@ -280,7 +280,13 @@
       const isConstruction = activeColumnId === 'construction' || (results[0] && results[0].conCode !== undefined);
       const isRoof = activeColumnId === 'roof' || (results[0] && results[0].geometry !== undefined);
       const isWall = activeColumnId === 'wall' || (results[0] && results[0].wallType !== undefined);
+      const isFoundation = activeColumnId === 'foundation' || activeColumnId === 'foundation_type' || activeColumnId === 'foundationType' || activeColumnId === 'foundation_connection' || (results[0] && (results[0].foundationType !== undefined || results[0].foundationTypeCode !== undefined));
       const isRoofYear = activeColumnId === 'roof_year' || (results[0] && (results[0].roofYearBuilt !== undefined || results[0].rawRoofYearBuilt !== undefined || results[0].yearBuilt !== undefined));
+      const isShortColumn = activeColumnId === 'short_column' || activeColumnId === 'shortColumn' || (results[0] && (results[0].shortColumnCode !== undefined || results[0].shortColumn !== undefined));
+      const isSoftStory = activeColumnId === 'soft_story' || activeColumnId === 'softStory' || (results[0] && (results[0].softStoryCode !== undefined || results[0].softStory !== undefined));
+      const isOrnamentation = activeColumnId === 'ornamentation' || activeColumnId === 'ornament' || (results[0] && (results[0].ornamentationCode !== undefined || results[0].ornamentation !== undefined));
+      const isBuildingShape = activeColumnId === 'building_shape' || activeColumnId === 'buildingShape' || activeColumnId === 'shape' || (results[0] && (results[0].buildingShapeCode !== undefined || results[0].buildingShape !== undefined));
+      const isBuildingCondition = activeColumnId === 'building_condition' || activeColumnId === 'buildingCondition' || activeColumnId === 'condition' || (results[0] && (results[0].buildingConditionCode !== undefined || results[0].buildingCondition !== undefined));
 
       return results.filter(r => {
         // Status filter
@@ -288,6 +294,10 @@
           if (isRoof) {
             if (r.status !== statusFilter) return false;
           } else if (isWall) {
+            if (r.status !== statusFilter) return false;
+          } else if (isFoundation) {
+            if (r.status !== statusFilter) return false;
+          } else if (isShortColumn || isSoftStory || isOrnamentation || isBuildingShape || isBuildingCondition) {
             if (r.status !== statusFilter) return false;
           } else if (isRoofYear) {
             if (r.status !== statusFilter && r.statusText !== statusFilter) return false;
@@ -305,6 +315,8 @@
           if (activeColumnId === 'occupancy' && r.occCode !== codeFilter) return false;
           if (isRoof && r.coveringCode !== codeFilter && r.geometryCode !== codeFilter) return false;
           if (isWall && r.wallTypeCode !== codeFilter && r.wallSidingCode !== codeFilter) return false;
+          if (isFoundation && r.foundationTypeCode !== codeFilter && r.foundationConnectionCode !== codeFilter) return false;
+          if ((isShortColumn || isSoftStory || isOrnamentation || isBuildingShape || isBuildingCondition) && r.shortColumnCode !== codeFilter && r.softStoryCode !== codeFilter && r.ornamentationCode !== codeFilter && r.buildingShapeCode !== codeFilter && r.buildingConditionCode !== codeFilter && r.code !== codeFilter) return false;
         }
 
         // Search text filter
@@ -336,11 +348,15 @@
               (r.pitch && r.pitch.toLowerCase().includes(query)) ||
               (r.covering && r.covering.toLowerCase().includes(query)) ||
               (r.deck && r.deck.toLowerCase().includes(query)) ||
+              (r.covAttach && r.covAttach.toLowerCase().includes(query)) ||
+              (r.deckAttach && r.deckAttach.toLowerCase().includes(query)) ||
               (r.anchorage && r.anchorage.toLowerCase().includes(query)) ||
               (r.geometryCode && r.geometryCode.toLowerCase().includes(query)) ||
               (r.pitchCode && r.pitchCode.toLowerCase().includes(query)) ||
               (r.coveringCode && r.coveringCode.toLowerCase().includes(query)) ||
               (r.deckCode && r.deckCode.toLowerCase().includes(query)) ||
+              (r.covAttachCode && r.covAttachCode.toLowerCase().includes(query)) ||
+              (r.deckAttachCode && r.deckAttachCode.toLowerCase().includes(query)) ||
               (r.anchorageCode && r.anchorageCode.toLowerCase().includes(query));
           } else if (isWall) {
             return lineStr === query ||
@@ -351,6 +367,31 @@
               (r.wallSidingCode && r.wallSidingCode.toLowerCase().includes(query)) ||
               (r.wallTypeName && r.wallTypeName.toLowerCase().includes(query)) ||
               (r.wallSidingName && r.wallSidingName.toLowerCase().includes(query));
+          } else if (isFoundation) {
+            return lineStr === query ||
+              (r.original && r.original.toLowerCase().includes(query)) ||
+              (r.foundationType && r.foundationType.toLowerCase().includes(query)) ||
+              (r.foundationTypeCode && r.foundationTypeCode.toLowerCase().includes(query)) ||
+              (r.foundationTypeName && r.foundationTypeName.toLowerCase().includes(query)) ||
+              (r.foundationConnection && r.foundationConnection.toLowerCase().includes(query)) ||
+              (r.foundationConnectionCode && r.foundationConnectionCode.toLowerCase().includes(query)) ||
+              (r.statusText && r.statusText.toLowerCase().includes(query));
+          } else if (isShortColumn) {
+            return lineStr === query ||
+              (r.original && r.original.toLowerCase().includes(query)) ||
+              (r.shortColumn && r.shortColumn.toLowerCase().includes(query)) ||
+              (r.shortColumnName && r.shortColumnName.toLowerCase().includes(query)) ||
+              (r.shortColumnCode && r.shortColumnCode.toLowerCase().includes(query)) ||
+              (r.code && r.code.toLowerCase().includes(query)) ||
+              (r.statusText && r.statusText.toLowerCase().includes(query));
+          } else if (isSoftStory) {
+            return lineStr === query ||
+              (r.original && r.original.toLowerCase().includes(query)) ||
+              (r.softStory && r.softStory.toLowerCase().includes(query)) ||
+              (r.softStoryName && r.softStoryName.toLowerCase().includes(query)) ||
+              (r.softStoryCode && r.softStoryCode.toLowerCase().includes(query)) ||
+              (r.code && r.code.toLowerCase().includes(query)) ||
+              (r.statusText && r.statusText.toLowerCase().includes(query));
           } else if (activeColumnId === 'split') {
             return lineStr === query ||
               (r.street && r.street.toLowerCase().includes(query)) ||
@@ -430,7 +471,16 @@
     const isSplit = activeColumnId === 'split' || (firstRow && firstRow.street !== undefined);
     const isRoof = activeColumnId === 'roof' || (firstRow && firstRow.geometry !== undefined);
     const isWall = activeColumnId === 'wall' || (firstRow && firstRow.wallType !== undefined);
+    const isFoundationConn = activeColumnId === 'foundation_connection';
+    const isFoundationType = activeColumnId === 'foundation_type' || activeColumnId === 'foundationType';
+    const isFoundationDual = activeColumnId === 'foundation' || (firstRow && (firstRow.foundationType !== undefined || firstRow.foundationTypeCode !== undefined) && !isFoundationConn && !isFoundationType);
+    const isFoundation = isFoundationConn || isFoundationType || isFoundationDual;
     const isRoofYear = activeColumnId === 'roof_year' || (firstRow && (firstRow.roofYearBuilt !== undefined || firstRow.rawRoofYearBuilt !== undefined || firstRow.yearBuilt !== undefined));
+    const isShortColumn = activeColumnId === 'short_column' || activeColumnId === 'shortColumn' || (firstRow && (firstRow.shortColumnCode !== undefined || firstRow.shortColumn !== undefined));
+    const isSoftStory = activeColumnId === 'soft_story' || activeColumnId === 'softStory' || (firstRow && (firstRow.softStoryCode !== undefined || firstRow.softStory !== undefined));
+    const isOrnamentation = activeColumnId === 'ornamentation' || activeColumnId === 'ornament' || (firstRow && (firstRow.ornamentationCode !== undefined || firstRow.ornamentation !== undefined));
+    const isBuildingShape = activeColumnId === 'building_shape' || activeColumnId === 'buildingShape' || activeColumnId === 'shape' || (firstRow && (firstRow.buildingShapeCode !== undefined || firstRow.buildingShape !== undefined));
+    const isBuildingCondition = activeColumnId === 'building_condition' || activeColumnId === 'buildingCondition' || activeColumnId === 'condition' || (firstRow && (firstRow.buildingConditionCode !== undefined || firstRow.buildingCondition !== undefined));
 
     // Address Splitter column visibility (Raw Address, County and Country)
     const hasAnyCounty = results && results.some(r => Boolean(r.county));
@@ -527,23 +577,87 @@
                 )
               ],
               isRoof && [
-                e('th', { key: 'raw-roof-desc', style: { width: '30%' } }, 'Raw Roof Description'),
-                e('th', { key: 'rf-geo-code', style: { width: '85px', textAlign: 'center' } }, 'Geo Code'),
-                e('th', { key: 'rf-geo-desc', style: { width: '120px' } }, 'Roof Geometry'),
-                e('th', { key: 'rf-cov-code', style: { width: '85px', textAlign: 'center' } }, 'Covering Code'),
-                e('th', { key: 'rf-cov-desc', style: { width: '120px' } }, 'Roof Covering'),
-                e('th', { key: 'rf-anc-code', style: { width: '85px', textAlign: 'center' } }, 'Anchorage Code'),
-                e('th', { key: 'rf-anc-desc', style: { width: '120px' } }, 'Roof Anchorage'),
+                e('th', { key: 'raw-roof-desc', style: { width: '22%' } }, 'Raw Roof Description'),
+                e('th', { key: 'rf-geo-code', style: { width: '68px', textAlign: 'center' } }, '1. Geom'),
+                e('th', { key: 'rf-pitch-code', style: { width: '68px', textAlign: 'center' } }, '2. Pitch'),
+                e('th', { key: 'rf-cov-code', style: { width: '68px', textAlign: 'center' } }, '3. Cov'),
+                e('th', { key: 'rf-deck-code', style: { width: '68px', textAlign: 'center' } }, '4. Deck'),
+                e('th', { key: 'rf-covatt-code', style: { width: '78px', textAlign: 'center' } }, '5. Cov Att'),
+                e('th', { key: 'rf-dckatt-code', style: { width: '78px', textAlign: 'center' } }, '6. Dck Att'),
+                e('th', { key: 'rf-anc-code', style: { width: '72px', textAlign: 'center' } }, '7. Anchor'),
+                e('th', { key: 'status', style: { width: '125px', textAlign: 'center' } }, 'Status'),
+                e('th', { key: 'actions', style: { width: '115px', textAlign: 'right' } }, 'Actions')
+              ],
+              isWall && [
+                e('th', { key: 'raw-wall-desc', style: { width: '24%' } }, 'Raw Exterior Wall Description'),
+                e('th', { key: 'wl-type-code', style: { width: '64px', textAlign: 'center' } }, '1. Type'),
+                e('th', { key: 'wl-siding-code', style: { width: '64px', textAlign: 'center' } }, '2. Siding'),
+                e('th', { key: 'wl-glass-code', style: { width: '60px', textAlign: 'center' } }, '3. Glass'),
+                e('th', { key: 'wl-glasspct-code', style: { width: '60px', textAlign: 'center' } }, '4. Gl %'),
+                e('th', { key: 'wl-winprot-code', style: { width: '60px', textAlign: 'center' } }, '5. W-Prot'),
+                e('th', { key: 'wl-doors-code', style: { width: '60px', textAlign: 'center' } }, '6. Doors'),
+                e('th', { key: 'wl-open-code', style: { width: '58px', textAlign: 'center' } }, '7. Open'),
+                e('th', { key: 'wl-brickven-code', style: { width: '60px', textAlign: 'center' } }, '8. Brk %'),
+                e('th', { key: 'wl-firerate-code', style: { width: '60px', textAlign: 'center' } }, '9. Fire'),
+                e('th', { key: 'status', style: { width: '125px', textAlign: 'center' } }, 'Status'),
+                e('th', { key: 'actions', style: { width: '115px', textAlign: 'right' } }, 'Actions')
+              ],
+              isFoundationConn && [
+                e('th', { key: 'raw-fnd-conn-desc', style: { width: '38%' } }, 'Raw Foundation Connection Input'),
+                e('th', { key: 'fnd-conn-code', style: { width: '120px', textAlign: 'center' } }, 'Connection Code'),
+                e('th', { key: 'fnd-conn-name', style: { width: '200px' } }, 'Connection Description'),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
+              ],
+              isFoundationType && [
+                e('th', { key: 'raw-fnd-type-desc', style: { width: '38%' } }, 'Raw Foundation Type Input'),
+                e('th', { key: 'fnd-type-code', style: { width: '120px', textAlign: 'center' } }, 'Foundation Type Code'),
+                e('th', { key: 'fnd-type-name', style: { width: '200px' } }, 'Foundation Type Description'),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
+              ],
+              (isFoundationDual && !isFoundationConn && !isFoundationType) && [
+                e('th', { key: 'raw-fnd-desc', style: { width: '34%' } }, 'Raw Foundation Input'),
+                e('th', { key: 'fnd-type-code', style: { width: '85px', textAlign: 'center' } }, 'Type Code'),
+                e('th', { key: 'fnd-type-name', style: { width: '180px' } }, 'Foundation Type'),
+                e('th', { key: 'fnd-conn-code', style: { width: '95px', textAlign: 'center' } }, 'Connection'),
                 e('th', { key: 'status', style: { width: '135px', textAlign: 'center' } }, 'Validation Status'),
                 e('th', { key: 'actions', style: { width: '125px', textAlign: 'right' } }, 'Actions')
               ],
-              isWall && [
-                e('th', { key: 'raw-wall-desc', style: { width: '36%' } }, 'Raw Exterior Wall Description'),
-                e('th', { key: 'wl-type-code', style: { width: '90px', textAlign: 'center' } }, 'Wall Code'),
-                e('th', { key: 'wl-type-desc', style: { width: '140px' } }, 'Exterior Wall Finish'),
-                e('th', { key: 'wl-con-class', style: { width: '140px', textAlign: 'center' } }, 'Mapped Con Class'),
-                e('th', { key: 'status', style: { width: '135px', textAlign: 'center' } }, 'Validation Status'),
-                e('th', { key: 'actions', style: { width: '125px', textAlign: 'right' } }, 'Actions')
+              isShortColumn && [
+                e('th', { key: 'raw-sc-desc', style: { width: '40%' } }, 'Raw Short Column Input'),
+                e('th', { key: 'sc-code', style: { width: '120px', textAlign: 'center' } }, 'Short Column Code'),
+                e('th', { key: 'sc-name', style: { width: '180px' } }, 'Short Column Status'),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '140px', textAlign: 'right' } }, 'Actions')
+              ],
+              isSoftStory && [
+                e('th', { key: 'raw-ss-desc', style: { width: '40%' } }, 'Raw Soft Story Input'),
+                e('th', { key: 'ss-code', style: { width: '120px', textAlign: 'center' } }, 'Soft Story Code'),
+                e('th', { key: 'ss-name', style: { width: '180px' } }, 'Soft Story Status'),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '140px', textAlign: 'right' } }, 'Actions')
+              ],
+              isOrnamentation && [
+                e('th', { key: 'raw-orn-desc', style: { width: '40%' } }, 'Raw Ornamentation Input'),
+                e('th', { key: 'orn-code', style: { width: '120px', textAlign: 'center' } }, 'Ornamentation Code'),
+                e('th', { key: 'orn-name', style: { width: '180px' } }, 'Ornamentation Level'),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '140px', textAlign: 'right' } }, 'Actions')
+              ],
+              isBuildingShape && [
+                e('th', { key: 'raw-bs-desc', style: { width: '40%' } }, 'Raw Building Shape Input'),
+                e('th', { key: 'bs-code', style: { width: '120px', textAlign: 'center' } }, 'Shape Code'),
+                e('th', { key: 'bs-name', style: { width: '180px' } }, 'Building Shape Geometry'),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '140px', textAlign: 'right' } }, 'Actions')
+              ],
+              isBuildingCondition && [
+                e('th', { key: 'raw-bc-desc', style: { width: '40%' } }, 'Raw Building Condition Input'),
+                e('th', { key: 'bc-code', style: { width: '120px', textAlign: 'center' } }, 'Condition Code'),
+                e('th', { key: 'bc-name', style: { width: '180px' } }, 'Building Condition Status'),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
+                e('th', { key: 'actions', style: { width: '140px', textAlign: 'right' } }, 'Actions')
               ],
               isRoofYear && [
                 e('th', { key: 'raw-yb', style: { width: '22%' } }, 'Year Built (Col 1)'),
@@ -575,7 +689,7 @@
                 showCountry && e('th', { key: 'country', style: { width: '80px', textAlign: 'center' } }, 'Country'),
                 e('th', { key: 'actions', style: { width: '125px', textAlign: 'right' } }, 'Actions')
               ].filter(Boolean),
-              (!isConstruction && !isOccupancy && !isSplit && !isRoof && !isWall && !isRoofYear) && [
+              (!isConstruction && !isOccupancy && !isSplit && !isRoof && !isWall && !isFoundation && !isRoofYear && !isShortColumn && !isSoftStory && !isOrnamentation && !isBuildingShape && !isBuildingCondition) && [
                 e('th', { key: 'raw', style: { width: '38%' } },
                   activeColumnId === 'year'
                     ? 'Raw Input Year'
@@ -616,7 +730,7 @@
             visibleRows.length === 0 ? (
               e('tr', null,
                 e('td', {
-                  colSpan: (isConstruction || isOccupancy) ? (5 + totalInputCols) : (isRoof ? 9 : (isRoofYear ? 6 : (isWall ? 6 : (isSplit ? (6 + (showRaw ? 1 : 0) + (showCounty ? 1 : 0) + (showCountry ? 1 : 0)) : 5)))),
+                  colSpan: (isConstruction || isOccupancy) ? (5 + totalInputCols) : (isRoof ? 9 : (isRoofYear ? 6 : ((isWall || isFoundation || isShortColumn || isSoftStory || isOrnamentation || isBuildingShape || isBuildingCondition) ? 6 : (isSplit ? (6 + (showRaw ? 1 : 0) + (showCounty ? 1 : 0) + (showCountry ? 1 : 0)) : 5)))),
                   style: { textAlign: 'center', padding: '48px 16px', color: 'var(--text-muted)' }
                 },
                   e('div', { style: { fontSize: '26px', marginBottom: '8px' } }, '🔍'),
@@ -655,6 +769,7 @@
                         e('td', { key: 'extra-' + eIdx, className: 'td-extra-desc' }, extraVal || '—')
                       ) : []),
                       e('td', { className: 'td-occ-code' },
+                        r.status === 'empty' ? e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—') :
                         e('span', {
                           className: 'occ-code-badge',
                           title: `Code ${r.conCode} (Click to inspect Touchstone details)`,
@@ -663,7 +778,7 @@
                         }, r.conCode || '100')
                       ),
                       e('td', { className: 'td-occ-cat' },
-                        r.category || 'Unknown',
+                        r.status === 'empty' ? e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—') : (r.category || 'Unknown'),
                         r.group && e('br'),
                         r.group && e('small', { style: { color: 'var(--text-muted)', fontSize: '10px' } }, r.group)
                       ),
@@ -737,6 +852,7 @@
                         e('td', { key: 'extra-' + eIdx, className: 'td-extra-desc' }, extraVal || '—')
                       ) : []),
                       e('td', { className: 'td-occ-code' },
+                        r.status === 'empty' ? e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—') :
                         e('span', {
                           className: 'occ-code-badge',
                           title: `Code ${r.occCode} (Click to inspect Touchstone details)`,
@@ -745,7 +861,7 @@
                         }, r.occCode || '300')
                       ),
                       e('td', { className: 'td-occ-cat' },
-                        r.category || 'Unknown',
+                        r.status === 'empty' ? e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—') : (r.category || 'Unknown'),
                         r.group && e('br'),
                         r.group && e('small', { style: { color: 'var(--text-muted)', fontSize: '10px' } }, r.group)
                       ),
@@ -801,7 +917,7 @@
                         r.geometryCode ? e('span', {
                           className: 'occ-code-badge',
                           title: (r.geometryName ? `${r.geometryName} (Code ${r.geometryCode})` : `Code ${r.geometryCode}`) + ' - Click to inspect',
-                          style: { background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', borderColor: 'rgba(59, 130, 246, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          style: { background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', borderColor: 'rgba(59, 130, 246, 0.35)', minWidth: '28px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
                           onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.geometryCode, 'roof', 'geometry')
                         }, r.geometryCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
@@ -809,7 +925,7 @@
                         r.pitchCode ? e('span', {
                           className: 'occ-code-badge',
                           title: (r.pitchName ? `${r.pitchName} (Code ${r.pitchCode})` : `Code ${r.pitchCode}`) + ' - Click to inspect',
-                          style: { background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald-light)', borderColor: 'rgba(16, 185, 129, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          style: { background: 'rgba(16, 185, 129, 0.15)', color: 'var(--accent-emerald-light)', borderColor: 'rgba(16, 185, 129, 0.35)', minWidth: '28px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
                           onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.pitchCode, 'roof', 'pitch')
                         }, r.pitchCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
@@ -817,7 +933,7 @@
                         r.coveringCode ? e('span', {
                           className: 'occ-code-badge',
                           title: (r.coveringName ? `${r.coveringName} (Code ${r.coveringCode})` : `Code ${r.coveringCode}`) + ' - Click to inspect',
-                          style: { background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          style: { background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.35)', minWidth: '28px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
                           onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.coveringCode, 'roof', 'covering')
                         }, r.coveringCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
@@ -825,15 +941,31 @@
                         r.deckCode ? e('span', {
                           className: 'occ-code-badge',
                           title: (r.deckName ? `${r.deckName} (Code ${r.deckCode})` : `Code ${r.deckCode}`) + ' - Click to inspect',
-                          style: { background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', borderColor: 'rgba(168, 85, 247, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          style: { background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', borderColor: 'rgba(168, 85, 247, 0.35)', minWidth: '28px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
                           onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.deckCode, 'roof', 'deck')
                         }, r.deckCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
+                      ),
+                      e('td', { className: 'td-roof-covatt', style: { textAlign: 'center' } },
+                        r.covAttachCode ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.covAttachName ? `${r.covAttachName} (Code ${r.covAttachCode})` : `Code ${r.covAttachCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(6, 182, 212, 0.15)', color: '#06b6d4', borderColor: 'rgba(6, 182, 212, 0.35)', minWidth: '28px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.covAttachCode, 'roof', 'cov_attach')
+                        }, r.covAttachCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
+                      ),
+                      e('td', { className: 'td-roof-dckatt', style: { textAlign: 'center' } },
+                        r.deckAttachCode ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.deckAttachName ? `${r.deckAttachName} (Code ${r.deckAttachCode})` : `Code ${r.deckAttachCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(129, 140, 248, 0.15)', color: '#818cf8', borderColor: 'rgba(129, 140, 248, 0.35)', minWidth: '28px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.deckAttachCode, 'roof', 'deck_attach')
+                        }, r.deckAttachCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
                       e('td', { className: 'td-roof-anchor', style: { textAlign: 'center' } },
                         r.anchorageCode ? e('span', {
                           className: 'occ-code-badge',
                           title: (r.anchorageName ? `${r.anchorageName} (Code ${r.anchorageCode})` : `Code ${r.anchorageCode}`) + ' - Click to inspect',
-                          style: { background: 'rgba(236, 72, 153, 0.15)', color: '#f472b6', borderColor: 'rgba(236, 72, 153, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          style: { background: 'rgba(236, 72, 153, 0.15)', color: '#f472b6', borderColor: 'rgba(236, 72, 153, 0.35)', minWidth: '28px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
                           onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.anchorageCode, 'roof', 'anchorage')
                         }, r.anchorageCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
@@ -842,11 +974,11 @@
                       ),
                       e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
                         e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
-                          (r.geometryCode || r.pitchCode || r.coveringCode || r.deckCode || r.anchorageCode) && e('button', {
+                          (r.geometryCode || r.pitchCode || r.coveringCode || r.deckCode || r.covAttachCode || r.deckAttachCode || r.anchorageCode) && e('button', {
                             type: 'button',
                             className: `btn-row-copy ${copiedRowId === `rf-${rowNum}` ? 'copied' : ''}`,
-                            title: 'Copy 5 Roof Codes to clipboard',
-                            onClick: () => handleCopyValue([r.geometryCode || '0', r.pitchCode || '0', r.coveringCode || '0', r.deckCode || '0', r.anchorageCode || '0'].join('\t'), `rf-${rowNum}`, 'Roof Codes')
+                            title: 'Copy 7 Roof Codes to clipboard',
+                            onClick: () => handleCopyValue([r.geometryCode || '0', r.pitchCode || '0', r.coveringCode || '0', r.deckCode || '0', r.covAttachCode || '0', r.deckAttachCode || '0', r.anchorageCode || '0'].join('\t'), `rf-${rowNum}`, 'Roof Codes')
                           }, copiedRowId === `rf-${rowNum}` ? '✓ Copied' : '📋 Copy'),
                           e('a', {
                             href: searchUrl,
@@ -860,6 +992,17 @@
                     );
                   } else if (isWall) {
                     const searchUrl = 'https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-wall-detail-fields.html?hl=wall';
+                    const allWallCodes = [
+                      r.wallTypeCode || '0',
+                      r.wallSidingCode || '0',
+                      r.glassTypeCode || '0',
+                      r.glassPercentageCode || '0',
+                      r.windowProtectionCode || '0',
+                      r.exteriorDoorsCode || '0',
+                      r.buildingOpeningCode || '0',
+                      r.brickVeneerCode || '0',
+                      r.fireRatingCode || '0'
+                    ].join('\t');
 
                     return e('tr', { key: String(rowNum) },
                       e('td', { className: 'td-num' }, rowNum),
@@ -868,17 +1011,73 @@
                         r.wallTypeCode ? e('span', {
                           className: 'occ-code-badge',
                           title: (r.wallTypeName ? `${r.wallTypeName} (Code ${r.wallTypeCode})` : `Code ${r.wallTypeCode}`) + ' - Click to inspect',
-                          style: { background: 'rgba(234, 88, 12, 0.15)', color: '#fb923c', borderColor: 'rgba(234, 88, 12, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
-                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.wallTypeCode, 'wall')
+                          style: { background: 'rgba(234, 88, 12, 0.15)', color: '#fb923c', borderColor: 'rgba(234, 88, 12, 0.35)', minWidth: '26px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.wallTypeCode, 'wall', 'type')
                         }, r.wallTypeCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
                       ),
                       e('td', { className: 'td-wall-siding', style: { textAlign: 'center' } },
                         r.wallSidingCode ? e('span', {
                           className: 'occ-code-badge',
                           title: (r.wallSidingName ? `${r.wallSidingName} (Code ${r.wallSidingCode})` : `Code ${r.wallSidingCode}`) + ' - Click to inspect',
-                          style: { background: 'rgba(6, 182, 212, 0.15)', color: 'var(--accent-cyan)', borderColor: 'rgba(6, 182, 212, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
-                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.wallSidingCode, 'wall')
+                          style: { background: 'rgba(6, 182, 212, 0.15)', color: 'var(--accent-cyan)', borderColor: 'rgba(6, 182, 212, 0.35)', minWidth: '26px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.wallSidingCode, 'wall', 'siding')
                         }, r.wallSidingCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
+                      ),
+                      e('td', { className: 'td-wall-glass', style: { textAlign: 'center' } },
+                        r.glassTypeCode && r.glassTypeCode !== '0' ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.glassTypeName ? `${r.glassTypeName} (Code ${r.glassTypeCode})` : `Code ${r.glassTypeCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', borderColor: 'rgba(59, 130, 246, 0.35)', minWidth: '24px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.glassTypeCode, 'wall', 'glass_type')
+                        }, r.glassTypeCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '0')
+                      ),
+                      e('td', { className: 'td-wall-glasspct', style: { textAlign: 'center' } },
+                        r.glassPercentageCode && r.glassPercentageCode !== '0' ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.glassPercentageName ? `${r.glassPercentageName} (Code ${r.glassPercentageCode})` : `Code ${r.glassPercentageCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(139, 92, 246, 0.15)', color: '#a78bfa', borderColor: 'rgba(139, 92, 246, 0.35)', minWidth: '24px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.glassPercentageCode, 'wall', 'glass_pct')
+                        }, r.glassPercentageCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '0')
+                      ),
+                      e('td', { className: 'td-wall-winprot', style: { textAlign: 'center' } },
+                        r.windowProtectionCode && r.windowProtectionCode !== '0' ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.windowProtectionName ? `${r.windowProtectionName} (Code ${r.windowProtectionCode})` : `Code ${r.windowProtectionCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', borderColor: 'rgba(16, 185, 129, 0.35)', minWidth: '24px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.windowProtectionCode, 'wall', 'window_protection')
+                        }, r.windowProtectionCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '0')
+                      ),
+                      e('td', { className: 'td-wall-doors', style: { textAlign: 'center' } },
+                        r.exteriorDoorsCode && r.exteriorDoorsCode !== '0' ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.exteriorDoorsName ? `${r.exteriorDoorsName} (Code ${r.exteriorDoorsCode})` : `Code ${r.exteriorDoorsCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', borderColor: 'rgba(245, 158, 11, 0.35)', minWidth: '24px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.exteriorDoorsCode, 'wall', 'exterior_doors')
+                        }, r.exteriorDoorsCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '0')
+                      ),
+                      e('td', { className: 'td-wall-open', style: { textAlign: 'center' } },
+                        r.buildingOpeningCode && r.buildingOpeningCode !== '0' ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.buildingOpeningName ? `${r.buildingOpeningName} (Code ${r.buildingOpeningCode})` : `Code ${r.buildingOpeningCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(244, 63, 94, 0.15)', color: '#fb7185', borderColor: 'rgba(244, 63, 94, 0.35)', minWidth: '24px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.buildingOpeningCode, 'wall', 'opening')
+                        }, r.buildingOpeningCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '0')
+                      ),
+                      e('td', { className: 'td-wall-brickven', style: { textAlign: 'center' } },
+                        r.brickVeneerCode && r.brickVeneerCode !== '0' ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.brickVeneerName ? `${r.brickVeneerName} (Code ${r.brickVeneerCode})` : `Code ${r.brickVeneerCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(168, 85, 247, 0.15)', color: '#c084fc', borderColor: 'rgba(168, 85, 247, 0.35)', minWidth: '24px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.brickVeneerCode, 'wall', 'brick_veneer')
+                        }, r.brickVeneerCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '0')
+                      ),
+                      e('td', { className: 'td-wall-fire', style: { textAlign: 'center' } },
+                        r.fireRatingCode && r.fireRatingCode !== '0' ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.fireRatingName ? `${r.fireRatingName} (Code ${r.fireRatingCode})` : `Code ${r.fireRatingCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(239, 68, 68, 0.15)', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.35)', minWidth: '24px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.fireRatingCode, 'wall', 'fire_rating')
+                        }, r.fireRatingCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '0')
                       ),
                       e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
                         getStatusBadge(r.status, r.statusText, r.statusText || 'Separated')
@@ -888,8 +1087,8 @@
                           (r.wallTypeCode || r.wallSidingCode) && e('button', {
                             type: 'button',
                             className: `btn-row-copy ${copiedRowId === `wl-${rowNum}` ? 'copied' : ''}`,
-                            title: 'Copy Wall Codes (Type & Siding)',
-                            onClick: () => handleCopyValue([r.wallTypeCode || '0', r.wallSidingCode || '0'].join('\t'), `wl-${rowNum}`, 'Wall Codes')
+                            title: 'Copy All 9 Wall Codes (Tab-Delimited)',
+                            onClick: () => handleCopyValue(allWallCodes, `wl-${rowNum}`, 'Wall Codes')
                           }, copiedRowId === `wl-${rowNum}` ? '✓ Copied' : '📋 Copy'),
                           e('a', {
                             href: searchUrl,
@@ -897,6 +1096,443 @@
                             rel: 'noopener noreferrer',
                             className: 'btn-maps',
                             title: 'View Touchstone UNICEDE® Wall Specifications'
+                          }, '🔍 Info')
+                        )
+                      )
+                    );
+                  } else if (isFoundationConn) {
+                    const searchUrl = 'https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-foundation-detail-fields.html?hl=foundation';
+                    const code = r.foundationConnectionCode || r.code || '';
+                    const name = r.foundationConnectionName || r.name || r.foundationConnection || 'Unknown';
+
+                    return e('tr', { key: String(rowNum) },
+                      e('td', { className: 'td-num' }, rowNum),
+                      e('td', { className: 'td-raw' }, r.original || '—'),
+                      e('td', { className: 'td-fnd-conn', style: { textAlign: 'center' } },
+                        code ? e('span', {
+                          className: 'occ-code-badge',
+                          title: `Code ${code}: ${name} - Click to inspect`,
+                          style: { background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', borderColor: 'rgba(16, 185, 129, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(code, 'foundation_connection')
+                        }, code) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
+                      ),
+                      e('td', { className: 'td-fnd-name' },
+                        r.status === 'empty' ? e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—') : name
+                      ),
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
+                        getStatusBadge(r.status, r.statusText, r.statusText || 'Assigned')
+                      ),
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          code && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `fndc-${rowNum}` ? 'copied' : ''}`,
+                            title: 'Copy Connection Code to clipboard',
+                            onClick: () => handleCopyValue(r.cleaned || code, `fndc-${rowNum}`, 'Foundation Connection Code')
+                          }, copiedRowId === `fndc-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'View Touchstone UNICEDE® Foundation Connection Specifications'
+                          }, '🔍 Info')
+                        )
+                      )
+                    );
+                  } else if (isFoundationType) {
+                    const searchUrl = 'https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-foundation-detail-fields.html?hl=foundation';
+                    const code = r.foundationTypeCode || r.code || '';
+                    const name = r.foundationTypeName || r.name || r.foundationType || 'Unknown';
+
+                    return e('tr', { key: String(rowNum) },
+                      e('td', { className: 'td-num' }, rowNum),
+                      e('td', { className: 'td-raw' }, r.original || '—'),
+                      e('td', { className: 'td-fnd-type', style: { textAlign: 'center' } },
+                        code ? e('span', {
+                          className: 'occ-code-badge',
+                          title: `Code ${code}: ${name} - Click to inspect`,
+                          style: { background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', borderColor: 'rgba(59, 130, 246, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(code, 'foundation_type')
+                        }, code) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
+                      ),
+                      e('td', { className: 'td-fnd-name' },
+                        r.status === 'empty' ? e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—') : name
+                      ),
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
+                        getStatusBadge(r.status, r.statusText, r.statusText || 'Assigned')
+                      ),
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          code && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `fndt-${rowNum}` ? 'copied' : ''}`,
+                            title: 'Copy Foundation Type Code to clipboard',
+                            onClick: () => handleCopyValue(r.cleaned || code, `fndt-${rowNum}`, 'Foundation Type Code')
+                          }, copiedRowId === `fndt-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'View Touchstone UNICEDE® Foundation Type Specifications'
+                          }, '🔍 Info')
+                        )
+                      )
+                    );
+                  } else if (isFoundationDual) {
+                    const searchUrl = 'https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-foundation-detail-fields.html?hl=foundation';
+
+                    return e('tr', { key: String(rowNum) },
+                      e('td', { className: 'td-num' }, rowNum),
+                      e('td', { className: 'td-raw' }, r.original || '—'),
+                      e('td', { className: 'td-fnd-type', style: { textAlign: 'center' } },
+                        r.foundationTypeCode ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.foundationTypeName ? `${r.foundationTypeName} (Code ${r.foundationTypeCode})` : `Code ${r.foundationTypeCode}`) + ' - Click to inspect',
+                          style: { background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', borderColor: 'rgba(59, 130, 246, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center', cursor: 'pointer' },
+                          onClick: () => window.openCodeDetailByBadge && window.openCodeDetailByBadge(r.foundationTypeCode, 'foundation')
+                        }, r.foundationTypeCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
+                      ),
+                      e('td', { className: 'td-fnd-desc' },
+                        r.status === 'empty' ? e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—') : (r.foundationTypeName || r.foundationType || 'Unknown')
+                      ),
+                      e('td', { className: 'td-fnd-conn', style: { textAlign: 'center' } },
+                        r.foundationConnectionCode ? e('span', {
+                          className: 'occ-code-badge',
+                          title: (r.foundationConnectionName ? `${r.foundationConnectionName} (Code ${r.foundationConnectionCode})` : `Code ${r.foundationConnectionCode}`),
+                          style: { background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', borderColor: 'rgba(16, 185, 129, 0.35)', minWidth: '32px', display: 'inline-block', textAlign: 'center' }
+                        }, r.foundationConnectionCode) : e('span', { style: { color: 'var(--text-muted)', fontSize: '11px' } }, '—')
+                      ),
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
+                        getStatusBadge(r.status, r.statusText, r.statusText || 'Assigned')
+                      ),
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          (r.foundationTypeCode || r.foundationConnectionCode) && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `fnd-${rowNum}` ? 'copied' : ''}`,
+                            title: 'Copy Foundation Code to clipboard',
+                            onClick: () => handleCopyValue(r.cleaned || r.foundationTypeCode, `fnd-${rowNum}`, 'Foundation Code')
+                          }, copiedRowId === `fnd-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'View Touchstone UNICEDE® Foundation Specifications'
+                          }, '🔍 Info')
+                        )
+                      )
+                    );
+                  } else if (isShortColumn) {
+                    let badgeCls = 'assigned';
+                    let badgeText = r.code === '2' ? '✓ Yes (Code 2)' : (r.code === '1' ? '✓ No (Code 1)' : (r.code === '0' ? '✓ Unknown (Code 0)' : '⚠️ Unrecognized'));
+                    if (r.status === 'empty') {
+                      badgeCls = 'empty';
+                      badgeText = 'Blank';
+                    } else if (r.status === 'mismatch' || !r.code) {
+                      badgeCls = 'mismatch';
+                      badgeText = '⚠️ Unrecognized';
+                    } else if (r.status === 'unchanged') {
+                      badgeCls = 'match';
+                      badgeText = `✓ Valid Code (${r.code})`;
+                    }
+
+                    const searchUrl = `https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-user-defined-fields.html?hl=short+column`;
+
+                    return e('tr', { key: String(rowNum) },
+                      e('td', { className: 'td-num' }, rowNum),
+                      e('td', { className: 'td-raw-desc', title: r.original }, r.original || '—'),
+                      e('td', { className: 'td-sc-code', style: { textAlign: 'center' } },
+                        r.code ? e('span', {
+                          className: `badge-code-primary ${r.code === '2' ? 'badge-code-accent' : ''}`,
+                          style: {
+                            fontFamily: 'var(--font-mono)',
+                            fontWeight: 'bold',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            background: r.code === '2' ? 'rgba(239, 68, 68, 0.2)' : (r.code === '1' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(148, 163, 184, 0.2)'),
+                            color: r.code === '2' ? '#f87171' : (r.code === '1' ? 'var(--accent-emerald-light)' : '#94a3b8')
+                          }
+                        }, `Code ${r.code}`) : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic' } }, '—')
+                      ),
+                      e('td', { className: 'td-sc-name', style: { fontWeight: '600', color: r.code === '2' ? '#fca5a5' : (r.code === '1' ? 'var(--text-primary)' : 'var(--text-secondary)') } },
+                        r.shortColumnName || r.shortColumnShort || '—'
+                      ),
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
+                        getStatusBadge(badgeCls, r.statusText, badgeText)
+                      ),
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          r.code && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `sc-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy code "${r.code}" to clipboard`,
+                            onClick: () => handleCopyValue(r.code, `sc-${rowNum}`, 'Short Column Code')
+                          }, copiedRowId === `sc-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'View Touchstone UNICEDE® Short Column Specifications'
+                          }, '🔍 Info')
+                        )
+                      )
+                    );
+                  } else if (isSoftStory) {
+                    let badgeCls = 'assigned';
+                    let badgeText = r.code === '2' ? '✓ Yes (Code 2)' : (r.code === '1' ? '✓ No (Code 1)' : (r.code === '0' ? '✓ Unknown (Code 0)' : '⚠️ Unrecognized'));
+                    if (r.status === 'empty') {
+                      badgeCls = 'empty';
+                      badgeText = 'Blank';
+                    } else if (r.status === 'mismatch' || !r.code) {
+                      badgeCls = 'mismatch';
+                      badgeText = '⚠️ Unrecognized';
+                    } else if (r.status === 'unchanged') {
+                      badgeCls = 'match';
+                      badgeText = `✓ Valid Code (${r.code})`;
+                    }
+
+                    const searchUrl = `https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-user-defined-fields.html?hl=soft+story`;
+
+                    return e('tr', { key: String(rowNum) },
+                      e('td', { className: 'td-num' }, rowNum),
+                      e('td', { className: 'td-raw-desc', title: r.original }, r.original || '—'),
+                      e('td', { className: 'td-ss-code', style: { textAlign: 'center' } },
+                        r.code ? e('span', {
+                          className: `badge-code-primary ${r.code === '2' ? 'badge-code-accent' : ''}`,
+                          style: {
+                            fontFamily: 'var(--font-mono)',
+                            fontWeight: 'bold',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            background: r.code === '2' ? 'rgba(239, 68, 68, 0.2)' : (r.code === '1' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(148, 163, 184, 0.2)'),
+                            color: r.code === '2' ? '#f87171' : (r.code === '1' ? 'var(--accent-emerald-light)' : '#94a3b8')
+                          }
+                        }, `Code ${r.code}`) : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic' } }, '—')
+                      ),
+                      e('td', { className: 'td-ss-name', style: { fontWeight: '600', color: r.code === '2' ? '#fca5a5' : (r.code === '1' ? 'var(--text-primary)' : 'var(--text-secondary)') } },
+                        r.softStoryName || r.softStoryShort || '—'
+                      ),
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
+                        getStatusBadge(badgeCls, r.statusText, badgeText)
+                      ),
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          r.code && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `ss-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy code "${r.code}" to clipboard`,
+                            onClick: () => handleCopyValue(r.code, `ss-${rowNum}`, 'Soft Story Code')
+                          }, copiedRowId === `ss-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'View Touchstone UNICEDE® Soft Story Specifications'
+                          }, '🔍 Info')
+                        )
+                      )
+                    );
+                  } else if (isOrnamentation) {
+                    let badgeCls = 'assigned';
+                    let badgeText = r.code ? `✓ Code ${r.code}` : '⚠️ Unrecognized';
+                    if (r.status === 'empty') {
+                      badgeCls = 'empty';
+                      badgeText = 'Blank';
+                    } else if (r.status === 'mismatch' || !r.code) {
+                      badgeCls = 'mismatch';
+                      badgeText = '⚠️ Unrecognized';
+                    } else if (r.status === 'unchanged') {
+                      badgeCls = 'match';
+                      badgeText = `✓ Valid Code (${r.code})`;
+                    }
+
+                    const searchUrl = `https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-user-defined-fields.html?hl=ornamentation`;
+
+                    // Color palette for ornamentation codes
+                    const codeColors = {
+                      '0': { bg: 'rgba(148, 163, 184, 0.2)', color: '#94a3b8' },
+                      '1': { bg: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7' },
+                      '2': { bg: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd' },
+                      '3': { bg: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5' }
+                    };
+                    const colorStyle = codeColors[r.code] || { bg: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd' };
+
+                    return e('tr', { key: String(rowNum) },
+                      e('td', { className: 'td-num' }, rowNum),
+                      e('td', { className: 'td-raw-desc', title: r.original }, r.original || '—'),
+                      e('td', { className: 'td-orn-code', style: { textAlign: 'center' } },
+                        r.code ? e('span', {
+                          className: 'badge-code-primary',
+                          style: {
+                            fontFamily: 'var(--font-mono)',
+                            fontWeight: 'bold',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            background: colorStyle.bg,
+                            color: colorStyle.color
+                          }
+                        }, `Code ${r.code}`) : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic' } }, '—')
+                      ),
+                      e('td', { className: 'td-orn-name', style: { fontWeight: '600', color: colorStyle.color } },
+                        r.ornamentationName || r.ornamentationShort || '—'
+                      ),
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
+                        getStatusBadge(badgeCls, r.statusText, badgeText)
+                      ),
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          r.code && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `orn-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy code "${r.code}" to clipboard`,
+                            onClick: () => handleCopyValue(r.code, `orn-${rowNum}`, 'Ornamentation Code')
+                          }, copiedRowId === `orn-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'View Touchstone UNICEDE® Ornamentation Specifications'
+                          }, '🔍 Info')
+                        )
+                      )
+                    );
+                  } else if (isBuildingShape) {
+                    let badgeCls = 'assigned';
+                    let badgeText = r.code ? `✓ Code ${r.code}` : '⚠️ Unrecognized';
+                    if (r.status === 'empty') {
+                      badgeCls = 'empty';
+                      badgeText = 'Blank';
+                    } else if (r.status === 'mismatch' || !r.code) {
+                      badgeCls = 'mismatch';
+                      badgeText = '⚠️ Unrecognized';
+                    } else if (r.status === 'unchanged') {
+                      badgeCls = 'match';
+                      badgeText = `✓ Valid Code (${r.code})`;
+                    }
+
+                    const searchUrl = `https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-user-defined-fields.html?hl=building+shape`;
+
+                    // Color palette for shape codes
+                    const codeColors = {
+                      '0': { bg: 'rgba(148, 163, 184, 0.2)', color: '#94a3b8' },
+                      '1': { bg: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd' },
+                      '2': { bg: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7' },
+                      '3': { bg: 'rgba(168, 85, 247, 0.2)', color: '#d8b4fe' },
+                      '4': { bg: 'rgba(245, 158, 11, 0.2)', color: '#fcd34d' },
+                      '5': { bg: 'rgba(236, 72, 153, 0.2)', color: '#f472b6' },
+                      '6': { bg: 'rgba(14, 165, 233, 0.2)', color: '#7dd3fc' },
+                      '7': { bg: 'rgba(99, 102, 241, 0.2)', color: '#a5b4fc' },
+                      '8': { bg: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5' }
+                    };
+                    const colorStyle = codeColors[r.code] || { bg: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd' };
+
+                    return e('tr', { key: String(rowNum) },
+                      e('td', { className: 'td-num' }, rowNum),
+                      e('td', { className: 'td-raw-desc', title: r.original }, r.original || '—'),
+                      e('td', { className: 'td-bs-code', style: { textAlign: 'center' } },
+                        r.code ? e('span', {
+                          className: 'badge-code-primary',
+                          style: {
+                            fontFamily: 'var(--font-mono)',
+                            fontWeight: 'bold',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            background: colorStyle.bg,
+                            color: colorStyle.color
+                          }
+                        }, `Code ${r.code}`) : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic' } }, '—')
+                      ),
+                      e('td', { className: 'td-bs-name', style: { fontWeight: '600', color: colorStyle.color } },
+                        r.buildingShapeName || r.buildingShapeShort || '—'
+                      ),
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
+                        getStatusBadge(badgeCls, r.statusText, badgeText)
+                      ),
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          r.code && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `bs-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy code "${r.code}" to clipboard`,
+                            onClick: () => handleCopyValue(r.code, `bs-${rowNum}`, 'Building Shape Code')
+                          }, copiedRowId === `bs-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'View Touchstone UNICEDE® Building Shape Specifications'
+                          }, '🔍 Info')
+                        )
+                      )
+                    );
+                  } else if (isBuildingCondition) {
+                    let badgeCls = 'assigned';
+                    let badgeText = r.code ? `✓ Code ${r.code}` : '⚠️ Unrecognized';
+                    if (r.status === 'empty') {
+                      badgeCls = 'empty';
+                      badgeText = 'Blank';
+                    } else if (r.status === 'mismatch' || !r.code) {
+                      badgeCls = 'mismatch';
+                      badgeText = '⚠️ Unrecognized';
+                    } else if (r.status === 'unchanged') {
+                      badgeCls = 'match';
+                      badgeText = `✓ Valid Code (${r.code})`;
+                    }
+
+                    const searchUrl = `https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-user-defined-fields.html?hl=building+condition`;
+
+                    // Color palette for building condition codes
+                    const codeColors = {
+                      '0': { bg: 'rgba(148, 163, 184, 0.2)', color: '#94a3b8' },
+                      '1': { bg: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd' },
+                      '2': { bg: 'rgba(16, 185, 129, 0.2)', color: '#6ee7b7' },
+                      '3': { bg: 'rgba(239, 68, 68, 0.2)', color: '#fca5a5' }
+                    };
+                    const colorStyle = codeColors[r.code] || { bg: 'rgba(59, 130, 246, 0.2)', color: '#93c5fd' };
+
+                    return e('tr', { key: String(rowNum) },
+                      e('td', { className: 'td-num' }, rowNum),
+                      e('td', { className: 'td-raw-desc', title: r.original }, r.original || '—'),
+                      e('td', { className: 'td-bc-code', style: { textAlign: 'center' } },
+                        r.code ? e('span', {
+                          className: 'badge-code-primary',
+                          style: {
+                            fontFamily: 'var(--font-mono)',
+                            fontWeight: 'bold',
+                            padding: '3px 8px',
+                            borderRadius: '4px',
+                            background: colorStyle.bg,
+                            color: colorStyle.color
+                          }
+                        }, `Code ${r.code}`) : e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic' } }, '—')
+                      ),
+                      e('td', { className: 'td-bc-name', style: { fontWeight: '600', color: colorStyle.color } },
+                        r.buildingConditionName || r.buildingConditionShort || '—'
+                      ),
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
+                        getStatusBadge(badgeCls, r.statusText, badgeText)
+                      ),
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          r.code && e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `bc-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy code "${r.code}" to clipboard`,
+                            onClick: () => handleCopyValue(r.code, `bc-${rowNum}`, 'Building Condition Code')
+                          }, copiedRowId === `bc-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          e('a', {
+                            href: searchUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: 'View Touchstone UNICEDE® Building Condition Specifications'
                           }, '🔍 Info')
                         )
                       )
@@ -1136,17 +1772,62 @@
                 });
                 return lines.join('\n');
               } else if (isRoof) {
-                const header = ['1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Anchorage'].join('\t');
+                const header = ['1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Covering Attachment', '6. Roof Deck Attachment', '7. Roof Anchorage'].join('\t');
                 const lines = [header];
                 filteredRows.forEach(r => {
-                  lines.push([r.geometryCode || '', r.pitchCode || '', r.coveringCode || '', r.deckCode || '', r.anchorageCode || ''].join('\t'));
+                  lines.push([r.geometryCode || '', r.pitchCode || '', r.coveringCode || '', r.deckCode || '', r.covAttachCode || '', r.deckAttachCode || '', r.anchorageCode || ''].join('\t'));
                 });
                 return lines.join('\n');
               } else if (isWall) {
-                const header = ['1. WallType', '2. WallSiding'].join('\t');
+                const header = ['1. WallType', '2. WallSiding', '3. Glass Type', '4. Glass %', '5. Window Protection', '6. Exterior Doors', '7. Openings %', '8. Brick Veneer %', '9. Fire Rating'].join('\t');
                 const lines = [header];
                 filteredRows.forEach(r => {
-                  lines.push([r.wallTypeCode || '', r.wallSidingCode || ''].join('\t'));
+                  lines.push([
+                    r.wallTypeCode || '0',
+                    r.wallSidingCode || '0',
+                    r.glassTypeCode || '0',
+                    r.glassPercentageCode || '0',
+                    r.windowProtectionCode || '0',
+                    r.exteriorDoorsCode || '0',
+                    r.buildingOpeningCode || '0',
+                    r.brickVeneerCode || '0',
+                    r.fireRatingCode || '0'
+                  ].join('\t'));
+                });
+                return lines.join('\n');
+              } else if (isShortColumn) {
+                const header = ['Short Column Code', 'Short Column Name', 'Status'].join('\t');
+                const lines = [header];
+                filteredRows.forEach(r => {
+                  lines.push([r.code || '', r.shortColumnName || '', r.statusText || ''].join('\t'));
+                });
+                return lines.join('\n');
+              } else if (isSoftStory) {
+                const header = ['Soft Story Code', 'Soft Story Name', 'Status'].join('\t');
+                const lines = [header];
+                filteredRows.forEach(r => {
+                  lines.push([r.code || '', r.softStoryName || '', r.statusText || ''].join('\t'));
+                });
+                return lines.join('\n');
+              } else if (isOrnamentation) {
+                const header = ['Ornamentation Code', 'Ornamentation Level', 'Status'].join('\t');
+                const lines = [header];
+                filteredRows.forEach(r => {
+                  lines.push([r.code || '', r.ornamentationName || '', r.statusText || ''].join('\t'));
+                });
+                return lines.join('\n');
+              } else if (isBuildingShape) {
+                const header = ['Building Shape Code', 'Building Shape Name', 'Status'].join('\t');
+                const lines = [header];
+                filteredRows.forEach(r => {
+                  lines.push([r.code || '', r.buildingShapeName || '', r.statusText || ''].join('\t'));
+                });
+                return lines.join('\n');
+              } else if (isBuildingCondition) {
+                const header = ['Building Condition Code', 'Building Condition Name', 'Status'].join('\t');
+                const lines = [header];
+                filteredRows.forEach(r => {
+                  lines.push([r.code || '', r.buildingConditionName || '', r.statusText || ''].join('\t'));
                 });
                 return lines.join('\n');
               } else if (isRoofYear) {

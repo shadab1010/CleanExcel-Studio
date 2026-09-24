@@ -65,10 +65,10 @@
 
       <!-- Center: Navigation Links -->
       <nav class="veng-nav-center" role="navigation" aria-label="Main Navigation">
-        <button id="nav-btn-home" class="veng-nav-link active" type="button">
+        <button id="nav-btn-home" class="veng-nav-link active" type="button" onclick="window.switchAppView && window.switchAppView('home')">
           <span>Home</span>
         </button>
-        <button id="nav-btn-studio" class="veng-nav-link" type="button">
+        <button id="nav-btn-studio" class="veng-nav-link" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio')">
           <span>Clean Studio</span>
         </button>
         <button id="nav-btn-finder" class="veng-nav-search-btn" type="button" title="Quick Search UNICEDE® Taxonomies (⌘K)">
@@ -78,7 +78,7 @@
         </button>
       </nav>
 
-      <!-- Right: AI, Theme & Launch Studio -->
+      <!-- Right: AI, Memory, Theme & Launch Studio -->
       <div class="veng-nav-right">
         <button id="btn-gemini-modal" class="veng-ai-pill" type="button" title="Google Gemini 2.5 Active. Click to customize API key.">
           <span class="ai-sparkle">✨</span>
@@ -86,11 +86,17 @@
           <span class="ai-badge-dot"></span>
         </button>
 
+        <button id="btn-memory-modal" class="veng-ai-pill veng-memory-pill" type="button" title="Continuous Self-Training & Memory Database. Click to view learned patterns." style="background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.35); color: #93c5fd;">
+          <span class="ai-sparkle">🧠</span>
+          <span class="ai-pill-text" id="header-memory-text">Memory</span>
+          <span class="ai-badge-dot" style="background: #3b82f6;"></span>
+        </button>
+
         <button id="btn-toggle-theme" class="veng-theme-toggle" type="button" title="Toggle theme" aria-label="Toggle theme">
           <span id="theme-toggle-icon">🌙</span>
         </button>
 
-        <button id="btn-launch-header" class="veng-btn-launch" type="button" title="Launch Clean Studio Workspace">
+        <button id="btn-launch-header" class="veng-btn-launch" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio')" title="Launch Clean Studio Workspace">
           <span>Launch Studio</span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </button>
@@ -144,12 +150,12 @@
                 <span class="synapse-scramble" data-text="Underwriting">Underwriting</span>
               </h1>
               <p class="synapse-hero-desc">
-                Built at the intersection of catastrophe modeling and machine intelligence. CleanExcel instantly transforms raw, chaotic broker schedules into standardized Touchstone UNICEDE® underwriting assets with 100% deterministic precision.
+                Built at the intersection of catastrophe modeling and machine intelligence. CleanExcel Studio instantly transforms raw, chaotic broker schedules into standardized Touchstone UNICEDE® underwriting assets with 100% deterministic precision.
               </p>
               
               <!-- CTAs -->
               <div class="hero-cta-group">
-                <button id="hero-btn-launch" class="synapse-btn-primary" type="button">
+                <button id="hero-btn-launch" class="synapse-btn-primary" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio')">
                   <span>Launch Clean Studio</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </button>
@@ -157,7 +163,7 @@
                   <span>Taxonomy Explorer</span>
                   <kbd class="hero-kbd">⌘K</kbd>
                 </button>
-                <button id="hero-btn-sample" class="synapse-btn-ghost" type="button">
+                <button id="hero-btn-sample" class="synapse-btn-ghost" type="button" onclick="window.switchAppView && window.switchAppView('studio')">
                   <span>Try Live Demo</span>
                 </button>
               </div>
@@ -198,7 +204,7 @@
         <div class="synapse-cinematic-overlay"></div>
         <div class="synapse-cinematic-text-wrap">
           <p class="synapse-cinematic-p">
-            An underwriting intelligence engine built to decode unstructured schedules. CleanExcel translates free-form text, multi-year renovations, and complex roof assemblies into strict Touchstone UNICEDE® parameters. Every record becomes structured, compliant, and catastrophe model ready.
+            An underwriting intelligence engine built to decode unstructured schedules. CleanExcel Studio translates free-form text, multi-year renovations, and complex roof assemblies into strict Touchstone UNICEDE® parameters. Every record becomes structured, compliant, and catastrophe model ready.
           </p>
         </div>
       </section>
@@ -270,7 +276,7 @@
               <!-- Center Divider Flow -->
               <div class="showcase-divider">
                 <div class="flow-arrow-icon">➔</div>
-                <span class="flow-label">CLEANEXCEL</span>
+                <span class="flow-label">CLEANEXCEL STUDIO</span>
               </div>
 
               <!-- Right: Model-Ready Output -->
@@ -317,7 +323,7 @@
                 <span class="bento-rule-chip">3-Col Ingestion</span>
               </div>
             </div>
-            <button class="bento-cta-btn" type="button">
+            <button class="bento-cta-btn" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('occupancy');">
               <span>Launch Occupancy &amp; Construction</span>
               <span>&rarr;</span>
             </button>
@@ -338,7 +344,7 @@
                 <span class="bento-rule-chip">Rule 2: Weaker Material on Tie</span>
               </div>
             </div>
-            <button class="bento-cta-btn" type="button">
+            <button class="bento-cta-btn" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('roof');">
               <span>Launch Roof Detail</span>
               <span>&rarr;</span>
             </button>
@@ -360,7 +366,7 @@
                 <span class="bento-rule-chip">Row-1 Carry-Forward</span>
               </div>
             </div>
-            <button class="bento-cta-btn" type="button">
+            <button class="bento-cta-btn" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('roof_year');">
               <span>Launch Roof Year Validator</span>
               <span>&rarr;</span>
             </button>
@@ -381,8 +387,53 @@
                 <span class="bento-rule-chip">Negative ➔ Blank (-5)</span>
               </div>
             </div>
-            <button class="bento-cta-btn" type="button">
+            <button class="bento-cta-btn" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('stores');">
               <span>Launch No of Stores Engine</span>
+              <span>&rarr;</span>
+            </button>
+          </div>
+
+          <!-- Bento: Short Column (Span 6) -->
+          <div class="bento-card bento-span-6" data-target-section="short_column">
+            <div class="bento-card-top">
+              <div class="bento-card-header">
+                <div class="bento-icon">🏛️</div>
+                <span class="bento-badge">UNICEDE® Codes 0–2</span>
+              </div>
+              <h3 class="bento-heading">Short Column Classifier</h3>
+              <p class="bento-desc">Identifies short column conditions in old concrete structures restricted by spandrel beams or infill walls. Models: <code>CA EQ</code>, <code>HI EQ</code>, <code>JP EQ</code>, <code>US EQ</code> (Optional).</p>
+              
+              <div class="bento-rule-pills">
+                <span class="bento-rule-chip">0 Unknown/default</span>
+                <span class="bento-rule-chip">1 No (1)</span>
+                <span class="bento-rule-chip">2 Yes (2)</span>
+                <span class="bento-rule-chip">CA/HI/JP/US EQ</span>
+              </div>
+            </div>
+            <button class="bento-cta-btn" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('short_column');">
+              <span>Launch Short Column Classifier</span>
+              <span>&rarr;</span>
+            </button>
+          </div>
+
+          <!-- Bento: Foundation Connection (Span 6) -->
+          <div class="bento-card bento-span-6" data-target-section="foundation_connection">
+            <div class="bento-card-top">
+              <div class="bento-card-header">
+                <div class="bento-icon">🔗</div>
+                <span class="bento-badge">UNICEDE® 0–6</span>
+              </div>
+              <h3 class="bento-heading">Foundation Connection Classifier</h3>
+              <p class="bento-desc">Classifies building-to-foundation structural ties (Codes 0–6): Hurricane ties (1), Nails/Screws (2), Anchor Bolts (3), Gravity/Friction (4), Adhesive/Epoxy (5), Structurally Connected (6). Industrial anchorage: Unanchored (4), Anchored (6).</p>
+              
+              <div class="bento-rule-pills">
+                <span class="bento-rule-chip">Anchor Bolts (3)</span>
+                <span class="bento-rule-chip">Hurricane Ties (1)</span>
+                <span class="bento-rule-chip">Verisk Retrofit Bolting (4)</span>
+              </div>
+            </div>
+            <button class="bento-cta-btn" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('foundation_connection');">
+              <span>Launch Foundation Connection</span>
               <span>&rarr;</span>
             </button>
           </div>
@@ -403,7 +454,7 @@
                 <span class="bento-rule-chip">1-Click Excel Copy</span>
               </div>
             </div>
-            <button class="bento-cta-btn" type="button">
+            <button class="bento-cta-btn" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('street');">
               <span>Launch Street Sanitizer</span>
               <span>&rarr;</span>
             </button>
@@ -418,7 +469,7 @@
           <p class="cta-banner-desc">Paste thousands of raw Excel rows directly into the studio and receive standardized Touchstone results in milliseconds.</p>
         </div>
         <div class="cta-banner-actions">
-          <button id="bento-btn-launch" class="synapse-btn-primary" type="button">
+          <button id="bento-btn-launch" class="synapse-btn-primary" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio')">
             <span>Launch Clean Studio</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           </button>
@@ -458,7 +509,7 @@
                 The next evolution of commercial underwriting data preparation. Built for risk professionals who demand precision, velocity, and zero deterministic compromise.
               </p>
               <div class="footer-links" style="margin-top: 24px;">
-                <button class="footer-link" id="footer-link-studio" type="button">Clean Studio</button>
+                <button class="footer-link" id="footer-link-studio" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio')">Clean Studio</button>
                 <button class="footer-link" id="footer-link-finder" type="button">Taxonomy (⌘K)</button>
                 <button class="footer-link" id="footer-link-rules" type="button">Underwriting Rules</button>
                 <button class="footer-link" id="footer-link-ai" type="button">Gemini AI Settings</button>
@@ -511,7 +562,7 @@
             <span>AUTONOMOUS EXCEL CLEANING CONSOLE</span>
           </div>
           <h1 class="studio-main-heading">
-            <span class="heading-accent">Neural</span> <span>Studio</span>
+            <span class="heading-accent">CleanExcel</span> <span>Studio</span>
           </h1>
           <p class="studio-main-desc">
             Client-side Touchstone UNICEDE® engine. Zero data upload, deterministic classification, and 1-click Excel export.
@@ -555,7 +606,7 @@
             <div class="dropdown-menu-header">
               <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
               <span>Jump Directly to Any Section</span>
-              <span class="dropdown-menu-count">10 Engines</span>
+              <span class="dropdown-menu-count">16 Engines</span>
             </div>
 
             <div class="dropdown-menu-grid">
@@ -573,6 +624,22 @@
                       <span class="item-sub">WallType (0-9) &bull; WallSiding (0-8)</span>
                     </div>
                     <span class="item-badge">Dual</span>
+                  </button>
+                  <button class="dropdown-item" data-target="foundation_type" type="button">
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M2 18h20"></path><path d="M6 18V6"></path><path d="M10 18V6"></path><path d="M14 18V6"></path><path d="M18 18V6"></path><path d="M3 6h18l-9-4z"></path></svg></span>
+                    <div class="item-details">
+                      <span class="item-title">Foundation Type</span>
+                      <span class="item-sub">Codes 0-12 &bull; Basements, Slabs, Piles, Crawlspaces</span>
+                    </div>
+                    <span class="item-badge">UNICEDE®</span>
+                  </button>
+                  <button class="dropdown-item" data-target="foundation_connection" type="button">
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span>
+                    <div class="item-details">
+                      <span class="item-title">Foundation Connection</span>
+                      <span class="item-sub">Codes 0-6 &bull; Ties, Bolts, Gravity, Epoxy</span>
+                    </div>
+                    <span class="item-badge">UNICEDE®</span>
                   </button>
                   <button class="dropdown-item" data-target="roof" type="button">
                     <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></svg></span>
@@ -622,14 +689,54 @@
                     </div>
                     <span class="item-badge">Stories</span>
                   </button>
+                  <button class="dropdown-item" data-target="short_column" type="button">
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M4 2h16"></path><path d="M6 2v20"></path><path d="M18 2v20"></path><path d="M10 2v20"></path><path d="M14 2v20"></path></svg></span>
+                    <div class="item-details">
+                      <span class="item-title">Short Column</span>
+                      <span class="item-sub">Codes 0-2 &bull; CA/HI/JP/US EQ (Optional)</span>
+                    </div>
+                    <span class="item-badge">Touchstone</span>
+                  </button>
+                  <button class="dropdown-item" data-target="soft_story" type="button">
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line><line x1="15" y1="21" x2="15" y2="9"></line></svg></span>
+                    <div class="item-details">
+                      <span class="item-title">Soft Story</span>
+                      <span class="item-sub">Codes 0-2 &bull; CA/HI/JP/NZ/US EQ &bull; Stories &ge; 2</span>
+                    </div>
+                    <span class="item-badge">Touchstone</span>
+                  </button>
+                  <button class="dropdown-item" data-target="ornamentation" type="button">
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg></span>
+                    <div class="item-details">
+                      <span class="item-title">Ornamentation</span>
+                      <span class="item-sub">Codes 0-3 &bull; CA/HI/JP/US EQ &bull; Decorative Elements / Parapets</span>
+                    </div>
+                    <span class="item-badge">Touchstone</span>
+                  </button>
+                  <button class="dropdown-item" data-target="building_shape" type="button">
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon></svg></span>
+                    <div class="item-details">
+                      <span class="item-title">Building Shape</span>
+                      <span class="item-sub">Codes 0-8 &bull; CA/HI/JP/NZ/US EQ &bull; Footprint Geometry</span>
+                    </div>
+                    <span class="item-badge">Touchstone</span>
+                  </button>
+                  <button class="dropdown-item" data-target="building_condition" type="button">
+                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"></path><path d="M5 20V8l7-5 7 5v12"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></span>
+                    <div class="item-details">
+                      <span class="item-title">Building Condition</span>
+                      <span class="item-sub">Codes 0-3 &bull; CA/HI/JP/NZ/US EQ, US HU/ST &bull; Cladding &amp; Maintenance</span>
+                    </div>
+                    <span class="item-badge">Touchstone</span>
+                  </button>
                 </div>
               </div>
 
-              <!-- Address & Contact Group -->
+              <!-- Address Group -->
               <div class="dropdown-section-group">
                 <div class="dropdown-group-title">
                   <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  <span>Address &amp; Contact Records</span>
+                  <span>Address &amp; Location Records</span>
                 </div>
                 <div class="dropdown-group-items">
                   <button class="dropdown-item active" data-target="street" type="button">
@@ -648,27 +755,6 @@
                     </div>
                     <span class="item-badge">Universal</span>
                   </button>
-                  <button class="dropdown-item" data-target="name" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Full Name</span>
-                      <span class="item-sub">First, Middle, Last &bull; Title casing</span>
-                    </div>
-                  </button>
-                  <button class="dropdown-item" data-target="phone" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Phone Number</span>
-                      <span class="item-sub">E.164, National formatting</span>
-                    </div>
-                  </button>
-                  <button class="dropdown-item" data-target="email" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Email Address</span>
-                      <span class="item-sub">RFC 5322 syntax validation</span>
-                    </div>
-                  </button>
                 </div>
               </div>
             </div>
@@ -677,25 +763,20 @@
 
         <!-- Category Filter Pills -->
         <div class="section-category-filters" role="tablist" aria-label="Filter sections">
-          <button class="category-filter-pill active" data-filter="all" type="button" title="Show all 10 cleaner engines">
+          <button class="category-filter-pill active" data-filter="all" type="button" title="Show all 16 cleaner engines">
             <svg class="studio-filter-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
             <span>All</span>
-            <span class="filter-num">10</span>
+            <span class="filter-num">16</span>
           </button>
-          <button class="category-filter-pill" data-filter="underwriting" type="button" title="Touchstone UNICEDE Wall, Roof, Occupancy, Construction, Year">
+          <button class="category-filter-pill" data-filter="underwriting" type="button" title="Touchstone UNICEDE Wall, Foundation Type, Foundation Connection, Roof, Occupancy, Construction, Year, Short Column, Soft Story, Ornamentation, Building Shape, Building Condition, Stores">
             <svg class="studio-filter-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             <span>Underwriting</span>
-            <span class="filter-num">5</span>
+            <span class="filter-num">14</span>
           </button>
           <button class="category-filter-pill" data-filter="address" type="button" title="Street Address &amp; Universal Splitter">
             <svg class="studio-filter-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
             <span>Address</span>
             <span class="filter-num">2</span>
-          </button>
-          <button class="category-filter-pill" data-filter="contact" type="button" title="Name, Phone, Email">
-            <svg class="studio-filter-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-            <span>Contact</span>
-            <span class="filter-num">3</span>
           </button>
         </div>
 
@@ -761,22 +842,45 @@
           <span>Exterior Wall Finish</span>
           <span class="tab-badge">WallType • WallSiding</span>
         </button>
+        <button class="column-tab" data-column="foundation_type" data-category="underwriting" data-name="Foundation Type" id="tab-foundation-type">
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M2 18h20"></path><path d="M6 18V6"></path><path d="M10 18V6"></path><path d="M14 18V6"></path><path d="M18 18V6"></path><path d="M3 6h18l-9-4z"></path></svg>
+          <span>Foundation Type</span>
+          <span class="tab-badge">UNICEDE® Codes 0–12</span>
+        </button>
+        <button class="column-tab" data-column="foundation_connection" data-category="underwriting" data-name="Foundation Connection" id="tab-foundation-connection">
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+          <span>Foundation Connection</span>
+          <span class="tab-badge">UNICEDE® Codes 0–6</span>
+        </button>
         <button class="column-tab" data-column="stores" data-category="underwriting" data-name="No of Stores" id="tab-stores">
           <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M9 7h1"></path><path d="M9 11h1"></path><path d="M9 15h1"></path><path d="M14 7h1"></path><path d="M14 11h1"></path><path d="M14 15h1"></path></svg>
           <span>No of Stores</span>
           <span class="tab-badge">Positive Whole No</span>
         </button>
-        <button class="column-tab" data-column="name" data-category="contact" data-name="Full Name" id="tab-name">
-          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-          <span>Full Name</span>
+        <button class="column-tab" data-column="short_column" data-category="underwriting" data-name="Short Column" id="tab-short-column">
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M4 2h16"></path><path d="M6 2v20"></path><path d="M18 2v20"></path><path d="M10 2v20"></path><path d="M14 2v20"></path></svg>
+          <span>Short Column</span>
+          <span class="tab-badge">Codes 0–2</span>
         </button>
-        <button class="column-tab" data-column="phone" data-category="contact" data-name="Phone Number" id="tab-phone">
-          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-          <span>Phone Number</span>
+        <button class="column-tab" data-column="soft_story" data-category="underwriting" data-name="Soft Story" id="tab-soft-story">
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line><line x1="15" y1="21" x2="15" y2="9"></line></svg>
+          <span>Soft Story</span>
+          <span class="tab-badge">Codes 0–2</span>
         </button>
-        <button class="column-tab" data-column="email" data-category="contact" data-name="Email Address" id="tab-email">
-          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-          <span>Email Address</span>
+        <button class="column-tab" data-column="ornamentation" data-category="underwriting" data-name="Ornamentation" id="tab-ornamentation">
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>
+          <span>Ornamentation</span>
+          <span class="tab-badge">Codes 0–3</span>
+        </button>
+        <button class="column-tab" data-column="building_shape" data-category="underwriting" data-name="Building Shape" id="tab-building-shape">
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon></svg>
+          <span>Building Shape</span>
+          <span class="tab-badge">Codes 0–8</span>
+        </button>
+        <button class="column-tab" data-column="building_condition" data-category="underwriting" data-name="Building Condition" id="tab-building-condition">
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"></path><path d="M5 20V8l7-5 7 5v12"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg>
+          <span>Building Condition</span>
+          <span class="tab-badge">Codes 0–3</span>
         </button>
       </nav>
       </div>
@@ -1278,8 +1382,8 @@
         <div class="rules-title-area">
           <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></svg><span>Touchstone UNICEDE® Roof Detail Classifier</span></h2>
           <div class="protect-banner">
-            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> 4 Output Columns:</span>
-            <code>1. ROOF GEOMETRY | 2. ROOF PITCH | 3. ROOF COVERING | 4. ROOF DECK</code>
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> 7 Output Columns:</span>
+            <code>1. GEOMETRY | 2. PITCH | 3. COVERING | 4. DECK | 5. COV ATTACH | 6. DECK ATTACH | 7. ANCHORAGE</code>
           </div>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
@@ -1300,14 +1404,14 @@
             <span class="finder-tag-icon">🔍</span>
             <span class="finder-title-text">Roof UNICEDE® Code &amp; Material Finder</span>
           </div>
-          <div class="finder-hint">Search Covering (1-12), Deck (1-8), Geometry (1-10), or Pitch (1-3)</div>
+          <div class="finder-hint">Search 7 Fields: Covering (1-12), Deck (1-8), Geometry (1-10), Pitch (1-3), Cov Attach (1-4), Deck Attach (1-7), Anchor (1-7)</div>
           <button class="btn btn-xs btn-outline-cyan btn-open-universal-finder" data-tab="roof" type="button">
             📖 Browse All Roof Codes
           </button>
         </div>
         <div class="finder-search-input-wrap">
           <span class="finder-input-icon">⚡</span>
-          <input type="text" class="finder-search-input" id="roof-finder-input" placeholder="Search Roof Details: enter code (e.g. 7, 1, 2, 8) or description (e.g. EPDM, single-ply, shingle, tile, gable, flat, hip, metal deck, plywood)..." autocomplete="off" spellcheck="false">
+          <input type="text" class="finder-search-input" id="roof-finder-input" placeholder="Search Roof Details: enter code (e.g. 7, 1, 2, 8) or description (e.g. EPDM, single-ply, shingle, tile, gable, flat, hip, metal deck, plywood, hurricane ties, 8d nails)..." autocomplete="off" spellcheck="false">
           <button class="finder-clear-btn" id="roof-finder-clear" title="Clear search" style="display: none;">✕</button>
         </div>
         <div class="finder-quick-tags">
@@ -1317,11 +1421,12 @@
           <button type="button" class="finder-quick-tag" data-target="roof" data-query="9">Covering 9 Smooth BUR / Mod-Bit</button>
           <button type="button" class="finder-quick-tag" data-target="roof" data-query="8">Covering 8 Standing Seam Metal</button>
           <button type="button" class="finder-quick-tag" data-target="roof" data-query="3">Covering 3 Tile</button>
-          <button type="button" class="finder-quick-tag" data-target="roof" data-query="gable">Geometry 2 Gable (Unbraced)</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="gable">Geometry 2 Gable</button>
           <button type="button" class="finder-quick-tag" data-target="roof" data-query="flat">Geometry 1 Flat</button>
           <button type="button" class="finder-quick-tag" data-target="roof" data-query="hip">Geometry 3 Hip</button>
           <button type="button" class="finder-quick-tag" data-target="roof" data-query="plywood">Deck 1 Plywood</button>
           <button type="button" class="finder-quick-tag" data-target="roof" data-query="metal deck">Deck 4 Metal Deck w/ Insulation</button>
+          <button type="button" class="finder-quick-tag" data-target="roof" data-query="hurricane ties">Anchor 1 Hurricane Ties</button>
         </div>
         <!-- Live Results Drawer -->
         <div class="finder-results-drawer" id="roof-finder-results" style="display: none;"></div>
@@ -1330,14 +1435,17 @@
       <div class="rules-grid">
         <div class="rule-group">
           <div class="rule-label">
-            <span>UNICEDE® Classification Engine</span>
-            <span class="tab-badge">Multi-Component Parser</span>
+            <span>UNICEDE® Classification Engine (7 Fields)</span>
+            <span class="tab-badge">7-Component Parser</span>
           </div>
           <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
-            <div>• <strong>Geometry:</strong> Flat (1), Gable (2/8), Hip (3), Complex (4), Stepped (5), Shed (6), Mansard (7), Pyramid (9), Gambrel (10)</div>
-            <div>• <strong>Pitch:</strong> Low &lt;10° / &le;2:12 (1), Medium 10°–30° / 3:12–7:12 (2), High &gt;30° / &ge;8:12 (3)</div>
-            <div>• <strong>Covering:</strong> Asphalt Shingle (1), Wood Shake (2), Tile (3), Metal Panels (4), Slate (5), BUR (6/9), Single-ply EPDM/TPO (7/10), Solar (12)</div>
-            <div>• <strong>Deck:</strong> Plywood (1), Wood Planks (2), OSB (3), Metal Deck w/ Insulation (4), Concrete Deck (5/6/7), Light Metal (8)</div>
+            <div>• <strong>1. Geometry:</strong> Flat (1), Gable (2/8), Hip (3), Complex (4), Stepped (5), Shed (6), Mansard (7), Pyramid (9), Gambrel (10)</div>
+            <div>• <strong>2. Pitch:</strong> Low &lt;10° / &le;2:12 (1), Medium 10°–30° / 3:12–7:12 (2), High &gt;30° / &ge;8:12 (3)</div>
+            <div>• <strong>3. Covering:</strong> Asphalt Shingle (1), Wood Shake (2), Tile (3), Metal Panels (4), Slate (5), BUR (6/9), Single-ply (7/10), Solar (12)</div>
+            <div>• <strong>4. Deck:</strong> Plywood (1), Wood Planks (2), OSB (3), Metal Deck w/ Insulation (4), Concrete Deck (5/6/7), Light Metal (8)</div>
+            <div>• <strong>5. Cov Attach:</strong> Screws (1), Nails/Staples (2), Adhesive/Epoxy (3), Mortar (4)</div>
+            <div>• <strong>6. Deck Attach:</strong> Screws/Bolts (1), Nails (2), Adhesive (3), Structurally Connected (4), 6d @ 6/12 (5), 8d @ 6/12 (6), 8d @ 6/6 (7)</div>
+            <div>• <strong>7. Anchorage:</strong> Hurricane Ties (1), Nails/Screws (2), Anchor bolts (3), Gravity/friction (4), Adhesive epoxy (5), Structurally Connected (6), Clips (7)</div>
           </div>
         </div>
 
@@ -1378,10 +1486,10 @@
     <section class="rules-card" id="wall-rules-panel" style="display: none;">
       <div class="rules-header">
         <div class="rules-title-area">
-          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg><span>Touchstone UNICEDE® Exterior Wall Detail Classifier</span></h2>
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg><span>Touchstone UNICEDE® Location Wall Detail Fields Classifier</span></h2>
           <div class="protect-banner">
-            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> 2 Output Columns:</span>
-            <code>1. WallType (Backing / Structure) | 2. WallSiding (Weather Finish)</code>
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> 9 Output Fields (UNICEDE® Specs):</span>
+            <code>1. WallType | 2. WallSiding | 3. Glass Type | 4. Glass % | 5. Window Protection | 6. Exterior Doors | 7. Openings % | 8. Brick Veneer % | 9. Fire Rating</code>
           </div>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
@@ -1402,27 +1510,32 @@
             <span class="finder-tag-icon">🔍</span>
             <span class="finder-title-text">Exterior Wall Finish &amp; Structure Finder</span>
           </div>
-          <div class="finder-hint">Search WallSiding (1-8) or WallType (1-9) with vulnerability rankings &amp; rules</div>
+          <div class="finder-hint">Search all 9 Touchstone wall detail fields: Siding (0-8), WallType (0-9), Glass (0-5), Protection (0-3), Doors (0-6), Openings, Brick Veneer %, Fire Rating</div>
           <button class="btn btn-xs btn-outline-orange btn-open-universal-finder" data-tab="wall" type="button">
             📖 Browse All Wall Codes
           </button>
         </div>
         <div class="finder-search-input-wrap">
           <span class="finder-input-icon">⚡</span>
-          <input type="text" class="finder-search-input" id="wall-finder-input" placeholder="Search Exterior Wall: enter code (e.g. 4, 1, 5, 7) or description (e.g. vinyl siding, brick veneer, stone panels, stucco, EIFS, plywood, concrete)..." autocomplete="off" spellcheck="false">
+          <input type="text" class="finder-search-input" id="wall-finder-input" placeholder="Search Exterior Wall: enter code or description (e.g. brick veneer, vinyl siding, stone panels, stucco, EIFS, laminated glass, engineered shutters, reinforced double doors, Class A fire)..." autocomplete="off" spellcheck="false">
           <button class="finder-clear-btn" id="wall-finder-clear" title="Clear search" style="display: none;">✕</button>
         </div>
         <div class="finder-quick-tags">
-          <span class="finder-quick-label">Wall Siding &amp; Type:</span>
+          <span class="finder-quick-label">Wall Quick Codes:</span>
           <button type="button" class="finder-quick-tag" data-target="wall" data-query="4">Siding 4 Vinyl / Aluminum</button>
-          <button type="button" class="finder-quick-tag" data-target="wall" data-query="1">Siding 1 Brick / Masonry Veneer</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="1">Siding 1 Brick Veneer</button>
           <button type="button" class="finder-quick-tag" data-target="wall" data-query="5">Siding 5 Stone Panels</button>
           <button type="button" class="finder-quick-tag" data-target="wall" data-query="7">Siding 7 Stucco</button>
-          <button type="button" class="finder-quick-tag" data-target="wall" data-query="6">Siding 6 EIFS (Synthetic Stucco)</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="6">Siding 6 EIFS</button>
           <button type="button" class="finder-quick-tag" data-target="wall" data-query="8">Siding 8 Fiber Cement (Hardie)</button>
           <button type="button" class="finder-quick-tag" data-target="wall" data-query="plywood">Type 3 Plywood Sheathing</button>
           <button type="button" class="finder-quick-tag" data-target="wall" data-query="reinforced masonry">Type 2 Reinforced Masonry</button>
           <button type="button" class="finder-quick-tag" data-target="wall" data-query="cast-in-place concrete">Type 8 Cast-in-Place Concrete</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="laminated">Glass 4 Laminated</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="insulating glass units">Glass 5 IGU Double Pane</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="engineered shutters">Prot 3 Engineered Shutters</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="reinforced double width doors">Doors 4 Reinf Double Doors</button>
+          <button type="button" class="finder-quick-tag" data-target="wall" data-query="class a">Fire 1 Class A Fire Rated</button>
         </div>
         <!-- Live Results Drawer -->
         <div class="finder-results-drawer" id="wall-finder-results" style="display: none;"></div>
@@ -1431,12 +1544,19 @@
       <div class="rules-grid">
         <div class="rule-group">
           <div class="rule-label">
-            <span>UNICEDE® Wall Taxonomy</span>
-            <span class="tab-badge">Dual-Component Parser</span>
+            <span>UNICEDE® Location Wall Detail Taxonomy (9 Fields)</span>
+            <span class="tab-badge">9-Component Parser</span>
           </div>
-          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
-            <div>• <strong>WallType:</strong> Brick/URM (1), Reinforced Masonry/CMU (2), Plywood (3), Wood Planks (4), OSB (5), Metal Panels (6), Pre-cast Concrete (7), Cast-in-place Concrete (8), Gypsum Board (9)</div>
-            <div>• <strong>WallSiding:</strong> Veneer Brick/Masonry (1), Wood Shingles (2), Clapboards (3), Aluminum/Vinyl Siding (4), Stone Panels (5), EIFS/Synthetic Stucco (6), Stucco (7), Fiber Cement Board (8)</div>
+          <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.6;">
+            <div>• <strong>1. WallType (0–9):</strong> Brick/URM (1), Reinforced Masonry/CMU (2), Plywood (3), Wood Planks (4), OSB (5), Metal Panels (6), Precast Concrete (7), Cast-in-place Concrete (8), Gypsum Board (9)</div>
+            <div>• <strong>2. WallSiding (0–8):</strong> Veneer Brick/Masonry (1), Wood Shingles (2), Clapboards (3), Vinyl/Aluminum Siding (4), Stone Panels (5), EIFS (6), Stucco (7), Fiber Cement Board (8)</div>
+            <div>• <strong>3. Glass Type (0–5):</strong> Annealed (1), Tempered (2), Heat Strengthened (3), Laminated (4), Insulating Glass Units / IGU (5)</div>
+            <div>• <strong>4. Glass % (0–4):</strong> &lt; 5% (1), 5%–20% (2), 20%–60% (3), &gt; 60% / Curtain Wall (4)</div>
+            <div>• <strong>5. Window Prot (0–3):</strong> No Protection (1), Non-Engineered Shutters (2), Engineered Shutters (3)</div>
+            <div>• <strong>6. Ext Doors (0–6):</strong> Single Width (1), Double Width (2), Reinforced Single (3), Reinforced Double (4), Sliding (5), Reinforced Sliding (6)</div>
+            <div>• <strong>7. Openings % (0–2):</strong> &lt; 50% Wall Open / Default (1), &gt; 50% Wall Open (2)</div>
+            <div>• <strong>8. Brick Veneer % (0–3):</strong> 50%–90% / Default (0), &gt; 90% (1), 25%–50% (2), 0%–25% (3)</div>
+            <div>• <strong>9. Fire Rating (0–3):</strong> Unknown/No Rating (0), Fire Rated Class A (1), Class B (2), Class C (3)</div>
           </div>
         </div>
 
@@ -1449,6 +1569,7 @@
             <div>&bull; <strong style="color: #60a5fa;">Rule 1 (With %):</strong> If percentages are specified, pick the <strong>higher %</strong> (e.g. <code>70% Brick Veneer, 30% Vinyl</code> &rarr; Brick Veneer <code>1</code>).</div>
             <div>&bull; <strong style="color: #fbbf24;">Rule 2 (No %):</strong> If no percentages, pick the <strong>weaker material</strong> (e.g. <code>Brick Veneer &amp; Vinyl Siding</code> &rarr; Vinyl Siding <code>4</code>; <code>Plywood &amp; Concrete</code> &rarr; Plywood <code>3</code>).</div>
             <div>&bull; <strong style="color: var(--accent-emerald-light);">Rule 3 (50% / 50% Tie):</strong> If both are equal percentage, pick the <strong>weaker material</strong> (e.g. <code>50% Brick Veneer / 50% Vinyl Siding</code> &rarr; Vinyl Siding <code>4</code>).</div>
+            <div>&bull; <strong style="color: #f59e0b;">Peril Applicability:</strong> Supported across CA EQ, HI EQ/TC, JP EQ, NZ EQ, US EQ/HU/ST/WF, and AU WF models.</div>
           </div>
         </div>
 
@@ -1459,15 +1580,177 @@
           <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
             <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
               <input type="radio" name="wall-format-radio" value="code_only" checked>
-              <span>Code Only (e.g. <code>1	4</code>)</span>
+              <span>Codes (Tab-Delimited for Excel columns)</span>
             </label>
             <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
               <input type="radio" name="wall-format-radio" value="name_code">
-              <span>Standard Name &amp; Code (e.g. <code>Brick (1)	Vinyl Siding (4)</code>)</span>
+              <span>Standard Name &amp; Code (e.g. <code>Plywood (3)	Brick (1)</code>)</span>
             </label>
             <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
               <input type="radio" name="wall-format-radio" value="name_only">
-              <span>Description Only (e.g. <code>Brick/unreinforced masonry	Aluminum/vinyl siding</code>)</span>
+              <span>Description Only (e.g. <code>Plywood	Veneer brick/masonry</code>)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Foundation Type Rule Configuration Ribbon -->
+    <section class="rules-card" id="foundation-type-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M2 18h20"></path><path d="M6 18V6"></path><path d="M10 18V6"></path><path d="M14 18V6"></path><path d="M18 18V6"></path><path d="M3 6h18l-9-4z"></path></svg><span>Touchstone UNICEDE® Foundation Type Classifier</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Touchstone UNICEDE® Codes 0–12:</span>
+            <code>0 Unk • 1 Masonry Basement • 2 Concrete Basement • 3 Masonry Wall • 4 Cripple Wall (Wood) • 5 Crawlspace Masonry • 6 Post &amp; Pier • 7 Footing • 8 Mat/Slab • 9 Pile • 10 No Basement • 11 Engineering • 12 Raised Crawlspace</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btn-foundation-type-ai" class="btn btn-ai btn-sm" type="button" title="Use Gemini AI to classify complex or ambiguous foundation type descriptions">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Foundation Type Classifier</span>
+          </button>
+          <a href="https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-foundation-detail-fields.html?hl=foundation" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View official Touchstone Foundation Type documentation">
+            <span>📖 Touchstone Docs ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Search Code Finder Ribbon Bar -->
+      <div class="code-finder-ribbon-bar" id="foundation-type-finder-bar">
+        <div class="finder-input-wrapper">
+          <span class="finder-search-icon">🔍</span>
+          <button class="btn btn-xs btn-outline-orange btn-open-universal-finder" data-tab="foundation_type" type="button">
+            🏛️ Code Finder ↗
+          </button>
+          <input type="text" class="finder-search-input" id="foundation-type-finder-input" placeholder="Search Foundation Type: enter code (0-12) or description (e.g. mat slab, pile, concrete basement, cripple wall, footing, no basement)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="foundation-type-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <button type="button" class="finder-quick-tag" data-target="foundation_type" data-query="8">Code 8 Mat / Slab</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_type" data-query="9">Code 9 Pile (High-Rise)</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_type" data-query="2">Code 2 Concrete Basement</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_type" data-query="1">Code 1 Masonry Basement</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_type" data-query="4">Code 4 Cripple Wall (Wood)</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_type" data-query="10">Code 10 No Basement</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_type" data-query="6">Code 6 Post &amp; Pier</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_type" data-query="7">Code 7 Footing</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_type" data-query="12">Code 12 Raised Crawlspace</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_type" data-query="11">Code 11 Engineering</button>
+        </div>
+        <div class="finder-results-drawer" id="foundation-type-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Perils &amp; Special Underwriting Rules</span>
+            <span class="tab-badge">Touchstone UNICEDE®</span>
+          </div>
+          <div style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            <div>&bull; <strong style="color: #60a5fa;">Building Height Typologies:</strong> Mid-rise buildings are typically on <strong>Mat / Slab (8)</strong>. High-rise buildings are on <strong>Pile foundations (9)</strong> (superior EQ performance).</div>
+            <div>&bull; <strong style="color: #fbbf24;">UK &amp; CE Inland Flood:</strong> Only <code>0 (Unk)</code>, <code>1 (Masonry Basement)</code>, <code>2 (Concrete Basement)</code>, and <code>10 (No Basement)</code> are applicable.</div>
+            <div>&bull; <strong style="color: #f87171;">Verisk US EQ Retrofit:</strong> <code>No basement (10)</code> is not applicable. Must select <code>Crawlspace cripple wall (4)</code> for <strong>Bracing of cripple walls (1)</strong>.</div>
+            <div>&bull; <strong style="color: var(--accent-emerald-light);">Perils Supported:</strong> CA EQ, CE IF, EU ETC, HI EQ, IT IF, JP IF, JP EQ, JP TY, NZ EQ, SK TY, UK/ROI IF, US EQ, US HU, US IF.</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Export &amp; Copy Format</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="foundation-type-format-radio" value="code_only" checked>
+              <span>Code Only (e.g. <code>8</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="foundation-type-format-radio" value="name_code">
+              <span>Standard Name &amp; Code (e.g. <code>Mat / slab (8)</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="foundation-type-format-radio" value="name_only">
+              <span>Description Only (e.g. <code>Mat / slab</code>)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Foundation Connection Rule Configuration Ribbon -->
+    <section class="rules-card" id="foundation-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg><span>Touchstone UNICEDE® Foundation Connection Classifier</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Touchstone UNICEDE® Codes 0–6:</span>
+            <code>0 Unknown • 1 Hurricane ties • 2 Nails/Screws • 3 Anchor Bolts • 4 Gravity/Friction (Industrial: Unanchored) • 5 Adhesive/Epoxy • 6 Structurally Connected (Industrial: Anchored)</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btn-foundation-ai" class="btn btn-ai btn-sm" type="button" title="Use Gemini AI to classify complex or ambiguous foundation connection descriptions">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Foundation Classifier (Gemini)</span>
+          </button>
+          <a href="https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-foundation-detail-fields.html?hl=foundation" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View official Touchstone Foundation Connection fields documentation">
+            <span>📖 Touchstone Docs ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Search Code Finder Ribbon Bar -->
+      <div class="code-finder-ribbon-bar" id="foundation-finder-bar">
+        <div class="finder-input-wrapper">
+          <span class="finder-search-icon">🔍</span>
+          <button class="btn btn-xs btn-outline-orange btn-open-universal-finder" data-tab="foundation_connection" type="button">
+            🔗 Code Finder ↗
+          </button>
+          <input type="text" class="finder-search-input" id="foundation-finder-input" placeholder="Search Foundation Connection: enter code (e.g. 1, 2, 3, 4, 5, 6) or description (e.g. anchor bolts, hurricane ties, nails, gravity, epoxy, structurally connected, unanchored, anchored)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="foundation-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <button type="button" class="finder-quick-tag" data-target="foundation_connection" data-query="3">Code 3 Anchor Bolts</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_connection" data-query="1">Code 1 Hurricane Ties</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_connection" data-query="4">Code 4 Gravity / Friction</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_connection" data-query="2">Code 2 Nails / Screws</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_connection" data-query="5">Code 5 Adhesive / Epoxy</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_connection" data-query="6">Code 6 Structurally Connected</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_connection" data-query="unanchored">Unanchored (4)</button>
+          <button type="button" class="finder-quick-tag" data-target="foundation_connection" data-query="anchored">Anchored (6)</button>
+        </div>
+        <div class="finder-results-drawer" id="foundation-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Perils &amp; Industrial Facilities Anchorage Rules</span>
+            <span class="tab-badge">Verisk Model &amp; EQ</span>
+          </div>
+          <div style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            <div>&bull; <strong style="color: #60a5fa;">Verisk US Earthquake Retrofit:</strong> Must specify <code>Gravity/Friction (4)</code> if you want to use the Retrofit Measures option <strong>Foundation anchorage (bolting) (4)</strong>.</div>
+            <div>&bull; <strong style="color: #fbbf24;">Industrial Facilities Equipment Anchorage:</strong> <code>Unanchored ➔ 4</code> (Gravity/Friction) • <code>Anchored ➔ 6</code> (Structurally Connected).</div>
+            <div>&bull; <strong style="color: var(--accent-emerald-light);">Peril Applicability:</strong> CA EQ, HI EQ, HI TC, JP EQ, NZ EQ, US EQ, US HU, US ST (v10.0 straight-line winds &amp; tornadoes).</div>
+            <div>&bull; <strong style="color: #c084fc;">Underwriting Importance:</strong> Critical in wood-frame and tilt-up structures during wind and seismic events. Loss of anchorage between building and foundation is a leading failure mode in California earthquakes.</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Export &amp; Copy Format</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="foundation-format-radio" value="code_only" checked>
+              <span>Code Only (e.g. <code>3</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="foundation-format-radio" value="name_code">
+              <span>Standard Name &amp; Code (e.g. <code>Anchor Bolts (3)</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="foundation-format-radio" value="name_only">
+              <span>Description Only (e.g. <code>Anchor Bolts</code>)</span>
             </label>
           </div>
         </div>
@@ -1542,6 +1825,420 @@
             <label class="checkbox-toggle">
               <input type="checkbox" id="stores-remove-empty-checkbox">
               <span>Filter out blank rows from results</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Short Column Rule Configuration Ribbon -->
+    <section class="rules-card" id="short-column-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M4 2h16"></path><path d="M6 2v20"></path><path d="M18 2v20"></path><path d="M10 2v20"></path><path d="M14 2v20"></path></svg><span>Touchstone UNICEDE® Short Column Classifier</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Touchstone UNICEDE® Codes 0–2:</span>
+            <code>0 Unknown/default • 1 No • 2 Yes • Status: Optional</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btn-short-column-ai" class="btn btn-ai btn-sm" type="button" title="Use Gemini AI to analyze complex or ambiguous short column descriptions">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Short Column (Gemini)</span>
+          </button>
+          <a href="https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-user-defined-fields.html?hl=short+column" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View official Touchstone Short Column documentation">
+            <span>📖 Touchstone Docs ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Search Code Finder Ribbon Bar -->
+      <div class="code-finder-ribbon-bar" id="short-column-finder-bar">
+        <div class="finder-input-wrapper">
+          <span class="finder-search-icon">🔍</span>
+          <button class="btn btn-xs btn-outline-orange btn-open-universal-finder" data-tab="short_column" type="button">
+            🏛️ Code Finder ↗
+          </button>
+          <input type="text" class="finder-search-input" id="short-column-finder-input" placeholder="Search Short Column: enter code (0, 1, 2) or description (e.g. yes, no, spandrel beams, infill walls, perimeter columns)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="short-column-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <button type="button" class="finder-quick-tag" data-target="short_column" data-query="2">Code 2: Yes (Short Columns Present)</button>
+          <button type="button" class="finder-quick-tag" data-target="short_column" data-query="1">Code 1: No (No Short Columns)</button>
+          <button type="button" class="finder-quick-tag" data-target="short_column" data-query="0">Code 0: Unknown / Default</button>
+        </div>
+        <div class="finder-results-drawer" id="short-column-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Applicable Peril Models &amp; Status</span>
+            <span class="tab-badge">Optional</span>
+          </div>
+          <div style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            <div style="margin-bottom: 6px; display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">CA EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">HI EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">JP EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">US EQ</span>
+            </div>
+            <div>&bull; <strong style="color: #60a5fa;">Technical Specification:</strong> This field applies to old concrete structures in which the fill height of some column has been restricted by spandrel beams or infill walls. If some of the columns along the perimeter are shorter than the adjacent columns, there is high chance that the shorter columns can no longer bear the loads for which they were originally designed.</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Export &amp; Display Format</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="short-column-format-radio" value="code_only" checked>
+              <span>Code Only (e.g. <code>2</code>, <code>1</code>, <code>0</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="short-column-format-radio" value="name_code">
+              <span>Name &amp; Code (e.g. <code>Yes (2)</code>, <code>No (1)</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="short-column-format-radio" value="name_only">
+              <span>Name Only (e.g. <code>Yes</code>, <code>No</code>, <code>Unknown/default</code>)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Soft Story Rule Configuration Ribbon -->
+    <section class="rules-card" id="soft-story-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line><line x1="15" y1="21" x2="15" y2="9"></line></svg><span>Touchstone UNICEDE® Soft Story Classifier</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Touchstone UNICEDE® Codes 0–2:</span>
+            <code>0 Unknown/default • 1 No • 2 Yes • Status: Optional • Applicable Stories &ge; 2</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btn-soft-story-ai" class="btn btn-ai btn-sm" type="button" title="Use Gemini AI to analyze complex or ambiguous soft story descriptions">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Soft Story (Gemini)</span>
+          </button>
+          <a href="https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-user-defined-fields.html?hl=soft+story" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View official Touchstone Soft Story documentation">
+            <span>📖 Touchstone Docs ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Search Code Finder Ribbon Bar -->
+      <div class="code-finder-ribbon-bar" id="soft-story-finder-bar">
+        <div class="finder-input-wrapper">
+          <span class="finder-search-icon">🔍</span>
+          <button class="btn btn-xs btn-outline-orange btn-open-universal-finder" data-tab="soft_story" type="button">
+            🏛️ Code Finder ↗
+          </button>
+          <input type="text" class="finder-search-input" id="soft-story-finder-input" placeholder="Search Soft Story: enter code (0, 1, 2) or description (e.g. yes, no, first-floor garage, tuck-under parking, taller first floor, lateral weakness)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="soft-story-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <button type="button" class="finder-quick-tag" data-target="soft_story" data-query="2">Code 2: Yes (Soft Story Present)</button>
+          <button type="button" class="finder-quick-tag" data-target="soft_story" data-query="1">Code 1: No (No Soft Story)</button>
+          <button type="button" class="finder-quick-tag" data-target="soft_story" data-query="0">Code 0: Unknown / Default</button>
+          <button type="button" class="finder-quick-tag" data-target="soft_story" data-query="first floor garage">First-Floor Garage (2)</button>
+          <button type="button" class="finder-quick-tag" data-target="soft_story" data-query="tuck-under parking">Tuck-Under Parking (2)</button>
+        </div>
+        <div class="finder-results-drawer" id="soft-story-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Applicable Peril Models &amp; Technical Rules</span>
+            <span class="tab-badge">Stories &ge; 2</span>
+          </div>
+          <div style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            <div style="margin-bottom: 6px; display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">CA EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">HI EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">JP EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">NZ EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">US EQ</span>
+            </div>
+            <div>&bull; <strong style="color: #60a5fa;">Underwriting Specification:</strong> One of the following values to indicate whether there is structural weakness at any floor in the building at this location: <code>0 (Unknown/default)</code>, <code>1 (No)</code>, <code>2 (Yes)</code>.</div>
+            <div>&bull; <strong style="color: #fbbf24;">Applicability Rule:</strong> This field is applicable only if the number of stories is 2 or greater (<code>Stories &ge; 2</code>).</div>
+            <div>&bull; <strong style="color: var(--accent-emerald-light);">Soft-Story Behavior:</strong> First-floor garages and taller first floors are likely to exhibit soft-story behavior. Weakness is usually in the lateral load-resisting capacity of the floor and can result in total (pancaking) collapse of the floor.</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Export &amp; Display Format</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="soft-story-format-radio" value="code_only" checked>
+              <span>Code Only (e.g. <code>2</code>, <code>1</code>, <code>0</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="soft-story-format-radio" value="name_code">
+              <span>Name &amp; Code (e.g. <code>Yes (2)</code>, <code>No (1)</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="soft-story-format-radio" value="name_only">
+              <span>Name Only (e.g. <code>Yes</code>, <code>No</code>, <code>Unknown/default</code>)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ornamentation Rule Configuration Ribbon -->
+    <section class="rules-card" id="ornamentation-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg><span>Touchstone UNICEDE® Ornamentation Classifier</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Touchstone UNICEDE® Codes 0–3:</span>
+            <code>0 Unknown/default • 1 None • 2 Average • 3 Extensive</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btn-ornamentation-ai" class="btn btn-ai btn-sm" type="button" title="Use Gemini AI to classify complex facade ornamentation, parapet walls, or decorative elements">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Ornamentation (Gemini)</span>
+          </button>
+          <a href="https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-user-defined-fields.html?hl=ornamentation" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View official Touchstone Ornamentation documentation">
+            <span>📖 Touchstone Docs ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Search Code Finder Ribbon Bar -->
+      <div class="code-finder-ribbon-bar" id="ornamentation-finder-bar">
+        <div class="finder-input-wrapper">
+          <span class="finder-search-icon">🔍</span>
+          <button class="btn btn-xs btn-outline-orange btn-open-universal-finder" data-tab="ornamentation" type="button">
+            🏛️ Code Finder ↗
+          </button>
+          <input type="text" class="finder-search-input" id="ornamentation-finder-input" placeholder="Search Ornamentation: enter code (0-3) or keyword (e.g. none, average, extensive, parapet walls, entryway roofs, decorative facade)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="ornamentation-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <button type="button" class="finder-quick-tag" data-target="ornamentation" data-query="1">Code 1: None</button>
+          <button type="button" class="finder-quick-tag" data-target="ornamentation" data-query="2">Code 2: Average</button>
+          <button type="button" class="finder-quick-tag" data-target="ornamentation" data-query="3">Code 3: Extensive</button>
+          <button type="button" class="finder-quick-tag" data-target="ornamentation" data-query="0">Code 0: Unknown</button>
+        </div>
+        <div class="finder-results-drawer" id="ornamentation-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Applicable Peril Models &amp; Technical Rules</span>
+            <span class="tab-badge">Seismic Vulnerability</span>
+          </div>
+          <div style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            <div style="margin-bottom: 6px; display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">CA EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">HI EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">JP EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">US EQ</span>
+            </div>
+            <div>&bull; <strong style="color: #60a5fa;">Underwriting Specification:</strong> One of the following values to describe the amount of decorative elements attached to exterior of the building at this location: <code>0 (Unknown/default)</code>, <code>1 (None)</code>, <code>2 (Average)</code>, <code>3 (Extensive)</code>.</div>
+            <div>&bull; <strong style="color: #fbbf24;">Status:</strong> Optional. Defaults to <code>0 (Unknown/default)</code> in Touchstone user interface.</div>
+            <div>&bull; <strong style="color: var(--accent-emerald-light);">Seismic Hazard:</strong> Decorative elements may fall during an earthquake. Examples include unreinforced or unbraced parapet walls or entryway roofs, which can break off during excessive shaking.</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Export &amp; Display Format</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="ornamentation-format-radio" value="code_only" checked>
+              <span>Code Only (e.g. <code>3</code>, <code>2</code>, <code>1</code>, <code>0</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="ornamentation-format-radio" value="name_code">
+              <span>Name &amp; Code (e.g. <code>Extensive (3)</code>, <code>Average (2)</code>, <code>None (1)</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="ornamentation-format-radio" value="name_only">
+              <span>Name Only (e.g. <code>Extensive</code>, <code>Average</code>, <code>None</code>)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Building Shape Rule Configuration Ribbon -->
+    <section class="rules-card" id="building-shape-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon></svg><span>Touchstone UNICEDE® Building Shape Classifier</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Touchstone UNICEDE® Codes 0–8:</span>
+            <code>0 Unknown • 1 Square • 2 Rectangle • 3 Circular • 4 L • 5 T • 6 U • 7 H • 8 Complex</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btn-building-shape-ai" class="btn btn-ai btn-sm" type="button" title="Use Gemini AI to classify complex or ambiguous building footprint shapes">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Building Shape (Gemini)</span>
+          </button>
+          <a href="https://unicede.air-worldwide.com/ts-tsre_all/help_ts_exposure-data_loc-user-defined-fields.html?hl=building+shape" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" title="View official Touchstone Building Shape documentation">
+            <span>📖 Touchstone Docs ↗</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Search Code Finder Ribbon Bar -->
+      <div class="code-finder-ribbon-bar" id="building-shape-finder-bar">
+        <div class="finder-input-wrapper">
+          <span class="finder-search-icon">🔍</span>
+          <button class="btn btn-xs btn-outline-orange btn-open-universal-finder" data-tab="building_shape" type="button">
+            🏛️ Code Finder ↗
+          </button>
+          <input type="text" class="finder-search-input" id="building-shape-finder-input" placeholder="Search Building Shape: enter code (0-8) or geometry (e.g. square, rectangle, circular, l-shaped, t-shaped, u-shaped, h-shaped, complex, irregular)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="building-shape-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <button type="button" class="finder-quick-tag" data-target="building_shape" data-query="1">Code 1: Square</button>
+          <button type="button" class="finder-quick-tag" data-target="building_shape" data-query="2">Code 2: Rectangle</button>
+          <button type="button" class="finder-quick-tag" data-target="building_shape" data-query="3">Code 3: Circular</button>
+          <button type="button" class="finder-quick-tag" data-target="building_shape" data-query="4">Code 4: L-shaped</button>
+          <button type="button" class="finder-quick-tag" data-target="building_shape" data-query="5">Code 5: T-shaped</button>
+          <button type="button" class="finder-quick-tag" data-target="building_shape" data-query="6">Code 6: U-shaped</button>
+          <button type="button" class="finder-quick-tag" data-target="building_shape" data-query="7">Code 7: H-shaped</button>
+          <button type="button" class="finder-quick-tag" data-target="building_shape" data-query="8">Code 8: Complex</button>
+          <button type="button" class="finder-quick-tag" data-target="building_shape" data-query="0">Code 0: Unknown</button>
+        </div>
+        <div class="finder-results-drawer" id="building-shape-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Applicable Peril Models &amp; Technical Rules</span>
+            <span class="tab-badge">Footprint Geometry</span>
+          </div>
+          <div style="font-size: 11px; line-height: 1.6; color: var(--text-secondary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            <div style="margin-bottom: 6px; display: flex; gap: 6px; flex-wrap: wrap;">
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">CA EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">HI EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">JP EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">NZ EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">US EQ</span>
+            </div>
+            <div>&bull; <strong style="color: #60a5fa;">Underwriting Specification:</strong> One of the values to describe the overall shape of the footprint of the building at this location: <code>0 (Unknown/default)</code>, <code>1 (Square)</code>, <code>2 (Rectangle)</code>, <code>3 (Circular)</code>, <code>4 (L-shaped)</code>, <code>5 (T-shaped)</code>, <code>6 (U-shaped)</code>, <code>7 (H-shaped)</code>, <code>8 (Complex)</code>.</div>
+            <div>&bull; <strong style="color: #fbbf24;">Status:</strong> Optional. Defaults to <code>0 (Unknown/default)</code> in Touchstone interface.</div>
+            <div>&bull; <strong style="color: var(--accent-emerald-light);">Structural Performance:</strong> Shape is critical for the performance of a structure, especially for large commercial buildings. In general, simple regular forms (like squares and rectangles) perform better than combinations of those, such as L- and T-shaped buildings. The sharp corners in these complex shapes are vulnerable.</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Export &amp; Display Format</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="building-shape-format-radio" value="code_only" checked>
+              <span>Code Only (e.g. <code>1</code>, <code>2</code>, <code>4</code>, <code>8</code>, <code>0</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="building-shape-format-radio" value="name_code">
+              <span>Name &amp; Code (e.g. <code>Square (1)</code>, <code>L-shaped (4)</code>, <code>Complex (8)</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="building-shape-format-radio" value="name_only">
+              <span>Name Only (e.g. <code>Square</code>, <code>Rectangle</code>, <code>L-shaped</code>)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Active Column Rule Configuration Ribbon: Building Condition -->
+    <section class="rules-card" id="building-condition-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"></path><path d="M5 20V8l7-5 7 5v12"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg><span>Touchstone UNICEDE® Building Condition Classifier (Codes 0–3)</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Perils:</span>
+            <code>CA EQ</code> <code>HI EQ</code> <code>HI TC</code> <code>JP EQ</code> <code>NZ EQ</code> <code>US EQ</code> <code>US HU</code> <code>US ST</code>
+          </div>
+        </div>
+        <div>
+          <button id="btn-building-condition-ai" class="btn btn-ai btn-sm" type="button" title="Use Gemini AI to classify complex or ambiguous building condition &amp; maintenance descriptions">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Classify Condition (Gemini 2.5)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Finder Ribbon for Building Condition -->
+      <div class="code-finder-ribbon-bar" id="building-condition-finder-bar">
+        <div class="finder-ribbon-title">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span>Building Condition Explorer:</span>
+          <button class="btn btn-xs btn-outline-orange btn-open-universal-finder" data-tab="building_condition" type="button">All 4 Codes (0–3) ↗</button>
+        </div>
+        <div class="finder-search-field-wrap">
+          <input type="text" class="finder-search-input" id="building-condition-finder-input" placeholder="Search Building Condition: enter code (0-3) or condition (e.g. average, good, poor, distressed, well-maintained, cracking, loose tiles)..." autocomplete="off" spellcheck="false">
+          <button class="finder-clear-btn" id="building-condition-finder-clear" title="Clear search" style="display: none;">✕</button>
+        </div>
+        <div class="finder-quick-tags">
+          <span class="finder-quick-label">Touchstone Codes:</span>
+          <button type="button" class="finder-quick-tag" data-target="building_condition" data-query="1">Code 1: Average</button>
+          <button type="button" class="finder-quick-tag" data-target="building_condition" data-query="2">Code 2: Good</button>
+          <button type="button" class="finder-quick-tag" data-target="building_condition" data-query="3">Code 3: Poor</button>
+          <button type="button" class="finder-quick-tag" data-target="building_condition" data-query="0">Code 0: Unknown</button>
+        </div>
+        <div class="finder-results-drawer" id="building-condition-finder-results" style="display: none;"></div>
+      </div>
+
+      <div class="rules-body">
+        <div class="rule-group" style="grid-column: 1 / -1;">
+          <div class="rule-label">
+            <span>Touchstone / UNICEDE® Building Condition Logic &amp; Peril Specifications</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); line-height: 1.6; display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+              <strong style="color: var(--text-bright);">Applicable Models:</strong>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">CA EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">HI EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">HI TC</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">JP EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">NZ EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">US EQ</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">US HU</span>
+              <span style="background: rgba(59,130,246,0.2); color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">US ST (Straight-Line Winds, Tornadoes)</span>
+            </div>
+            <div>&bull; <strong style="color: #60a5fa;">Underwriting Specification:</strong> One of the general qualitative descriptions of the condition of the building at this location, based on visual inspection of the building cladding and maintenance: <code>0 (Unknown)</code>, <code>1 (Average)</code>, <code>2 (Good)</code>, <code>3 (Poor)</code>.</div>
+            <div>&bull; <strong style="color: #fbbf24;">Status &amp; Defaults:</strong> Optional. Defaults to a value in the Touchstone user interface (generally <code>0 (Unknown)</code>, but default is <code>Average (1)</code> for earthquake models).</div>
+            <div>&bull; <strong style="color: var(--accent-emerald-light);">Earthquakes Performance:</strong> Buildings with signs of distress or duress, such as cracking due to aging and ground settlement or overloading or cracking due to damage from previous earthquakes, are likely to experience additional damage during an earthquake.</div>
+            <div>&bull; <strong style="color: #38bdf8;">Hurricanes &amp; Severe Thunderstorms:</strong> Buildings with signs of distress or duress are likely to experience additional damage during a tropical cyclone or high winds. Some examples of these signs are an aging roof, exterior walls, or cladding; loose roof tiles or chimney damage; or damage from previous tropical cyclones.</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Export &amp; Display Format</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="building-condition-format-radio" value="code_only" checked>
+              <span>Code Only (e.g. <code>1</code>, <code>2</code>, <code>3</code>, <code>0</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="building-condition-format-radio" value="name_code">
+              <span>Name &amp; Code (e.g. <code>Average (1)</code>, <code>Good (2)</code>, <code>Poor (3)</code>)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+              <input type="radio" name="building-condition-format-radio" value="name_only">
+              <span>Name Only (e.g. <code>Average</code>, <code>Good</code>, <code>Poor</code>)</span>
             </label>
           </div>
         </div>
@@ -1967,18 +2664,22 @@
           </div>
         </div>
         <div class="form-group">
-          <label for="gemini-api-key-input">Enter / Update AI API Key (Any Model)</label>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label for="gemini-api-key-input" style="margin-bottom: 0;">Enter / Update AI API Key (Any Model)</label>
+            <span class="badge-persistent" style="font-size: 10.5px; font-family: var(--font-mono); color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; padding: 2px 7px;">💾 Persistent Storage</span>
+          </div>
           <div class="key-input-wrapper">
             <input 
               type="password" 
               id="gemini-api-key-input" 
               class="tag-input" 
               placeholder="Paste any API key (Gemini AIza/AQ, OpenAI sk-..., Claude sk-ant-..., Groq gsk_..., DeepSeek)..." 
-              autocomplete="new-password"
+              autocomplete="off"
               style="width: 100%; font-family: var(--font-mono); font-size: 12px;" />
+            <button id="btn-toggle-key-visibility" class="btn btn-secondary btn-sm" type="button" title="Show / Hide API Key" style="min-width: 38px; display: inline-flex; align-items: center; justify-content: center;">👁️</button>
             <button id="btn-clear-custom-key" class="btn btn-secondary btn-sm" type="button" title="Clear saved key and remove from browser">Remove</button>
           </div>
-          <span class="form-help">Your secret key is stored locally in your browser and is never sent to any third party.</span>
+          <span class="form-help">Your secret key is stored permanently in your browser (retained across browser restarts &amp; tab closures) and is sent directly to the AI provider.</span>
         </div>
         <div class="form-group">
           <label for="gemini-model-select">Active Model &amp; Engine</label>
@@ -2056,6 +2757,14 @@
           <button type="button" class="explorer-tab" data-tab="construction"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg><span>Construction Codes</span></button>
           <button type="button" class="explorer-tab" data-tab="roof"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></svg><span>Roof Details</span></button>
           <button type="button" class="explorer-tab" data-tab="wall"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg><span>Exterior Wall</span></button>
+          <button type="button" class="explorer-tab" data-tab="foundation_type"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M2 18h20"></path><path d="M6 18V6"></path><path d="M10 18V6"></path><path d="M14 18V6"></path><path d="M18 18V6"></path><path d="M3 6h18l-9-4z"></path></svg><span>Foundation Type</span></button>
+          <button type="button" class="explorer-tab" data-tab="foundation_connection"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg><span>Foundation Connection</span></button>
+          <button type="button" class="explorer-tab" data-tab="short_column"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M4 2h16"></path><path d="M6 2v20"></path><path d="M18 2v20"></path><path d="M10 2v20"></path><path d="M14 2v20"></path></svg><span>Short Column</span></button>
+          <button type="button" class="explorer-tab" data-tab="soft_story"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line><line x1="15" y1="21" x2="15" y2="9"></line></svg><span>Soft Story</span></button>
+          <button type="button" class="explorer-tab" data-tab="ornamentation"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg><span>Ornamentation</span></button>
+          <button type="button" class="explorer-tab" data-tab="building_shape"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon></svg><span>Building Shape</span></button>
+          <button type="button" class="explorer-tab" data-tab="building_condition"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"></path><path d="M5 20V8l7-5 7 5v12"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg><span>Building Condition</span></button>
+          <button type="button" class="explorer-tab explorer-tab-learned" data-tab="learned" style="border-color: rgba(59, 130, 246, 0.4);"><svg class="studio-tab-svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 3.2 2 6 5 7.4V20a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-2.6c3-1.4 5-4.2 5-7.4a8 8 0 0 0-8-8z"></path><line x1="9" y1="21" x2="15" y2="21"></line></svg><span style="color: #93c5fd;">🧠 Learned Memory</span><span class="badge-learned-count" id="badge-learned-count" style="margin-left: 6px; font-size: 10px; background: rgba(59, 130, 246, 0.25); color: #93c5fd; padding: 2px 6px; border-radius: 10px; font-weight: 600;">0</span></button>
         </div>
 
         <!-- Database Management Toolbar -->

@@ -40,6 +40,12 @@ const AppState = {
   // Exterior Wall Finish options
   wallFormat: 'code_only',
   wallRemoveEmpty: false,
+  // Foundation Type options
+  foundationTypeFormat: 'code_only',
+  foundationTypeRemoveEmpty: false,
+  // Foundation Connection options
+  foundationFormat: 'code_only',
+  foundationRemoveEmpty: false,
   // Custom User Column Counts & Names per multi-column engine
   colCounts: {
     occupancy: 3,
@@ -273,6 +279,104 @@ const SampleDatasets = {
     "three stories" // -> 3
   ].join('\n'),
 
+  foundation_type: [
+    "Mat / slab foundation",
+    "Concrete basement (poured reinforced)",
+    "Pile foundation for high-rise tower",
+    "Crawlspace cripple wall (wood)",
+    "Post & pier timber foundation",
+    "Masonry basement (brick walls)",
+    "Spread footing continuous concrete",
+    "Engineering foundation with micropiles",
+    "No basement (slab-on-grade)",
+    "Crawlspace - raised (wood)",
+    "Masonry wall foundation",
+    "Crawlspace masonry (wood)",
+    "Code 8 Mat slab",
+    "Code 9 Pile",
+    "Code 2 Concrete basement",
+    "Code 10 No basement",
+    "0"
+  ].join('\n'),
+
+  foundation: [
+    "Mat / slab foundation with anchor bolts",
+    "Concrete basement (poured reinforced)",
+    "Pile foundation for high-rise tower",
+    "Crawlspace cripple wall (wood) with bracing",
+    "Post & pier timber foundation",
+    "Masonry basement (brick walls)",
+    "Spread footing continuous concrete",
+    "Engineering foundation with micropiles",
+    "No basement (slab-on-grade)",
+    "Crawlspace - raised (wood)",
+    "8\t1",
+    "9\t2",
+    "2\t1",
+    "10\t0",
+    "Masonry wall foundation",
+    "Crawlspace masonry (wood)",
+    "Pile foundation, seismic straps",
+    "Mat / slab, unanchored gravity",
+    "Unknown foundation"
+  ].join('\n'),
+
+  short_column: [
+    "Yes",                                                      // -> 2
+    "No short columns",                                         // -> 1
+    "Spandrel beams restricting column height",                 // -> 2
+    "Infill walls causing short column effect",                 // -> 2
+    "Without short columns",                                    // -> 1
+    "Short columns present along perimeter",                    // -> 2
+    "None",                                                     // -> 1
+    "Unknown",                                                  // -> 0
+    "Code 2",                                                   // -> 2
+    "Code 1",                                                   // -> 1
+    "0",                                                        // -> 0
+    "Fill height restricted by spandrel beam",                  // -> 2
+    "Old concrete structure with shorter perimeter columns",     // -> 2
+    "No",                                                       // -> 1
+    "2"                                                         // -> 2
+  ].join('\n'),
+
+  building_exterior_opening: [
+    "Less than 50% of wall open / default",                     // -> 1
+    "More than 50% of wall open",                               // -> 2
+    ">50% windows and doors",                                   // -> 2
+    "< 50% exterior opening",                                   // -> 1
+    "Shear wall with many window openings (>50%)",              // -> 2
+    "Standard residential windows (<50%)",                      // -> 1
+    "Storefront commercial glass facade (> 50%)",               // -> 2
+    "Solid masonry exterior with minimal openings (<50%)",      // -> 1
+    "Curtain wall extensive glazing (>50% open)",               // -> 2
+    "Punched window openings with heavy shear walls (<50%)",    // -> 1
+    "Code 2",                                                   // -> 2
+    "Code 1",                                                   // -> 1
+    "Unknown",                                                  // -> 0
+    "75% glass and door openings",                              // -> 2
+    "25% window openings",                                      // -> 1
+    "0"                                                         // -> 0
+  ].join('\n'),
+
+  foundation_connection: [
+    "Anchor bolts",
+    "Hurricane ties (seismic straps)",
+    "Nails / Screws (toe-nailing)",
+    "Gravity / Friction (unanchored)",
+    "Adhesive / Epoxy chemical anchors",
+    "Structurally Connected (monolithic concrete tie)",
+    "Unanchored equipment",
+    "Anchored equipment",
+    "Simpson strong-tie straps",
+    "Sill plate anchor bolting",
+    "Epoxy dowels glued to foundation",
+    "Toe nailed framing clips",
+    "Dead load only / resting on foundation",
+    "Code 3",
+    "4",
+    "6"
+  ].join('\n'),
+
   name: [
     "Mr. Johnathan R. Doe, Esq.",
     "Dr. Jane A. Smith-Taylor",
@@ -295,6 +399,116 @@ const SampleDatasets = {
     "info @ corporate-group . org",
     "support@helpdesk.io",
     "ADMIN@SYSTEM.NET"
+  ].join('\n'),
+
+  soft_story: [
+    "Yes",
+    "No soft story",
+    "First-floor garage with open front",
+    "Tuck-under parking on ground level",
+    "Without soft story weakness",
+    "Soft story at first floor",
+    "Open front ground floor",
+    "Unknown",
+    "Code 2",
+    "Code 1",
+    "0",
+    "Tall first floor with large openings",
+    "Adequate lateral stiffness throughout",
+    "No",
+    "2"
+  ].join('\n'),
+
+  building_exterior_opening: [
+    "Less than 50% of wall open / default",
+    "More than 50% of wall open",
+    ">50% windows and doors",
+    "< 50% exterior opening",
+    "Shear wall with many window openings (>50%)",
+    "Standard residential windows (<50%)",
+    "Storefront commercial glass facade (> 50%)",
+    "Solid masonry exterior with minimal openings (<50%)",
+    "Curtain wall extensive glazing (>50% open)",
+    "Punched window openings with heavy shear walls (<50%)",
+    "Code 2",
+    "Code 1",
+    "Unknown",
+    "75% glass and door openings",
+    "25% window openings",
+    "0"
+  ].join('\n'),
+
+  ornamentation: [
+    "No ornamentation",
+    "Plain facade without decorative elements",
+    "None (1)",
+    "Average ornamentation",
+    "Standard decorative trim and moderate molding",
+    "Average (2)",
+    "Extensive ornamentation",
+    "Unreinforced parapet walls on roof perimeter",
+    "Unbraced parapet wall",
+    "Entryway roofs and heavy decorative cornices",
+    "Elaborate terra cotta facade ornaments and gargoyles",
+    "Extensive (3)",
+    "Unknown",
+    "Code 0",
+    "0",
+    "1",
+    "2",
+    "3"
+  ].join('\n'),
+
+  building_shape: [
+    "Square footprint",
+    "Rectangular warehouse box",
+    "Circular rotunda building",
+    "L-shaped office wing with re-entrant corner",
+    "T-shaped school layout",
+    "U-shaped hotel courtyard",
+    "H-shaped medical center",
+    "Complex cruciform multi-wing geometry",
+    "Square (1)",
+    "Rectangle (2)",
+    "Circular",
+    "L-shape",
+    "T-shape",
+    "U-shape",
+    "H-shape",
+    "Complex irregular layout",
+    "Unknown footprint",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+  ].join('\n'),
+
+  building_condition: [
+    "Well-maintained, recent renovation and sound cladding",
+    "Standard maintenance, typical minor wear, normal aging",
+    "Signs of distress with cracking due to aging and ground settlement",
+    "Overloaded structure with severe cracking from previous earthquake",
+    "Loose roof tiles and chimney damage from previous tropical cyclone",
+    "Excellent pristine condition with high grade cladding upkeep",
+    "Deteriorated siding with deferred maintenance and severe distress",
+    "Average condition with typical normal wear",
+    "Good (2)",
+    "Poor (3)",
+    "Average (1)",
+    "Unknown cladding and maintenance condition",
+    "Code 1: Average",
+    "Code 2: Good",
+    "Code 3: Poor",
+    "Code 0: Unknown",
+    "0",
+    "1",
+    "2",
+    "3"
   ].join('\n')
 };
 
@@ -483,7 +697,10 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function updateGeminiModalUI() {
   if (!window.GeminiService) return;
-  if (geminiApiKeyInputEl) geminiApiKeyInputEl.value = ''; // NEVER populate secret key in DOM
+  const currentKey = window.GeminiService.getApiKey() || '';
+  if (geminiApiKeyInputEl) {
+    geminiApiKeyInputEl.value = currentKey;
+  }
   const isConfigured = window.GeminiService.isConfigured();
   const hasCustom = window.GeminiService.hasCustomKey();
   const provider = window.GeminiService.getProvider();
@@ -494,13 +711,33 @@ function updateGeminiModalUI() {
   const navPill = document.getElementById('btn-gemini-modal');
   const navText = navPill ? navPill.querySelector('.ai-pill-text') : null;
 
+  if (navPill) {
+    if (isConfigured) {
+      navPill.title = `Universal AI Engine: ${pInfo.name} (${window.GeminiService.getModel()}) Active & Saved in Browser`;
+      if (navText) navText.textContent = `${pInfo.name}`;
+      const iconEl = navPill.querySelector('.ai-sparkle');
+      if (iconEl) iconEl.textContent = pInfo.icon || '✨';
+      const dot = navPill.querySelector('.ai-badge-dot');
+      if (dot) {
+        dot.style.background = '#10b981';
+        dot.style.boxShadow = '0 0 8px rgba(16, 185, 129, 0.6)';
+      }
+    } else {
+      navPill.title = 'Universal AI Engine: No Key Configured (Click to set API Key)';
+      if (navText) navText.textContent = 'AI Settings';
+      const iconEl = navPill.querySelector('.ai-sparkle');
+      if (iconEl) iconEl.textContent = '🌐';
+      const dot = navPill.querySelector('.ai-badge-dot');
+      if (dot) {
+        dot.style.background = '#f59e0b';
+        dot.style.boxShadow = '0 0 8px rgba(245, 158, 11, 0.6)';
+      }
+    }
+  }
+
   if (geminiKeyStatusTextEl) {
-    if (hasCustom) {
-      geminiKeyStatusTextEl.textContent = `🔒 ${pInfo.name} Active`;
-      if (statusPill) statusPill.className = 'api-status-pill';
-      if (statusDot) statusDot.className = 'status-dot-pulse';
-    } else if (isConfigured) {
-      geminiKeyStatusTextEl.textContent = `🔒 ${pInfo.name} Active`;
+    if (hasCustom || isConfigured) {
+      geminiKeyStatusTextEl.textContent = `🔒 ${pInfo.name} Active (Saved in Browser)`;
       if (statusPill) statusPill.className = 'api-status-pill';
       if (statusDot) statusDot.className = 'status-dot-pulse';
     } else {
@@ -625,6 +862,41 @@ function updateGeminiModalUI() {
   if (storesAiBtn) {
     const s = storesAiBtn.querySelector('span:not(.ai-sparkle)');
     if (s) s.textContent = isConfigured ? `AI Normalize Stories (${pInfo.name})` : 'AI Normalize Stories';
+  }
+  const foundationTypeAiBtn = document.getElementById('btn-foundation-type-ai');
+  if (foundationTypeAiBtn) {
+    const s = foundationTypeAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Classify Foundation Type (${pInfo.name})` : 'AI Classify Foundation Type';
+  }
+  const foundationAiBtn = document.getElementById('btn-foundation-ai');
+  if (foundationAiBtn) {
+    const s = foundationAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Classify Foundation (${pInfo.name})` : 'AI Classify Foundation';
+  }
+  const shortColAiBtn = document.getElementById('btn-short-column-ai');
+  if (shortColAiBtn) {
+    const s = shortColAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Short Column (${pInfo.name})` : 'AI Short Column';
+  }
+  const softStoryAiBtn = document.getElementById('btn-soft-story-ai');
+  if (softStoryAiBtn) {
+    const s = softStoryAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Soft Story (${pInfo.name})` : 'AI Soft Story';
+  }
+  const ornamentationAiBtn = document.getElementById('btn-ornamentation-ai');
+  if (ornamentationAiBtn) {
+    const s = ornamentationAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Ornamentation (${pInfo.name})` : 'AI Ornamentation';
+  }
+  const buildingShapeAiBtn = document.getElementById('btn-building-shape-ai');
+  if (buildingShapeAiBtn) {
+    const s = buildingShapeAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Building Shape (${pInfo.name})` : 'AI Building Shape';
+  }
+  const buildingConditionAiBtn = document.getElementById('btn-building-condition-ai');
+  if (buildingConditionAiBtn) {
+    const s = buildingConditionAiBtn.querySelector('span:not(.ai-sparkle)');
+    if (s) s.textContent = isConfigured ? `AI Building Condition (${pInfo.name})` : 'AI Building Condition';
   }
   const streetAiBtn = document.getElementById('btn-street-ai');
   if (streetAiBtn) {
@@ -1191,6 +1463,86 @@ function bindEvents() {
       icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M9 7h1"></path><path d="M9 11h1"></path><path d="M9 15h1"></path><path d="M14 7h1"></path><path d="M14 11h1"></path><path d="M14 15h1"></path></svg>', 
       category: 'underwriting' 
     },
+    foundation_type: { 
+      name: 'Foundation Type', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M2 18h20"></path><path d="M6 18V6"></path><path d="M10 18V6"></path><path d="M14 18V6"></path><path d="M18 18V6"></path><path d="M3 6h18l-9-4z"></path></svg>', 
+      category: 'underwriting' 
+    },
+    foundationType: { 
+      name: 'Foundation Type', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M2 18h20"></path><path d="M6 18V6"></path><path d="M10 18V6"></path><path d="M14 18V6"></path><path d="M18 18V6"></path><path d="M3 6h18l-9-4z"></path></svg>', 
+      category: 'underwriting' 
+    },
+    foundation: { 
+      name: 'Foundation Type', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M2 18h20"></path><path d="M6 18V6"></path><path d="M10 18V6"></path><path d="M14 18V6"></path><path d="M18 18V6"></path><path d="M3 6h18l-9-4z"></path></svg>', 
+      category: 'underwriting' 
+    },
+    foundation_connection: { 
+      name: 'Foundation Connection', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>', 
+      category: 'underwriting' 
+    },
+    short_column: { 
+      name: 'Short Column', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M4 2h16"></path><path d="M6 2v20"></path><path d="M18 2v20"></path><path d="M10 2v20"></path><path d="M14 2v20"></path></svg>', 
+      category: 'underwriting' 
+    },
+    shortColumn: { 
+      name: 'Short Column', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M4 2h16"></path><path d="M6 2v20"></path><path d="M18 2v20"></path><path d="M10 2v20"></path><path d="M14 2v20"></path></svg>', 
+      category: 'underwriting' 
+    },
+    building_exterior_opening: {
+      name: 'Building Exterior Opening',
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="12" x2="21" y2="12"></line><line x1="12" y1="3" x2="12" y2="21"></line></svg>',
+      category: 'underwriting'
+    },
+    soft_story: {
+      name: 'Soft Story',
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M4 21V10l8-6 8 6v11"></path><path d="M9 21v-4a3 3 0 0 1 6 0v4"></path></svg>',
+      category: 'underwriting'
+    },
+    softStory: {
+      name: 'Soft Story',
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M4 21V10l8-6 8 6v11"></path><path d="M9 21v-4a3 3 0 0 1 6 0v4"></path></svg>',
+      category: 'underwriting'
+    },
+    ornamentation: {
+      name: 'Ornamentation',
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg>',
+      category: 'underwriting'
+    },
+    building_shape: {
+      name: 'Building Shape',
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon></svg>',
+      category: 'underwriting'
+    },
+    buildingShape: {
+      name: 'Building Shape',
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon></svg>',
+      category: 'underwriting'
+    },
+    shape: {
+      name: 'Building Shape',
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon></svg>',
+      category: 'underwriting'
+    },
+    building_condition: {
+      name: 'Building Condition',
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"></path><path d="M5 20V8l7-5 7 5v12"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg>',
+      category: 'underwriting'
+    },
+    buildingCondition: {
+      name: 'Building Condition',
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"></path><path d="M5 20V8l7-5 7 5v12"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg>',
+      category: 'underwriting'
+    },
+    condition: {
+      name: 'Building Condition',
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"></path><path d="M5 20V8l7-5 7 5v12"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg>',
+      category: 'underwriting'
+    },
     name: { 
       name: 'Full Name', 
       icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>', 
@@ -1198,7 +1550,7 @@ function bindEvents() {
     },
     phone: { 
       name: 'Phone Number', 
-      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>', 
       category: 'contact' 
     },
     email: { 
@@ -1263,6 +1615,14 @@ function bindEvents() {
     const roofRulesEl = document.getElementById('roof-rules-panel');
     const wallRulesEl = document.getElementById('wall-rules-panel');
     const storesRulesEl = document.getElementById('stores-rules-panel');
+    const foundationTypeRulesEl = document.getElementById('foundation-type-rules-panel');
+    const foundationRulesEl = document.getElementById('foundation-rules-panel');
+    const shortColumnRulesEl = document.getElementById('short-column-rules-panel');
+    const buildingExteriorOpeningRulesEl = document.getElementById('building-exterior-opening-rules-panel');
+    const softStoryRulesEl = document.getElementById('soft-story-rules-panel');
+    const ornamentationRulesEl = document.getElementById('ornamentation-rules-panel');
+    const buildingShapeRulesEl = document.getElementById('building-shape-rules-panel');
+    const buildingConditionRulesEl = document.getElementById('building-condition-rules-panel');
     if (streetRulesEl) streetRulesEl.style.display = colId === 'street' ? 'flex' : 'none';
     if (splitRulesEl) splitRulesEl.style.display = colId === 'split' ? 'flex' : 'none';
     if (occRulesEl) occRulesEl.style.display = colId === 'occupancy' ? 'flex' : 'none';
@@ -1272,10 +1632,18 @@ function bindEvents() {
     if (roofRulesEl) roofRulesEl.style.display = colId === 'roof' ? 'flex' : 'none';
     if (wallRulesEl) wallRulesEl.style.display = colId === 'wall' ? 'flex' : 'none';
     if (storesRulesEl) storesRulesEl.style.display = (colId === 'stores' || colId === 'stories') ? 'flex' : 'none';
+    if (foundationTypeRulesEl) foundationTypeRulesEl.style.display = (colId === 'foundation_type' || colId === 'foundationType' || colId === 'foundation') ? 'flex' : 'none';
+    if (foundationRulesEl) foundationRulesEl.style.display = (colId === 'foundation_connection' || colId === 'foundationConnection') ? 'flex' : 'none';
+    if (shortColumnRulesEl) shortColumnRulesEl.style.display = (colId === 'short_column' || colId === 'shortColumn') ? 'flex' : 'none';
+    if (buildingExteriorOpeningRulesEl) buildingExteriorOpeningRulesEl.style.display = (colId === 'building_exterior_opening' || colId === 'buildingExteriorOpening' || colId === 'exterior_opening') ? 'flex' : 'none';
+    if (softStoryRulesEl) softStoryRulesEl.style.display = (colId === 'soft_story' || colId === 'softStory') ? 'flex' : 'none';
+    if (ornamentationRulesEl) ornamentationRulesEl.style.display = (colId === 'ornamentation' || colId === 'ornament') ? 'flex' : 'none';
+    if (buildingShapeRulesEl) buildingShapeRulesEl.style.display = (colId === 'building_shape' || colId === 'buildingShape' || colId === 'shape') ? 'flex' : 'none';
+    if (buildingConditionRulesEl) buildingConditionRulesEl.style.display = (colId === 'building_condition' || colId === 'buildingCondition' || colId === 'condition') ? 'flex' : 'none';
 
     // Update live inspector on section switch
     const liveInspectorEl = document.getElementById('live-code-inspector');
-    if (liveInspectorEl && !['occupancy', 'construction', 'roof', 'wall'].includes(colId)) {
+    if (liveInspectorEl && !['occupancy', 'construction', 'roof', 'wall', 'foundation_type', 'foundation', 'foundation_connection', 'short_column', 'building_exterior_opening', 'soft_story', 'ornamentation', 'ornament', 'building_shape', 'buildingShape', 'shape', 'building_condition', 'buildingCondition', 'condition'].includes(colId)) {
       liveInspectorEl.style.display = 'none';
     }
 
@@ -1313,21 +1681,55 @@ function bindEvents() {
           rawPaneTitleEl.textContent = '📥 Raw Roof Description Input';
         } else if (colId === 'wall') {
           rawPaneTitleEl.textContent = '📥 Raw Exterior Wall Finish Input';
-        } else if (colId === 'stores' || colId === 'stories') {
-          rawPaneTitleEl.textContent = '📥 Raw No of Stores / Stories Input';
+        } else if (colId === 'foundation_type' || colId === 'foundationType') {
+          rawPaneTitleEl.textContent = '📥 Raw Foundation Type Input (Codes 0–12)';
+        } else if (colId === 'foundation_connection') {
+          rawPaneTitleEl.textContent = '📥 Raw Foundation Connection Input (Codes 0–6)';
+        } else if (colId === 'foundation') {
+          rawPaneTitleEl.textContent = '📥 Raw Foundation Type & Connection Input';
+        } else if (colId === 'short_column' || colId === 'shortColumn') {
+          rawPaneTitleEl.textContent = '📥 Raw Short Column Input (0: Unknown, 1: No, 2: Yes)';
+        } else if (colId === 'building_exterior_opening' || colId === 'buildingExteriorOpening' || colId === 'exterior_opening') {
+          rawPaneTitleEl.textContent = '📥 Raw Building Exterior Opening Input (0: Unknown, 1: <50%, 2: >50%)';
+        } else if (colId === 'soft_story' || colId === 'softStory') {
+          rawPaneTitleEl.textContent = '📥 Raw Soft Story Input (0: Unknown, 1: No, 2: Yes)';
+        } else if (colId === 'ornamentation' || colId === 'ornament') {
+          rawPaneTitleEl.textContent = '📥 Raw Ornamentation Input (0: Unknown, 1: None, 2: Average, 3: Extensive)';
+        } else if (colId === 'building_shape' || colId === 'buildingShape' || colId === 'shape') {
+          rawPaneTitleEl.textContent = '📥 Raw Building Shape Input (0: Unknown, 1: Square, 2: Rect, 3: Circle, 4-7: L/T/U/H, 8: Complex)';
+        } else if (colId === 'building_condition' || colId === 'buildingCondition' || colId === 'condition') {
+          rawPaneTitleEl.textContent = '📥 Raw Building Condition Input (0: Unknown, 1: Average, 2: Good, 3: Poor)';
         } else {
           rawPaneTitleEl.textContent = '📥 Raw Excel Column Input';
         }
       }
       if (rawInputEl) {
         if (colId === 'roof') {
-          rawInputEl.placeholder = 'Paste roof description data here (e.g. "Gable, 4:12 pitch, asphalt shingles, plywood deck")...\nCleanExcel will automatically separate into:\n1. Roof Geometry\n2. Roof Pitch\n3. Roof Covering\n4. Roof Deck';
+          rawInputEl.placeholder = 'Paste roof description data here (e.g. "Gable, 4:12 pitch, asphalt shingles, plywood deck")...\nCleanExcel Studio will automatically separate into:\n1. Roof Geometry\n2. Roof Pitch\n3. Roof Covering\n4. Roof Deck';
         } else if (colId === 'wall') {
-          rawInputEl.placeholder = 'Paste exterior wall finish data here (e.g. "50% Brick / 50% Vinyl Siding", "Stucco on Concrete Block")...\nCleanExcel will automatically separate into:\n1. WallType (Backing / Structure)\n2. WallSiding (Weather Finish)\nApplying Underwriting Rules: Higher % • Weaker Material Tie-Breaker';
+          rawInputEl.placeholder = 'Paste exterior wall finish data here (e.g. "50% Brick / 50% Vinyl Siding", "Stucco on Concrete Block")...\nCleanExcel Studio will automatically separate into:\n1. WallType (Backing / Structure)\n2. WallSiding (Weather Finish)\nApplying Underwriting Rules: Higher % • Weaker Material Tie-Breaker';
+        } else if (colId === 'foundation_type' || colId === 'foundationType') {
+          rawInputEl.placeholder = 'Paste Foundation Type data here (e.g. "Mat / slab foundation", "Concrete basement", "Crawlspace cripple wall (wood)", "Pile foundation for high-rise tower", "Post & pier", "No basement")...\nCleanExcel Studio classifies into Touchstone UNICEDE® Foundation Type Codes (0–12):\n• Code 0: Unknown / Default\n• Code 1: Masonry basement • Code 2: Concrete basement\n• Code 4: Crawlspace cripple wall • Code 8: Mat / slab\n• Code 9: Pile • Code 10: No basement';
+        } else if (colId === 'foundation_connection') {
+          rawInputEl.placeholder = 'Paste Foundation Connection data here (e.g. "Anchor bolts", "Hurricane ties", "Gravity / Friction", "Adhesive / Epoxy", "Structurally Connected", "Unanchored", "Anchored")...\nCleanExcel Studio classifies into Touchstone UNICEDE® Foundation Connection Codes (0–6)\n• Industrial Facilities: 4 = Unanchored • 6 = Anchored\n• Verisk EQ Bolting Retrofit: Code 4';
+        } else if (colId === 'foundation') {
+          rawInputEl.placeholder = 'Paste Foundation descriptions here (e.g. "Mat / slab with anchor bolts", "Concrete basement", "Pile foundation for high-rise tower", "Crawlspace cripple wall (wood)")...\nCleanExcel Studio will automatically separate into:\n1. Foundation Type (Codes 0–12)\n2. Foundation Connection (Codes 0–6)\nEnforcing Touchstone UNICEDE® underwriting & hazard model rules.';
+        } else if (colId === 'short_column' || colId === 'shortColumn') {
+          rawInputEl.placeholder = 'Paste Short Column data here (e.g. "Yes", "No", "Spandrel beams restricting column height", "Infill walls", "0", "1", "2")...\nCleanExcel Studio classifies Touchstone UNICEDE® Short Column codes:\n• Code 0: Unknown / Default\n• Code 1: No (No Short Columns)\n• Code 2: Yes (Short Columns Present)\nModels: CA EQ, HI EQ, JP EQ, US EQ (Optional)';
+        } else if (colId === 'building_exterior_opening' || colId === 'buildingExteriorOpening' || colId === 'exterior_opening') {
+          rawInputEl.placeholder = 'Paste Building Exterior Opening data here (e.g. "Less than 50% open", "More than 50%", "<50%", ">50%", "0", "1", "2")...\nCleanExcel Studio classifies Touchstone UNICEDE® Building Exterior Opening codes:\n• Code 0: Unknown\n• Code 1: Less than 50% of wall open / default\n• Code 2: More than 50% of wall open\nModels: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional)';
+        } else if (colId === 'soft_story' || colId === 'softStory') {
+          rawInputEl.placeholder = 'Paste Soft Story data here (e.g. "Yes", "No", "First-floor garage", "Tuck-under parking", "Open front", "0", "1", "2")...\nCleanExcel Studio classifies Touchstone UNICEDE® Soft Story codes:\n• Code 0: Unknown / default\n• Code 1: No (No soft story weakness)\n• Code 2: Yes (Structural weakness at any floor, stories >= 2)\nModels: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional)';
+        } else if (colId === 'ornamentation' || colId === 'ornament') {
+          rawInputEl.placeholder = 'Paste Ornamentation data here (e.g. "None", "Average", "Extensive", "Unreinforced parapet walls", "Entryway roofs", "Cornices", "0", "1", "2", "3")...\nCleanExcel Studio classifies Touchstone UNICEDE® Ornamentation codes:\n• Code 0: Unknown / default\n• Code 1: None (no decorative elements)\n• Code 2: Average (moderate decorative trim)\n• Code 3: Extensive (unreinforced/unbraced parapets, entryway roofs, elaborate facade)\nModels: CA EQ, HI EQ, JP EQ, US EQ (Optional)';
+        } else if (colId === 'building_shape' || colId === 'buildingShape' || colId === 'shape') {
+          rawInputEl.placeholder = 'Paste Building Shape data here (e.g. "Square", "Rectangle", "Circular", "L-shaped", "T-shaped", "U-shaped", "H-shaped", "Complex", "0"–"8")...\nCleanExcel Studio classifies Touchstone UNICEDE® Building Shape codes:\n• Code 0: Unknown / default\n• Code 1: Square • Code 2: Rectangle • Code 3: Circular\n• Code 4: L-shaped • Code 5: T-shaped • Code 6: U-shaped • Code 7: H-shaped\n• Code 8: Complex (irregular, multi-wing, cruciform)\nModels: CA EQ, HI EQ, JP EQ, NZ EQ, US EQ (Optional)';
+        } else if (colId === 'building_condition' || colId === 'buildingCondition' || colId === 'condition') {
+          rawInputEl.placeholder = 'Paste Building Condition data here (e.g. "Good", "Average", "Poor", "Well-maintained", "Cracking due to settlement", "Loose roof tiles", "0", "1", "2", "3")...\nCleanExcel Studio classifies Touchstone UNICEDE® Building Condition codes:\n• Code 0: Unknown / default\n• Code 1: Average (standard maintenance, normal aging - EQ default)\n• Code 2: Good (well-maintained, recent renovation, sound cladding)\n• Code 3: Poor (distressed, settlement cracks, loose tiles, chimney damage)\nModels: CA EQ, HI EQ, HI TC, JP EQ, NZ EQ, US EQ, US HU, US ST (Optional)';
         } else if (colId === 'year') {
-          rawInputEl.placeholder = 'Paste Year Built column here (e.g. "1994", "Built in 1985", "1680", "2030")...\nCleanExcel will validate between 1753 and 2026, blanking out-of-range rows.';
+          rawInputEl.placeholder = 'Paste Year Built column here (e.g. "1994", "Built in 1985", "1680", "2030")...\nCleanExcel Studio will validate between 1753 and 2026, blanking out-of-range rows.';
         } else if (colId === 'stores' || colId === 'stories') {
-          rawInputEl.placeholder = 'Paste No of Stores / Stories data here (e.g. "3.5", "4.2", "2 & 3", "1,2", "2/3", "-5", "non", "none", "5")...\nCleanExcel enforces Underwriting Rules:\n• Decimals round UP (3.5 ➔ 4, 4.2 ➔ 5)\n• Multi-values/ranges pick MAX (2 & 3 ➔ 3, 1,2 ➔ 2, 2/3 ➔ 3)\n• Negative values leave blank (-5 ➔ Blank)\n• Non / none / blank ➔ Blank';
+          rawInputEl.placeholder = 'Paste No of Stores / Stories data here (e.g. "3.5", "4.2", "2 & 3", "1,2", "2/3", "-5", "non", "none", "5")...\nCleanExcel Studio enforces Underwriting Rules:\n• Decimals round UP (3.5 ➔ 4, 4.2 ➔ 5)\n• Multi-values/ranges pick MAX (2 & 3 ➔ 3, 1,2 ➔ 2, 2/3 ➔ 3)\n• Negative values leave blank (-5 ➔ Blank)\n• Non / none / blank ➔ Blank';
         } else {
           rawInputEl.placeholder = 'Paste your raw Excel column here (one record per line)...\n\nExample:\n123 MAIN ST STE 400\nAPT #5B 456 ELM AVE\nPO BOX 789 BLDG 2';
         }
@@ -1649,6 +2051,69 @@ function bindEvents() {
   wallFormatRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
       AppState.wallFormat = e.target.value;
+      processCleaning();
+    });
+  });
+
+  // Foundation Type format options
+  const foundationTypeFormatRadios = document.querySelectorAll('input[name="foundation-type-format-radio"]');
+  foundationTypeFormatRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      AppState.foundationTypeFormat = e.target.value;
+      processCleaning();
+    });
+  });
+
+  // Foundation format options
+  const foundationFormatRadios = document.querySelectorAll('input[name="foundation-format-radio"]');
+  foundationFormatRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      AppState.foundationFormat = e.target.value;
+      processCleaning();
+    });
+  });
+
+  // Short Column format options
+  const shortColFormatRadios = document.querySelectorAll('input[name="short-column-format-radio"]');
+  shortColFormatRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      AppState.shortColumnFormat = e.target.value;
+      processCleaning();
+    });
+  });
+
+  // Soft Story format options
+  const softStoryFormatRadios = document.querySelectorAll('input[name="soft-story-format-radio"]');
+  softStoryFormatRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      AppState.softStoryFormat = e.target.value;
+      processCleaning();
+    });
+  });
+
+  // Ornamentation format options
+  const ornamentationFormatRadios = document.querySelectorAll('input[name="ornamentation-format-radio"]');
+  ornamentationFormatRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      AppState.ornamentationFormat = e.target.value;
+      processCleaning();
+    });
+  });
+
+  // Building Shape format options
+  const buildingShapeFormatRadios = document.querySelectorAll('input[name="building-shape-format-radio"]');
+  buildingShapeFormatRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      AppState.buildingShapeFormat = e.target.value;
+      processCleaning();
+    });
+  });
+
+  // Building Condition format options
+  const buildingConditionFormatRadios = document.querySelectorAll('input[name="building-condition-format-radio"]');
+  buildingConditionFormatRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      AppState.buildingConditionFormat = e.target.value;
       processCleaning();
     });
   });
@@ -1994,13 +2459,57 @@ function bindEvents() {
     });
   }
 
+  // Toggle Key Visibility (Eye icon)
+  const toggleVisibilityBtn = document.getElementById('btn-toggle-key-visibility');
+  if (toggleVisibilityBtn && geminiApiKeyInputEl) {
+    toggleVisibilityBtn.addEventListener('click', () => {
+      if (geminiApiKeyInputEl.type === 'password') {
+        geminiApiKeyInputEl.type = 'text';
+        toggleVisibilityBtn.textContent = '🔒';
+        toggleVisibilityBtn.title = 'Hide API Key';
+      } else {
+        geminiApiKeyInputEl.type = 'password';
+        toggleVisibilityBtn.textContent = '👁️';
+        toggleVisibilityBtn.title = 'Show API Key';
+      }
+    });
+  }
+
+  // Live input detection on typing or pasting key
+  if (geminiApiKeyInputEl) {
+    geminiApiKeyInputEl.addEventListener('input', () => {
+      const val = geminiApiKeyInputEl.value.trim();
+      if (val && window.GeminiService) {
+        const detected = window.GeminiService.detectProvider(val);
+        const pInfo = window.GeminiService.getProviderInfo(detected);
+        if (geminiKeyStatusTextEl) {
+          geminiKeyStatusTextEl.textContent = `✨ ${pInfo.name} Detected`;
+        }
+        if (geminiKeyMaskedPreviewEl) {
+          geminiKeyMaskedPreviewEl.textContent = val.length <= 8 ? '••••••••••••••••' : `${val.slice(0, 4)}••••••••••••••••${val.slice(-4)}`;
+        }
+      } else if (window.GeminiService) {
+        const isConfigured = window.GeminiService.isConfigured();
+        const provider = window.GeminiService.getProvider();
+        const pInfo = window.GeminiService.getProviderInfo(provider);
+        if (geminiKeyStatusTextEl) {
+          geminiKeyStatusTextEl.textContent = isConfigured ? `🔒 ${pInfo.name} Active (Saved in Browser)` : '⚠️ No AI Key Configured';
+        }
+        if (geminiKeyMaskedPreviewEl) {
+          geminiKeyMaskedPreviewEl.textContent = window.GeminiService.getMaskedKeyDisplay();
+        }
+      }
+    });
+  }
+
   // Reset Custom Key button
   if (btnClearCustomKeyEl) {
     btnClearCustomKeyEl.addEventListener('click', () => {
       if (window.GeminiService) {
         window.GeminiService.setApiKey('');
+        if (geminiApiKeyInputEl) geminiApiKeyInputEl.value = '';
         updateGeminiModalUI();
-        showToast('Custom API key removed', '🗑️');
+        showToast('API key removed from browser storage', '🗑️');
       }
     });
   }
@@ -2014,13 +2523,13 @@ function bindEvents() {
         if (val) {
           window.GeminiService.setApiKey(val);
           updateGeminiModalUI();
-          showToast('Custom Gemini API key saved & active!', '✨');
+          const pInfo = window.GeminiService.getProviderInfo();
+          showToast(`✓ ${pInfo.name} API key saved permanently in browser!`, '💾');
         } else if (window.GeminiService.isConfigured()) {
-          showToast('Active API key retained & protected', '🔒');
+          showToast('Active API key retained & protected in browser', '🔒');
         } else {
           showToast('No API key entered', '⚠️');
         }
-        geminiApiKeyInputEl.value = '';
       }
       if (geminiModalEl) geminiModalEl.style.display = 'none';
     });
@@ -2035,7 +2544,6 @@ function bindEvents() {
       // If a key is typed in input, save it first
       if (geminiApiKeyInputEl && geminiApiKeyInputEl.value.trim()) {
         window.GeminiService.setApiKey(geminiApiKeyInputEl.value.trim());
-        geminiApiKeyInputEl.value = '';
       }
 
       const key = window.GeminiService.getApiKey();
@@ -2191,6 +2699,41 @@ function bindEvents() {
   const storesAiBtn = document.getElementById('btn-stores-ai');
   if (storesAiBtn) {
     storesAiBtn.addEventListener('click', () => triggerGeminiAI());
+  }
+
+  const foundationTypeAiBtn = document.getElementById('btn-foundation-type-ai');
+  if (foundationTypeAiBtn) {
+    foundationTypeAiBtn.addEventListener('click', () => triggerGeminiAI());
+  }
+
+  const foundationAiBtn = document.getElementById('btn-foundation-ai');
+  if (foundationAiBtn) {
+    foundationAiBtn.addEventListener('click', () => triggerGeminiAI());
+  }
+
+  const shortColAiBtn = document.getElementById('btn-short-column-ai');
+  if (shortColAiBtn) {
+    shortColAiBtn.addEventListener('click', () => triggerGeminiAI());
+  }
+
+  const softStoryAiBtn = document.getElementById('btn-soft-story-ai');
+  if (softStoryAiBtn) {
+    softStoryAiBtn.addEventListener('click', () => triggerGeminiAI());
+  }
+
+  const ornamentationAiBtn = document.getElementById('btn-ornamentation-ai');
+  if (ornamentationAiBtn) {
+    ornamentationAiBtn.addEventListener('click', () => triggerGeminiAI());
+  }
+
+  const buildingShapeAiBtn = document.getElementById('btn-building-shape-ai');
+  if (buildingShapeAiBtn) {
+    buildingShapeAiBtn.addEventListener('click', () => triggerGeminiAI());
+  }
+
+  const buildingConditionAiBtn = document.getElementById('btn-building-condition-ai');
+  if (buildingConditionAiBtn) {
+    buildingConditionAiBtn.addEventListener('click', () => triggerGeminiAI());
   }
 
   const yearAiBtn = document.getElementById('btn-year-ai');
@@ -3063,6 +3606,60 @@ function processCleaning() {
       alwaysPositive: AppState.storesPositive !== false,
       removeEmptyLines: AppState.storesRemoveEmpty
     };
+  } else if (AppState.activeColumnId === 'foundation_type' || AppState.activeColumnId === 'foundationType') {
+    cleanerObj = window.FoundationTypeClassifier || (window.CleanersRegistry && window.CleanersRegistry.foundation_type && window.CleanersRegistry.foundation_type.cleaner);
+    options = {
+      format: AppState.foundationTypeFormat || 'code_only',
+      removeEmptyLines: AppState.foundationTypeRemoveEmpty
+    };
+  } else if (AppState.activeColumnId === 'foundation_connection') {
+    cleanerObj = window.FoundationConnectionClassifier || (window.CleanersRegistry && window.CleanersRegistry.foundation_connection && window.CleanersRegistry.foundation_connection.cleaner);
+    options = {
+      format: AppState.foundationFormat || 'code_only',
+      removeEmptyLines: AppState.foundationRemoveEmpty
+    };
+  } else if (AppState.activeColumnId === 'foundation') {
+    cleanerObj = window.FoundationClassifier || (window.CleanersRegistry && window.CleanersRegistry.foundation && window.CleanersRegistry.foundation.cleaner);
+    options = {
+      format: AppState.foundationFormat || 'code_only',
+      removeEmptyLines: AppState.foundationRemoveEmpty
+    };
+  } else if (AppState.activeColumnId === 'short_column' || AppState.activeColumnId === 'shortColumn') {
+    cleanerObj = window.ShortColumnClassifier || (window.CleanersRegistry && window.CleanersRegistry.short_column && window.CleanersRegistry.short_column.cleaner);
+    options = {
+      format: AppState.shortColumnFormat || 'code_only',
+      removeEmptyLines: AppState.shortColumnRemoveEmpty
+    };
+  } else if (AppState.activeColumnId === 'building_exterior_opening' || AppState.activeColumnId === 'buildingExteriorOpening' || AppState.activeColumnId === 'exterior_opening') {
+    cleanerObj = window.BuildingExteriorOpeningClassifier || (window.CleanersRegistry && window.CleanersRegistry.building_exterior_opening && window.CleanersRegistry.building_exterior_opening.cleaner);
+    options = {
+      format: AppState.buildingExteriorOpeningFormat || 'code_only',
+      removeEmptyLines: AppState.buildingExteriorOpeningRemoveEmpty
+    };
+  } else if (AppState.activeColumnId === 'soft_story' || AppState.activeColumnId === 'softStory') {
+    cleanerObj = window.SoftStoryClassifier || (window.CleanersRegistry && window.CleanersRegistry.soft_story && window.CleanersRegistry.soft_story.cleaner);
+    options = {
+      format: AppState.softStoryFormat || 'code_only',
+      removeEmptyLines: AppState.softStoryRemoveEmpty
+    };
+  } else if (AppState.activeColumnId === 'ornamentation' || AppState.activeColumnId === 'ornament') {
+    cleanerObj = window.OrnamentationClassifier || (window.CleanersRegistry && window.CleanersRegistry.ornamentation && window.CleanersRegistry.ornamentation.cleaner);
+    options = {
+      format: AppState.ornamentationFormat || 'code_only',
+      removeEmptyLines: AppState.ornamentationRemoveEmpty
+    };
+  } else if (AppState.activeColumnId === 'building_shape' || AppState.activeColumnId === 'buildingShape' || AppState.activeColumnId === 'shape') {
+    cleanerObj = window.BuildingShapeClassifier || (window.CleanersRegistry && window.CleanersRegistry.building_shape && window.CleanersRegistry.building_shape.cleaner);
+    options = {
+      format: AppState.buildingShapeFormat || 'code_only',
+      removeEmptyLines: AppState.buildingShapeRemoveEmpty
+    };
+  } else if (AppState.activeColumnId === 'building_condition' || AppState.activeColumnId === 'buildingCondition' || AppState.activeColumnId === 'condition') {
+    cleanerObj = window.BuildingConditionClassifier || (window.CleanersRegistry && window.CleanersRegistry.building_condition && window.CleanersRegistry.building_condition.cleaner);
+    options = {
+      format: AppState.buildingConditionFormat || 'code_only',
+      removeEmptyLines: AppState.buildingConditionRemoveEmpty
+    };
   } else {
     cleanerObj = (window.CleanersRegistry && window.CleanersRegistry[AppState.activeColumnId])
       ? window.CleanersRegistry[AppState.activeColumnId].cleaner
@@ -3216,9 +3813,10 @@ async function copyForExcel() {
           rowInputs.push(extras[i - 3] || '');
         }
       }
-      const code = isConstruction ? (r.conCode || '100') : (r.occCode || '300');
-      const category = r.category || (isConstruction ? 'Unknown' : 'Unknown occupancy');
-      const statusMsg = r.comparisonMessage || '';
+      const isEmptyRow = r.status === 'empty';
+      const code = isEmptyRow ? '' : (isConstruction ? (r.conCode || '100') : (r.occCode || '300'));
+      const category = isEmptyRow ? '' : (r.category || (isConstruction ? 'Unknown' : 'Unknown occupancy'));
+      const statusMsg = isEmptyRow ? '' : (r.comparisonMessage || '');
       const row = [...rowInputs, code, category, statusMsg];
 
       tsvRows.push(row.join('\t'));
@@ -3228,12 +3826,12 @@ async function copyForExcel() {
     excelText = tsvRows.join('\r\n');
     excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table>${htmlRows.join('')}</table></body></html>`;
   } else if (isRoof) {
-    const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Anchorage'];
+    const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Covering Attachment', '6. Roof Deck Attachment', '7. Roof Anchorage'];
     const tsvRows = [headers.join('\t')];
     const htmlRows = [`<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`];
 
     dataToCopy.forEach(r => {
-      const row = [r.original || '', r.geometryCode || '', r.pitchCode || '', r.coveringCode || '', r.deckCode || '', r.anchorageCode || ''];
+      const row = [r.original || '', r.geometryCode || '', r.pitchCode || '', r.coveringCode || '', r.deckCode || '', r.covAttachCode || '', r.deckAttachCode || '', r.anchorageCode || ''];
       tsvRows.push(row.join('\t'));
       htmlRows.push(`<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`);
     });
@@ -3247,6 +3845,32 @@ async function copyForExcel() {
 
     dataToCopy.forEach(r => {
       const row = [r.original || '', r.wallTypeCode || '', r.wallSidingCode || ''];
+      tsvRows.push(row.join('\t'));
+      htmlRows.push(`<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`);
+    });
+
+    excelText = tsvRows.join('\r\n');
+    excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table>${htmlRows.join('')}</table></body></html>`;
+  } else if (AppState.activeColumnId === 'foundation_connection') {
+    const headers = ['Raw Foundation Connection', 'Connection Code', 'Connection Name'];
+    const tsvRows = [headers.join('\t')];
+    const htmlRows = [`<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`];
+
+    dataToCopy.forEach(r => {
+      const row = [r.original || '', r.code || r.connectionCode || '', r.shortName || r.name || ''];
+      tsvRows.push(row.join('\t'));
+      htmlRows.push(`<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`);
+    });
+
+    excelText = tsvRows.join('\r\n');
+    excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table>${htmlRows.join('')}</table></body></html>`;
+  } else if (AppState.activeColumnId === 'foundation') {
+    const headers = ['Raw Foundation Input', '1. Foundation Type', '2. Foundation Connection'];
+    const tsvRows = [headers.join('\t')];
+    const htmlRows = [`<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`];
+
+    dataToCopy.forEach(r => {
+      const row = [r.original || '', r.foundationTypeCode || '', r.connectionCode || ''];
       tsvRows.push(row.join('\t'));
       htmlRows.push(`<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`);
     });
@@ -3420,7 +4044,7 @@ function downloadExcelSpreadsheet() {
     triggerDownload(xml, `${filePrefix}_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
     showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}${isConstruction ? 'construction' : 'occupancy'} codes (.xls)!`, '📥');
   } else if (isRoof) {
-    const headers = ['#', 'Raw Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Anchorage', 'Status'];
+    const headers = ['#', 'Raw Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Covering Attachment', '6. Roof Deck Attachment', '7. Roof Anchorage', 'Status'];
     const sheetRows = [headers];
     dataToExport.forEach((r, idx) => {
       sheetRows.push([
@@ -3430,6 +4054,8 @@ function downloadExcelSpreadsheet() {
         r.pitchCode || '',
         r.coveringCode || '',
         r.deckCode || '',
+        r.covAttachCode || '',
+        r.deckAttachCode || '',
         r.anchorageCode || '',
         r.statusText || ''
       ]);
@@ -3510,6 +4136,93 @@ function downloadExcelSpreadsheet() {
     const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="WallDetails"><Table>${rowsXml}</Table></Worksheet></Workbook>`;
     triggerDownload(xml, `Exterior_Wall_Details_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
     showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}wall details (.xls)!`, '📥');
+  } else if (AppState.activeColumnId === 'foundation_connection') {
+    const headers = ['#', 'Raw Foundation Connection', 'Connection Code', 'Connection Name', 'Status'];
+    const sheetRows = [headers];
+    dataToExport.forEach((r, idx) => {
+      sheetRows.push([
+        idx + 1,
+        r.original || '',
+        r.code || r.connectionCode || '',
+        r.shortName || r.name || '',
+        r.statusText || ''
+      ]);
+    });
+
+    if (typeof XLSX !== 'undefined') {
+      const ws = XLSX.utils.aoa_to_sheet(sheetRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Foundation Connection");
+      XLSX.writeFile(wb, `Foundation_Connection_${getTimestamp()}.xlsx`);
+      showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}foundation connection records (.xlsx)!`, '📥');
+      return;
+    }
+
+    const rowsXml = sheetRows.map(row =>
+      `<Row>${row.map(c => `<Cell><Data ss:Type="String">${escapeXml(c)}</Data></Cell>`).join('')}</Row>`
+    ).join('');
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="FoundationConnection"><Table>${rowsXml}</Table></Worksheet></Workbook>`;
+    triggerDownload(xml, `Foundation_Connection_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
+    showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}foundation connection records (.xls)!`, '📥');
+  } else if (AppState.activeColumnId === 'foundation') {
+    const headers = ['#', 'Raw Input', '1. Foundation Type', '2. Foundation Connection', 'Status'];
+    const sheetRows = [headers];
+    dataToExport.forEach((r, idx) => {
+      sheetRows.push([
+        idx + 1,
+        r.original || '',
+        r.foundationTypeCode || '',
+        r.connectionCode || '',
+        r.statusText || ''
+      ]);
+    });
+
+    if (typeof XLSX !== 'undefined') {
+      const ws = XLSX.utils.aoa_to_sheet(sheetRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Foundation Details");
+      XLSX.writeFile(wb, `Foundation_Details_${getTimestamp()}.xlsx`);
+      showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}foundation details (.xlsx)!`, '📥');
+      return;
+    }
+
+    const rowsXml = sheetRows.map(row =>
+      `<Row>${row.map(c => `<Cell><Data ss:Type="String">${escapeXml(c)}</Data></Cell>`).join('')}</Row>`
+    ).join('');
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="FoundationDetails"><Table>${rowsXml}</Table></Worksheet></Workbook>`;
+    triggerDownload(xml, `Foundation_Details_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
+    showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}foundation details (.xls)!`, '📥');
+  } else if (AppState.activeColumnId === 'short_column' || AppState.activeColumnId === 'shortColumn') {
+    const headers = ['#', 'Raw Input', 'Short Column Code', 'Short Column Status', 'Status'];
+    const sheetRows = [headers];
+    dataToExport.forEach((r, idx) => {
+      sheetRows.push([
+        idx + 1,
+        r.original || '',
+        r.code || '',
+        r.shortColumnName || '',
+        r.statusText || ''
+      ]);
+    });
+
+    if (typeof XLSX !== 'undefined') {
+      const ws = XLSX.utils.aoa_to_sheet(sheetRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Short Column");
+      XLSX.writeFile(wb, `Short_Column_${getTimestamp()}.xlsx`);
+      showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}short column records (.xlsx)!`, '📥');
+      return;
+    }
+
+    const rowsXml = sheetRows.map(row =>
+      `<Row>${row.map(c => `<Cell><Data ss:Type="String">${escapeXml(c)}</Data></Cell>`).join('')}</Row>`
+    ).join('');
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="ShortColumn"><Table>${rowsXml}</Table></Worksheet></Workbook>`;
+    triggerDownload(xml, `Short_Column_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
+    showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}short column records (.xls)!`, '📥');
   } else {
     const isStores = AppState.activeColumnId === 'stores' || AppState.activeColumnId === 'stories';
     const colName = isStores
@@ -3623,7 +4336,7 @@ function downloadCsvFile() {
       csvLines.push(row.map(c => formatCsvCell(c)).join(','));
     });
   } else if (isRoof) {
-    const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Anchorage', 'Status'];
+    const headers = ['Raw Roof Input', '1. Roof Geometry', '2. Roof Pitch', '3. Roof Covering', '4. Roof Deck', '5. Roof Covering Attachment', '6. Roof Deck Attachment', '7. Roof Anchorage', 'Status'];
     csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
 
     dataToExport.forEach(r => {
@@ -3633,6 +4346,8 @@ function downloadCsvFile() {
         r.pitchCode || '',
         r.coveringCode || '',
         r.deckCode || '',
+        r.covAttachCode || '',
+        r.deckAttachCode || '',
         r.anchorageCode || '',
         r.statusText || ''
       ];
@@ -3647,6 +4362,32 @@ function downloadCsvFile() {
         r.original || '',
         r.wallTypeCode || '',
         r.wallSidingCode || '',
+        r.statusText || ''
+      ];
+      csvLines.push(row.map(c => formatCsvCell(c)).join(','));
+    });
+  } else if (AppState.activeColumnId === 'foundation') {
+    const headers = ['Raw Foundation Input', '1. Foundation Type', '2. Foundation Connection', 'Status'];
+    csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
+
+    dataToExport.forEach(r => {
+      const row = [
+        r.original || '',
+        r.foundationTypeCode || '',
+        r.connectionCode || '',
+        r.statusText || ''
+      ];
+      csvLines.push(row.map(c => formatCsvCell(c)).join(','));
+    });
+  } else if (AppState.activeColumnId === 'short_column' || AppState.activeColumnId === 'shortColumn') {
+    const headers = ['Raw Short Column Input', 'Short Column Code', 'Short Column Status', 'Status'];
+    csvLines.push(headers.map(h => formatCsvCell(h)).join(','));
+
+    dataToExport.forEach(r => {
+      const row = [
+        r.original || '',
+        r.code || '',
+        r.shortColumnName || '',
         r.statusText || ''
       ];
       csvLines.push(row.map(c => formatCsvCell(c)).join(','));
@@ -3680,7 +4421,8 @@ function downloadCsvFile() {
 
   const csvContent = '\uFEFF' + csvLines.join('\r\n');
   const isStores = AppState.activeColumnId === 'stores' || AppState.activeColumnId === 'stories';
-  const filenamePrefix = isSplit ? 'Separated_Addresses' : isOccupancy ? 'Occupancy_Codes' : isConstruction ? 'Construction_Codes' : isRoofYear ? 'Roof_Year_Built' : isRoof ? 'Roof_Details' : isWall ? 'Exterior_Wall_Details' : isStores ? 'No_of_Stores' : 'Cleaned_' + AppState.activeColumnId;
+  const isFoundation = AppState.activeColumnId === 'foundation';
+  const filenamePrefix = isSplit ? 'Separated_Addresses' : isOccupancy ? 'Occupancy_Codes' : isConstruction ? 'Construction_Codes' : isRoofYear ? 'Roof_Year_Built' : isRoof ? 'Roof_Details' : isWall ? 'Exterior_Wall_Details' : isFoundation ? 'Foundation_Details' : isStores ? 'No_of_Stores' : 'Cleaned_' + AppState.activeColumnId;
   triggerDownload(csvContent, `${filenamePrefix}_${getTimestamp()}.csv`, 'text/csv;charset=utf-8');
   showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}rows (.csv)!`, '📄');
 }
@@ -3746,6 +4488,78 @@ function loadSample(columnId) {
     updateLineNumbers();
     processCleaning();
     showToast('Loaded 20 Exterior Wall Finish sample records!', '🧱');
+    return;
+  }
+  if (columnId === 'foundation') {
+    const sample = SampleDatasets.foundation;
+    rawInputEl.value = sample;
+    updateLineNumbers();
+    processCleaning();
+    showToast('Loaded 19 Foundation Type & Connection sample records!', '🏛️');
+    return;
+  }
+  if (columnId === 'short_column' || columnId === 'shortColumn') {
+    const sample = SampleDatasets.short_column;
+    rawInputEl.value = sample;
+    updateLineNumbers();
+    processCleaning();
+    showToast('Loaded 15 Short Column sample records!', '🏛️');
+    return;
+  }
+  if (columnId === 'building_exterior_opening' || columnId === 'buildingExteriorOpening' || columnId === 'exterior_opening') {
+    const sample = SampleDatasets.building_exterior_opening;
+    rawInputEl.value = sample;
+    updateLineNumbers();
+    processCleaning();
+    showToast('Loaded 16 Building Exterior Opening sample records!', '🪟');
+    return;
+  }
+  if (columnId === 'soft_story' || columnId === 'softStory') {
+    const sample = SampleDatasets.soft_story;
+    rawInputEl.value = sample;
+    updateLineNumbers();
+    processCleaning();
+    showToast('Loaded 15 Soft Story sample records!', '🏠');
+    return;
+  }
+  if (columnId === 'foundation_type' || columnId === 'foundationType') {
+    const sample = SampleDatasets.foundation_type;
+    rawInputEl.value = sample;
+    updateLineNumbers();
+    processCleaning();
+    showToast('Loaded 17 Foundation Type sample records!', '🏛️');
+    return;
+  }
+  if (columnId === 'foundation_connection') {
+    const sample = SampleDatasets.foundation_connection;
+    rawInputEl.value = sample;
+    updateLineNumbers();
+    processCleaning();
+    showToast('Loaded 16 Foundation Connection sample records!', '🔗');
+    return;
+  }
+  if (columnId === 'ornamentation' || columnId === 'ornament') {
+    const sample = SampleDatasets.ornamentation;
+    rawInputEl.value = sample;
+    updateLineNumbers();
+    processCleaning();
+    showToast('Loaded 11 Ornamentation sample records!', '🏛️');
+    return;
+  }
+  if (columnId === 'building_shape' || columnId === 'buildingShape' || columnId === 'shape') {
+    const sample = SampleDatasets.building_shape;
+    rawInputEl.value = sample;
+    updateLineNumbers();
+    processCleaning();
+    showToast('Loaded 26 Building Shape sample records!', '📐');
+    return;
+  }
+  if (columnId === 'building_condition' || columnId === 'buildingCondition' || columnId === 'condition') {
+    const sample = SampleDatasets.building_condition;
+    rawInputEl.value = sample;
+    updateLineNumbers();
+    processCleaning();
+    showToast('Loaded 20 Building Condition sample records!', '🏗️');
     return;
   }
   const sample = SampleDatasets[columnId] || SampleDatasets.street;
@@ -3850,6 +4664,12 @@ async function triggerGeminiAI() {
   const isRoofYear = AppState.activeColumnId === 'roof_year';
   const isRoof = AppState.activeColumnId === 'roof';
   const isWall = AppState.activeColumnId === 'wall';
+  const isFoundation = AppState.activeColumnId === 'foundation';
+  const isShortColumn = AppState.activeColumnId === 'short_column' || AppState.activeColumnId === 'shortColumn';
+  const isSoftStory = AppState.activeColumnId === 'soft_story' || AppState.activeColumnId === 'softStory';
+  const isOrnamentation = AppState.activeColumnId === 'ornamentation' || AppState.activeColumnId === 'ornament';
+  const isBuildingShape = AppState.activeColumnId === 'building_shape' || AppState.activeColumnId === 'buildingShape' || AppState.activeColumnId === 'shape';
+  const isBuildingCondition = AppState.activeColumnId === 'building_condition' || AppState.activeColumnId === 'buildingCondition' || AppState.activeColumnId === 'condition';
   const isYear = AppState.activeColumnId === 'year';
   const isStores = AppState.activeColumnId === 'stores' || AppState.activeColumnId === 'stories';
   const isName = AppState.activeColumnId === 'name';
@@ -3882,7 +4702,7 @@ async function triggerGeminiAI() {
     return;
   }
 
-  const lines = rawText.split(/\r\n|\r|\n/).filter(l => l.trim().length > 0);
+  const lines = rawText.split(/\r\n|\r|\n/);
 
   if (aiLoadingOverlayEl) {
     if (aiLoadingTitleEl) {
@@ -3899,6 +4719,16 @@ async function triggerGeminiAI() {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing roof descriptions...`;
       } else if (isWall) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing exterior wall materials...`;
+      } else if (isFoundation) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing foundation types & connections...`;
+      } else if (isShortColumn) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing Short Column conditions...`;
+      } else if (isSoftStory) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing Soft Story conditions...`;
+      } else if (isOrnamentation) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing facade ornamentation & parapets...`;
+      } else if (isBuildingShape) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing building footprint geometries...`;
       } else if (isYear) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is validating Year Built records...`;
       } else if (isStores) {
@@ -3923,9 +4753,19 @@ async function triggerGeminiAI() {
       } else if (isRoofYear) {
         aiLoadingSubtitleEl.textContent = 'Enforcing Roof Year ≥ Year Built (never less) & selecting higher candidate year';
       } else if (isRoof) {
-        aiLoadingSubtitleEl.textContent = 'Classifying Geometry, Pitch, Covering & Deck with Touchstone UNICEDE® underwriting rules';
+        aiLoadingSubtitleEl.textContent = 'Classifying all 7 Touchstone UNICEDE® fields (Geometry, Pitch, Covering, Deck, Covering & Deck Attachments, Anchorage)';
       } else if (isWall) {
         aiLoadingSubtitleEl.textContent = 'Separating WallType & WallSiding with Touchstone UNICEDE® underwriting rules';
+      } else if (isFoundation) {
+        aiLoadingSubtitleEl.textContent = 'Classifying Foundation Type (Codes 0–12) & Foundation Connection (Codes 0–3)';
+      } else if (isShortColumn) {
+        aiLoadingSubtitleEl.textContent = 'Classifying Touchstone UNICEDE® Short Column (0: Unknown, 1: No, 2: Yes) for CA/HI/JP/US EQ';
+      } else if (isSoftStory) {
+        aiLoadingSubtitleEl.textContent = 'Classifying Touchstone UNICEDE® Soft Story (0: Unknown, 1: No, 2: Yes) for CA/HI/JP/NZ/US EQ';
+      } else if (isOrnamentation) {
+        aiLoadingSubtitleEl.textContent = 'Classifying Touchstone UNICEDE® Ornamentation (0: Unknown, 1: None, 2: Average, 3: Extensive) for CA/HI/JP/US EQ';
+      } else if (isBuildingShape) {
+        aiLoadingSubtitleEl.textContent = 'Classifying Touchstone UNICEDE® Building Shape (Codes 0–8: Square, Rect, Circular, L/T/U/H, Complex)';
       } else if (isYear) {
         aiLoadingSubtitleEl.textContent = 'Enforcing 1753–2026 range & selecting lesser/older construction year for multi-year entries';
       } else if (isStores) {
@@ -3949,7 +4789,8 @@ async function triggerGeminiAI() {
       results = await window.GeminiService.parseAddressesWithAI(lines, {
         casing: AppState.splitCasing,
         countryFormat: AppState.splitCountryFormat,
-        defaultCountry: AppState.splitIncludeCountry ? AppState.splitDefaultCountry : 'US'
+        defaultCountry: AppState.splitIncludeCountry ? AppState.splitDefaultCountry : 'US',
+        removeEmptyLines: AppState.splitRemoveEmpty
       });
     } else if (isOccupancy) {
       let inputPayload;
@@ -3970,7 +4811,9 @@ async function triggerGeminiAI() {
       } else {
         inputPayload = lines;
       }
-      results = await window.GeminiService.classifyOccupancyWithAI(inputPayload);
+      results = await window.GeminiService.classifyOccupancyWithAI(inputPayload, {
+        removeEmptyLines: AppState.occRemoveEmpty
+      });
     } else if (isConstruction) {
       let inputPayload;
       const allValues = getAllColumnValues();
@@ -3990,7 +4833,9 @@ async function triggerGeminiAI() {
       } else {
         inputPayload = lines;
       }
-      results = await window.GeminiService.classifyConstructionWithAI(inputPayload);
+      results = await window.GeminiService.classifyConstructionWithAI(inputPayload, {
+        removeEmptyLines: AppState.conRemoveEmpty
+      });
     } else if (isRoofYear) {
       let inputPayload;
       const ybVal = roofYearInputYbEl ? roofYearInputYbEl.value : '';
@@ -4011,11 +4856,48 @@ async function triggerGeminiAI() {
       });
     } else if (isRoof) {
       results = await window.GeminiService.classifyRoofWithAI(lines, {
-        format: AppState.roofFormat || 'code_only'
+        format: AppState.roofFormat || 'code_only',
+        removeEmptyLines: AppState.roofRemoveEmpty
       });
     } else if (isWall) {
       results = await window.GeminiService.cleanWallsWithAI(lines, {
-        format: AppState.wallFormat || 'code_only'
+        format: AppState.wallFormat || 'code_only',
+        removeEmptyLines: AppState.wallRemoveEmpty
+      });
+    } else if (AppState.activeColumnId === 'foundation_type' || AppState.activeColumnId === 'foundationType') {
+      results = await (window.GeminiService.classifyFoundationTypeWithAI || window.GeminiService.classifyFoundationWithAI).call(window.GeminiService, lines, {
+        format: AppState.foundationTypeFormat || 'code_only',
+        removeEmptyLines: AppState.foundationTypeRemoveEmpty
+      });
+    } else if (isFoundation) {
+      results = await window.GeminiService.classifyFoundationWithAI(lines, {
+        format: AppState.foundationFormat || 'code_only',
+        removeEmptyLines: AppState.foundationRemoveEmpty
+      });
+    } else if (isShortColumn) {
+      results = await window.GeminiService.classifyShortColumnWithAI(lines, {
+        format: AppState.shortColumnFormat || 'code_only',
+        removeEmptyLines: AppState.shortColumnRemoveEmpty
+      });
+    } else if (isSoftStory) {
+      results = await (window.GeminiService.cleanSoftStoryWithAI || window.GeminiService.classifySoftStoryWithAI).call(window.GeminiService, lines, {
+        format: AppState.softStoryFormat || 'code_only',
+        removeEmptyLines: AppState.softStoryRemoveEmpty
+      });
+    } else if (isOrnamentation) {
+      results = await (window.GeminiService.cleanOrnamentationWithAI || window.GeminiService.classifyOrnamentationWithAI).call(window.GeminiService, lines, {
+        format: AppState.ornamentationFormat || 'code_only',
+        removeEmptyLines: AppState.ornamentationRemoveEmpty
+      });
+    } else if (isBuildingShape) {
+      results = await (window.GeminiService.cleanBuildingShapeWithAI || window.GeminiService.classifyBuildingShapeWithAI).call(window.GeminiService, lines, {
+        format: AppState.buildingShapeFormat || 'code_only',
+        removeEmptyLines: AppState.buildingShapeRemoveEmpty
+      });
+    } else if (isBuildingCondition) {
+      results = await (window.GeminiService.cleanBuildingConditionWithAI || window.GeminiService.classifyBuildingConditionWithAI).call(window.GeminiService, lines, {
+        format: AppState.buildingConditionFormat || 'code_only',
+        removeEmptyLines: AppState.buildingConditionRemoveEmpty
       });
     } else if (isYear) {
       results = await window.GeminiService.parseYearWithAI(lines, {
@@ -4031,14 +4913,21 @@ async function triggerGeminiAI() {
         removeEmptyLines: AppState.storesRemoveEmpty
       });
     } else if (isName) {
-      results = await window.GeminiService.cleanNamesWithAI(lines);
+      results = await window.GeminiService.cleanNamesWithAI(lines, {
+        removeEmptyLines: AppState.removeEmptyLines
+      });
     } else if (isPhone) {
-      results = await window.GeminiService.cleanPhonesWithAI(lines);
+      results = await window.GeminiService.cleanPhonesWithAI(lines, {
+        removeEmptyLines: AppState.removeEmptyLines
+      });
     } else if (isEmail) {
-      results = await window.GeminiService.cleanEmailsWithAI(lines);
+      results = await window.GeminiService.cleanEmailsWithAI(lines, {
+        removeEmptyLines: AppState.removeEmptyLines
+      });
     } else {
       results = await window.GeminiService.cleanStreetsWithAI(lines, {
-        casing: AppState.casing
+        casing: AppState.casing,
+        removeEmptyLines: AppState.removeEmptyLines
       });
     }
 
@@ -4063,7 +4952,7 @@ async function triggerGeminiAI() {
  * ==========================================================================
  */
 function initCodeFinderUI() {
-  const SECTIONS = ['occupancy', 'construction', 'roof', 'wall'];
+  const SECTIONS = ['occupancy', 'construction', 'roof', 'wall', 'foundation-type', 'foundation', 'short-column', 'soft-story', 'ornamentation', 'building-shape', 'building-condition'];
 
   // 1. Setup in-ribbon finder for each classification section
   SECTIONS.forEach(sec => {
@@ -4157,6 +5046,31 @@ function initCodeFinderUI() {
       renderExplorerCards();
     }
   };
+
+  const btnMemoryModal = document.getElementById('btn-memory-modal');
+
+  function syncMemoryBadge() {
+    if (window.CustomCodesDB) {
+      const stats = window.CustomCodesDB.getStats();
+      const count = stats.totalLearned || 0;
+      const headerText = document.getElementById('header-memory-text');
+      if (headerText) {
+        headerText.textContent = count > 0 ? `Memory (${count})` : 'Memory';
+      }
+      const tabBadge = document.getElementById('badge-learned-count');
+      if (tabBadge) {
+        tabBadge.textContent = String(count);
+      }
+    }
+  }
+
+  // Sync on startup and on database update events
+  syncMemoryBadge();
+  window.addEventListener('cleanexcel:custom_db_updated', syncMemoryBadge);
+
+  if (btnMemoryModal) {
+    btnMemoryModal.addEventListener('click', () => openExplorer('learned'));
+  }
 
   if (btnOpenHeader) btnOpenHeader.addEventListener('click', () => openExplorer());
   if (btnOpenInput) btnOpenInput.addEventListener('click', () => openExplorer());
@@ -4606,12 +5520,49 @@ function initCodeFinderUI() {
         group: rowData.group
       });
 
+      // Self-train into persistent memory
+      if (window.CustomCodesDB.learn && mainKeyword) {
+        if (section === 'occupancy') {
+          window.CustomCodesDB.learn('occupancy', mainKeyword, { code, category: rowData.category || '' }, 'user_fix');
+        } else if (section === 'construction') {
+          window.CustomCodesDB.learn('construction', mainKeyword, { code, category: rowData.category || '', group: rowData.group || '' }, 'user_fix');
+        } else if (section === 'roof') {
+          window.CustomCodesDB.learn('roof', mainKeyword, {
+            geometryCode: rowData.geometryCode || '0',
+            pitchCode: rowData.pitchCode || '0',
+            coveringCode: rowData.coveringCode || '0',
+            deckCode: rowData.deckCode || '0',
+            covAttachCode: rowData.covAttachCode || '0',
+            deckAttachCode: rowData.deckAttachCode || '0',
+            anchorageCode: rowData.anchorageCode || '0'
+          }, 'user_fix');
+        } else if (section === 'wall') {
+          window.CustomCodesDB.learn('wall', mainKeyword, {
+            wallTypeCode: rowData.wallTypeCode || '',
+            wallSidingCode: rowData.wallSidingCode || ''
+          }, 'user_fix');
+        } else if (section === 'stores') {
+          window.CustomCodesDB.learn('stores', mainKeyword, rowData.stores || rowData.cleaned || '', 'user_fix');
+        } else if (section === 'year') {
+          window.CustomCodesDB.learn('year', mainKeyword, rowData.year || rowData.cleaned || '', 'user_fix');
+        } else if (section === 'address') {
+          window.CustomCodesDB.learn('address', mainKeyword, {
+            street: rowData.street || '',
+            city: rowData.city || '',
+            state: rowData.state || '',
+            county: rowData.county || '',
+            postal: rowData.postal || '',
+            country: rowData.country || ''
+          }, 'user_fix');
+        }
+      }
+
       if (window.CodeFinder) {
         window.CodeFinder.clearCache();
       }
 
       const kwDisplay = mainKeyword ? `"${mainKeyword}"` : `Keywords`;
-      showToast(`💾 Saved ${kwDisplay} ➔ Code ${code} (${rowData.category || 'Class'}) to Custom Database!`, '💾', {
+      showToast(`🧠 Trained: Saved ${kwDisplay} ➔ Code ${code} (${rowData.category || 'Class'}) to Memory!`, '🧠', {
         text: '📂 View Database Data',
         onClick: () => window.openCodeExplorer(section, mainKeyword || code)
       });
@@ -4830,6 +5781,8 @@ function initCodeFinderUI() {
       categories = ['all', 'roof covering', 'roof deck', 'roof geometry', 'roof pitch'];
     } else if (currentExplorerTab === 'wall') {
       categories = ['all', 'wall siding (exterior weather envelope)', 'wall type (structural wall backing)'];
+    } else if (currentExplorerTab === 'learned') {
+      categories = ['all', 'occupancy', 'construction', 'roof', 'wall', 'stores', 'year', 'address'];
     }
 
     categories.forEach(cat => {
@@ -4875,6 +5828,14 @@ function initCodeFinderUI() {
         &bull; <strong>Rule 1 (With %):</strong> Higher % wins (e.g. <code>70% Brick Veneer, 30% Vinyl</code> ➔ Brick <code>1</code>).<br>
         &bull; <strong>Rule 2 (No % / Tie):</strong> Weaker material wins (e.g. <code>Brick Veneer & Vinyl Siding</code> ➔ Vinyl Siding <code>4</code>).
       `;
+    } else if (currentExplorerTab === 'learned') {
+      callout.style.display = 'block';
+      callout.innerHTML = `
+        <strong>🧠 CleanExcel Continuous Self-Training & Memory System:</strong><br>
+        &bull; <strong>Self-Learning:</strong> Every time you run AI or make a manual fix/assignment, CleanExcel automatically trains itself and stores the rule.<br>
+        &bull; <strong>Instant 0 ms Recall:</strong> The deterministic engines recall learned items with top priority before generic rules.<br>
+        &bull; <strong>Persistent:</strong> Stored in your local database and retained across sessions. Export/import backups at any time.
+      `;
     } else {
       callout.style.display = 'none';
       callout.innerHTML = '';
@@ -4889,6 +5850,64 @@ function initCodeFinderUI() {
     grid.scrollTop = 0;
 
     const q = (explorerSearchInput && explorerSearchInput.value.trim()) || '';
+
+    // Handle Learned Memory tab
+    if (currentExplorerTab === 'learned') {
+      const allLearned = window.CustomCodesDB ? window.CustomCodesDB.getAllLearned() : [];
+      let learnedItems = allLearned;
+
+      if (currentExplorerCategoryFilter !== 'all') {
+        learnedItems = learnedItems.filter(i => i.section === currentExplorerCategoryFilter);
+      }
+
+      if (q) {
+        const qLower = q.toLowerCase();
+        learnedItems = learnedItems.filter(i => {
+          const phraseMatch = (i.phrase || '').toLowerCase().includes(qLower);
+          const rawMatch = (i.rawPhrase || '').toLowerCase().includes(qLower);
+          const resStr = JSON.stringify(i.result || '').toLowerCase();
+          return phraseMatch || rawMatch || resStr.includes(qLower);
+        });
+      }
+
+      if (stats) stats.textContent = `Showing ${learnedItems.length} learned underwriting patterns`;
+
+      if (learnedItems.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text-muted);">
+            <div style="font-size: 36px; margin-bottom: 12px;">🧠</div>
+            <h4 style="color: var(--text-primary); margin-bottom: 6px;">${q ? 'No Learned Patterns Found' : 'CleanExcel Self-Training Memory is Ready!'}</h4>
+            <p style="max-width: 500px; margin: 0 auto; font-size: 13px; line-height: 1.5;">
+              ${q ? `No learned rules match "<strong>${escapeHtml(q)}</strong>".` : 'Whenever you run AI or make a manual fix/assignment on any row in Studio, CleanExcel automatically trains itself and stores the pattern into persistent memory with 0 ms instant recall!'}
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      learnedItems.forEach(item => {
+        const card = createLearnedPatternCard(item, q, {
+          onDelete: () => {
+            if (confirm(`Remove learned memory pattern "${item.rawPhrase || item.phrase}"?`)) {
+              if (window.CustomCodesDB) {
+                window.CustomCodesDB.deleteLearned(item.section, item.phrase);
+                showToast(`Removed learned rule "${item.phrase}"`, '🗑️');
+                renderExplorerCards();
+                syncMemoryBadge();
+              }
+            }
+          },
+          onCopy: () => {
+            const copyVal = typeof item.result === 'object' ? JSON.stringify(item.result) : String(item.result);
+            if (navigator.clipboard) navigator.clipboard.writeText(copyVal);
+            showToast(`Copied result "${copyVal}"!`, '📋');
+          }
+        });
+        grid.appendChild(card);
+      });
+      return;
+    }
+
     let items = window.CodeFinder ? window.CodeFinder.search(q, currentExplorerTab, { limit: 120 }) : [];
 
     // Apply category filter
@@ -4924,6 +5943,75 @@ function initCodeFinderUI() {
       });
       grid.appendChild(card);
     });
+  }
+
+  function createLearnedPatternCard(item, query, handlers = {}) {
+    const card = document.createElement('div');
+    card.className = `finder-result-card card-learned`;
+    card.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+    card.style.background = 'rgba(15, 23, 42, 0.65)';
+
+    const secLabel = (item.section || 'General').toUpperCase();
+    const sourceBadge = item.source === 'ai'
+      ? `<span style="background: rgba(139, 92, 246, 0.2); color: #c084fc; font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 600;">✨ AI Learned</span>`
+      : `<span style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 600;">👤 User Fix</span>`;
+
+    let resultHtml = '';
+    if (typeof item.result === 'object' && item.result !== null) {
+      if (item.section === 'roof') {
+        resultHtml = `
+          <div style="font-size: 11px; color: var(--text-secondary); margin: 6px 0; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
+            Geom: <strong>${item.result.geometryCode || 0}</strong> &bull; Pitch: <strong>${item.result.pitchCode || 0}</strong> &bull; Cov: <strong>${item.result.coveringCode || 0}</strong> &bull; Deck: <strong>${item.result.deckCode || 0}</strong> &bull; CovAttach: <strong>${item.result.covAttachCode || 0}</strong> &bull; DeckAttach: <strong>${item.result.deckAttachCode || 0}</strong> &bull; Anchor: <strong>${item.result.anchorageCode || 0}</strong>
+          </div>`;
+      } else if (item.section === 'wall') {
+        resultHtml = `
+          <div style="font-size: 11px; color: var(--text-secondary); margin: 6px 0; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
+            WallType: <strong>${item.result.wallTypeCode || '—'}</strong> &bull; WallSiding: <strong>${item.result.wallSidingCode || '—'}</strong>
+          </div>`;
+      } else if (item.section === 'address') {
+        resultHtml = `
+          <div style="font-size: 11px; color: var(--text-secondary); margin: 6px 0; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
+            Street: <strong>${item.result.street || '—'}</strong> | City: <strong>${item.result.city || '—'}</strong> | State: <strong>${item.result.state || '—'}</strong> | Zip: <strong>${item.result.postal || '—'}</strong>
+          </div>`;
+      } else {
+        resultHtml = `
+          <div style="font-size: 12px; color: #60a5fa; margin: 4px 0; font-weight: 600;">
+            Code: ${item.result.code || '—'} ${item.result.category ? '— ' + item.result.category : ''}
+          </div>`;
+      }
+    } else {
+      resultHtml = `<div style="font-size: 13px; color: #60a5fa; font-weight: 600; margin: 4px 0;">➔ Output: "${escapeHtml(String(item.result))}"</div>`;
+    }
+
+    const hitBadge = item.hits > 0 ? `<span style="color: #fbbf24; font-size: 10px;">⚡ Used ${item.hits} time${item.hits > 1 ? 's' : ''}</span>` : `<span style="color: var(--text-muted); font-size: 10px;">⚡ Newly trained</span>`;
+
+    card.innerHTML = `
+      <div class="finder-card-header" style="margin-bottom: 6px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="font-size: 11px; font-weight: 700; color: #93c5fd; background: rgba(59, 130, 246, 0.2); padding: 2px 6px; border-radius: 4px;">${secLabel}</span>
+          ${sourceBadge}
+        </div>
+        ${hitBadge}
+      </div>
+      <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
+        "${highlightMatch(item.rawPhrase || item.phrase, query)}"
+      </div>
+      ${resultHtml}
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+        <span style="font-size: 10px; color: var(--text-muted);">Learned ${item.learnedAt ? new Date(item.learnedAt).toLocaleDateString() : 'recently'}</span>
+        <div style="display: flex; gap: 6px;">
+          <button type="button" class="btn-copy-learned" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer;">📋 Copy</button>
+          <button type="button" class="btn-del-learned" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer;">🗑️ Delete</button>
+        </div>
+      </div>
+    `;
+
+    const copyBtn = card.querySelector('.btn-copy-learned');
+    if (copyBtn && handlers.onCopy) copyBtn.addEventListener('click', handlers.onCopy);
+    const delBtn = card.querySelector('.btn-del-learned');
+    if (delBtn && handlers.onDelete) delBtn.addEventListener('click', handlers.onDelete);
+
+    return card;
   }
 
   function renderSectionFinderResults(sec, query, container) {
@@ -5174,6 +6262,59 @@ function initCodeFinderUI() {
 }
 
 /**
+ * Universal View Switcher (Landing Page vs. Studio Workspace)
+ */
+function switchAppView(viewName) {
+  try {
+    const landingViewEl = document.getElementById('landing-page-view');
+    const studioViewEl = document.getElementById('studio-view');
+    const navBtnHome = document.getElementById('nav-btn-home');
+    const navBtnStudio = document.getElementById('nav-btn-studio');
+    const btnLaunchHeader = document.getElementById('btn-launch-header');
+
+    if (viewName === 'home') {
+      if (landingViewEl) landingViewEl.style.display = 'flex';
+      if (studioViewEl) studioViewEl.style.display = 'none';
+      if (navBtnHome) navBtnHome.classList.add('active');
+      if (navBtnStudio) navBtnStudio.classList.remove('active');
+      if (btnLaunchHeader) btnLaunchHeader.style.display = 'inline-flex';
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+    } else {
+      if (landingViewEl) landingViewEl.style.display = 'none';
+      if (studioViewEl) studioViewEl.style.display = 'flex';
+      if (navBtnHome) navBtnHome.classList.remove('active');
+      if (navBtnStudio) navBtnStudio.classList.add('active');
+      if (btnLaunchHeader) btnLaunchHeader.style.display = 'none';
+
+      // Load studio ambient video on demand when entering workspace
+      try {
+        const studioVideo = document.querySelector('.studio-ambient-video');
+        if (studioVideo && studioVideo.dataset.src && !studioVideo.src) {
+          studioVideo.src = studioVideo.dataset.src;
+          studioVideo.load();
+          studioVideo.play().catch(() => {});
+        }
+      } catch (e) {}
+
+      // Re-trigger layout alignment for multi-column inputs and output tables safely
+      try { if (typeof updateLineNumbers === 'function') updateLineNumbers(); } catch (e) {}
+      try { if (typeof updateOccLineNumbers === 'function') updateOccLineNumbers(); } catch (e) {}
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+    }
+  } catch (err) {
+    console.error('switchAppView error:', err);
+    // Absolute fallback
+    const lv = document.getElementById('landing-page-view');
+    const sv = document.getElementById('studio-view');
+    if (lv) lv.style.display = viewName === 'home' ? 'flex' : 'none';
+    if (sv) sv.style.display = viewName === 'home' ? 'none' : 'flex';
+  }
+}
+
+// Expose globally immediately
+window.switchAppView = switchAppView;
+
+/**
  * ==========================================================================
  * Vengeance UI Navigation, Landing Page & Collapsible Ribbon Controller
  * ==========================================================================
@@ -5196,49 +6337,50 @@ function initVengeanceNavigation() {
   const footerLinkRules = document.getElementById('footer-link-rules');
   const footerLinkAi = document.getElementById('footer-link-ai');
 
-  let currentView = 'home';
-
-  function switchView(viewName) {
-    currentView = viewName;
-    if (viewName === 'home') {
-      if (landingViewEl) landingViewEl.style.display = 'flex';
-      if (studioViewEl) studioViewEl.style.display = 'none';
-      if (navBtnHome) navBtnHome.classList.add('active');
-      if (navBtnStudio) navBtnStudio.classList.remove('active');
-      if (btnLaunchHeader) btnLaunchHeader.style.display = 'inline-flex';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      if (landingViewEl) landingViewEl.style.display = 'none';
-      if (studioViewEl) studioViewEl.style.display = 'flex';
-      if (navBtnHome) navBtnHome.classList.remove('active');
-      if (navBtnStudio) navBtnStudio.classList.add('active');
-      if (btnLaunchHeader) btnLaunchHeader.style.display = 'none';
-
-      // Load studio ambient video on demand when entering workspace
-      const studioVideo = document.querySelector('.studio-ambient-video');
-      if (studioVideo && studioVideo.dataset.src && !studioVideo.src) {
-        studioVideo.src = studioVideo.dataset.src;
-        studioVideo.load();
-        studioVideo.play().catch(() => {});
-      }
-
-      // Re-trigger layout alignment for multi-column inputs and output tables
-      updateLineNumbers();
-      updateOccLineNumbers();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }
-
-  window.switchAppView = switchView;
-
   const navBrandClick = document.getElementById('nav-brand-click');
-  if (navBrandClick) navBrandClick.addEventListener('click', () => switchView('home'));
-  if (navBtnHome) navBtnHome.addEventListener('click', () => switchView('home'));
-  if (navBtnStudio) navBtnStudio.addEventListener('click', () => switchView('studio'));
-  if (btnLaunchHeader) btnLaunchHeader.addEventListener('click', () => switchView('studio'));
-  if (heroBtnLaunch) heroBtnLaunch.addEventListener('click', () => switchView('studio'));
-  if (bentoBtnLaunch) bentoBtnLaunch.addEventListener('click', () => switchView('studio'));
-  if (footerLinkStudio) footerLinkStudio.addEventListener('click', () => switchView('studio'));
+  if (navBrandClick) navBrandClick.addEventListener('click', () => switchAppView('home'));
+  if (navBtnHome) navBtnHome.addEventListener('click', () => switchAppView('home'));
+  if (navBtnStudio) navBtnStudio.addEventListener('click', () => switchAppView('studio'));
+  if (btnLaunchHeader) btnLaunchHeader.addEventListener('click', () => switchAppView('studio'));
+  if (heroBtnLaunch) heroBtnLaunch.addEventListener('click', () => switchAppView('studio'));
+  if (bentoBtnLaunch) bentoBtnLaunch.addEventListener('click', () => switchAppView('studio'));
+  if (footerLinkStudio) footerLinkStudio.addEventListener('click', () => switchAppView('studio'));
+
+  // Global Document-Level Event Delegation for All Launch / Navigation Triggers
+  document.addEventListener('click', (e) => {
+    // 1. Launch Studio triggers
+    const launchTrigger = e.target.closest('#btn-launch-header, #hero-btn-launch, #bento-btn-launch, #nav-btn-studio, #footer-link-studio, .veng-btn-launch, [data-action="launch-studio"]');
+    if (launchTrigger) {
+      e.preventDefault();
+      switchAppView('studio');
+      return;
+    }
+
+    // 2. Bento Card or Bento CTA button
+    const bentoCard = e.target.closest('.bento-card[data-target-section]');
+    if (bentoCard) {
+      e.preventDefault();
+      const targetSec = bentoCard.getAttribute('data-target-section');
+      switchAppView('studio');
+      if (targetSec) {
+        if (typeof window.switchActiveSection === 'function') {
+          window.switchActiveSection(targetSec);
+        } else {
+          const tabEl = document.querySelector(`.column-tab[data-column="${targetSec}"]`);
+          if (tabEl) tabEl.click();
+        }
+      }
+      return;
+    }
+
+    // 3. Home Nav triggers
+    const homeTrigger = e.target.closest('#nav-btn-home, #nav-brand-click');
+    if (homeTrigger) {
+      e.preventDefault();
+      switchAppView('home');
+      return;
+    }
+  }, true);
 
   // Code Finder Modal Triggers
   const openFinder = () => {
@@ -5259,7 +6401,7 @@ function initVengeanceNavigation() {
   // Live sample demo trigger from hero
   if (heroBtnSample) {
     heroBtnSample.addEventListener('click', () => {
-      switchView('studio');
+      switchAppView('studio');
       const loadSampleBtn = document.getElementById('btn-load-sample');
       if (loadSampleBtn) {
         loadSampleBtn.click();
@@ -5267,26 +6409,10 @@ function initVengeanceNavigation() {
     });
   }
 
-  // Bento cards direct jump to specific engine
-  document.querySelectorAll('.bento-card[data-target-section]').forEach(card => {
-    card.addEventListener('click', () => {
-      const targetSec = card.getAttribute('data-target-section');
-      if (targetSec) {
-        switchView('studio');
-        if (typeof window.switchActiveSection === 'function') {
-          window.switchActiveSection(targetSec);
-        } else {
-          const tabEl = document.querySelector(`.column-tab[data-column="${targetSec}"]`);
-          if (tabEl) tabEl.click();
-        }
-      }
-    });
-  });
-
   // Footer rules link
   if (footerLinkRules) {
     footerLinkRules.addEventListener('click', () => {
-      switchView('studio');
+      switchAppView('studio');
       // Expand rule ribbon if collapsed
       if (rulesWrapper && isRibbonCollapsed) {
         toggleRuleRibbon();
