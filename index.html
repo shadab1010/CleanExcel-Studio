@@ -81,13 +81,23 @@
 
       <!-- Right: AI, Memory & Launch Studio -->
       <div class="veng-nav-right">
-        <button id="btn-gemini-modal" class="veng-ai-pill" type="button" title="Universal AI Engine Settings">
+        <!-- Mobile Quick Search Button -->
+        <button id="btn-header-search-mobile" class="veng-mobile-icon-btn" type="button" title="Search Taxonomies (⌘K)" onclick="window.openCodeExplorer ? window.openCodeExplorer() : (window.openCodeFinderModal && window.openCodeFinderModal())" aria-label="Search Taxonomies">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+
+        <!-- Mobile View Toggle Button (switches between Home and Studio) -->
+        <button id="btn-mobile-view-toggle" class="veng-mobile-toggle-btn" type="button" title="Switch View" aria-label="Switch View">
+          <span id="mobile-toggle-text">Studio ⚡</span>
+        </button>
+
+        <button id="btn-gemini-modal" class="veng-ai-pill" type="button" onclick="window.openGeminiModal ? window.openGeminiModal() : (document.getElementById('gemini-modal') && (document.getElementById('gemini-modal').style.display='flex'))" title="Universal AI Engine Settings">
           <svg class="veng-pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
           <span class="ai-pill-text">Gemini 2.5</span>
           <span class="ai-badge-dot"></span>
         </button>
 
-        <button id="btn-memory-modal" class="veng-ai-pill veng-memory-pill" type="button" title="Continuous Memory Database (Learned Taxonomy)">
+        <button id="btn-memory-modal" class="veng-ai-pill veng-memory-pill" type="button" onclick="window.openCodeExplorer ? window.openCodeExplorer('learned') : (document.getElementById('code-explorer-modal') && (document.getElementById('code-explorer-modal').style.display='flex'))" title="Continuous Memory Database (Learned Taxonomy)">
           <svg class="veng-pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18a1 1 0 0 1-2 0v-1.07A7 7 0 0 1 5.07 11H4a1 1 0 0 1 0-2h1.07A7 7 0 0 1 11 3.07V2a1 1 0 0 1 2 0v1.07A7 7 0 0 1 18.93 9H20a1 1 0 0 1 0 2h-1.07A7 7 0 0 1 13 16.93z"></path></svg>
           <span class="ai-pill-text" id="header-memory-text">Memory</span>
           <span class="ai-badge-dot"></span>
@@ -676,162 +686,245 @@
               </svg>
             </button>
 
-          <!-- Dropdown Quick Menu -->
-          <div id="section-dropdown-menu" class="section-dropdown-menu" style="display: none;">
+          <!-- Dropdown Quick Menu / Jump Palette -->
+          <div id="section-dropdown-menu" class="section-dropdown-menu" style="display: none;" role="dialog" aria-label="Jump to engine section">
             <div class="dropdown-menu-header">
-              <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-              <span>Jump Directly to Any Section</span>
-              <span class="dropdown-menu-count">16 Engines</span>
+              <div class="dropdown-header-left">
+                <svg class="studio-svg-icon dropdown-header-spark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                <span>Jump Directly to Any Section</span>
+              </div>
+              <div class="dropdown-header-right">
+                <span class="dropdown-menu-count" id="dropdown-menu-count">16 Engines</span>
+                <button type="button" class="dropdown-close-btn" id="btn-close-section-dropdown" aria-label="Close menu (Esc)" title="Close (Esc)">&times;</button>
+              </div>
             </div>
 
-            <div class="dropdown-menu-grid">
-              <!-- Underwriting Group -->
-              <div class="dropdown-section-group">
-                <div class="dropdown-group-title">
-                  <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                  <span>Underwriting &amp; UNICEDE®</span>
+            <!-- Search & Controls Toolbar -->
+            <div class="dropdown-controls-toolbar">
+              <div class="dropdown-search-box">
+                <svg class="dropdown-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="engine-dropdown-search" class="dropdown-search-input" placeholder="Search 16 engines, codes, or keywords (e.g. Roof, Wall, 111, Stories)..." autocomplete="off" spellcheck="false" aria-label="Search engines">
+                <button type="button" id="btn-clear-dropdown-search" class="dropdown-search-clear" title="Clear search query" style="display: none;">&times;</button>
+                <kbd class="dropdown-search-kbd">ESC</kbd>
+              </div>
+
+              <div class="dropdown-filter-actions">
+                <!-- Arrangement / Sort Mode Toggle -->
+                <div class="dropdown-sort-pill-group" role="group" aria-label="Sort arrangement">
+                  <button type="button" class="dropdown-sort-pill active" id="btn-sort-alphabetical" data-sort="alphabetical" title="Arrange all engines in alphabetical order A-Z">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 6h7M3 12h5M3 18h3M18 6v12m0 0l-3-3m3 3l3-3"></path></svg>
+                    <span>Alphabetical (A–Z)</span>
+                  </button>
+                  <button type="button" class="dropdown-sort-pill" id="btn-sort-grouped" data-sort="grouped" title="Group engines by category">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    <span>By Category</span>
+                  </button>
                 </div>
-                <div class="dropdown-group-items">
-                  <button class="dropdown-item" data-target="wall" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Exterior Wall Finish</span>
-                      <span class="item-sub">WallType (0-9) &bull; WallSiding (0-8)</span>
-                    </div>
-                    <span class="item-badge">Dual</span>
-                  </button>
-                  <button class="dropdown-item" data-target="foundation_type" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M2 18h20"></path><path d="M6 18V6"></path><path d="M10 18V6"></path><path d="M14 18V6"></path><path d="M18 18V6"></path><path d="M3 6h18l-9-4z"></path></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Foundation Type</span>
-                      <span class="item-sub">Codes 0-12 &bull; Basements, Slabs, Piles, Crawlspaces</span>
-                    </div>
-                    <span class="item-badge">UNICEDE®</span>
-                  </button>
-                  <button class="dropdown-item" data-target="foundation_connection" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Foundation Connection</span>
-                      <span class="item-sub">Codes 0-6 &bull; Ties, Bolts, Gravity, Epoxy</span>
-                    </div>
-                    <span class="item-badge">UNICEDE®</span>
-                  </button>
-                  <button class="dropdown-item" data-target="roof" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Roof Description</span>
-                      <span class="item-sub">Geometry &bull; Pitch &bull; Covering &bull; Deck</span>
-                    </div>
-                    <span class="item-badge">4 Fields</span>
-                  </button>
-                  <button class="dropdown-item" data-target="occupancy" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="12" y1="6" x2="12.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="8" y1="11" x2="8.01" y2="11"></line><line x1="12" y1="11" x2="12.01" y2="11"></line><line x1="16" y1="11" x2="16.01" y2="11"></line></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Occupancy Code</span>
-                      <span class="item-sub">3-Col Compare &bull; UNICEDE® 300-384</span>
-                    </div>
-                    <span class="item-badge">Touchstone</span>
-                  </button>
-                  <button class="dropdown-item" data-target="construction" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">ConstructionCode</span>
-                      <span class="item-sub">3-Col Compare &bull; UNICEDE® 100-514</span>
-                    </div>
-                    <span class="item-badge">Touchstone</span>
-                  </button>
-                  <button class="dropdown-item" data-target="year" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Year Built</span>
-                      <span class="item-sub">1753 – 2026 Strict Range Validator</span>
-                    </div>
-                    <span class="item-badge">Range</span>
-                  </button>
-                  <button class="dropdown-item" data-target="roof_year" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><circle cx="12" cy="13" r="3"></circle></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Roof Year Built</span>
-                      <span class="item-sub">2-Col &bull; Year Built Validation</span>
-                    </div>
-                    <span class="item-badge">2-Col</span>
-                  </button>
-                  <button class="dropdown-item" data-target="stores" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M9 7h1"></path><path d="M9 11h1"></path><path d="M9 15h1"></path><path d="M14 7h1"></path><path d="M14 11h1"></path><path d="M14 15h1"></path></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">No of Stores</span>
-                      <span class="item-sub">Whole Number &bull; Round Up &bull; Range Max</span>
-                    </div>
-                    <span class="item-badge">Stories</span>
-                  </button>
-                  <button class="dropdown-item" data-target="short_column" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M4 2h16"></path><path d="M6 2v20"></path><path d="M18 2v20"></path><path d="M10 2v20"></path><path d="M14 2v20"></path></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Short Column</span>
-                      <span class="item-sub">Codes 0-2 &bull; CA/HI/JP/US EQ (Optional)</span>
-                    </div>
-                    <span class="item-badge">Touchstone</span>
-                  </button>
-                  <button class="dropdown-item" data-target="soft_story" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line><line x1="15" y1="21" x2="15" y2="9"></line></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Soft Story</span>
-                      <span class="item-sub">Codes 0-2 &bull; CA/HI/JP/NZ/US EQ &bull; Stories &ge; 2</span>
-                    </div>
-                    <span class="item-badge">Touchstone</span>
-                  </button>
-                  <button class="dropdown-item" data-target="ornamentation" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Ornamentation</span>
-                      <span class="item-sub">Codes 0-3 &bull; CA/HI/JP/US EQ &bull; Decorative Elements / Parapets</span>
-                    </div>
-                    <span class="item-badge">Touchstone</span>
-                  </button>
-                  <button class="dropdown-item" data-target="building_shape" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Building Shape</span>
-                      <span class="item-sub">Codes 0-8 &bull; CA/HI/JP/NZ/US EQ &bull; Footprint Geometry</span>
-                    </div>
-                    <span class="item-badge">Touchstone</span>
-                  </button>
-                  <button class="dropdown-item" data-target="building_condition" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"></path><path d="M5 20V8l7-5 7 5v12"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Building Condition</span>
-                      <span class="item-sub">Codes 0-3 &bull; CA/HI/JP/NZ/US EQ, US HU/ST &bull; Cladding &amp; Maintenance</span>
-                    </div>
-                    <span class="item-badge">Touchstone</span>
-                  </button>
+
+                <!-- Category Filters inside dropdown -->
+                <div class="dropdown-mini-chips" role="group" aria-label="Category filter">
+                  <button type="button" class="dropdown-mini-chip active" data-cat="all">All <span class="mini-chip-cnt">16</span></button>
+                  <button type="button" class="dropdown-mini-chip" data-cat="underwriting">Underwriting <span class="mini-chip-cnt">14</span></button>
+                  <button type="button" class="dropdown-mini-chip" data-cat="address">Address <span class="mini-chip-cnt">2</span></button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="dropdown-menu-scrollable" id="dropdown-menu-scrollable">
+              <!-- Alphabetical A-Z View (Default & Arranged) -->
+              <div class="dropdown-items-grid" id="dropdown-alphabetical-grid">
+                <button class="dropdown-item" data-target="split" data-category="address" data-title="Address Splitter" data-keywords="address splitter universal us uk germany canada post town county postal city street iso-2" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M6 9v12"></path><path d="M18 15V9a9 9 0 0 0-9-9"></path></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Address Splitter</span>
+                    <span class="item-sub">US, UK, Germany, Canada &bull; ISO-2</span>
+                  </div>
+                  <span class="item-badge">Universal</span>
+                </button>
+
+                <button class="dropdown-item" data-target="building_condition" data-category="underwriting" data-title="Building Condition" data-keywords="building condition codes 0-3 ca hi jp nz us eq us hu st cladding maintenance distress good average poor" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"></path><path d="M5 20V8l7-5 7 5v12"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Building Condition</span>
+                    <span class="item-sub">Codes 0-3 &bull; CA/HI/JP/NZ/US EQ, US HU/ST</span>
+                  </div>
+                  <span class="item-badge">Touchstone</span>
+                </button>
+
+                <button class="dropdown-item" data-target="building_shape" data-category="underwriting" data-title="Building Shape" data-keywords="building shape codes 0-8 ca hi jp nz us eq footprint geometry square rectangle circular l-shaped t-shaped u-shaped h-shaped complex" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"></polygon></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Building Shape</span>
+                    <span class="item-sub">Codes 0-8 &bull; CA/HI/JP/NZ/US EQ &bull; Geometry</span>
+                  </div>
+                  <span class="item-badge">Touchstone</span>
+                </button>
+
+                <button class="dropdown-item" data-target="construction" data-category="underwriting" data-title="ConstructionCode" data-keywords="construction code constructioncode unicede 100-514 touchstone iso 1 2 3 4 5 6 wood frame masonry joisted noncombustible fire resistive 101 111 113 119 131 151 152" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">ConstructionCode</span>
+                    <span class="item-sub">3-Col Compare &bull; UNICEDE® 100-514</span>
+                  </div>
+                  <span class="item-badge">Touchstone</span>
+                </button>
+
+                <button class="dropdown-item" data-target="wall" data-category="underwriting" data-title="Exterior Wall Finish" data-keywords="exterior wall finish walltype 0-9 wallsiding 0-8 stone 113 brick 111 dual glass siding veneer eifs stucco" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="15"></line><line x1="15" y1="3" x2="15" y2="9"></line><line x1="15" y1="15" x2="15" y2="21"></line></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Exterior Wall Finish</span>
+                    <span class="item-sub">WallType (0-9) &bull; WallSiding (0-8) &bull; Stone 113 / Brick 111</span>
+                  </div>
+                  <span class="item-badge">Dual</span>
+                </button>
+
+                <button class="dropdown-item" data-target="foundation_connection" data-category="underwriting" data-title="Foundation Connection" data-keywords="foundation connection codes 0-6 ties bolts gravity friction epoxy unicede anchor straps seismic" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Foundation Connection</span>
+                    <span class="item-sub">Codes 0-6 &bull; Ties, Bolts, Gravity, Epoxy</span>
+                  </div>
+                  <span class="item-badge">UNICEDE®</span>
+                </button>
+
+                <button class="dropdown-item" data-target="foundation_type" data-category="underwriting" data-title="Foundation Type" data-keywords="foundation type codes 0-12 basements slabs piles crawlspaces footing mat slab unicede masonry basement concrete basement" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M2 18h20"></path><path d="M6 18V6"></path><path d="M10 18V6"></path><path d="M14 18V6"></path><path d="M18 18V6"></path><path d="M3 6h18l-9-4z"></path></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Foundation Type</span>
+                    <span class="item-sub">Codes 0-12 &bull; Basements, Slabs, Piles, Crawlspaces</span>
+                  </div>
+                  <span class="item-badge">UNICEDE®</span>
+                </button>
+
+                <button class="dropdown-item" data-target="stores" data-category="underwriting" data-title="No of Stores" data-keywords="no of stores stories floors whole number round up range max ceil" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M9 7h1"></path><path d="M9 11h1"></path><path d="M9 15h1"></path><path d="M14 7h1"></path><path d="M14 11h1"></path><path d="M14 15h1"></path></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">No of Stores</span>
+                    <span class="item-sub">Whole Number &bull; Round Up &bull; Range Max</span>
+                  </div>
+                  <span class="item-badge">Stories</span>
+                </button>
+
+                <button class="dropdown-item" data-target="occupancy" data-category="underwriting" data-title="Occupancy Code" data-keywords="occupancy code unicede 300-384 touchstone residential apartment condo duplex triplex commercial office garage 318 sports court 317 301 303 306" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="12" y1="6" x2="12.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="8" y1="11" x2="8.01" y2="11"></line><line x1="12" y1="11" x2="12.01" y2="11"></line><line x1="16" y1="11" x2="16.01" y2="11"></line></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Occupancy Code</span>
+                    <span class="item-sub">3-Col Compare &bull; UNICEDE® 300-384</span>
+                  </div>
+                  <span class="item-badge">Touchstone</span>
+                </button>
+
+                <button class="dropdown-item" data-target="ornamentation" data-category="underwriting" data-title="Ornamentation" data-keywords="ornamentation codes 0-3 ca hi jp us eq decorative elements parapets trim exterior none average extensive" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Ornamentation</span>
+                    <span class="item-sub">Codes 0-3 &bull; CA/HI/JP/US EQ &bull; Parapets &amp; Trim</span>
+                  </div>
+                  <span class="item-badge">Touchstone</span>
+                </button>
+
+                <button class="dropdown-item" data-target="roof" data-category="underwriting" data-title="Roof Description" data-keywords="roof description geometry pitch covering deck 4 fields 7 fields asphalt shingles tiles metal membrane unicede" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Roof Description</span>
+                    <span class="item-sub">Geometry &bull; Pitch &bull; Covering &bull; Deck</span>
+                  </div>
+                  <span class="item-badge">4 Fields</span>
+                </button>
+
+                <button class="dropdown-item" data-target="roof_year" data-category="underwriting" data-title="Roof Year Built" data-keywords="roof year built 2-col year built validation multi-year max range 1753 2026" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><circle cx="12" cy="13" r="3"></circle></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Roof Year Built</span>
+                    <span class="item-sub">2-Col &bull; Year Built Validation (&ge; YB)</span>
+                  </div>
+                  <span class="item-badge">2-Col</span>
+                </button>
+
+                <button class="dropdown-item" data-target="short_column" data-category="underwriting" data-title="Short Column" data-keywords="short column codes 0-2 ca hi jp us eq optional concrete spandrel infill columns" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16"></path><path d="M4 2h16"></path><path d="M6 2v20"></path><path d="M18 2v20"></path><path d="M10 2v20"></path><path d="M14 2v20"></path></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Short Column</span>
+                    <span class="item-sub">Codes 0-2 &bull; CA/HI/JP/US EQ (Optional)</span>
+                  </div>
+                  <span class="item-badge">Touchstone</span>
+                </button>
+
+                <button class="dropdown-item" data-target="soft_story" data-category="underwriting" data-title="Soft Story" data-keywords="soft story codes 0-2 ca hi jp nz us eq stories >= 2 ground floor garage tuck under lateral weakness" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line><line x1="15" y1="21" x2="15" y2="9"></line></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Soft Story</span>
+                    <span class="item-sub">Codes 0-2 &bull; CA/HI/JP/NZ/US EQ &bull; Stories &ge; 2</span>
+                  </div>
+                  <span class="item-badge">Touchstone</span>
+                </button>
+
+                <button class="dropdown-item active" data-target="street" data-category="address" data-title="Street Address" data-keywords="street address strips 29 symbols range protected cleaning normalizer" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Street Address</span>
+                    <span class="item-sub">Strips 29 Symbols &bull; Range Protected</span>
+                  </div>
+                  <span class="item-badge">Active</span>
+                </button>
+
+                <button class="dropdown-item" data-target="year" data-category="underwriting" data-title="Year Built" data-keywords="year built 1753 2026 strict range validator lesser older year original foundation" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Year Built</span>
+                    <span class="item-sub">1753 – 2026 Strict Range Validator</span>
+                  </div>
+                  <span class="item-badge">Range</span>
+                </button>
+              </div>
+
+              <!-- Categorized View (Toggled via "By Category") -->
+              <div class="dropdown-grouped-container" id="dropdown-grouped-container" style="display: none;">
+                <!-- Underwriting Category Group -->
+                <div class="dropdown-section-group" data-group-cat="underwriting">
+                  <div class="dropdown-group-title">
+                    <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    <span>Underwriting &amp; UNICEDE®</span>
+                    <span class="dropdown-group-cnt">14</span>
+                  </div>
+                  <div class="dropdown-group-items-grid" id="dropdown-group-underwriting-items">
+                    <!-- Cloned from alphabetical list to maintain sync -->
+                  </div>
+                </div>
+
+                <!-- Address Category Group -->
+                <div class="dropdown-section-group" data-group-cat="address">
+                  <div class="dropdown-group-title">
+                    <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span>Address &amp; Location Records</span>
+                    <span class="dropdown-group-cnt">2</span>
+                  </div>
+                  <div class="dropdown-group-items-grid" id="dropdown-group-address-items">
+                    <!-- Cloned from alphabetical list to maintain sync -->
+                  </div>
                 </div>
               </div>
 
-              <!-- Address Group -->
-              <div class="dropdown-section-group">
-                <div class="dropdown-group-title">
-                  <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  <span>Address &amp; Location Records</span>
+              <!-- Empty State when search returns 0 matches -->
+              <div class="dropdown-empty-state" id="dropdown-empty-state" style="display: none;">
+                <div class="empty-icon-wrap">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>
                 </div>
-                <div class="dropdown-group-items">
-                  <button class="dropdown-item active" data-target="street" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Street Address</span>
-                      <span class="item-sub">Strips 29 Symbols &bull; Range Protected</span>
-                    </div>
-                    <span class="item-badge">Active</span>
-                  </button>
-                  <button class="dropdown-item" data-target="split" type="button">
-                    <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M6 9v12"></path><path d="M18 15V9a9 9 0 0 0-9-9"></path></svg></span>
-                    <div class="item-details">
-                      <span class="item-title">Address Splitter</span>
-                      <span class="item-sub">US, UK, Germany, Canada &bull; ISO-2</span>
-                    </div>
-                    <span class="item-badge">Universal</span>
-                  </button>
-                </div>
+                <div class="empty-title">No matching engines found</div>
+                <div class="empty-sub">Try searching by code (e.g. 111, 101, 318), peril (CA EQ, US HU), or keywords</div>
+                <button type="button" class="btn-dropdown-empty-reset" id="btn-dropdown-empty-reset">Reset Search Filter</button>
               </div>
+            </div>
+
+            <!-- Footer Toolbar with keyboard shortcut hints -->
+            <div class="dropdown-menu-footer">
+              <div class="dropdown-footer-hints">
+                <span class="footer-hint-item"><kbd>&uarr;</kbd><kbd>&darr;</kbd> Navigate</span>
+                <span class="footer-hint-item"><kbd>&crarr;</kbd> Select</span>
+                <span class="footer-hint-item"><kbd>Esc</kbd> Close</span>
+              </div>
+              <div class="dropdown-footer-status" id="dropdown-footer-status">Showing 16 of 16 engines</div>
             </div>
           </div>
         </div>
@@ -2722,10 +2815,20 @@
     <div class="modal-card">
       <div class="modal-header">
         <div class="modal-title">
-          <span class="ai-sparkle">🌐</span>
-          <h3>Universal AI Engine Settings</h3>
+          <div class="brand-logo" style="width: 24px; height: 24px; flex-shrink: 0; margin-right: 4px;">
+            <img src="neon_llama_logo_transparent.svg" alt="AI Engine Logo" width="24" height="24" style="display:block;object-fit:contain;">
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 style="font-family: var(--font-heading); font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: #ffffff; margin: 0;">Universal AI Engine Settings</h3>
+              <span class="brand-version-badge" style="font-size: 9.5px; padding: 1px 6px;">v3.0</span>
+            </div>
+            <p class="modal-sub" style="margin: 2px 0 0; font-size: 11.5px; font-family: var(--font-sans); color: rgba(255, 255, 255, 0.6); font-weight: 400;">Neural Underwriting AI Model &amp; Provider Orchestrator</p>
+          </div>
         </div>
-        <button class="modal-close" id="btn-close-modal">&times;</button>
+        <button class="modal-close" id="btn-close-modal" aria-label="Close modal" title="Close (Esc)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
       </div>
       <div class="modal-body">
         <div class="form-group">
@@ -2741,7 +2844,7 @@
         <div class="form-group">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
             <label for="gemini-api-key-input" style="margin-bottom: 0;">Enter / Update AI API Key (Any Model)</label>
-            <span class="badge-persistent" style="font-size: 10.5px; font-family: var(--font-mono); color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; padding: 2px 7px;">💾 Persistent Storage</span>
+            <span class="badge-persistent" style="font-size: 11px; font-family: var(--font-sans); font-weight: 600; color: #34d399; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 9999px; padding: 2px 9px;">💾 Persistent Storage</span>
           </div>
           <div class="key-input-wrapper">
             <input 
@@ -2999,6 +3102,30 @@
       <p id="ai-loading-subtitle">Applying worldwide country knowledge &amp; real estate schemas</p>
     </div>
   </div>
+
+  <!-- Mobile Bottom Floating Navigation Dock (< 768px screens) -->
+  <nav class="mobile-bottom-dock" id="mobile-bottom-dock" aria-label="Mobile Navigation">
+    <button class="mobile-dock-btn active" id="dock-btn-home" type="button" onclick="window.switchAppView && window.switchAppView('home')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Home</span>
+    </button>
+    <button class="mobile-dock-btn" id="dock-btn-studio" type="button" onclick="window.switchAppView && window.switchAppView('studio')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+      <span>Studio</span>
+    </button>
+    <button class="mobile-dock-btn" id="dock-btn-finder" type="button" onclick="window.openCodeExplorer ? window.openCodeExplorer() : (window.openCodeFinderModal && window.openCodeFinderModal())">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <span>Taxonomy</span>
+    </button>
+    <button class="mobile-dock-btn" id="dock-btn-memory" type="button" onclick="window.openCodeExplorer ? window.openCodeExplorer('learned') : (document.getElementById('btn-memory-modal') && document.getElementById('btn-memory-modal').click())">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18a1 1 0 0 1-2 0v-1.07A7 7 0 0 1 5.07 11H4a1 1 0 0 1 0-2h1.07A7 7 0 0 1 11 3.07V2a1 1 0 0 1 2 0v1.07A7 7 0 0 1 18.93 9H20a1 1 0 0 1 0 2h-1.07A7 7 0 0 1 13 16.93z"></path></svg>
+      <span>Memory</span>
+    </button>
+    <button class="mobile-dock-btn" id="dock-btn-ai" type="button" onclick="window.openGeminiModal ? window.openGeminiModal() : (document.getElementById('btn-gemini-modal') && document.getElementById('btn-gemini-modal').click())">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+      <span>AI Engine</span>
+    </button>
+  </nav>
 
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toast-container"></div>
@@ -3333,7 +3460,7 @@
           }
         }
         if (e.key === 'Escape') {
-          const modals = ['#gemini-modal', '#code-finder-modal', '#code-detail-modal', '#code-editor-modal'];
+          const modals = ['#gemini-modal', '#code-explorer-modal', '#code-finder-modal', '#code-detail-modal', '#code-editor-modal'];
           modals.forEach(sel => {
             const m = document.querySelector(sel);
             if (m && m.style.display !== 'none') m.style.display = 'none';
