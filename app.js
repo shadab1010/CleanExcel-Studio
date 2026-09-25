@@ -577,6 +577,15 @@ let roofYearCol2InputEl;
 let roofYearRuleModeEl;
 let roofYearRemoveEmptyCheckboxEl;
 
+// 2-Column Coordinates (Latitude & Longitude) DOM Elements
+let coord2ColContainerEl;
+let coordInputLatEl;
+let coordInputLongEl;
+let coordLinesLatEl;
+let coordLinesLongEl;
+let coordCol1InputEl;
+let coordCol2InputEl;
+
 // Output Search & Filter DOM Elements
 let outputSearchInputEl;
 let btnClearSearchEl;
@@ -655,6 +664,15 @@ document.addEventListener('DOMContentLoaded', () => {
   roofYearCol2InputEl = document.getElementById('roof-year-col-2-input');
   roofYearRuleModeEl = document.getElementById('roof-year-rule-mode');
   roofYearRemoveEmptyCheckboxEl = document.getElementById('roof-year-remove-empty-checkbox');
+
+  // 2-Column Coordinates Elements
+  coord2ColContainerEl = document.getElementById('coordinates-2col-container');
+  coordInputLatEl = document.getElementById('coord-input-lat');
+  coordInputLongEl = document.getElementById('coord-input-long');
+  coordLinesLatEl = document.getElementById('coord-lines-lat');
+  coordLinesLongEl = document.getElementById('coord-lines-long');
+  coordCol1InputEl = document.getElementById('coord-col-1-input');
+  coordCol2InputEl = document.getElementById('coord-col-2-input');
 
   // Search & Filter Elements
   outputSearchInputEl = document.getElementById('output-search-input');
@@ -1633,8 +1651,19 @@ function bindEvents() {
       liveInspectorEl.style.display = 'none';
     }
 
-    // Switch editor pane layout (Occupancy/Construction use 3-col, Roof Year uses 2-col)
-    if (colId === 'roof_year') {
+    // Switch editor pane layout (Occupancy/Construction use 3-col, Roof Year uses 2-col, Coordinates uses 2-col)
+    if (colId === 'coordinates' || colId === 'coordinate' || colId === 'lat_long' || colId === 'latlong' || colId === 'coords' || colId === 'dms') {
+      if (coord2ColContainerEl) coord2ColContainerEl.style.display = 'grid';
+      if (roofYear2ColContainerEl) roofYear2ColContainerEl.style.display = 'none';
+      if (occupancy3ColContainerEl) occupancy3ColContainerEl.style.display = 'none';
+      if (inputEditorContainerEl) inputEditorContainerEl.style.display = 'none';
+      if (btnPaste2ColEl) btnPaste2ColEl.style.display = 'inline-flex';
+      if (btnPaste3ColEl) btnPaste3ColEl.style.display = 'none';
+      if (btnAddColEl) btnAddColEl.style.display = 'none';
+      if (rawPaneTitleEl) rawPaneTitleEl.innerHTML = '📥 2-Column Coordinates Input <span style="font-size:11px;font-weight:normal;opacity:0.75;">(Latitude &amp; Longitude)</span>';
+      updateCoordinatesLineNumbers();
+    } else if (colId === 'roof_year') {
+      if (coord2ColContainerEl) coord2ColContainerEl.style.display = 'none';
       if (roofYear2ColContainerEl) roofYear2ColContainerEl.style.display = 'grid';
       if (occupancy3ColContainerEl) occupancy3ColContainerEl.style.display = 'none';
       if (inputEditorContainerEl) inputEditorContainerEl.style.display = 'none';
@@ -1644,6 +1673,7 @@ function bindEvents() {
       if (rawPaneTitleEl) rawPaneTitleEl.innerHTML = '📥 2-Column Roof Year Built Input <span style="font-size:11px;font-weight:normal;opacity:0.75;">(Year Built &amp; Roof Year)</span>';
       updateRoofYearLineNumbers();
     } else if (colId === 'occupancy' || colId === 'construction') {
+      if (coord2ColContainerEl) coord2ColContainerEl.style.display = 'none';
       if (roofYear2ColContainerEl) roofYear2ColContainerEl.style.display = 'none';
       if (occupancy3ColContainerEl) occupancy3ColContainerEl.style.display = 'grid';
       if (inputEditorContainerEl) inputEditorContainerEl.style.display = 'none';
@@ -1654,6 +1684,7 @@ function bindEvents() {
       renderMultiColumnInputs();
       updateOccLineNumbers();
     } else {
+      if (coord2ColContainerEl) coord2ColContainerEl.style.display = 'none';
       if (roofYear2ColContainerEl) roofYear2ColContainerEl.style.display = 'none';
       if (occupancy3ColContainerEl) occupancy3ColContainerEl.style.display = 'none';
       if (inputEditorContainerEl) inputEditorContainerEl.style.display = 'flex';
@@ -2193,14 +2224,45 @@ function bindEvents() {
     });
   }
 
+  // 2-Column Coordinates (Latitude & Longitude) Input Listeners
+  if (coordInputLatEl && coordInputLongEl) {
+    [coordInputLatEl, coordInputLongEl].forEach(textarea => {
+      textarea.addEventListener('input', () => {
+        updateCoordinatesLineNumbers();
+        debouncedProcessCleaning(80);
+      });
+
+      textarea.addEventListener('paste', (e) => {
+        const pasteText = (e.clipboardData || window.clipboardData)?.getData('text');
+        if (pasteText && (pasteText.includes('\t') || pasteText.includes(','))) {
+          e.preventDefault();
+          distribute2ColumnCoordinatesText(pasteText);
+          showToast('Pasted and separated Latitude & Longitude columns!', '📋');
+        }
+      });
+    });
+
+    coordInputLatEl.addEventListener('scroll', () => {
+      if (coordLinesLatEl) coordLinesLatEl.scrollTop = coordInputLatEl.scrollTop;
+    });
+    coordInputLongEl.addEventListener('scroll', () => {
+      if (coordLinesLongEl) coordLinesLongEl.scrollTop = coordInputLongEl.scrollTop;
+    });
+  }
+
   // Paste 2 Columns button
   if (btnPaste2ColEl) {
     btnPaste2ColEl.addEventListener('click', async () => {
       try {
         const text = await navigator.clipboard.readText();
         if (text) {
-          distribute2ColumnText(text);
-          showToast('Pasted 2 Excel columns from clipboard!', '📋');
+          if (AppState.activeColumnId === 'coordinates' || AppState.activeColumnId === 'coordinate' || AppState.activeColumnId === 'lat_long' || AppState.activeColumnId === 'latlong' || AppState.activeColumnId === 'coords' || AppState.activeColumnId === 'dms') {
+            distribute2ColumnCoordinatesText(text);
+            showToast('Pasted Latitude & Longitude columns from clipboard!', '📋');
+          } else {
+            distribute2ColumnText(text);
+            showToast('Pasted 2 Excel columns from clipboard!', '📋');
+          }
         } else {
           showToast('Clipboard is empty', '⚠️');
         }
@@ -2501,12 +2563,18 @@ function bindEvents() {
   // Clear buttons (both top workspace command bar and raw pane action bar)
   document.querySelectorAll('#btn-clear-all, #btn-pane-clear-all, .btn-clear-all-trigger').forEach(clearBtn => {
     clearBtn.addEventListener('click', () => {
-      if (AppState.activeColumnId === 'occupancy' || AppState.activeColumnId === 'construction' || AppState.activeColumnId === 'roof_year') {
+      if (AppState.activeColumnId === 'occupancy' || AppState.activeColumnId === 'construction' || AppState.activeColumnId === 'roof_year' || AppState.activeColumnId === 'coordinates' || AppState.activeColumnId === 'coordinate' || AppState.activeColumnId === 'lat_long' || AppState.activeColumnId === 'latlong' || AppState.activeColumnId === 'coords' || AppState.activeColumnId === 'dms') {
         getAllColumnTextareas().forEach(ta => { ta.value = ''; });
         if (occInputCodeEl) occInputCodeEl.value = '';
         if (occInputBldgEl) occInputBldgEl.value = '';
         if (occInputOccEl) occInputOccEl.value = '';
+        if (roofYearInputYbEl) roofYearInputYbEl.value = '';
+        if (roofYearInputRyEl) roofYearInputRyEl.value = '';
+        if (coordInputLatEl) coordInputLatEl.value = '';
+        if (coordInputLongEl) coordInputLongEl.value = '';
         if (typeof updateOccLineNumbers === 'function') updateOccLineNumbers();
+        if (typeof updateRoofYearLineNumbers === 'function') updateRoofYearLineNumbers();
+        if (typeof updateCoordinatesLineNumbers === 'function') updateCoordinatesLineNumbers();
       }
       if (rawInputEl) {
         rawInputEl.value = '';
@@ -2527,6 +2595,12 @@ function bindEvents() {
           if (AppState.activeColumnId === 'occupancy' || AppState.activeColumnId === 'construction') {
             distribute3ColumnText(text);
             showToast(`Pasted into 3-column ${AppState.activeColumnId} inputs!`, '📋');
+          } else if (AppState.activeColumnId === 'roof_year') {
+            distribute2ColumnText(text);
+            showToast('Pasted into 2-column Year Built & Roof Year inputs!', '📋');
+          } else if (AppState.activeColumnId === 'coordinates' || AppState.activeColumnId === 'coordinate' || AppState.activeColumnId === 'lat_long' || AppState.activeColumnId === 'latlong' || AppState.activeColumnId === 'coords' || AppState.activeColumnId === 'dms') {
+            distribute2ColumnCoordinatesText(text);
+            showToast('Pasted into 2-column Latitude & Longitude inputs!', '📋');
           } else {
             rawInputEl.value = text;
             updateLineNumbers();
@@ -3271,6 +3345,64 @@ function distribute2ColumnText(text) {
   processCleaning();
 }
 
+function updateCoordinatesLineNumbers() {
+  const latVal = coordInputLatEl ? coordInputLatEl.value : '';
+  const longVal = coordInputLongEl ? coordInputLongEl.value : '';
+
+  const latLines = latVal.split('\n');
+  const longLines = longVal.split('\n');
+  const maxLines = Math.max(latLines.length, longLines.length, 1);
+
+  const numArr = [];
+  for (let i = 1; i <= maxLines; i++) {
+    numArr.push(i);
+  }
+  const numbersText = numArr.join('\n');
+  if (coordLinesLatEl) coordLinesLatEl.textContent = numbersText;
+  if (coordLinesLongEl) coordLinesLongEl.textContent = numbersText;
+
+  const isAllBlank = !latVal.trim() && !longVal.trim();
+  if (rawCountBadgeEl) {
+    rawCountBadgeEl.textContent = `${isAllBlank ? 0 : maxLines} rows`;
+  }
+}
+window.updateCoordinatesLineNumbers = updateCoordinatesLineNumbers;
+
+function distribute2ColumnCoordinatesText(text) {
+  if (!text) return;
+  const rows = text.split(/\r\n|\r|\n/);
+  if (rows.length > 1 && rows[rows.length - 1].trim() === '') {
+    rows.pop();
+  }
+  if (rows.length === 0) return;
+
+  // Auto-skip header row if user pastes e.g. "Latitude\tLongitude" or "Lat\tLong"
+  if (rows.length > 1) {
+    const firstRow = rows[0].toLowerCase();
+    if ((firstRow.includes('lat') || firstRow.includes('latitude')) && (firstRow.includes('long') || firstRow.includes('longitude') || firstRow.includes('lng'))) {
+      rows.shift();
+    }
+  }
+
+  const lats = [];
+  const longs = [];
+
+  rows.forEach(r => {
+    const [lat, lng] = (window.CoordinatesConverter && window.CoordinatesConverter.splitCoordinateLine) 
+      ? window.CoordinatesConverter.splitCoordinateLine(r)
+      : (r.includes('\t') ? r.split('\t') : [r, '']);
+    lats.push((lat || '').trim());
+    longs.push((lng || '').trim());
+  });
+
+  if (coordInputLatEl) coordInputLatEl.value = lats.join('\n');
+  if (coordInputLongEl) coordInputLongEl.value = longs.join('\n');
+
+  updateCoordinatesLineNumbers();
+  processCleaning();
+}
+window.distribute2ColumnCoordinatesText = distribute2ColumnCoordinatesText;
+
 function saveWordsToStorage() {
   try {
     localStorage.setItem('cleanexcel_words_to_remove', JSON.stringify(AppState.wordsToRemove));
@@ -3579,6 +3711,16 @@ function getFilteredOutputData() {
           cleanStr.includes(query) ||
           statStr.includes(query);
         if (!found) return false;
+      } else if (isCoordinates) {
+        const lineStr = String(r.lineNum || '');
+        const latStr = String(r.lat || r.rawLat || '').toLowerCase();
+        const longStr = String(r.long || r.rawLong || '').toLowerCase();
+        const statStr = String(r.statusText || '').toLowerCase();
+        const found = lineStr.includes(query) ||
+          latStr.includes(query) ||
+          longStr.includes(query) ||
+          statStr.includes(query);
+        if (!found) return false;
       } else if (isSplit) {
         const lineStr = String(r.lineNum || '');
         const streetStr = String(r.street || '').toLowerCase();
@@ -3652,7 +3794,44 @@ function processCleaning() {
   const isOccupancy = AppState.activeColumnId === 'occupancy';
   const isConstruction = AppState.activeColumnId === 'construction';
   const isRoofYear = AppState.activeColumnId === 'roof_year';
+  const isCoordinates = AppState.activeColumnId === 'coordinates' || AppState.activeColumnId === 'coordinate' || AppState.activeColumnId === 'lat_long' || AppState.activeColumnId === 'latlong' || AppState.activeColumnId === 'coords' || AppState.activeColumnId === 'dms';
   const rawText = rawInputEl ? rawInputEl.value : '';
+
+  if (isCoordinates) {
+    const latVal = coordInputLatEl ? coordInputLatEl.value : '';
+    const longVal = coordInputLongEl ? coordInputLongEl.value : '';
+    const rawVal = rawText;
+
+    const hasData = latVal.trim() || longVal.trim() || rawVal.trim();
+    if (!hasData) {
+      AppState.lastCleanedData = [];
+      updateCodeFilterDropdown([]);
+      refreshOutputView();
+      return;
+    }
+
+    let inputPayload;
+    if (latVal.trim() || longVal.trim()) {
+      inputPayload = {
+        lat: latVal.split(/\r\n|\r|\n/),
+        long: longVal.split(/\r\n|\r|\n/)
+      };
+    } else {
+      inputPayload = rawVal;
+    }
+
+    const cleanerObj = window.CoordinatesConverter || (window.CleanersRegistry && window.CleanersRegistry.coordinates && window.CleanersRegistry.coordinates.cleaner);
+    const removeEmptyCheckbox = document.getElementById('coordinates-remove-empty');
+    const options = {
+      removeEmptyLines: removeEmptyCheckbox ? removeEmptyCheckbox.checked : true
+    };
+
+    const results = cleanerObj.cleanColumn(inputPayload, options);
+    AppState.lastCleanedData = results;
+    updateCodeFilterDropdown(results);
+    refreshOutputView();
+    return;
+  }
 
   if (isRoofYear) {
     const ybVal = roofYearInputYbEl ? roofYearInputYbEl.value : '';
@@ -4084,6 +4263,25 @@ async function copyForExcel() {
 
     excelText = tsvRows.join('\r\n');
     excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table>${htmlRows.join('')}</table></body></html>`;
+  } else if (isCoordinates) {
+    const headers = ['Latitude (Input)', 'Longitude (Input)', 'Latitude (DD 6 Dec)', 'Longitude (DD 6 Dec)', 'Status'];
+    const tsvRows = [headers.join('\t')];
+    const htmlRows = [`<tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>`];
+
+    dataToCopy.forEach(r => {
+      const row = [
+        r.rawLat || '',
+        r.rawLong || '',
+        r.lat || '',
+        r.long || '',
+        r.statusText || ''
+      ];
+      tsvRows.push(row.join('\t'));
+      htmlRows.push(`<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`);
+    });
+
+    excelText = tsvRows.join('\r\n');
+    excelHtml = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table>${htmlRows.join('')}</table></body></html>`;
   } else {
     const plainLines = dataToCopy.map(r => r.cleaned);
     excelText = plainLines.join('\r\n');
@@ -4123,6 +4321,34 @@ async function copyForExcel() {
   }
 }
 window.copyForExcel = copyForExcel;
+window.copyLatitudeColumn = async function() {
+  const data = getFilteredOutputData();
+  if (data.length === 0) {
+    showToast('No coordinates to copy', '⚠️');
+    return;
+  }
+  const lats = data.map(r => r.lat || '').join('\r\n');
+  try {
+    await navigator.clipboard.writeText(lats);
+    showToast(`Copied ${data.length} Latitude values to clipboard!`, '📋');
+  } catch (e) {
+    showToast('Could not copy to clipboard', '❌');
+  }
+};
+window.copyLongitudeColumn = async function() {
+  const data = getFilteredOutputData();
+  if (data.length === 0) {
+    showToast('No coordinates to copy', '⚠️');
+    return;
+  }
+  const longs = data.map(r => r.long || '').join('\r\n');
+  try {
+    await navigator.clipboard.writeText(longs);
+    showToast(`Copied ${data.length} Longitude values to clipboard!`, '📋');
+  } catch (e) {
+    showToast('Could not copy to clipboard', '❌');
+  }
+};
 window.showToast = showToast;
 window.processCleaning = processCleaning;
 
@@ -4296,6 +4522,37 @@ function downloadExcelSpreadsheet() {
     const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="RoofYearBuilt"><Table>${rowsXml}</Table></Worksheet></Workbook>`;
     triggerDownload(xml, `Roof_Year_Built_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
     showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}roof year records (.xls)!`, '📥');
+    return;
+  } else if (AppState.activeColumnId === 'coordinates' || AppState.activeColumnId === 'coordinate' || AppState.activeColumnId === 'lat_long' || AppState.activeColumnId === 'latlong' || AppState.activeColumnId === 'coords' || AppState.activeColumnId === 'dms') {
+    const headers = ['#', 'Latitude (Input)', 'Longitude (Input)', 'Latitude (DD 6 Dec)', 'Longitude (DD 6 Dec)', 'Status'];
+    const sheetRows = [headers];
+    dataToExport.forEach((r, idx) => {
+      sheetRows.push([
+        idx + 1,
+        r.rawLat || '',
+        r.rawLong || '',
+        r.lat || '',
+        r.long || '',
+        r.statusText || ''
+      ]);
+    });
+
+    if (typeof XLSX !== 'undefined') {
+      const ws = XLSX.utils.aoa_to_sheet(sheetRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Coordinates");
+      XLSX.writeFile(wb, `Coordinates_${getTimestamp()}.xlsx`);
+      showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}coordinate records (.xlsx)!`, '📥');
+      return;
+    }
+
+    const rowsXml = sheetRows.map(row =>
+      `<Row>${row.map(c => `<Cell><Data ss:Type="String">${escapeXml(c)}</Data></Cell>`).join('')}</Row>`
+    ).join('');
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="Coordinates"><Table>${rowsXml}</Table></Worksheet></Workbook>`;
+    triggerDownload(xml, `Coordinates_${getTimestamp()}.xls`, 'application/vnd.ms-excel');
+    showToast(`Downloaded ${dataToExport.length} ${isFiltered ? 'filtered ' : ''}coordinate records (.xls)!`, '📥');
     return;
   } else if (isWall) {
     const headers = ['#', 'Raw Input', '1. WallType', '2. WallSiding', 'Status'];

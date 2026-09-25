@@ -1435,9 +1435,11 @@
   }
   if (typeof window !== 'undefined') {
     window.CodeFinder = CodeFinder;
-    window.addEventListener('cleanexcel:custom_db_updated', function() {
-      CodeFinder.clearCache();
-    });
+    if (typeof window.addEventListener === 'function') {
+      window.addEventListener('cleanexcel:custom_db_updated', function() {
+        CodeFinder.clearCache();
+      });
+    }
   }
 
 })(typeof window !== 'undefined' ? window : global);

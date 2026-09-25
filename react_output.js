@@ -282,6 +282,7 @@
       const isWall = activeColumnId === 'wall' || (results[0] && results[0].wallType !== undefined);
       const isFoundation = activeColumnId === 'foundation' || activeColumnId === 'foundation_type' || activeColumnId === 'foundationType' || activeColumnId === 'foundation_connection' || (results[0] && (results[0].foundationType !== undefined || results[0].foundationTypeCode !== undefined));
       const isRoofYear = activeColumnId === 'roof_year' || (results[0] && (results[0].roofYearBuilt !== undefined || results[0].rawRoofYearBuilt !== undefined || results[0].yearBuilt !== undefined));
+      const isCoordinates = activeColumnId === 'coordinates' || activeColumnId === 'coordinate' || activeColumnId === 'lat_long' || activeColumnId === 'latlong' || activeColumnId === 'coords' || activeColumnId === 'dms' || (results[0] && (results[0].latitude !== undefined || results[0].rawLat !== undefined));
       const isShortColumn = activeColumnId === 'short_column' || activeColumnId === 'shortColumn' || (results[0] && (results[0].shortColumnCode !== undefined || results[0].shortColumn !== undefined));
       const isSoftStory = activeColumnId === 'soft_story' || activeColumnId === 'softStory' || (results[0] && (results[0].softStoryCode !== undefined || results[0].softStory !== undefined));
       const isOrnamentation = activeColumnId === 'ornamentation' || activeColumnId === 'ornament' || (results[0] && (results[0].ornamentationCode !== undefined || results[0].ornamentation !== undefined));
@@ -301,6 +302,11 @@
             if (r.status !== statusFilter) return false;
           } else if (isRoofYear) {
             if (r.status !== statusFilter && r.statusText !== statusFilter) return false;
+          } else if (isCoordinates) {
+            if (statusFilter === 'dms' && r.status !== 'assigned' && r.status !== 'dms') return false;
+            if (statusFilter === 'decimal' && r.status !== 'match' && r.status !== 'decimal') return false;
+            if (statusFilter === 'missing' && !r.isLatMissing && !r.isLongMissing && r.status !== 'empty' && r.status !== 'mismatch') return false;
+            if (statusFilter !== 'dms' && statusFilter !== 'decimal' && statusFilter !== 'missing' && r.status !== statusFilter && r.statusText !== statusFilter) return false;
           } else if (isCodeEngine) {
             if (r.comparisonStatus !== statusFilter) return false;
           } else {
@@ -407,6 +413,13 @@
               (r.rawRoofYearBuilt && String(r.rawRoofYearBuilt).toLowerCase().includes(query)) ||
               (r.cleaned && String(r.cleaned).toLowerCase().includes(query)) ||
               (r.statusText && r.statusText.toLowerCase().includes(query));
+          } else if (isCoordinates) {
+            return lineStr === query ||
+              (r.rawLat && String(r.rawLat).toLowerCase().includes(query)) ||
+              (r.rawLong && String(r.rawLong).toLowerCase().includes(query)) ||
+              (r.lat && String(r.lat).toLowerCase().includes(query)) ||
+              (r.long && String(r.long).toLowerCase().includes(query)) ||
+              (r.statusText && String(r.statusText).toLowerCase().includes(query));
           } else {
             return lineStr === query ||
               (r.original && r.original.toLowerCase().includes(query)) ||
@@ -476,6 +489,7 @@
     const isFoundationDual = activeColumnId === 'foundation' || (firstRow && (firstRow.foundationType !== undefined || firstRow.foundationTypeCode !== undefined) && !isFoundationConn && !isFoundationType);
     const isFoundation = isFoundationConn || isFoundationType || isFoundationDual;
     const isRoofYear = activeColumnId === 'roof_year' || (firstRow && (firstRow.roofYearBuilt !== undefined || firstRow.rawRoofYearBuilt !== undefined || firstRow.yearBuilt !== undefined));
+    const isCoordinates = activeColumnId === 'coordinates' || activeColumnId === 'coordinate' || activeColumnId === 'lat_long' || activeColumnId === 'latlong' || activeColumnId === 'coords' || activeColumnId === 'dms' || (firstRow && (firstRow.latitude !== undefined || firstRow.rawLat !== undefined));
     const isShortColumn = activeColumnId === 'short_column' || activeColumnId === 'shortColumn' || (firstRow && (firstRow.shortColumnCode !== undefined || firstRow.shortColumn !== undefined));
     const isSoftStory = activeColumnId === 'soft_story' || activeColumnId === 'softStory' || (firstRow && (firstRow.softStoryCode !== undefined || firstRow.softStory !== undefined));
     const isOrnamentation = activeColumnId === 'ornamentation' || activeColumnId === 'ornament' || (firstRow && (firstRow.ornamentationCode !== undefined || firstRow.ornamentation !== undefined));
@@ -679,6 +693,40 @@
                 e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Validation Status'),
                 e('th', { key: 'actions', style: { width: '135px', textAlign: 'right' } }, 'Actions')
               ],
+              isCoordinates && [
+                e('th', { key: 'raw-lat', style: { width: '20%' } }, 'Latitude (Input)'),
+                e('th', { key: 'raw-long', style: { width: '20%' } }, 'Longitude (Input)'),
+                e('th', { key: 'clean-lat', style: { width: '22%' } },
+                  e('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' } },
+                    e('span', null, 'Latitude (DD 6 Dec)'),
+                    e('button', {
+                      type: 'button',
+                      className: 'btn-col-header-copy',
+                      title: 'Copy Converted Latitude Column for Excel',
+                      onClick: (evt) => {
+                        evt.stopPropagation();
+                        if (window.copyLatitudeColumn) window.copyLatitudeColumn();
+                      }
+                    }, '📋 Copy Lat')
+                  )
+                ),
+                e('th', { key: 'clean-long', style: { width: '22%' } },
+                  e('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' } },
+                    e('span', null, 'Longitude (DD 6 Dec)'),
+                    e('button', {
+                      type: 'button',
+                      className: 'btn-col-header-copy',
+                      title: 'Copy Converted Longitude Column for Excel',
+                      onClick: (evt) => {
+                        evt.stopPropagation();
+                        if (window.copyLongitudeColumn) window.copyLongitudeColumn();
+                      }
+                    }, '📋 Copy Long')
+                  )
+                ),
+                e('th', { key: 'status', style: { width: '145px', textAlign: 'center' } }, 'Conversion Status'),
+                e('th', { key: 'actions', style: { width: '140px', textAlign: 'right' } }, 'Actions')
+              ],
               isSplit && [
                 showRaw && e('th', { key: 'raw-addr', style: { width: '22%' } }, 'Raw Address Input'),
                 e('th', { key: 'st', style: { width: showRaw ? '18%' : '26%' } }, 'STREET'),
@@ -689,7 +737,7 @@
                 showCountry && e('th', { key: 'country', style: { width: '80px', textAlign: 'center' } }, 'Country'),
                 e('th', { key: 'actions', style: { width: '125px', textAlign: 'right' } }, 'Actions')
               ].filter(Boolean),
-              (!isConstruction && !isOccupancy && !isSplit && !isRoof && !isWall && !isFoundation && !isRoofYear && !isShortColumn && !isSoftStory && !isOrnamentation && !isBuildingShape && !isBuildingCondition) && [
+              (!isConstruction && !isOccupancy && !isSplit && !isRoof && !isWall && !isFoundation && !isRoofYear && !isCoordinates && !isShortColumn && !isSoftStory && !isOrnamentation && !isBuildingShape && !isBuildingCondition) && [
                 e('th', { key: 'raw', style: { width: '38%' } },
                   activeColumnId === 'year'
                     ? 'Raw Input Year'
@@ -730,7 +778,7 @@
             visibleRows.length === 0 ? (
               e('tr', null,
                 e('td', {
-                  colSpan: (isConstruction || isOccupancy) ? (5 + totalInputCols) : (isRoof ? 9 : (isRoofYear ? 6 : ((isWall || isFoundation || isShortColumn || isSoftStory || isOrnamentation || isBuildingShape || isBuildingCondition) ? 6 : (isSplit ? (6 + (showRaw ? 1 : 0) + (showCounty ? 1 : 0) + (showCountry ? 1 : 0)) : 5)))),
+                  colSpan: (isConstruction || isOccupancy) ? (5 + totalInputCols) : (isRoof ? 9 : ((isRoofYear || isCoordinates) ? 7 : ((isWall || isFoundation || isShortColumn || isSoftStory || isOrnamentation || isBuildingShape || isBuildingCondition) ? 6 : (isSplit ? (6 + (showRaw ? 1 : 0) + (showCounty ? 1 : 0) + (showCountry ? 1 : 0)) : 5)))),
                   style: { textAlign: 'center', padding: '48px 16px', color: 'var(--text-muted)' }
                 },
                   e('div', { style: { fontSize: '26px', marginBottom: '8px' } }, '🔍'),
@@ -1537,6 +1585,99 @@
                         )
                       )
                     );
+                  } else if (isCoordinates) {
+                    let badgeCls = 'assigned';
+                    let badgeText = r.statusText || '✓ Converted (DMS➔DD)';
+                    if (r.isLatMissing && r.isLongMissing) {
+                      badgeCls = 'empty';
+                      badgeText = 'Missing Coordinates';
+                    } else if (r.isLatMissing || r.isLongMissing) {
+                      badgeCls = 'mismatch';
+                      badgeText = r.isLatMissing ? '⚠️ Missing Lat' : '⚠️ Missing Long';
+                    } else if (r.status === 'match' || r.statusText === '✓ Already Decimal') {
+                      badgeCls = 'match';
+                      badgeText = '✓ Already Decimal';
+                    } else {
+                      badgeCls = 'assigned';
+                      badgeText = '✓ Converted (DMS➔DD)';
+                    }
+
+                    const hasValidCoords = !r.isLatMissing && !r.isLongMissing && !isNaN(Number(r.lat)) && !isNaN(Number(r.long));
+                    const mapUrl = hasValidCoords ? `https://www.google.com/maps?q=${r.lat},${r.long}` : '#';
+
+                    return e('tr', { key: String(rowNum) },
+                      e('td', { className: 'td-num' }, rowNum),
+                      e('td', {
+                        className: 'td-raw-lat',
+                        style: {
+                          fontFamily: 'var(--font-mono)',
+                          fontWeight: '500',
+                          color: r.rawLat ? 'var(--text-primary)' : 'var(--text-muted)'
+                        }
+                      }, r.rawLat || e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '11px' } }, '— (Blank)')),
+                      e('td', {
+                        className: 'td-raw-long',
+                        style: {
+                          fontFamily: 'var(--font-mono)',
+                          fontWeight: '500',
+                          color: r.rawLong ? 'var(--text-primary)' : 'var(--text-muted)'
+                        }
+                      }, r.rawLong || e('span', { style: { color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '11px' } }, '— (Blank)')),
+                      e('td', {
+                        className: 'td-clean-lat',
+                        style: {
+                          fontFamily: 'var(--font-mono)',
+                          fontWeight: 'bold',
+                          fontSize: '13px',
+                          color: r.isLatMissing ? 'var(--text-muted)' : 'var(--accent-emerald-light)'
+                        }
+                      }, r.isLatMissing ? e('span', { style: { color: '#f87171', fontStyle: 'italic', fontWeight: 'bold' } }, 'Missing') : e('div', { style: { display: 'inline-flex', alignItems: 'center', gap: '6px' } },
+                        e('span', null, r.lat),
+                        e('button', {
+                          type: 'button',
+                          className: `btn-inline-copy ${copiedRowId === `lat-cell-${rowNum}` ? 'copied' : ''}`,
+                          title: `Copy latitude "${r.lat}"`,
+                          onClick: () => handleCopyValue(r.lat, `lat-cell-${rowNum}`, 'Latitude')
+                        }, copiedRowId === `lat-cell-${rowNum}` ? '✓' : '📋')
+                      )),
+                      e('td', {
+                        className: 'td-clean-long',
+                        style: {
+                          fontFamily: 'var(--font-mono)',
+                          fontWeight: 'bold',
+                          fontSize: '13px',
+                          color: r.isLongMissing ? 'var(--text-muted)' : 'var(--accent-cyan)'
+                        }
+                      }, r.isLongMissing ? e('span', { style: { color: '#f87171', fontStyle: 'italic', fontWeight: 'bold' } }, 'Missing') : e('div', { style: { display: 'inline-flex', alignItems: 'center', gap: '6px' } },
+                        e('span', null, r.long),
+                        e('button', {
+                          type: 'button',
+                          className: `btn-inline-copy ${copiedRowId === `long-cell-${rowNum}` ? 'copied' : ''}`,
+                          title: `Copy longitude "${r.long}"`,
+                          onClick: () => handleCopyValue(r.long, `long-cell-${rowNum}`, 'Longitude')
+                        }, copiedRowId === `long-cell-${rowNum}` ? '✓' : '📋')
+                      )),
+                      e('td', { className: 'td-status', style: { textAlign: 'center', whiteSpace: 'nowrap' } },
+                        getStatusBadge(badgeCls, r.statusText, badgeText)
+                      ),
+                      e('td', { className: 'td-actions', style: { textAlign: 'right', whiteSpace: 'nowrap' } },
+                        e('div', { style: { display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '5px' } },
+                          e('button', {
+                            type: 'button',
+                            className: `btn-row-copy ${copiedRowId === `coord-row-${rowNum}` ? 'copied' : ''}`,
+                            title: `Copy converted coordinates "${r.lat}\t${r.long}" to clipboard`,
+                            onClick: () => handleCopyValue(`${r.lat}\t${r.long}`, `coord-row-${rowNum}`, 'Coordinates (Lat & Long)')
+                          }, copiedRowId === `coord-row-${rowNum}` ? '✓ Copied' : '📋 Copy'),
+                          hasValidCoords && e('a', {
+                            href: mapUrl,
+                            target: '_blank',
+                            rel: 'noopener noreferrer',
+                            className: 'btn-maps',
+                            title: `View coordinates (${r.lat}, ${r.long}) on Google Maps`
+                          }, '📍 Map')
+                        )
+                      )
+                    );
                   } else if (isRoofYear) {
                     let badgeCls = 'assigned';
                     let badgeText = '✓ Valid';
@@ -1830,6 +1971,13 @@
                   lines.push([r.code || '', r.buildingConditionName || '', r.statusText || ''].join('\t'));
                 });
                 return lines.join('\n');
+              } else if (isCoordinates) {
+                const header = ['Latitude', 'Longitude'].join('\t');
+                const lines = [header];
+                filteredRows.forEach(r => {
+                  lines.push([r.lat || 'Missing', r.long || 'Missing'].join('\t'));
+                });
+                return lines.join('\n');
               } else if (isRoofYear) {
                 const header = ['Year Built', 'Roof Year Built', 'Cleaned Roof Year Built', 'Status'].join('\t');
                 const lines = [header];
@@ -1858,7 +2006,7 @@
               } else {
                 return filteredRows.map(r => r.cleaned || '').join('\n');
               }
-            }, [filteredRows, isConstruction, isOccupancy, isSplit, isRoof, isWall, isRoofYear, col1Title, col2Title, col3Title, showRaw, showCounty, showCountry])
+            }, [filteredRows, isConstruction, isOccupancy, isSplit, isRoof, isWall, isRoofYear, isCoordinates, col1Title, col2Title, col3Title, showRaw, showCounty, showCountry])
           })
         )
       ),

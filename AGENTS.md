@@ -642,3 +642,40 @@ This document records persistent project memory, domain rules, and user underwri
 >     - Aging roof, exterior walls, or cladding
 >     - Loose roof tiles or chimney damage
 >     - Unrepaired damage from previous tropical cyclones or windstorms.
+
+---
+
+## 22. Latitude & Longitude Coordinates DMS to Decimal Degrees Rules
+
+> **User Instruction**:
+> Whenever Latitude or Longitude coordinates in DMS (Degrees, Minutes, Seconds) format are provided, automatically convert them to Decimal Degrees (DD).
+>
+> **Exact Logic**:
+> $$\text{Decimal Degrees} = \text{Degrees} + \left(\frac{\text{Minutes}}{60}\right) + \left(\frac{\text{Seconds}}{3600}\right)$$
+>
+> **Direction Rules**:
+> - **N (North)**: positive (`+`)
+> - **E (East)**: positive (`+`)
+> - **S (South)**: negative (`-`)
+> - **W (West)**: negative (`-`)
+>
+> **Examples**:
+> - `29°39'03.6"N` &rarr; `29.651000`
+> - `82°19'26.4"W` &rarr; `-82.324000`
+> - `30°23'06.0"N` &rarr; `30.385000`
+> - `86°27'36.0"W` &rarr; `-86.460000`
+>
+> **Underwriting & Processing Rules**:
+> 1. **Order Preservation**: Keep Latitude and Longitude in the exact order provided; do NOT swap Latitude and Longitude.
+> 2. **Automatic DMS Conversion**: Convert DMS coordinates to decimal degrees automatically.
+> 3. **Format**: Return converted coordinates in decimal format formatted to **6 decimal places**.
+> 4. **Already Decimal Coordinates**: If coordinate is already in decimal format (e.g. `25.765` or `-80.191`), do not convert it again; keep it as it is (formatted with 6 decimal places).
+> 5. **Missing Values**: If a coordinate is missing or blank, return **`"Missing"`** instead of guessing.
+> 6. **Multi-Row Alignment**: Preserve exact row order and return one converted result for each row.
+> 7. **Negative Signs**: For `W` (West) or `S` (South) coordinates, always use a negative sign (`-`).
+> 8. **Location Fidelity**: Do not change the actual geographic location; only convert coordinate format.
+> 9. **Output Columns**:
+>    | Latitude | Longitude |
+>    | :--- | :--- |
+>    | converted latitude | converted longitude |
+

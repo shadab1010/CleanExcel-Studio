@@ -448,6 +448,28 @@
             </button>
           </div>
 
+          <!-- Bento: Coordinates (DMS to Decimal Degrees) -->
+          <div class="bento-card bento-span-6" data-target-section="coordinates">
+            <div class="bento-card-top">
+              <div class="bento-card-header">
+                <div class="bento-icon">🌐</div>
+                <span class="bento-badge">6 Decimal Places</span>
+              </div>
+              <h3 class="bento-heading">Coordinates DMS ➔ Decimal Degrees</h3>
+              <p class="bento-desc">Converts Latitude and Longitude from Degrees, Minutes, Seconds (DMS) to Decimal Degrees using <code>DD = Deg + (Min÷60) + (Sec÷3600)</code> with direction rules (<code>N/E=+</code>, <code>S/W=-</code>) and preserves exact row order and 6 decimals.</p>
+              
+              <div class="bento-rule-pills">
+                <span class="bento-rule-chip">DMS ➔ 6 Decimals</span>
+                <span class="bento-rule-chip">N/E (+), S/W (-)</span>
+                <span class="bento-rule-chip">2-Col Lat &amp; Long</span>
+              </div>
+            </div>
+            <button class="bento-cta-btn" type="button" data-action="launch-studio" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('coordinates');">
+              <span>Launch Coordinates Converter</span>
+              <span>&rarr;</span>
+            </button>
+          </div>
+
           <!-- Bento 4: Street Address (Span 6) -->
           <div class="bento-card bento-span-6" data-target-section="street">
             <div class="bento-card-top">
@@ -545,6 +567,7 @@
               <ul class="mega-footer-list">
                 <li><a href="javascript:void(0)" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('street');">Street Address Normalizer <span class="footer-list-badge">29 Symbols</span></a></li>
                 <li><a href="javascript:void(0)" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('split');">Multi-Country Splitter <span class="footer-list-badge">US • UK • CA • AU • DE</span></a></li>
+                <li><a href="javascript:void(0)" onclick="window.switchAppView && window.switchAppView('studio'); window.switchActiveSection && window.switchActiveSection('coordinates');">Coordinates Converter <span class="footer-list-badge">DMS ➔ DD (6 Dec)</span></a></li>
                 <li class="divider"></li>
                 <li><a href="javascript:void(0)" class="footer-btn-trigger-finder"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> UNICEDE® Explorer <kbd class="footer-kbd">⌘K</kbd></a></li>
                 <li><a href="javascript:void(0)" class="footer-btn-trigger-ai"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Universal AI Settings <span class="footer-list-badge">Gemini • GPT-4o</span></a></li>
@@ -743,6 +766,15 @@
                   <span class="item-badge">Universal</span>
                 </button>
 
+                <button class="dropdown-item" data-target="coordinates" data-category="address" data-title="Coordinates Converter" data-keywords="coordinates converter latitude longitude dms decimal degrees converter n s e w 6 decimals" type="button">
+                  <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg></span>
+                  <div class="item-details">
+                    <span class="item-title">Coordinates Converter</span>
+                    <span class="item-sub">DMS ➔ Decimal (6 Dec) &bull; Lat &amp; Long</span>
+                  </div>
+                  <span class="item-badge">6 Decimals</span>
+                </button>
+
                 <button class="dropdown-item" data-target="building_condition" data-category="underwriting" data-title="Building Condition" data-keywords="building condition codes 0-3 ca hi jp nz us eq us hu st cladding maintenance distress good average poor" type="button">
                   <span class="item-icon"><svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"></path><path d="M5 20V8l7-5 7 5v12"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg></span>
                   <div class="item-details">
@@ -898,7 +930,7 @@
                   <div class="dropdown-group-title">
                     <svg class="studio-svg-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                     <span>Address &amp; Location Records</span>
-                    <span class="dropdown-group-cnt">2</span>
+                    <span class="dropdown-group-cnt">3</span>
                   </div>
                   <div class="dropdown-group-items-grid" id="dropdown-group-address-items">
                     <!-- Cloned from alphabetical list to maintain sync -->
@@ -979,6 +1011,11 @@
           <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M6 9v12"></path><path d="M18 15V9a9 9 0 0 0-9-9"></path></svg>
           <span>Address Splitter</span>
           <span class="tab-badge">US, UK, Germany, Canada</span>
+        </button>
+        <button class="column-tab" data-column="coordinates" data-category="address" data-name="Coordinates Converter" id="tab-coordinates">
+          <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          <span>Coordinates</span>
+          <span class="tab-badge">DMS ➔ DD (6 Dec)</span>
         </button>
         <button class="column-tab" data-column="occupancy" data-category="underwriting" data-name="Occupancy Code" id="tab-occupancy">
           <svg class="studio-tab-svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="12" y1="6" x2="12.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="8" y1="11" x2="8.01" y2="11"></line><line x1="12" y1="11" x2="12.01" y2="11"></line><line x1="16" y1="11" x2="16.01" y2="11"></line></svg>
@@ -1164,6 +1201,71 @@
           <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
             <span style="font-size: 11px; color: var(--text-secondary);">Default ISO-2 code:</span>
             <input type="text" id="split-default-country-input" class="tag-input" value="US" style="width: 60px; text-transform: uppercase;" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Coordinates (DMS to Decimal Degrees) Rule Configuration Ribbon -->
+    <section class="rules-card" id="coordinates-rules-panel" style="display: none;">
+      <div class="rules-header">
+        <div class="rules-title-area">
+          <h2><svg class="studio-panel-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg><span>Coordinates (DMS to Decimal Degrees) Converter</span></h2>
+          <div class="protect-banner">
+            <span><svg class="studio-svg-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Conversion Logic:</span>
+            <code>DD = Degrees + (Minutes ÷ 60) + (Seconds ÷ 3600) | N/E (+), S/W (-) | 6 Decimal Places</code>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button id="btn-coordinates-ai" class="btn btn-ai btn-sm" title="Use Gemini AI to inspect and standardize geographic coordinates" type="button">
+            <span class="ai-sparkle">✨</span>
+            <span>AI Geo Inspector (Gemini 2.5)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="rules-grid">
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>DMS Conversion Formula &amp; Directions</span>
+            <span class="tab-badge">6 Decimal Places</span>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 11px; line-height: 1.8; color: var(--text-primary); background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            • <strong>Formula:</strong> <code>Decimal Degrees = Degrees + (Minutes ÷ 60) + (Seconds ÷ 3600)</code><br>
+            • <strong>N (North) =</strong> positive (<code>+</code>) | <strong>E (East) =</strong> positive (<code>+</code>)<br>
+            • <strong>S (South) =</strong> negative (<code>-</code>) | <strong>W (West) =</strong> negative (<code>-</code>)<br>
+            • <code>29°39'03.6"N</code> ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">29.651000</span><br>
+            • <code>82°19'26.4"W</code> ➔ <span style="color: #60a5fa; font-weight: bold;">-82.324000</span><br>
+            • <code>30°23'06.0"N</code> ➔ <span style="color: var(--accent-emerald-light); font-weight: bold;">30.385000</span><br>
+            • <code>86°27'36.0"W</code> ➔ <span style="color: #60a5fa; font-weight: bold;">-86.460000</span>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Format Verification &amp; Underwriting Rules</span>
+            <span class="tab-badge">Smart Auto-Detect</span>
+          </div>
+          <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.6; background: rgba(0,0,0,0.25); padding: 8px 12px; border-radius: 6px;">
+            <div>• <strong style="color: #60a5fa;">DMS Auto-Conversion:</strong> Detects Degrees/Minutes/Seconds symbols (<code>°</code>, <code>'</code>, <code>"</code>, <code>deg</code>, <code>min</code>, <code>sec</code>) and converts them.</div>
+            <div>• <strong style="color: var(--accent-emerald-light);">Already Decimal:</strong> If coordinate is already in decimal format (e.g. <code>25.765</code> or <code>-80.191</code>), does not convert again; keeps as decimal with 6 decimal places (<code>25.765000</code>).</div>
+            <div>• <strong style="color: #fbbf24;">Missing Coordinates:</strong> If a coordinate is missing or blank, returns <strong>"Missing"</strong> instead of guessing.</div>
+            <div>• <strong style="color: #f472b6;">Strict Order:</strong> Keeps Latitude &amp; Longitude in the exact order provided (never swapped). Preserves exact row count &amp; row order.</div>
+          </div>
+        </div>
+
+        <div class="rule-group">
+          <div class="rule-label">
+            <span>Settings &amp; Options</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+            <label class="checkbox-toggle">
+              <input type="checkbox" id="coordinates-remove-empty" checked>
+              <span>Filter out completely blank coordinate rows</span>
+            </label>
+            <div style="font-size: 11px; color: var(--text-secondary); margin-top: 6px; line-height: 1.4;">
+              💡 <strong>2-Column Excel Paste:</strong> Copy Latitude and Longitude columns in Excel and click <em>"📋 Paste 2 Columns"</em> or paste directly into the 2-column editor.
+            </div>
           </div>
         </div>
       </div>
@@ -2654,6 +2756,45 @@
                 class="code-textarea occ-sub-textarea" 
                 spellcheck="false" 
                 placeholder="Paste Roof Year Built column here (e.g. 2000, 2005, 2010)..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2-Column Separate Input Grid for Coordinates (Latitude & Longitude) -->
+        <div class="roof-year-2col-editor coordinates-2col-editor" id="coordinates-2col-container" style="display: none;">
+          <!-- Column 1: Latitude -->
+          <div class="occ-col-input-card">
+            <div class="occ-col-header">
+              <span class="occ-col-badge">Col 1 • Latitude</span>
+              <div class="occ-col-title-wrapper" title="Latitude (DMS or Decimal Degrees)">
+                <input type="text" id="coord-col-1-input" class="occ-col-name-input" value="Latitude" placeholder="Col 1 Name..." spellcheck="false" title="Column 1: Latitude" />
+              </div>
+            </div>
+            <div class="occ-editor-box">
+              <div class="line-numbers occ-line-numbers" id="coord-lines-lat">1</div>
+              <textarea 
+                id="coord-input-lat" 
+                class="code-textarea occ-sub-textarea" 
+                spellcheck="false" 
+                placeholder="Paste Latitude column here (e.g. 29°39'03.6&quot;N, 30°23'06.0&quot;N, 25.765)..."></textarea>
+            </div>
+          </div>
+
+          <!-- Column 2: Longitude -->
+          <div class="occ-col-input-card">
+            <div class="occ-col-header">
+              <span class="occ-col-badge">Col 2 • Longitude</span>
+              <div class="occ-col-title-wrapper" title="Longitude (DMS or Decimal Degrees)">
+                <input type="text" id="coord-col-2-input" class="occ-col-name-input" value="Longitude" placeholder="Col 2 Name..." spellcheck="false" title="Column 2: Longitude" />
+              </div>
+            </div>
+            <div class="occ-editor-box">
+              <div class="line-numbers occ-line-numbers" id="coord-lines-long">1</div>
+              <textarea 
+                id="coord-input-long" 
+                class="code-textarea occ-sub-textarea" 
+                spellcheck="false" 
+                placeholder="Paste Longitude column here (e.g. 82°19'26.4&quot;W, 86°27'36.0&quot;W, -80.191)..."></textarea>
             </div>
           </div>
         </div>

@@ -2316,6 +2316,14 @@ const CleanersRegistry = {
     badge: 'Whole No / No Negatives',
     description: 'Underwriting Stories / Floors Engine: Decimals round UP (3.5➔4, 4.2➔5), multi-values/ranges pick max (2&3➔3, 1,2➔2, 2/3➔3), negative values leave blank (-5➔blank), none/blank leaves blank.',
     cleaner: null // Attached below
+  },
+  coordinates: {
+    id: 'coordinates',
+    name: 'Coordinates Converter',
+    icon: '🌐',
+    badge: 'DMS ➔ Decimal (6 Dec)',
+    description: 'Coordinate Converter: Converts Degrees, Minutes, Seconds (DMS) coordinates to 6-decimal Decimal Degrees (DD). Logic: DD = Deg + (Min / 60) + (Sec / 3600), Direction: N(+), E(+), S(-), W(-), preserves existing decimals, order, and row alignment.',
+    cleaner: null // Attached below
   }
 };
 
@@ -7069,9 +7077,291 @@ CleanersRegistry.building_condition.cleaner = BuildingConditionClassifier;
 CleanersRegistry.buildingCondition = CleanersRegistry.building_condition;
 CleanersRegistry.condition = CleanersRegistry.building_condition;
 
+/**
+ * ============================================================================
+ * CleanExcel Studio - Coordinates & DMS to Decimal Degrees Converter Engine
+ * ============================================================================
+ * 
+ * Logic & Underwriting Rules:
+ *  - Formula: Decimal Degrees = Degrees + (Minutes ÷ 60) + (Seconds ÷ 3600)
+ *  - Direction rules:
+ *      * N (North) = positive (+)
+ *      * E (East)  = positive (+)
+ *      * S (South) = negative (-)
+ *      * W (West)  = negative (-)
+ *  - Precision: 6 decimal places (e.g. 29.651000, -82.324000)
+ *  - Preserves exact input order (Latitude & Longitude never swapped)
+ *  - If coordinate is already in decimal format (e.g. 25.765 or -80.191), keeps it as decimal formatted to 6 decimal places.
+ *  - If coordinate is missing/blank/null/empty/N-A, returns "Missing".
+ *  - Preserves exact row count and row alignment for multi-row datasets.
+ *  - Output columns: Latitude | Longitude
+ */
+const CoordinatesConverter = {
+  convertSingle(raw, isLongitude = false) {
+    if (raw === undefined || raw === null) {
+      return { value: 'Missing', raw: '', isMissing: true, isDecimal: false, isDms: false, status: 'missing', statusText: 'Missing' };
+    }
+    const str = String(raw).trim();
+    if (!str || /^(?:missing|none|null|n\/?a|unknown|-|—)$/i.test(str)) {
+      return { value: 'Missing', raw: str, isMissing: true, isDecimal: false, isDms: false, status: 'missing', statusText: 'Missing' };
+    }
+
+    // 1. Detect Cardinal Direction (N, S, E, W)
+    let dir = null;
+    const dirMatch = str.match(/\b([NSEW])\b|([NSEW])$|^([NSEW])/i);
+    if (dirMatch) {
+      dir = (dirMatch[1] || dirMatch[2] || dirMatch[3]).toUpperCase();
+    } else if (/\bnorth\b/i.test(str)) {
+      dir = 'N';
+    } else if (/\bsouth\b/i.test(str)) {
+      dir = 'S';
+    } else if (/\beast\b/i.test(str)) {
+      dir = 'E';
+    } else if (/\bwest\b/i.test(str)) {
+      dir = 'W';
+    }
+
+    const hasLeadingMinus = /^\s*-/.test(str);
+
+    // 2. Check if already Decimal
+    // Clean off symbols like °, ', ", deg, min, sec, direction letters
+    const cleanForCheck = str.replace(/[°º^]|deg(?:rees?)?|min(?:utes?)?|sec(?:onds?)?|[NSEW]|north|south|east|west|['"’′”″]/gi, ' ').trim();
+    
+    // Extract all numeric tokens (including signed/unsigned floats)
+    const numbers = cleanForCheck.match(/[+-]?\d+(?:\.\d+)?/g);
+    
+    if (!numbers || numbers.length === 0) {
+      return { value: 'Missing', raw: str, isMissing: true, isDecimal: false, isDms: false, status: 'missing', statusText: 'Missing' };
+    }
+
+    // If single number with or without decimal (e.g. "25.765", "-80.191", "25.765 N", "80.191° W")
+    if (numbers.length === 1 && !/['"’′”″]/.test(str)) {
+      let num = parseFloat(numbers[0]);
+      if (isNaN(num)) {
+        return { value: 'Missing', raw: str, isMissing: true, isDecimal: false, isDms: false, status: 'missing', statusText: 'Missing' };
+      }
+      
+      // Direction rules:
+      // N = positive (+), E = positive (+)
+      // S = negative (-), W = negative (-)
+      if (dir === 'S' || dir === 'W') {
+        num = -Math.abs(num);
+      } else if (dir === 'N' || dir === 'E') {
+        num = Math.abs(num);
+      } else if (hasLeadingMinus) {
+        num = -Math.abs(num);
+      }
+
+      const formatted = num.toFixed(6);
+      return {
+        value: formatted,
+        raw: str,
+        isMissing: false,
+        isDecimal: true,
+        isDms: false,
+        numeric: num,
+        status: 'decimal',
+        statusText: 'Already Decimal'
+      };
+    }
+
+    // 3. DMS Conversion
+    // Decimal Degrees = Degrees + (Minutes ÷ 60) + (Seconds ÷ 3600)
+    let deg = 0;
+    let min = 0;
+    let sec = 0;
+
+    if (numbers.length >= 3) {
+      deg = Math.abs(parseFloat(numbers[0]));
+      min = Math.abs(parseFloat(numbers[1]));
+      sec = Math.abs(parseFloat(numbers[2]));
+    } else if (numbers.length === 2) {
+      deg = Math.abs(parseFloat(numbers[0]));
+      min = Math.abs(parseFloat(numbers[1]));
+      sec = 0;
+    } else if (numbers.length === 1) {
+      deg = Math.abs(parseFloat(numbers[0]));
+      min = 0;
+      sec = 0;
+    }
+
+    let dd = deg + (min / 60) + (sec / 3600);
+
+    // Direction rules:
+    // * N (North) = positive (+)
+    // * E (East)  = positive (+)
+    // * S (South) = negative (-)
+    // * W (West)  = negative (-)
+    if (dir === 'S' || dir === 'W' || hasLeadingMinus) {
+      dd = -Math.abs(dd);
+    } else {
+      dd = Math.abs(dd);
+    }
+
+    const formatted = dd.toFixed(6);
+    return {
+      value: formatted,
+      raw: str,
+      isMissing: false,
+      isDecimal: false,
+      isDms: true,
+      numeric: dd,
+      degrees: deg,
+      minutes: min,
+      seconds: sec,
+      direction: dir,
+      status: 'dms',
+      statusText: 'Converted (DMS➔DD)'
+    };
+  },
+
+  splitCoordinateLine(line) {
+    if (line === undefined || line === null) return ['', ''];
+    const rawLine = String(line).replace(/[\r\n]+/g, '');
+    if (!rawLine.trim()) return ['', ''];
+
+    // 1. Tab separated (Excel column copy/paste)
+    if (rawLine.includes('\t')) {
+      const parts = rawLine.split('\t');
+      return [(parts[0] || '').trim(), (parts.slice(1).join('\t') || '').trim()];
+    }
+
+    // 2. Semicolon separated
+    if (rawLine.includes(';')) {
+      const parts = rawLine.split(';');
+      return [(parts[0] || '').trim(), (parts.slice(1).join(';') || '').trim()];
+    }
+
+    // 3. Comma separated
+    if (rawLine.includes(',')) {
+      const parts = rawLine.split(',');
+      if (parts.length === 2) {
+        return [parts[0].trim(), parts[1].trim()];
+      }
+    }
+
+    const trimmed = rawLine.trim();
+
+    // 4. Space separated with DMS cardinal directions (e.g. 29°39'03.6"N 82°19'26.4"W)
+    const dmsPairMatch = trimmed.match(/^(.+?[NSEWnsew])\s+([+-]?\d.+)$/);
+    if (dmsPairMatch) {
+      return [dmsPairMatch[1].trim(), dmsPairMatch[2].trim()];
+    }
+
+    // 5. Space separated 2 numbers (e.g. 25.765 -80.191)
+    const spaceNumbers = trimmed.split(/\s+/);
+    if (spaceNumbers.length === 2 && !isNaN(Number(spaceNumbers[0])) && !isNaN(Number(spaceNumbers[1]))) {
+      return [spaceNumbers[0], spaceNumbers[1]];
+    }
+
+    return [trimmed, ''];
+  },
+
+  cleanColumn(inputPayload, options = {}) {
+    let latLines = [];
+    let longLines = [];
+
+    if (inputPayload && typeof inputPayload === 'object' && !Array.isArray(inputPayload)) {
+      if (Array.isArray(inputPayload.lat) || Array.isArray(inputPayload.latitude) || Array.isArray(inputPayload.col1)) {
+        latLines = (inputPayload.lat || inputPayload.latitude || inputPayload.col1 || []).map(l => String(l || ''));
+      }
+      if (Array.isArray(inputPayload.long) || Array.isArray(inputPayload.longitude) || Array.isArray(inputPayload.col2)) {
+        longLines = (inputPayload.long || inputPayload.longitude || inputPayload.col2 || []).map(l => String(l || ''));
+      }
+    } else if (Array.isArray(inputPayload)) {
+      inputPayload.forEach(item => {
+        if (Array.isArray(item)) {
+          latLines.push(String(item[0] || ''));
+          longLines.push(String(item[1] || ''));
+        } else if (item && typeof item === 'object') {
+          latLines.push(String(item.lat || item.latitude || item.col1 || ''));
+          longLines.push(String(item.long || item.longitude || item.col2 || ''));
+        } else {
+          const [lat, lng] = this.splitCoordinateLine(String(item || ''));
+          latLines.push(lat);
+          longLines.push(lng);
+        }
+      });
+    } else if (typeof inputPayload === 'string') {
+      const rawRows = inputPayload.split(/\r\n|\r|\n/);
+      rawRows.forEach(row => {
+        const [lat, lng] = this.splitCoordinateLine(row);
+        latLines.push(lat);
+        longLines.push(lng);
+      });
+    }
+
+    const totalRows = Math.max(latLines.length, longLines.length);
+    const results = [];
+
+    for (let idx = 0; idx < totalRows; idx++) {
+      const rawLat = latLines[idx] !== undefined ? latLines[idx] : '';
+      const rawLong = longLines[idx] !== undefined ? longLines[idx] : '';
+
+      if (!rawLat.trim() && !rawLong.trim() && options.removeEmptyLines) {
+        continue;
+      }
+
+      const latRes = this.convertSingle(rawLat, false);
+      const longRes = this.convertSingle(rawLong, true);
+
+      let rowStatus = 'assigned';
+      let rowStatusText = '✓ Converted (DMS➔DD)';
+
+      if (latRes.isMissing && longRes.isMissing) {
+        rowStatus = 'empty';
+        rowStatusText = 'Missing Coordinates';
+      } else if (latRes.isMissing) {
+        rowStatus = 'mismatch';
+        rowStatusText = '⚠️ Missing Latitude';
+      } else if (longRes.isMissing) {
+        rowStatus = 'mismatch';
+        rowStatusText = '⚠️ Missing Longitude';
+      } else if (latRes.isDecimal && longRes.isDecimal) {
+        rowStatus = 'match';
+        rowStatusText = '✓ Already Decimal';
+      } else {
+        rowStatus = 'assigned';
+        rowStatusText = '✓ Converted (DMS➔DD)';
+      }
+
+      const changed = (rawLat.trim() !== latRes.value) || (rawLong.trim() !== longRes.value);
+
+      results.push({
+        lineNum: idx + 1,
+        original: `${rawLat}\t${rawLong}`,
+        rawLat: rawLat,
+        rawLong: rawLong,
+        lat: latRes.value,
+        latitude: latRes.value,
+        long: longRes.value,
+        longitude: longRes.value,
+        cleaned: `${latRes.value}\t${longRes.value}`,
+        status: rowStatus,
+        statusText: rowStatusText,
+        changed: changed,
+        latNumeric: latRes.numeric,
+        longNumeric: longRes.numeric,
+        isLatMissing: latRes.isMissing,
+        isLongMissing: longRes.isMissing
+      });
+    }
+
+    return results;
+  }
+};
+
+// Wire up coordinates converter references and aliases
+CleanersRegistry.coordinates.cleaner = CoordinatesConverter;
+CleanersRegistry.coordinate = CleanersRegistry.coordinates;
+CleanersRegistry.lat_long = CleanersRegistry.coordinates;
+CleanersRegistry.latlong = CleanersRegistry.coordinates;
+CleanersRegistry.dms = CleanersRegistry.coordinates;
+CleanersRegistry.coords = CleanersRegistry.coordinates;
+
 // Export for module systems or attach to global window
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { StreetCleaner, AddressSplitter, OccupancyClassifier, ConstructionClassifier, YearBuiltCleaner, RoofYearCleaner, RoofClassifier, WallClassifier, FoundationTypeClassifier, FoundationClassifier, FoundationConnectionClassifier, ShortColumnClassifier, BuildingExteriorOpeningClassifier, SoftStoryClassifier, OrnamentationClassifier, BuildingShapeClassifier, BuildingConditionClassifier, NoOfStoresCleaner, CleanersRegistry };
+  module.exports = { StreetCleaner, AddressSplitter, OccupancyClassifier, ConstructionClassifier, YearBuiltCleaner, RoofYearCleaner, RoofClassifier, WallClassifier, FoundationTypeClassifier, FoundationClassifier, FoundationConnectionClassifier, ShortColumnClassifier, BuildingExteriorOpeningClassifier, SoftStoryClassifier, OrnamentationClassifier, BuildingShapeClassifier, BuildingConditionClassifier, NoOfStoresCleaner, CoordinatesConverter, CleanersRegistry };
 }
 if (typeof window !== 'undefined') {
   window.StreetCleaner = StreetCleaner;
@@ -7092,6 +7382,7 @@ if (typeof window !== 'undefined') {
   window.BuildingShapeClassifier = BuildingShapeClassifier;
   window.BuildingConditionClassifier = BuildingConditionClassifier;
   window.NoOfStoresCleaner = NoOfStoresCleaner;
+  window.CoordinatesConverter = CoordinatesConverter;
   window.CleanersRegistry = CleanersRegistry;
   window.parseExcelRows = parseExcelRows;
 }

@@ -250,3 +250,25 @@
   - External appearance of cladding and maintenance gives a qualitative estimate of expected structural and envelope performance.
   - For earthquakes: Buildings with signs of distress or duress (cracking from aging/settlement/overloading or damage from previous earthquakes) suffer additional damage. Default for EQ is "Average".
   - For hurricanes/tropical cyclones: Buildings with distress (aging roof/cladding, loose tiles, chimney damage, previous storm damage) experience heightened vulnerability.
+
+## Latitude & Longitude Coordinates DMS to Decimal Degrees Rules
+- **Exact Formula**: $\text{Decimal Degrees} = \text{Degrees} + (\text{Minutes} \div 60) + (\text{Seconds} \div 3600)$
+- **Direction Rules**:
+  - `N` (North) = positive (`+`)
+  - `E` (East) = positive (`+`)
+  - `S` (South) = negative (`-`)
+  - `W` (West) = negative (`-`)
+- **Examples**:
+  - `29°39'03.6"N` &rarr; `29.651000`
+  - `82°19'26.4"W` &rarr; `-82.324000`
+  - `30°23'06.0"N` &rarr; `30.385000`
+  - `86°27'36.0"W` &rarr; `-86.460000`
+- **Underwriting Rules**:
+  - Preserve exact row alignment and coordinate order (Latitude and Longitude never swapped).
+  - Automatically detect DMS vs Decimal format.
+  - Return decimal coordinates formatted to **6 decimal places**.
+  - If coordinate is already in decimal format (e.g. `25.765`, `-80.191`), preserve as decimal without re-converting.
+  - If a coordinate is missing or blank, return **`"Missing"`**.
+  - Negative sign (`-`) mandatory for `W` and `S`.
+  - Output table format: `Latitude` | `Longitude`.
+
