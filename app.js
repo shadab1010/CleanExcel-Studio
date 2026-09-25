@@ -6208,61 +6208,69 @@ function initCodeFinderUI() {
 
   function createLearnedPatternCard(item, query, handlers = {}) {
     const card = document.createElement('div');
-    card.className = `finder-result-card card-learned`;
-    card.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-    card.style.background = 'rgba(15, 23, 42, 0.65)';
+    card.className = 'finder-result-card card-learned';
 
     const secLabel = (item.section || 'General').toUpperCase();
     const sourceBadge = item.source === 'ai'
-      ? `<span style="background: rgba(139, 92, 246, 0.2); color: #c084fc; font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 600;">✨ AI Learned</span>`
-      : `<span style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 600;">👤 User Fix</span>`;
+      ? `<span class="card-learned-source-badge card-learned-source-ai">✨ AI Learned</span>`
+      : `<span class="card-learned-source-badge card-learned-source-user">👤 User Fix</span>`;
 
     let resultHtml = '';
     if (typeof item.result === 'object' && item.result !== null) {
       if (item.section === 'roof') {
         resultHtml = `
-          <div style="font-size: 11px; color: var(--text-secondary); margin: 6px 0; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
+          <div class="card-learned-result">
             Geom: <strong>${item.result.geometryCode || 0}</strong> &bull; Pitch: <strong>${item.result.pitchCode || 0}</strong> &bull; Cov: <strong>${item.result.coveringCode || 0}</strong> &bull; Deck: <strong>${item.result.deckCode || 0}</strong> &bull; CovAttach: <strong>${item.result.covAttachCode || 0}</strong> &bull; DeckAttach: <strong>${item.result.deckAttachCode || 0}</strong> &bull; Anchor: <strong>${item.result.anchorageCode || 0}</strong>
           </div>`;
       } else if (item.section === 'wall') {
         resultHtml = `
-          <div style="font-size: 11px; color: var(--text-secondary); margin: 6px 0; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
+          <div class="card-learned-result">
             WallType: <strong>${item.result.wallTypeCode || '—'}</strong> &bull; WallSiding: <strong>${item.result.wallSidingCode || '—'}</strong>
           </div>`;
       } else if (item.section === 'address') {
         resultHtml = `
-          <div style="font-size: 11px; color: var(--text-secondary); margin: 6px 0; background: rgba(0,0,0,0.25); padding: 8px; border-radius: 6px;">
-            Street: <strong>${item.result.street || '—'}</strong> | City: <strong>${item.result.city || '—'}</strong> | State: <strong>${item.result.state || '—'}</strong> | Zip: <strong>${item.result.postal || '—'}</strong>
+          <div class="card-learned-result">
+            Street: <strong>${escapeHtml(item.result.street || '—')}</strong> | City: <strong>${escapeHtml(item.result.city || '—')}</strong> | State: <strong>${escapeHtml(item.result.state || '—')}</strong> | Zip: <strong>${escapeHtml(item.result.postal || '—')}</strong>
           </div>`;
       } else {
         resultHtml = `
-          <div style="font-size: 12px; color: #60a5fa; margin: 4px 0; font-weight: 600;">
-            Code: ${item.result.code || '—'} ${item.result.category ? '— ' + item.result.category : ''}
+          <div class="card-learned-result">
+            Code: <strong>${escapeHtml(String(item.result.code || '—'))}</strong> ${item.result.category ? '— ' + escapeHtml(item.result.category) : ''}
           </div>`;
       }
     } else {
-      resultHtml = `<div style="font-size: 13px; color: #60a5fa; font-weight: 600; margin: 4px 0;">➔ Output: "${escapeHtml(String(item.result))}"</div>`;
+      resultHtml = `
+        <div class="card-learned-result">
+          ➔ Output: <strong>${escapeHtml(String(item.result))}</strong>
+        </div>`;
     }
 
-    const hitBadge = item.hits > 0 ? `<span style="color: #fbbf24; font-size: 10px;">⚡ Used ${item.hits} time${item.hits > 1 ? 's' : ''}</span>` : `<span style="color: var(--text-muted); font-size: 10px;">⚡ Newly trained</span>`;
+    const hitBadge = (item.hits && item.hits > 0)
+      ? `<span class="card-learned-hit-badge">⚡ Used ${item.hits} time${item.hits > 1 ? 's' : ''}</span>`
+      : `<span class="card-learned-hit-badge" style="color: var(--text-muted);">⚡ Newly trained</span>`;
+
+    const fullPhrase = item.rawPhrase || item.phrase || '';
+    const safeTitle = escapeHtml(fullPhrase);
 
     card.innerHTML = `
-      <div class="finder-card-header" style="margin-bottom: 6px;">
-        <div style="display: flex; align-items: center; gap: 6px;">
-          <span style="font-size: 11px; font-weight: 700; color: #93c5fd; background: rgba(59, 130, 246, 0.2); padding: 2px 6px; border-radius: 4px;">${secLabel}</span>
+      <div class="card-learned-header">
+        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+          <span class="card-learned-sec-badge">${secLabel}</span>
           ${sourceBadge}
         </div>
         ${hitBadge}
       </div>
-      <div style="font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
-        "${highlightMatch(item.rawPhrase || item.phrase, query)}"
+      <div class="card-learned-body">
+        <div class="card-learned-phrase" title="${safeTitle}">
+          "${highlightMatch(fullPhrase, query)}"
+        </div>
+        ${resultHtml}
       </div>
-      ${resultHtml}
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
-        <span style="font-size: 10px; color: var(--text-muted);">Learned ${item.learnedAt ? new Date(item.learnedAt).toLocaleDateString() : 'recently'}</span>
-        <div style="display: flex; gap: 6px;">
-          <button type="button" class="btn-copy-learned" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer;">📋 Copy</button>
-          <button type="button" class="btn-del-learned" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; font-size: 11px; padding: 3px 8px; border-radius: 4px; cursor: pointer;">🗑️ Delete</button>
+      <div class="card-learned-footer">
+        <span class="card-learned-date">Learned ${item.learnedAt ? new Date(item.learnedAt).toLocaleDateString() : 'recently'}</span>
+        <div class="card-learned-actions">
+          <button type="button" class="btn-card-action btn-copy-learned" title="Copy result to clipboard">📋 Copy</button>
+          <button type="button" class="btn-card-action btn-del-learned" title="Delete learned pattern">🗑️ Delete</button>
         </div>
       </div>
     `;

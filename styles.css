@@ -4453,11 +4453,13 @@ body {
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 10px;
   transition: all var(--transition-fast);
   position: relative;
-  min-height: 180px;
-  height: 100%;
+  min-height: 210px;
+  height: auto;
+  align-self: stretch;
   box-sizing: border-box;
 }
 
@@ -4473,6 +4475,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .finder-code-badge {
@@ -4557,6 +4560,8 @@ body {
   padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .finder-btn-action {
@@ -4586,6 +4591,192 @@ body {
   border-color: #ffffff !important;
   color: #000000 !important;
   font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   Learned Underwriting Memory Cards & Actions
+   ========================================================================== */
+.card-learned {
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.88) 0%, rgba(10, 15, 30, 0.96) 100%) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  border-radius: 14px;
+  padding: 15px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 210px;
+  height: auto;
+  align-self: stretch;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+}
+
+.card-learned:hover {
+  background: linear-gradient(145deg, rgba(23, 37, 84, 0.92) 0%, rgba(15, 23, 42, 0.98) 100%) !important;
+  border-color: rgba(96, 165, 250, 0.6) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 16px rgba(59, 130, 246, 0.22);
+}
+
+.card-learned-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.card-learned-sec-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.18);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  padding: 2.5px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.card-learned-source-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-learned-source-ai {
+  background: rgba(139, 92, 246, 0.18);
+  color: #c084fc;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.card-learned-source-user {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.card-learned-hit-badge {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: #fbbf24;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 500;
+}
+
+.card-learned-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1 1 auto;
+}
+
+.card-learned-phrase {
+  font-family: var(--font-heading);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #f8fafc;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.card-learned-result {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #93c5fd;
+  line-height: 1.4;
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+.card-learned-result strong {
+  color: #60a5fa;
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.card-learned-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.card-learned-date {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.card-learned-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-card-action {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid transparent;
+}
+
+.btn-copy-learned {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #e2e8f0;
+}
+
+.btn-copy-learned:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-del-learned {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.28);
+  color: #fca5a5;
+}
+
+.btn-del-learned:hover {
+  background: rgba(239, 68, 68, 0.24);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .finder-btn-insert:hover {
