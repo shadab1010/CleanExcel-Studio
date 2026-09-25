@@ -6078,16 +6078,44 @@ function initCodeFinderUI() {
 
     // Handle Learned Memory tab
     if (currentExplorerTab === 'learned') {
-      const allLearned = window.CustomCodesDB ? window.CustomCodesDB.getAllLearned() : [];
-      let learnedItems = allLearned;
+      let learnedItems = [];
+      if (window.CustomCodesDB) {
+        if (typeof window.CustomCodesDB.getAllLearnedList === 'function') {
+          learnedItems = window.CustomCodesDB.getAllLearnedList();
+        } else if (typeof window.CustomCodesDB.getAllLearned === 'function') {
+          const raw = window.CustomCodesDB.getAllLearned();
+          if (Array.isArray(raw)) {
+            learnedItems = raw;
+          } else if (raw && typeof raw === 'object') {
+            for (const [sec, items] of Object.entries(raw)) {
+              if (items && typeof items === 'object') {
+                for (const [k, d] of Object.entries(items)) {
+                  if (!d) continue;
+                  learnedItems.push({
+                    section: sec,
+                    phrase: d.originalPhrase || d.phrase || k,
+                    rawPhrase: d.originalPhrase || d.rawPhrase || d.phrase || k,
+                    result: d.result,
+                    source: d.source || 'user_fix',
+                    learnedAt: d.learnedAt,
+                    lastUsedAt: d.lastUsedAt,
+                    hits: d.hits || 0
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
 
       if (currentExplorerCategoryFilter !== 'all') {
-        learnedItems = learnedItems.filter(i => i.section === currentExplorerCategoryFilter);
+        learnedItems = learnedItems.filter(i => i && i.section === currentExplorerCategoryFilter);
       }
 
       if (q) {
         const qLower = q.toLowerCase();
         learnedItems = learnedItems.filter(i => {
+          if (!i) return false;
           const phraseMatch = (i.phrase || '').toLowerCase().includes(qLower);
           const rawMatch = (i.rawPhrase || '').toLowerCase().includes(qLower);
           const resStr = JSON.stringify(i.result || '').toLowerCase();
@@ -6115,8 +6143,8 @@ function initCodeFinderUI() {
           onDelete: () => {
             if (confirm(`Remove learned memory pattern "${item.rawPhrase || item.phrase}"?`)) {
               if (window.CustomCodesDB) {
-                window.CustomCodesDB.deleteLearned(item.section, item.phrase);
-                showToast(`Removed learned rule "${item.phrase}"`, '🗑️');
+                window.CustomCodesDB.deleteLearned(item.section, item.phrase || item.rawPhrase);
+                showToast(`Removed learned rule "${item.phrase || item.rawPhrase}"`, '🗑️');
                 renderExplorerCards();
                 syncMemoryBadge();
               }

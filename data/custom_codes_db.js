@@ -487,27 +487,63 @@
     },
 
     /**
-     * Get all learned patterns for a section or all sections
+     * Get all learned patterns for a section (as object map) or flat list if no section specified
      */
     getAllLearned(section) {
       const store = _getStorage();
-      if (!store.learned) return {};
+      if (!store.learned) return section ? {} : [];
       if (section) {
         return store.learned[section] || {};
       }
-      return store.learned;
+      return this.getAllLearnedList();
+    },
+
+    /**
+     * Get all learned patterns as a flat Array (for UI lists, cards & search)
+     */
+    getAllLearnedList(section = null) {
+      const store = _getStorage();
+      if (!store.learned) return [];
+      const list = [];
+      const sections = section ? [section] : Object.keys(store.learned);
+
+      sections.forEach(sec => {
+        const secItems = store.learned[sec] || {};
+        Object.entries(secItems).forEach(([phraseKey, data]) => {
+          if (!data) return;
+          list.push({
+            section: sec,
+            phrase: data.originalPhrase || data.phrase || phraseKey,
+            rawPhrase: data.originalPhrase || data.rawPhrase || data.phrase || phraseKey,
+            result: data.result,
+            source: data.source || 'user_fix',
+            learnedAt: data.learnedAt,
+            lastUsedAt: data.lastUsedAt,
+            hits: data.hits || 0
+          });
+        });
+      });
+      return list;
     },
 
     /**
      * Delete a single learned pattern
      */
     deleteLearned(section, phrase) {
-      const normKey = _normalizePhrase(phrase);
+      const rawText = String(phrase || '').trim();
+      const normKey = _normalizePhrase(rawText);
       const store = _getStorage();
-      if (store.learned && store.learned[section] && store.learned[section][normKey]) {
-        delete store.learned[section][normKey];
-        _saveStorage(store);
-        return true;
+      if (store.learned && store.learned[section]) {
+        if (normKey && store.learned[section][normKey]) {
+          delete store.learned[section][normKey];
+          _saveStorage(store);
+          return true;
+        }
+        if (rawText && store.learned[section][rawText]) {
+          delete store.learned[section][rawText];
+          _saveStorage(store);
+          return true;
+        }
       }
       return false;
     },
