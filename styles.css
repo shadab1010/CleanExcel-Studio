@@ -1862,7 +1862,8 @@ body {
    2-Column Separate Input Editor (Roof Year Built: Year Built & Roof Year)
    ========================================================================== */
 
-.roof-year-2col-editor {
+.roof-year-2col-editor,
+.coordinates-2col-editor {
   flex: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1874,7 +1875,8 @@ body {
 }
 
 @media (max-width: 960px) {
-  .roof-year-2col-editor {
+  .roof-year-2col-editor,
+  .coordinates-2col-editor {
     grid-template-columns: 1fr;
     grid-template-rows: auto auto;
     overflow-y: auto;

@@ -1427,6 +1427,36 @@ function bindEvents() {
       icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M6 9v12"></path><path d="M18 15V9a9 9 0 0 0-9-9"></path></svg>', 
       category: 'address' 
     },
+    coordinates: { 
+      name: 'Coordinates Converter', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>', 
+      category: 'address' 
+    },
+    coordinate: { 
+      name: 'Coordinates Converter', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>', 
+      category: 'address' 
+    },
+    lat_long: { 
+      name: 'Coordinates Converter', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>', 
+      category: 'address' 
+    },
+    latlong: { 
+      name: 'Coordinates Converter', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>', 
+      category: 'address' 
+    },
+    coords: { 
+      name: 'Coordinates Converter', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>', 
+      category: 'address' 
+    },
+    dms: { 
+      name: 'Coordinates Converter', 
+      icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>', 
+      category: 'address' 
+    },
     occupancy: { 
       name: 'Occupancy Code', 
       icon: '<svg class="studio-svg-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="9" y1="22" x2="9" y2="22.01"></line><line x1="15" y1="22" x2="15" y2="22.01"></line><line x1="8" y1="6" x2="8.01" y2="6"></line><line x1="12" y1="6" x2="12.01" y2="6"></line><line x1="16" y1="6" x2="16.01" y2="6"></line><line x1="8" y1="11" x2="8.01" y2="11"></line><line x1="12" y1="11" x2="12.01" y2="11"></line><line x1="16" y1="11" x2="16.01" y2="11"></line></svg>', 
@@ -1627,12 +1657,14 @@ function bindEvents() {
     const ornamentationRulesEl = document.getElementById('ornamentation-rules-panel');
     const buildingShapeRulesEl = document.getElementById('building-shape-rules-panel');
     const buildingConditionRulesEl = document.getElementById('building-condition-rules-panel');
+    const coordRulesEl = document.getElementById('coordinates-rules-panel');
     if (streetRulesEl) streetRulesEl.style.display = colId === 'street' ? 'flex' : 'none';
     if (splitRulesEl) splitRulesEl.style.display = colId === 'split' ? 'flex' : 'none';
     if (occRulesEl) occRulesEl.style.display = colId === 'occupancy' ? 'flex' : 'none';
     if (conRulesEl) conRulesEl.style.display = colId === 'construction' ? 'flex' : 'none';
     if (yearRulesEl) yearRulesEl.style.display = colId === 'year' ? 'flex' : 'none';
     if (roofYearRulesEl) roofYearRulesEl.style.display = colId === 'roof_year' ? 'flex' : 'none';
+    if (coordRulesEl) coordRulesEl.style.display = (colId === 'coordinates' || colId === 'coordinate' || colId === 'lat_long' || colId === 'latlong' || colId === 'coords' || colId === 'dms') ? 'flex' : 'none';
     if (roofRulesEl) roofRulesEl.style.display = colId === 'roof' ? 'flex' : 'none';
     if (wallRulesEl) wallRulesEl.style.display = colId === 'wall' ? 'flex' : 'none';
     if (storesRulesEl) storesRulesEl.style.display = (colId === 'stores' || colId === 'stories') ? 'flex' : 'none';
@@ -1644,6 +1676,16 @@ function bindEvents() {
     if (ornamentationRulesEl) ornamentationRulesEl.style.display = (colId === 'ornamentation' || colId === 'ornament') ? 'flex' : 'none';
     if (buildingShapeRulesEl) buildingShapeRulesEl.style.display = (colId === 'building_shape' || colId === 'buildingShape' || colId === 'shape') ? 'flex' : 'none';
     if (buildingConditionRulesEl) buildingConditionRulesEl.style.display = (colId === 'building_condition' || colId === 'buildingCondition' || colId === 'condition') ? 'flex' : 'none';
+
+    // Ensure DOM container elements are available
+    coord2ColContainerEl = coord2ColContainerEl || document.getElementById('coordinates-2col-container');
+    roofYear2ColContainerEl = roofYear2ColContainerEl || document.getElementById('roof-year-2col-container');
+    occupancy3ColContainerEl = occupancy3ColContainerEl || document.getElementById('occupancy-3col-container');
+    inputEditorContainerEl = inputEditorContainerEl || document.getElementById('input-editor-container');
+    btnPaste2ColEl = btnPaste2ColEl || document.getElementById('btn-paste-2col');
+    btnPaste3ColEl = btnPaste3ColEl || document.getElementById('btn-paste-3col');
+    btnAddColEl = btnAddColEl || document.getElementById('btn-add-column');
+    rawPaneTitleEl = rawPaneTitleEl || document.getElementById('raw-pane-title');
 
     // Update live inspector on section switch
     const liveInspectorEl = document.getElementById('live-code-inspector');
