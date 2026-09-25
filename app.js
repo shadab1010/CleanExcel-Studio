@@ -5220,37 +5220,45 @@ function initCodeFinderUI() {
   }
 
   function openExplorer(targetTab = null) {
-    if (!explorerModal) return;
+    const modal = explorerModal || document.getElementById('code-explorer-modal');
+    if (!modal) return;
     const activeSec = (typeof AppState !== 'undefined' && AppState.activeColumnId) ? AppState.activeColumnId : null;
     const resolvedTab = normalizeExplorerTab(targetTab) || normalizeExplorerTab(activeSec) || 'occupancy';
     currentExplorerTab = resolvedTab;
 
     currentExplorerCategoryFilter = 'all';
-    if (explorerSearchInput) explorerSearchInput.value = '';
-    if (explorerClearBtn) explorerClearBtn.style.display = 'none';
+    const searchInput = explorerSearchInput || document.getElementById('explorer-search-input');
+    const clearBtn = explorerClearBtn || document.getElementById('explorer-clear-btn');
+    if (searchInput) searchInput.value = '';
+    if (clearBtn) clearBtn.style.display = 'none';
 
-    updateExplorerTabsUI();
-    renderExplorerFilterPills();
-    renderExplorerCallout();
-    renderExplorerCards();
+    try { updateExplorerTabsUI(); } catch (e) { console.error('Explorer tabs UI error:', e); }
+    try { renderExplorerFilterPills(); } catch (e) { console.error('Explorer pills error:', e); }
+    try { renderExplorerCallout(); } catch (e) { console.error('Explorer callout error:', e); }
+    try { renderExplorerCards(); } catch (e) { console.error('Explorer cards error:', e); }
 
-    explorerModal.style.display = 'flex';
-    if (explorerSearchInput) {
-      setTimeout(() => explorerSearchInput.focus(), 80);
+    modal.style.display = 'flex';
+    if (searchInput) {
+      setTimeout(() => searchInput.focus(), 80);
     }
   }
 
   function closeExplorer() {
-    if (explorerModal) explorerModal.style.display = 'none';
+    const modal = explorerModal || document.getElementById('code-explorer-modal');
+    if (modal) modal.style.display = 'none';
   }
 
-  // Expose global openCodeExplorer and openCodeFinderModal helpers
+  // Expose global openCodeExplorer, openExplorer and openCodeFinderModal helpers
+  window.openExplorer = openExplorer;
+  window.closeExplorer = closeExplorer;
   window.openCodeExplorer = function(targetTab = null, searchQuery = '') {
     openExplorer(targetTab);
-    if (searchQuery && explorerSearchInput) {
-      explorerSearchInput.value = searchQuery;
-      if (explorerClearBtn) explorerClearBtn.style.display = 'inline-block';
-      renderExplorerCards();
+    const searchInput = explorerSearchInput || document.getElementById('explorer-search-input');
+    const clearBtn = explorerClearBtn || document.getElementById('explorer-clear-btn');
+    if (searchQuery && searchInput) {
+      searchInput.value = searchQuery;
+      if (clearBtn) clearBtn.style.display = 'inline-block';
+      try { renderExplorerCards(); } catch (e) { console.error(e); }
     }
   };
   window.openCodeFinderModal = function(targetTab = null, searchQuery = '') {
@@ -6618,6 +6626,19 @@ function initVengeanceNavigation() {
 
   // Global Document-Level Event Delegation for All Launch / Navigation Triggers
   document.addEventListener('click', (e) => {
+    // 0. Memory Modal triggers
+    const memoryTrigger = e.target.closest('#btn-memory-modal, #dock-btn-memory, .veng-memory-pill, .footer-btn-trigger-memory, [data-action="open-memory"]');
+    if (memoryTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof window.openCodeExplorer === 'function') {
+        window.openCodeExplorer('learned');
+      } else if (typeof window.openExplorer === 'function') {
+        window.openExplorer('learned');
+      }
+      return;
+    }
+
     // 1. Launch Studio triggers
     const launchTrigger = e.target.closest('#btn-launch-header, #hero-btn-launch, #bento-btn-launch, #nav-btn-studio, #footer-link-studio, .veng-btn-launch, [data-action="launch-studio"]');
     if (launchTrigger) {

@@ -97,7 +97,7 @@
           <span class="ai-badge-dot"></span>
         </button>
 
-        <button id="btn-memory-modal" class="veng-ai-pill veng-memory-pill" type="button" onclick="window.openCodeExplorer ? window.openCodeExplorer('learned') : (document.getElementById('code-explorer-modal') && (document.getElementById('code-explorer-modal').style.display='flex'))" title="Continuous Memory Database (Learned Taxonomy)">
+        <button id="btn-memory-modal" class="veng-ai-pill veng-memory-pill" type="button" data-action="open-memory" onclick="window.openCodeExplorer ? window.openCodeExplorer('learned') : (window.openExplorer ? window.openExplorer('learned') : null)" title="Continuous Memory Database (Learned Taxonomy)">
           <svg class="veng-pill-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18a1 1 0 0 1-2 0v-1.07A7 7 0 0 1 5.07 11H4a1 1 0 0 1 0-2h1.07A7 7 0 0 1 11 3.07V2a1 1 0 0 1 2 0v1.07A7 7 0 0 1 18.93 9H20a1 1 0 0 1 0 2h-1.07A7 7 0 0 1 13 16.93z"></path></svg>
           <span class="ai-pill-text" id="header-memory-text">Memory</span>
           <span class="ai-badge-dot"></span>
@@ -3117,7 +3117,7 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       <span>Taxonomy</span>
     </button>
-    <button class="mobile-dock-btn" id="dock-btn-memory" type="button" onclick="window.openCodeExplorer ? window.openCodeExplorer('learned') : (document.getElementById('btn-memory-modal') && document.getElementById('btn-memory-modal').click())">
+    <button class="mobile-dock-btn" id="dock-btn-memory" type="button" data-action="open-memory" onclick="window.openCodeExplorer ? window.openCodeExplorer('learned') : (window.openExplorer ? window.openExplorer('learned') : null)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V18a1 1 0 0 1-2 0v-1.07A7 7 0 0 1 5.07 11H4a1 1 0 0 1 0-2h1.07A7 7 0 0 1 11 3.07V2a1 1 0 0 1 2 0v1.07A7 7 0 0 1 18.93 9H20a1 1 0 0 1 0 2h-1.07A7 7 0 0 1 13 16.93z"></path></svg>
       <span>Memory</span>
     </button>
@@ -3133,13 +3133,13 @@
   <!-- Scripts -->
   <script src="vendor/react.production.min.js"></script>
   <script src="vendor/react-dom.production.min.js"></script>
-  <script src="data/touchstone_data.js?v=3.0"></script>
-  <script src="data/custom_codes_db.js?v=4.0"></script>
-  <script src="cleaner.js?v=3.0"></script>
-  <script src="code_finder.js?v=3.0"></script>
-  <script src="react_output.js?v=3.0"></script>
-  <script src="gemini.js?v=4.0"></script>
-  <script src="app.js?v=4.0"></script>
+  <script src="data/touchstone_data.js?v=5.0"></script>
+  <script src="data/custom_codes_db.js?v=5.0"></script>
+  <script src="cleaner.js?v=5.0"></script>
+  <script src="code_finder.js?v=5.0"></script>
+  <script src="react_output.js?v=5.0"></script>
+  <script src="gemini.js?v=5.0"></script>
+  <script src="app.js?v=5.0"></script>
 
   <!-- ===== Neural Underwriting Enhancement Suite v4.3 ===== -->
   <script>
