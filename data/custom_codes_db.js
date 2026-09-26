@@ -170,6 +170,28 @@
       const base = (td && td.OCCUPANCY) ? { ...td.OCCUPANCY } : {};
       const custom = this.getCustomData('occupancy');
 
+      // Merge dynamic Turso Cloud Database table if available
+      try {
+        const lm = (typeof root !== 'undefined' && root.LearningMemory) || (typeof window !== 'undefined' && window.LearningMemory);
+        if (lm && lm.tables && Array.isArray(lm.tables.occupancy)) {
+          lm.tables.occupancy.forEach(row => {
+            if (row && row.occupancy_code) {
+              const strCode = String(row.occupancy_code);
+              base[strCode] = {
+                ...(base[strCode] || {}),
+                code: strCode,
+                name: row.name || row.occupancy_description || `Occupancy ${strCode}`,
+                description: row.occupancy_description || '',
+                keywords: Array.isArray(row.keywords) ? row.keywords : (row.keywords ? String(row.keywords).split(',') : []),
+                category: row.category || 'Occupancy',
+                isCustom: !td || !td.OCCUPANCY || !td.OCCUPANCY[strCode],
+                isFromTurso: true
+              };
+            }
+          });
+        }
+      } catch (e) {}
+
       for (const [code, item] of Object.entries(custom)) {
         if (item._deleted) {
           delete base[code];
@@ -193,6 +215,28 @@
       const td = _getTouchstoneData();
       const base = (td && td.CONSTRUCTION) ? { ...td.CONSTRUCTION } : {};
       const custom = this.getCustomData('construction');
+
+      // Merge dynamic Turso Cloud Database table if available
+      try {
+        const lm = (typeof root !== 'undefined' && root.LearningMemory) || (typeof window !== 'undefined' && window.LearningMemory);
+        if (lm && lm.tables && Array.isArray(lm.tables.construction)) {
+          lm.tables.construction.forEach(row => {
+            if (row && row.construction_code) {
+              const strCode = String(row.construction_code);
+              base[strCode] = {
+                ...(base[strCode] || {}),
+                code: strCode,
+                name: row.name || row.construction_description || `Construction ${strCode}`,
+                description: row.construction_description || '',
+                keywords: Array.isArray(row.keywords) ? row.keywords : (row.keywords ? String(row.keywords).split(',') : []),
+                category: row.category || 'Construction',
+                isCustom: !td || !td.CONSTRUCTION || !td.CONSTRUCTION[strCode],
+                isFromTurso: true
+              };
+            }
+          });
+        }
+      } catch (e) {}
 
       for (const [code, item] of Object.entries(custom)) {
         if (item._deleted) {
@@ -400,6 +444,21 @@
         }
       }
 
+      // Sync with Learning Memory Engine & Turso Cloud Database if available
+      try {
+        const lm = (typeof root !== 'undefined' && root.LearningMemory) || (typeof window !== 'undefined' && window.LearningMemory);
+        if (lm && typeof lm.learn === 'function') {
+          const codeVal = typeof targetResult === 'object' ? (targetResult.code || targetResult.cleaned || '') : targetResult;
+          lm.learn({
+            category: section,
+            code: codeVal,
+            description: rawText,
+            source: source === 'user_fix' ? 'USER_CORRECTION' : 'AI_INFERRED',
+            client: 'Global'
+          }).catch(function () {});
+        }
+      } catch (e) {}
+
       _saveStorage(store);
       return learnedItem;
     },
@@ -482,6 +541,17 @@
           }
         }
       }
+
+      // 3. Fallback to dynamic LearningMemory Turso Database tables
+      try {
+        const lm = (typeof root !== 'undefined' && root.LearningMemory) || (typeof window !== 'undefined' && window.LearningMemory);
+        if (lm && typeof lm.matchPhrase === 'function') {
+          const dbCode = lm.matchPhrase(section, inputPhrase);
+          if (dbCode) {
+            return { code: String(dbCode), isFromTurso: true };
+          }
+        }
+      } catch (e) {}
 
       return null;
     },

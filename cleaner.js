@@ -814,6 +814,9 @@ const AddressSplitter = {
   }
 };
 
+AddressSplitter.splitAddress = AddressSplitter.parseAddress.bind(AddressSplitter);
+AddressSplitter.split = AddressSplitter.parseAddress.bind(AddressSplitter);
+
 /**
  * Touchstone / UNICEDE® Occupancy Class Code Classifier Engine
  * Maps commercial and residential occupancy and building descriptions to official insurance codes (300-384, 400+, etc.)

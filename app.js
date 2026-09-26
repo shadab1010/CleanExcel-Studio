@@ -1693,7 +1693,7 @@ function bindEvents() {
       liveInspectorEl.style.display = 'none';
     }
 
-    // Switch editor pane layout (Occupancy/Construction use 3-col, Roof Year uses 2-col, Coordinates uses 2-col)
+    // Switch editor pane layout
     if (colId === 'coordinates' || colId === 'coordinate' || colId === 'lat_long' || colId === 'latlong' || colId === 'coords' || colId === 'dms') {
       if (coord2ColContainerEl) coord2ColContainerEl.style.display = 'grid';
       if (roofYear2ColContainerEl) roofYear2ColContainerEl.style.display = 'none';
@@ -5153,8 +5153,10 @@ async function triggerGeminiAI() {
   const isRoofYear = AppState.activeColumnId === 'roof_year';
   const isRoof = AppState.activeColumnId === 'roof';
   const isWall = AppState.activeColumnId === 'wall';
-  const isFoundation = AppState.activeColumnId === 'foundation';
+  const isFoundation = AppState.activeColumnId === 'foundation' || AppState.activeColumnId === 'foundation_type' || AppState.activeColumnId === 'foundationType';
+  const isFoundationConnection = AppState.activeColumnId === 'foundation_connection' || AppState.activeColumnId === 'foundationConnection';
   const isShortColumn = AppState.activeColumnId === 'short_column' || AppState.activeColumnId === 'shortColumn';
+  const isBuildingExteriorOpening = AppState.activeColumnId === 'building_exterior_opening' || AppState.activeColumnId === 'exterior_opening' || AppState.activeColumnId === 'buildingExteriorOpening';
   const isSoftStory = AppState.activeColumnId === 'soft_story' || AppState.activeColumnId === 'softStory';
   const isOrnamentation = AppState.activeColumnId === 'ornamentation' || AppState.activeColumnId === 'ornament';
   const isBuildingShape = AppState.activeColumnId === 'building_shape' || AppState.activeColumnId === 'buildingShape' || AppState.activeColumnId === 'shape';
@@ -5208,16 +5210,22 @@ async function triggerGeminiAI() {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing roof descriptions...`;
       } else if (isWall) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing exterior wall materials...`;
+      } else if (isFoundationConnection) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing Foundation Connection (Codes 0–6)...`;
       } else if (isFoundation) {
-        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing foundation types & connections...`;
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing Foundation Type (Codes 0–12)...`;
       } else if (isShortColumn) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing Short Column conditions...`;
+      } else if (isBuildingExteriorOpening) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing Building Exterior Openings...`;
       } else if (isSoftStory) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing Soft Story conditions...`;
       } else if (isOrnamentation) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing facade ornamentation & parapets...`;
       } else if (isBuildingShape) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing building footprint geometries...`;
+      } else if (isBuildingCondition) {
+        aiLoadingTitleEl.textContent = `${headerPrefix} is analyzing Building Condition...`;
       } else if (isYear) {
         aiLoadingTitleEl.textContent = `${headerPrefix} is validating Year Built records...`;
       } else if (isStores) {
@@ -5245,16 +5253,22 @@ async function triggerGeminiAI() {
         aiLoadingSubtitleEl.textContent = 'Classifying all 7 Touchstone UNICEDE® fields (Geometry, Pitch, Covering, Deck, Covering & Deck Attachments, Anchorage)';
       } else if (isWall) {
         aiLoadingSubtitleEl.textContent = 'Separating WallType & WallSiding with Touchstone UNICEDE® underwriting rules';
+      } else if (isFoundationConnection) {
+        aiLoadingSubtitleEl.textContent = 'Classifying Foundation Connection (Codes 0–6: Ties, Bolts, Gravity/Friction, Structurally Connected)';
       } else if (isFoundation) {
-        aiLoadingSubtitleEl.textContent = 'Classifying Foundation Type (Codes 0–12) & Foundation Connection (Codes 0–3)';
+        aiLoadingSubtitleEl.textContent = 'Classifying Foundation Type (Codes 0–12: Basement, Crawlspace, Slab, Piles, etc.)';
       } else if (isShortColumn) {
         aiLoadingSubtitleEl.textContent = 'Classifying Touchstone UNICEDE® Short Column (0: Unknown, 1: No, 2: Yes) for CA/HI/JP/US EQ';
+      } else if (isBuildingExteriorOpening) {
+        aiLoadingSubtitleEl.textContent = 'Classifying Touchstone UNICEDE® Building Exterior Opening (0: Unknown, 1: <50%, 2: >50%)';
       } else if (isSoftStory) {
         aiLoadingSubtitleEl.textContent = 'Classifying Touchstone UNICEDE® Soft Story (0: Unknown, 1: No, 2: Yes) for CA/HI/JP/NZ/US EQ';
       } else if (isOrnamentation) {
         aiLoadingSubtitleEl.textContent = 'Classifying Touchstone UNICEDE® Ornamentation (0: Unknown, 1: None, 2: Average, 3: Extensive) for CA/HI/JP/US EQ';
       } else if (isBuildingShape) {
         aiLoadingSubtitleEl.textContent = 'Classifying Touchstone UNICEDE® Building Shape (Codes 0–8: Square, Rect, Circular, L/T/U/H, Complex)';
+      } else if (isBuildingCondition) {
+        aiLoadingSubtitleEl.textContent = 'Classifying Touchstone UNICEDE® Building Condition (0: Unknown, 1: Average, 2: Good, 3: Poor)';
       } else if (isYear) {
         aiLoadingSubtitleEl.textContent = 'Enforcing 1753–2026 range & selecting lesser/older construction year for multi-year entries';
       } else if (isStores) {
@@ -5353,20 +5367,25 @@ async function triggerGeminiAI() {
         format: AppState.wallFormat || 'code_only',
         removeEmptyLines: AppState.wallRemoveEmpty
       });
-    } else if (AppState.activeColumnId === 'foundation_type' || AppState.activeColumnId === 'foundationType') {
-      results = await (window.GeminiService.classifyFoundationTypeWithAI || window.GeminiService.classifyFoundationWithAI).call(window.GeminiService, lines, {
-        format: AppState.foundationTypeFormat || 'code_only',
-        removeEmptyLines: AppState.foundationTypeRemoveEmpty
+    } else if (isFoundationConnection) {
+      results = await window.GeminiService.classifyFoundationConnectionWithAI(lines, {
+        format: AppState.foundationConnectionFormat || 'code_only',
+        removeEmptyLines: AppState.foundationConnectionRemoveEmpty
       });
     } else if (isFoundation) {
-      results = await window.GeminiService.classifyFoundationWithAI(lines, {
-        format: AppState.foundationFormat || 'code_only',
-        removeEmptyLines: AppState.foundationRemoveEmpty
+      results = await (window.GeminiService.classifyFoundationTypeWithAI || window.GeminiService.classifyFoundationWithAI).call(window.GeminiService, lines, {
+        format: AppState.foundationTypeFormat || AppState.foundationFormat || 'code_only',
+        removeEmptyLines: AppState.foundationTypeRemoveEmpty || AppState.foundationRemoveEmpty
       });
     } else if (isShortColumn) {
       results = await window.GeminiService.classifyShortColumnWithAI(lines, {
         format: AppState.shortColumnFormat || 'code_only',
         removeEmptyLines: AppState.shortColumnRemoveEmpty
+      });
+    } else if (isBuildingExteriorOpening) {
+      results = await window.GeminiService.classifyBuildingExteriorOpeningWithAI(lines, {
+        format: AppState.buildingExteriorOpeningFormat || 'code_only',
+        removeEmptyLines: AppState.buildingExteriorOpeningRemoveEmpty
       });
     } else if (isSoftStory) {
       results = await (window.GeminiService.cleanSoftStoryWithAI || window.GeminiService.classifySoftStoryWithAI).call(window.GeminiService, lines, {
