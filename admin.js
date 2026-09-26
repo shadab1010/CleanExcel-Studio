@@ -172,12 +172,23 @@
     };
   }
 
+  // HTML Sanitization Helper to prevent XSS
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   // Toast notifications
   function showToast(message, icon = 'ℹ️') {
     if (!el.toastContainer) return;
     const toast = document.createElement('div');
     toast.className = 'admin-toast';
-    toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+    toast.innerHTML = `<span>${icon}</span> <span>${escapeHtml(message)}</span>`;
     el.toastContainer.appendChild(toast);
     setTimeout(() => {
       toast.style.opacity = '0';
@@ -381,15 +392,15 @@
                               statusVal === 'Requires Review' || statusVal === 'Conflict' ? 'td-badge-conflict' : 'td-badge-pending';
 
           tr.innerHTML = `
-            <td class="td-code">${codeVal}</td>
-            <td><strong>${descVal}</strong></td>
-            <td>${nameVal}</td>
-            <td><span class="td-badge" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc;">${clientVal}</span></td>
-            <td><span class="td-badge ${statusClass}">${statusVal}</span></td>
+            <td class="td-code">${escapeHtml(codeVal)}</td>
+            <td><strong>${escapeHtml(descVal)}</strong></td>
+            <td>${escapeHtml(nameVal)}</td>
+            <td><span class="td-badge" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc;">${escapeHtml(clientVal)}</span></td>
+            <td><span class="td-badge ${statusClass}">${escapeHtml(statusVal)}</span></td>
             <td style="text-align: right;">
               <div class="td-actions" style="justify-content: flex-end;">
-                <button type="button" class="btn-table-action btn-table-edit" data-id="${row.id || codeVal}">Edit</button>
-                <button type="button" class="btn-table-action btn-table-delete" data-id="${row.id || codeVal}">Delete</button>
+                <button type="button" class="btn-table-action btn-table-edit" data-id="${escapeHtml(row.id || codeVal)}">Edit</button>
+                <button type="button" class="btn-table-action btn-table-delete" data-id="${escapeHtml(row.id || codeVal)}">Delete</button>
               </div>
             </td>
           `;
@@ -467,18 +478,18 @@
 
     filtered.forEach(log => {
       const card = document.createElement('div');
-      card.className = `audit-card action-${(log.action || '').toLowerCase()}`;
+      card.className = `audit-card action-${escapeHtml((log.action || '').toLowerCase())}`;
       card.innerHTML = `
         <div class="audit-top-row">
-          <span class="audit-action-badge">${log.action || 'EVENT'}</span>
-          <span class="audit-time">${log.timestamp ? new Date(log.timestamp).toLocaleString() : 'Just now'}</span>
+          <span class="audit-action-badge">${escapeHtml(log.action || 'EVENT')}</span>
+          <span class="audit-time">${log.timestamp ? escapeHtml(new Date(log.timestamp).toLocaleString()) : 'Just now'}</span>
         </div>
-        <div class="audit-desc">${log.details || `Modified ${log.category} code ${log.code}`}</div>
+        <div class="audit-desc">${escapeHtml(log.details || `Modified ${log.category} code ${log.code}`)}</div>
         <div class="audit-meta-row">
-          <span>Category: <strong>${log.category || 'Global'}</strong></span>
-          <span>Code: <strong>${log.code || '—'}</strong></span>
-          <span>Client: <strong>${log.client || 'Global'}</strong></span>
-          <span>Source: <strong>${log.source || 'SYSTEM'}</strong></span>
+          <span>Category: <strong>${escapeHtml(log.category || 'Global')}</strong></span>
+          <span>Code: <strong>${escapeHtml(log.code || '—')}</strong></span>
+          <span>Client: <strong>${escapeHtml(log.client || 'Global')}</strong></span>
+          <span>Source: <strong>${escapeHtml(log.source || 'SYSTEM')}</strong></span>
         </div>
       `;
       el.auditTimelineContainer.appendChild(card);
@@ -507,25 +518,25 @@
         <div class="conflict-card-header">
           <div class="conflict-card-title">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
-            <span>${c.category.toUpperCase()} Code Conflict: ${c.code}</span>
+            <span>${escapeHtml(c.category.toUpperCase())} Code Conflict: ${escapeHtml(c.code)}</span>
           </div>
-          <span class="td-badge td-badge-conflict">${c.status || 'Requires Review'}</span>
+          <span class="td-badge td-badge-conflict">${escapeHtml(c.status || 'Requires Review')}</span>
         </div>
 
         <div class="conflict-diff-grid">
           <div>
             <div class="diff-box-title">🛡️ Existing Baseline Description</div>
-            <div class="diff-box-content">${c.existing_description}</div>
+            <div class="diff-box-content">${escapeHtml(c.existing_description)}</div>
           </div>
           <div>
-            <div class="diff-box-title">⚡ Proposed New Description (From: ${c.source})</div>
-            <div class="diff-box-content new-proposal">${c.new_description}</div>
+            <div class="diff-box-title">⚡ Proposed New Description (From: ${escapeHtml(c.source)})</div>
+            <div class="diff-box-content new-proposal">${escapeHtml(c.new_description)}</div>
           </div>
         </div>
 
         <div class="conflict-card-actions">
           <button type="button" class="admin-btn admin-btn-outline btn-keep-existing">🛡️ Keep Existing Baseline</button>
-          <button type="button" class="admin-btn admin-btn-accent btn-save-client">🏢 Save as Client Rule (${c.client || 'Client'})</button>
+          <button type="button" class="admin-btn admin-btn-accent btn-save-client">🏢 Save as Client Rule (${escapeHtml(c.client || 'Client')})</button>
           <button type="button" class="admin-btn admin-btn-danger btn-overwrite-global">⚡ Authorize Global Override</button>
         </div>
       `;
@@ -587,7 +598,7 @@
         </div>
         <div class="kpi-data">
           <span class="kpi-num">${clientCodeCount}</span>
-          <span class="kpi-lbl">${clientName} Scope</span>
+          <span class="kpi-lbl">${escapeHtml(clientName)} Scope</span>
         </div>
         <div class="kpi-sub">${clientName === 'Global' ? 'Standard Catastrophe Baseline' : 'Isolated Client Custom Taxonomies'}</div>
       `;
@@ -811,21 +822,21 @@
               el.consoleResultsBox.innerHTML = `<div style="color: #34d399;">✓ Query executed successfully. (0 rows returned)</div>`;
             } else {
               let html = `<table class="admin-data-table"><thead><tr>`;
-              cols.forEach(c => html += `<th>${c}</th>`);
+              cols.forEach(c => html += `<th>${escapeHtml(c)}</th>`);
               html += `</tr></thead><tbody>`;
               rows.forEach(r => {
                 html += `<tr>`;
-                r.forEach(v => html += `<td>${v !== null && v !== undefined ? v : '<span style="color:#64748b;">NULL</span>'}</td>`);
+                r.forEach(v => html += `<td>${v !== null && v !== undefined ? escapeHtml(String(v)) : '<span style="color:#64748b;">NULL</span>'}</td>`);
                 html += `</tr>`;
               });
               html += `</tbody></table>`;
               el.consoleResultsBox.innerHTML = html;
             }
           } else if (data.results && data.results[0] && data.results[0].error) {
-            el.consoleResultsBox.innerHTML = `<div style="color: #f87171;">❌ SQL Error: ${data.results[0].error.message}</div>`;
+            el.consoleResultsBox.innerHTML = `<div style="color: #f87171;">❌ SQL Error: ${escapeHtml(data.results[0].error.message)}</div>`;
           }
         } catch (err) {
-          el.consoleResultsBox.innerHTML = `<div style="color: #f87171;">❌ Network/Query Error: ${err.message}</div>`;
+          el.consoleResultsBox.innerHTML = `<div style="color: #f87171;">❌ Network/Query Error: ${escapeHtml(err.message)}</div>`;
         }
       };
 
