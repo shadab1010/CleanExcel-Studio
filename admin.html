@@ -139,15 +139,30 @@
     <section class="admin-tab-pane active" id="pane-tables">
       <div class="tables-explorer-layout">
         
-        <!-- Left Sidebar: Category List -->
+        <!-- Left Sidebar: Categorized Category List -->
         <aside class="tables-sidebar">
-          <div class="sidebar-search-box">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" id="category-filter-input" placeholder="Filter 35 tables..." autocomplete="off">
+          <div class="sidebar-header-box">
+            <div class="sidebar-search-box">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="category-filter-input" placeholder="Search 35 tables..." autocomplete="off">
+            </div>
+
+            <!-- Category Group Filter Pills -->
+            <div class="sidebar-group-pills" id="sidebar-group-pills">
+              <button type="button" class="group-pill active" data-group="all">All (35)</button>
+              <button type="button" class="group-pill" data-group="occupancy">🏢 Occ (1)</button>
+              <button type="button" class="group-pill" data-group="construction">🏗️ Con (1)</button>
+              <button type="button" class="group-pill" data-group="roof">🏠 Roof (10)</button>
+              <button type="button" class="group-pill" data-group="wall">🧱 Wall (9)</button>
+              <button type="button" class="group-pill" data-group="foundation">🏛️ Found (2)</button>
+              <button type="button" class="group-pill" data-group="seismic">📉 Seismic (5)</button>
+              <button type="button" class="group-pill" data-group="master">📋 Rules (4)</button>
+              <button type="button" class="group-pill" data-group="system">🛡️ Logs (2)</button>
+            </div>
           </div>
 
           <div class="sidebar-category-list" id="sidebar-categories">
-            <!-- Dynamically populated category buttons -->
+            <!-- Dynamically populated categorized groups & buttons -->
           </div>
         </aside>
 

@@ -11,8 +11,88 @@
   let currentCategory = 'occupancy';
   let currentPage = 1;
   const PAGE_SIZE = 25;
-  let searchQuery = '';
-  let selectedClient = 'All';
+  let selectedGroupFilter = 'all';
+
+  // Structured Categorization for all 35 tables
+  const CATEGORY_GROUPS = [
+    {
+      id: 'occupancy',
+      name: 'Occupancy & Facility Use',
+      icon: '🏢',
+      color: '#38bdf8',
+      keys: ['occupancy']
+    },
+    {
+      id: 'construction',
+      name: 'Structural Construction',
+      icon: '🏗️',
+      color: '#a855f7',
+      keys: ['construction']
+    },
+    {
+      id: 'roof',
+      name: 'Roof Dimensions & Materials',
+      icon: '🏠',
+      color: '#f59e0b',
+      keys: [
+        'roof_geometry',
+        'roof_pitch',
+        'roof_covering',
+        'roof_deck',
+        'roof_covering_attachment',
+        'roof_deck_attachment',
+        'roof_anchorage',
+        'roof_hail',
+        'roof_chimney',
+        'roof_tank'
+      ]
+    },
+    {
+      id: 'wall',
+      name: 'Exterior Wall & Envelope',
+      icon: '🧱',
+      color: '#10b981',
+      keys: [
+        'wall_type',
+        'wall_siding',
+        'wall_glass_type',
+        'wall_glass_percentage',
+        'wall_window_protection',
+        'wall_exterior_doors',
+        'wall_exterior_opening',
+        'wall_brick_veneer',
+        'wall_fire_rating'
+      ]
+    },
+    {
+      id: 'foundation',
+      name: 'Foundation & Geotechnical',
+      icon: '🏛️',
+      color: '#ec4899',
+      keys: ['foundation_type', 'foundation_connection']
+    },
+    {
+      id: 'seismic',
+      name: 'Seismic & Secondary Vulnerability',
+      icon: '📉',
+      color: '#6366f1',
+      keys: ['short_column', 'soft_story', 'ornamentation', 'building_shape', 'building_condition']
+    },
+    {
+      id: 'master',
+      name: 'Master Taxonomy & Underwriting Rules',
+      icon: '📋',
+      color: '#14b8a6',
+      keys: ['underwriting_codes', 'underwriting_categories', 'underwriting_rules', 'other_reference_data']
+    },
+    {
+      id: 'system',
+      name: 'Learning Memory & System Logs',
+      icon: '🛡️',
+      color: '#ef4444',
+      keys: ['learning_conflicts', 'audit_log']
+    }
+  ];
 
   // Dom Elements
   let el = {};
@@ -133,41 +213,94 @@
     }
   }
 
-  // Populate Sidebar Categories
+  // Populate Sidebar Categories with Structured Groups
   function renderSidebarCategories() {
     if (!el.sidebarCategories || !root.LearningMemory) return;
     const schemas = getSchemas();
     const filterText = (el.categoryFilterInput ? el.categoryFilterInput.value : '').toLowerCase().trim();
     el.sidebarCategories.innerHTML = '';
 
-    Object.entries(schemas).forEach(([key, schema]) => {
-      if (filterText && !schema.label.toLowerCase().includes(filterText) && !schema.table.toLowerCase().includes(filterText)) {
+    // Calculate group counts and render sections
+    CATEGORY_GROUPS.forEach(group => {
+      // Check if group matches selected group pill
+      if (selectedGroupFilter !== 'all' && group.id !== selectedGroupFilter) {
         return;
       }
-      const rowCount = (root.LearningMemory.tables[key] || []).length;
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = `category-nav-btn ${key === currentCategory ? 'active' : ''}`;
-      btn.innerHTML = `
-        <span>${schema.label}</span>
-        <span class="cat-btn-badge">${rowCount}</span>
-      `;
-      btn.addEventListener('click', () => {
-        currentCategory = key;
-        currentPage = 1;
-        renderSidebarCategories();
-        renderActiveTable();
+
+      // Filter matching table keys in this group
+      const matchingKeys = group.keys.filter(key => {
+        const schema = schemas[key];
+        if (!schema) return false;
+        if (!filterText) return true;
+        return (
+          schema.label.toLowerCase().includes(filterText) ||
+          schema.table.toLowerCase().includes(filterText) ||
+          group.name.toLowerCase().includes(filterText)
+        );
       });
-      el.sidebarCategories.appendChild(btn);
+
+      if (matchingKeys.length === 0) return;
+
+      // Calculate total rows in this group
+      let groupTotalRows = 0;
+      matchingKeys.forEach(key => {
+        groupTotalRows += (root.LearningMemory.tables[key] || []).length;
+      });
+
+      // Section container
+      const section = document.createElement('div');
+      section.className = 'category-group-section';
+
+      // Group Header
+      const header = document.createElement('div');
+      header.className = 'category-group-header';
+      header.innerHTML = `
+        <div class="category-group-title">
+          <span>${group.icon}</span>
+          <span style="color:${group.color || '#94a3b8'}">${group.name}</span>
+        </div>
+        <span class="category-group-total">${groupTotalRows} codes</span>
+      `;
+      section.appendChild(header);
+
+      // Buttons for each table in this group
+      matchingKeys.forEach(key => {
+        const schema = schemas[key];
+        const rowCount = (root.LearningMemory.tables[key] || []).length;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `category-nav-btn ${key === currentCategory ? 'active' : ''}`;
+        btn.innerHTML = `
+          <span>${schema.label}</span>
+          <span class="cat-btn-badge">${rowCount}</span>
+        `;
+        btn.addEventListener('click', () => {
+          currentCategory = key;
+          currentPage = 1;
+          renderSidebarCategories();
+          renderActiveTable();
+        });
+        section.appendChild(btn);
+      });
+
+      el.sidebarCategories.appendChild(section);
     });
 
-    // Populate Modal category select
+    // Populate Modal category select (with optgroups)
     if (el.modalCategorySelect && el.modalCategorySelect.children.length === 0) {
-      Object.entries(schemas).forEach(([key, schema]) => {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = `${schema.label} (${schema.table})`;
-        el.modalCategorySelect.appendChild(opt);
+      CATEGORY_GROUPS.forEach(group => {
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = `${group.icon} ${group.name}`;
+        group.keys.forEach(key => {
+          const schema = schemas[key];
+          if (schema) {
+            const opt = document.createElement('option');
+            opt.value = key;
+            opt.textContent = `${schema.label} (${schema.table})`;
+            optGroup.appendChild(opt);
+          }
+        });
+        el.modalCategorySelect.appendChild(optGroup);
       });
     }
   }
@@ -515,6 +648,17 @@
     if (el.categoryFilterInput) {
       el.categoryFilterInput.addEventListener('input', renderSidebarCategories);
     }
+
+    // Sidebar Category Group Pills Filter
+    const groupPills = document.querySelectorAll('.group-pill');
+    groupPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        groupPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        selectedGroupFilter = pill.getAttribute('data-group') || 'all';
+        renderSidebarCategories();
+      });
+    });
 
     // Records Search
     if (el.recordsSearchInput) {
