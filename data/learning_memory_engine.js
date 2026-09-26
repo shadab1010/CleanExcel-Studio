@@ -56,7 +56,12 @@
     ornamentation: { table: 'ornamentation', codeCol: 'ornamentation_code', descCol: 'ornamentation_description', label: 'Ornamentation' },
     building_shape: { table: 'building_shape', codeCol: 'building_shape_code', descCol: 'building_shape_description', label: 'Building Shape' },
     building_condition: { table: 'building_condition', codeCol: 'building_condition_code', descCol: 'building_condition_description', label: 'Building Condition' },
-    other_reference_data: { table: 'other_reference_data', codeCol: 'reference_code', descCol: 'reference_description', label: 'Other Reference Data' }
+    underwriting_codes: { table: 'underwriting_codes', codeCol: 'code', descCol: 'description', label: 'Master Underwriting Codes' },
+    underwriting_categories: { table: 'underwriting_categories', codeCol: 'category_name', descCol: 'description', label: 'Taxonomy Categories' },
+    underwriting_rules: { table: 'underwriting_rules', codeCol: 'rule_name', descCol: 'rule_logic', label: 'Underwriting Rules' },
+    other_reference_data: { table: 'other_reference_data', codeCol: 'reference_code', descCol: 'reference_description', label: 'Other Reference Data' },
+    learning_conflicts: { table: 'learning_conflicts', codeCol: 'code', descCol: 'incoming_value', label: 'Learning Conflicts' },
+    audit_log: { table: 'learning_audit_log', codeCol: 'code', descCol: 'details', label: 'Audit Log' }
   };
 
   // Helper to query Turso HTTP API
@@ -109,6 +114,7 @@
   class LearningMemoryStore {
     constructor() {
       this.tables = {};
+      this.schemas = CATEGORY_SCHEMAS;
       this.conflicts = [];
       this.auditLog = [];
       this.listeners = [];
@@ -165,17 +171,17 @@
         if (!this.tables[cat]) this.tables[cat] = [];
       });
 
-      // Seed from Touchstone baseline if empty
-      if (typeof root.TouchstoneData !== 'undefined' || typeof globalThis.TouchstoneData !== 'undefined') {
-        const TD = root.TouchstoneData || globalThis.TouchstoneData;
-        if (TD && this.tables.occupancy.length === 0 && TD.OCCUPANCY) {
-          for (const [code, item] of Object.entries(TD.OCCUPANCY)) {
-            this.tables.occupancy.push({
-              id: 'occ_' + code,
-              occupancy_code: code,
-              occupancy_description: item.description || '',
-              name: item.category || '',
-              group_name: item.group || 'Residential',
+      // Helper to seed a table from a Touchstone dictionary object
+      const seedDict = (tableKey, dictObj, codeCol, descCol) => {
+        if (!dictObj || !this.tables[tableKey]) return;
+        if (this.tables[tableKey].length === 0) {
+          for (const [code, item] of Object.entries(dictObj)) {
+            this.tables[tableKey].push({
+              id: `${tableKey}_${code}`,
+              [codeCol]: code,
+              [descCol]: item.description || item.name || item.category || '',
+              name: item.category || item.name || item.shortName || '',
+              group_name: item.group || item.requirement || '',
               keywords: Array.isArray(item.keywords) ? item.keywords.join(', ') : '',
               source: 'Touchstone Baseline',
               client: 'Global',
@@ -187,26 +193,53 @@
             });
           }
         }
-        if (TD && this.tables.construction.length === 0 && TD.CONSTRUCTION) {
-          for (const [code, item] of Object.entries(TD.CONSTRUCTION)) {
-            this.tables.construction.push({
-              id: 'con_' + code,
-              construction_code: code,
-              construction_description: item.description || '',
-              name: item.category || '',
-              iso_class: item.iso || '',
-              group_name: item.group || 'Construction',
-              keywords: Array.isArray(item.keywords) ? item.keywords.join(', ') : '',
-              source: 'Touchstone Baseline',
-              client: 'Global',
-              learned_at: new Date().toISOString(),
-              status: 'Approved',
-              confidence: 'High',
-              is_global: 1,
-              is_trusted: 1
-            });
-          }
+      };
+
+      // Seed from Touchstone baseline if available
+      const TD = typeof root.TouchstoneData !== 'undefined' ? root.TouchstoneData :
+                 (typeof globalThis.TouchstoneData !== 'undefined' ? globalThis.TouchstoneData : null);
+
+      if (TD) {
+        if (TD.OCCUPANCY) seedDict('occupancy', TD.OCCUPANCY, 'occupancy_code', 'occupancy_description');
+        if (TD.CONSTRUCTION) seedDict('construction', TD.CONSTRUCTION, 'construction_code', 'construction_description');
+
+        if (TD.ROOF) {
+          const R = TD.ROOF;
+          seedDict('roof_geometry', R.GEOMETRY || R.ROOF_GEOMETRY, 'roof_geometry_code', 'roof_geometry_description');
+          seedDict('roof_pitch', R.PITCH || R.ROOF_PITCH, 'roof_pitch_code', 'roof_pitch_description');
+          seedDict('roof_covering', R.COVERING || R.ROOF_COVERING, 'roof_covering_code', 'roof_covering_description');
+          seedDict('roof_deck', R.DECK || R.ROOF_DECK, 'roof_deck_code', 'roof_deck_description');
+          seedDict('roof_covering_attachment', R.COVERING_ATTACHMENT || R.ROOF_COVERING_ATTACHMENT, 'roof_covering_attachment_code', 'roof_covering_attachment_description');
+          seedDict('roof_deck_attachment', R.DECK_ATTACHMENT || R.ROOF_DECK_ATTACHMENT, 'roof_deck_attachment_code', 'roof_deck_attachment_description');
+          seedDict('roof_anchorage', R.ANCHORAGE || R.ROOF_ANCHORAGE, 'roof_anchorage_code', 'roof_anchorage_description');
+          seedDict('roof_hail', R.HAIL_IMPACT_RESISTANCE || R.ROOF_HAIL_IMPACT_RESISTANCE, 'roof_hail_code', 'roof_hail_description');
+          seedDict('roof_chimney', R.CHIMNEY, 'roof_chimney_code', 'roof_chimney_description');
+          seedDict('roof_tank', R.TANK, 'roof_tank_code', 'roof_tank_description');
         }
+
+        if (TD.WALL) {
+          const W = TD.WALL;
+          seedDict('wall_type', W.WALL_TYPE, 'wall_type_code', 'wall_type_description');
+          seedDict('wall_siding', W.WALL_SIDING, 'wall_siding_code', 'wall_siding_description');
+          seedDict('wall_glass_type', W.GLASS_TYPE, 'wall_glass_type_code', 'wall_glass_type_description');
+          seedDict('wall_glass_percentage', W.GLASS_PERCENTAGE, 'wall_glass_percentage_code', 'wall_glass_percentage_description');
+          seedDict('wall_window_protection', W.WINDOW_PROTECTION, 'wall_window_protection_code', 'wall_window_protection_description');
+          seedDict('wall_exterior_doors', W.EXTERIOR_DOORS, 'wall_exterior_doors_code', 'wall_exterior_doors_description');
+          seedDict('wall_exterior_opening', W.BUILDING_EXTERIOR_OPENING || TD.BUILDING_EXTERIOR_OPENING, 'wall_exterior_opening_code', 'wall_exterior_opening_description');
+          seedDict('wall_brick_veneer', W.BRICK_VENEER, 'wall_brick_veneer_code', 'wall_brick_veneer_description');
+          seedDict('wall_fire_rating', W.FIRE_RATING_FOR_WALL_SIDING, 'wall_fire_rating_code', 'wall_fire_rating_description');
+        }
+
+        if (TD.FOUNDATION) {
+          if (TD.FOUNDATION.FOUNDATION_TYPE) seedDict('foundation_type', TD.FOUNDATION.FOUNDATION_TYPE, 'foundation_type_code', 'foundation_type_description');
+          if (TD.FOUNDATION.FOUNDATION_CONNECTION) seedDict('foundation_connection', TD.FOUNDATION.FOUNDATION_CONNECTION, 'foundation_connection_code', 'foundation_connection_description');
+        }
+
+        if (TD.SHORT_COLUMN) seedDict('short_column', TD.SHORT_COLUMN, 'short_column_code', 'short_column_description');
+        if (TD.SOFT_STORY) seedDict('soft_story', TD.SOFT_STORY, 'soft_story_code', 'soft_story_description');
+        if (TD.ORNAMENTATION) seedDict('ornamentation', TD.ORNAMENTATION, 'ornamentation_code', 'ornamentation_description');
+        if (TD.BUILDING_SHAPE) seedDict('building_shape', TD.BUILDING_SHAPE, 'building_shape_code', 'building_shape_description');
+        if (TD.BUILDING_CONDITION) seedDict('building_condition', TD.BUILDING_CONDITION, 'building_condition_code', 'building_condition_description');
       }
     }
 
@@ -716,12 +749,16 @@
       });
 
       return {
+        totalRows: totalLearned,
         totalLearned,
         totalApproved,
         totalPending,
         totalConflicts: this.conflicts.length,
+        pendingConflicts: this.conflicts.length,
+        totalCategories: Object.keys(CATEGORY_SCHEMAS).length,
         activeCategories,
-        totalAuditEntries: this.auditLog.length
+        totalAuditEntries: this.auditLog.length,
+        auditLogCount: this.auditLog.length
       };
     }
 

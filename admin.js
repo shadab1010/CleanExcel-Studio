@@ -359,8 +359,12 @@
       if (pagedRows.length === 0) {
         el.adminTableBody.innerHTML = `
           <tr>
-            <td colspan="6" style="text-align: center; color: #64748b; padding: 40px;">
-              No records found matching criteria in <code>${schema.table}</code> table.
+            <td colspan="6" style="text-align: center; color: #94a3b8; padding: 48px 20px;">
+              <div style="font-size: 1.6rem; margin-bottom: 8px;">🔍</div>
+              <div style="font-size: 0.95rem; font-weight: 600; color: #e2e8f0; margin-bottom: 6px;">No records found</div>
+              <div style="font-size: 0.8rem; color: #64748b;">
+                ${searchQuery ? `No matching codes or descriptions for "<strong>${searchQuery}</strong>" in <code>${schema.table}</code> table.` : `No records found in <code>${schema.table}</code> table.`}
+              </div>
             </td>
           </tr>
         `;
@@ -871,7 +875,12 @@
     bindEvents();
 
     if (root.LearningMemory) {
-      await root.LearningMemory.syncFromTurso();
+      refreshAll();
+      try {
+        await root.LearningMemory.syncFromTurso();
+      } catch (err) {
+        console.warn('[Admin] Sync warning:', err);
+      }
       refreshAll();
     }
   }
