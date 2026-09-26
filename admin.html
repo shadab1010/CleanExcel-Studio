@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CleanExcel Studio - Cloud Database & Learning Memory Admin Console</title>
+  <link rel="icon" type="image/svg+xml" href="neon_llama_logo_transparent.svg">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles.css?v=5.1">
+  <link rel="stylesheet" href="admin.css?v=1.0">
+</head>
+<body class="admin-body">
+
+  <!-- Admin Top Navigation Bar -->
+  <header class="admin-header">
+    <div class="admin-header-left">
+      <a href="index.html" class="admin-brand" title="Return to CleanExcel Studio">
+        <img src="neon_llama_logo_transparent.svg" alt="CleanExcel Logo" width="30" height="30">
+        <div class="admin-brand-text">
+          <span class="admin-title">CLEANEXCEL <span class="admin-badge">ADMIN CONSOLE</span></span>
+          <span class="admin-subtitle">Turso Cloud Database &amp; Underwriting Memory Hub</span>
+        </div>
+      </a>
+      <div class="admin-db-status" id="db-status-pill">
+        <span class="db-status-dot pulsing"></span>
+        <span class="db-status-text" id="db-status-label">Turso Cloud DB: Connecting...</span>
+      </div>
+    </div>
+
+    <div class="admin-header-actions">
+      <button type="button" class="admin-btn admin-btn-outline" id="btn-admin-sync" title="Fetch live tables from Turso Cloud">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l6.73-6.73"/></svg>
+        <span>Live Sync</span>
+      </button>
+
+      <button type="button" class="admin-btn admin-btn-outline" id="btn-admin-export" title="Export full database backup as JSON">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        <span>Export DB</span>
+      </button>
+
+      <button type="button" class="admin-btn admin-btn-primary" id="btn-admin-add-code" title="Add a new reference code to any dedicated category table">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span>Add New Code</span>
+      </button>
+
+      <a href="index.html" class="admin-btn admin-btn-accent" title="Back to CleanExcel Spreadsheet View">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span>CleanExcel Studio</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Admin Main Layout Container -->
+  <main class="admin-container">
+
+    <!-- KPI Metric Summary Row -->
+    <section class="admin-kpi-grid">
+      <div class="admin-kpi-card" id="kpi-total-codes-card">
+        <div class="kpi-icon-wrap kpi-blue">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+        </div>
+        <div class="kpi-data">
+          <span class="kpi-num" id="kpi-total-codes">937</span>
+          <span class="kpi-lbl">Total Reference Codes</span>
+        </div>
+        <div class="kpi-sub">Across 35 Dedicated Tables</div>
+      </div>
+
+      <div class="admin-kpi-card" id="kpi-tables-card">
+        <div class="kpi-icon-wrap kpi-purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+        </div>
+        <div class="kpi-data">
+          <span class="kpi-num" id="kpi-total-tables">35</span>
+          <span class="kpi-lbl">Turso SQL Tables</span>
+        </div>
+        <div class="kpi-sub">Strict Category Isolation</div>
+      </div>
+
+      <div class="admin-kpi-card" id="kpi-conflicts-card">
+        <div class="kpi-icon-wrap kpi-amber">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        <div class="kpi-data">
+          <span class="kpi-num" id="kpi-active-conflicts">0</span>
+          <span class="kpi-lbl">Active Conflicts</span>
+        </div>
+        <div class="kpi-sub" id="kpi-conflicts-sub">Zero Overwrites Protection</div>
+      </div>
+
+      <div class="admin-kpi-card" id="kpi-audit-card">
+        <div class="kpi-icon-wrap kpi-emerald">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </div>
+        <div class="kpi-data">
+          <span class="kpi-num" id="kpi-total-audits">0</span>
+          <span class="kpi-lbl">Audit Log Events</span>
+        </div>
+        <div class="kpi-sub">Real-Time Activity Stream</div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs Bar -->
+    <nav class="admin-tabs-nav" role="tablist">
+      <button class="admin-tab-btn active" data-tab="tables" role="tab" aria-selected="true">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+        <span>35 Category Tables</span>
+        <span class="tab-badge" id="tab-badge-tables">35</span>
+      </button>
+
+      <button class="admin-tab-btn" data-tab="audit" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span>Live Audit Log</span>
+        <span class="tab-badge" id="tab-badge-audits">0</span>
+      </button>
+
+      <button class="admin-tab-btn" data-tab="conflicts" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+        <span>Conflict Review</span>
+        <span class="tab-badge alert" id="tab-badge-conflicts">0</span>
+      </button>
+
+      <button class="admin-tab-btn" data-tab="clients" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span>Client Rules</span>
+      </button>
+
+      <button class="admin-tab-btn" data-tab="console" role="tab" aria-selected="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+        <span>SQL Console</span>
+      </button>
+    </nav>
+
+    <!-- Tab 1: 35 Dedicated Category Tables Explorer -->
+    <section class="admin-tab-pane active" id="pane-tables">
+      <div class="tables-explorer-layout">
+        
+        <!-- Left Sidebar: Category List -->
+        <aside class="tables-sidebar">
+          <div class="sidebar-search-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="category-filter-input" placeholder="Filter 35 tables..." autocomplete="off">
+          </div>
+
+          <div class="sidebar-category-list" id="sidebar-categories">
+            <!-- Dynamically populated category buttons -->
+          </div>
+        </aside>
+
+        <!-- Right Content: Table Grid & Records View -->
+        <div class="tables-main-content">
+          <div class="content-header-bar">
+            <div class="active-category-info">
+              <h2 id="active-category-title">Occupancy Classification Table</h2>
+              <span class="active-category-meta" id="active-category-meta">SQL Table: <code>occupancy</code> • 55 Records</span>
+            </div>
+
+            <div class="content-actions-toolbar">
+              <div class="search-records-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="records-search-input" placeholder="Search rows by code, description, keywords...">
+              </div>
+
+              <select id="client-filter-select" class="admin-select" title="Filter by Client Scope">
+                <option value="All">All Scopes (Global + Clients)</option>
+                <option value="Global">Global Only</option>
+              </select>
+
+              <button type="button" class="admin-btn admin-btn-primary admin-btn-sm" id="btn-add-row-to-table">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Add Row</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Table Container -->
+          <div class="table-records-container" id="table-records-wrap">
+            <table class="admin-data-table" id="admin-data-table">
+              <thead id="admin-table-head">
+                <!-- Dynamically generated headers -->
+              </thead>
+              <tbody id="admin-table-body">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-footer-bar" id="table-footer-bar">
+            <span id="table-record-count-label">Showing 0 rows</span>
+            <div class="pagination-controls" id="table-pagination-controls">
+              <!-- Pagination buttons -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Tab 2: Live Audit Log & Activity Stream -->
+    <section class="admin-tab-pane" id="pane-audit">
+      <div class="audit-panel-wrap">
+        <div class="audit-header-bar">
+          <div class="audit-title-block">
+            <h2>Chronological Database Audit Stream</h2>
+            <p>Every reference update, newly learned broker rule, client assignment, or conflict resolution is recorded here with timestamped audit trails.</p>
+          </div>
+
+          <div class="audit-filter-controls">
+            <select id="audit-action-filter" class="admin-select">
+              <option value="All">All Actions</option>
+              <option value="LEARNED">LEARNED</option>
+              <option value="ADDED">ADDED</option>
+              <option value="MODIFIED">MODIFIED</option>
+              <option value="APPROVED">APPROVED</option>
+              <option value="REJECTED">REJECTED</option>
+              <option value="CONFLICT_DETECTED">CONFLICT_DETECTED</option>
+              <option value="CONFLICT_RESOLVED">CONFLICT_RESOLVED</option>
+              <option value="REINFORCED">REINFORCED</option>
+            </select>
+
+            <input type="text" id="audit-search-input" class="admin-input-sm" placeholder="Search audit logs...">
+            <button type="button" class="admin-btn admin-btn-outline admin-btn-sm" id="btn-clear-audit-logs">Clear Local Cache</button>
+          </div>
+        </div>
+
+        <div class="audit-timeline-container" id="audit-timeline-container">
+          <!-- Audit cards generated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Conflict Review Station -->
+    <section class="admin-tab-pane" id="pane-conflicts">
+      <div class="conflicts-panel-wrap">
+        <div class="conflicts-header-bar">
+          <h2>Underwriting Memory Conflict Resolution Center</h2>
+          <p>When broker data or incoming uploads contradict established Touchstone UNICEDE baseline rules, the system flags them here to prevent silent data corruption.</p>
+        </div>
+
+        <div class="conflicts-list-container" id="conflicts-list-container">
+          <!-- Conflict cards generated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Client Taxonomy Rules -->
+    <section class="admin-tab-pane" id="pane-clients">
+      <div class="clients-panel-wrap">
+        <div class="clients-header-bar">
+          <h2>Client-Specific Underwriting Rules &amp; Overrides</h2>
+          <p>Manage isolated custom taxonomies for specific broker clients without altering global standard catastrophe models.</p>
+        </div>
+
+        <div class="clients-grid-container" id="clients-grid-container">
+          <!-- Client scope cards generated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Direct SQL Console -->
+    <section class="admin-tab-pane" id="pane-console">
+      <div class="console-panel-wrap">
+        <div class="console-header-bar">
+          <h2>Turso Cloud SQL Terminal</h2>
+          <p>Execute live SQL queries directly against your cloud database pipeline.</p>
+        </div>
+
+        <div class="console-editor-box">
+          <div class="console-toolbar">
+            <span class="console-caption">SQL Query Editor</span>
+            <div class="preset-queries-group">
+              <button type="button" class="preset-sql-btn" data-sql="SELECT * FROM occupancy LIMIT 20;">Sample Occupancy</button>
+              <button type="button" class="preset-sql-btn" data-sql="SELECT * FROM construction WHERE construction_code IN ('101', '111', '113');">Stone &amp; Wood</button>
+              <button type="button" class="preset-sql-btn" data-sql="SELECT * FROM audit_log ORDER BY timestamp DESC LIMIT 25;">Recent Audits</button>
+              <button type="button" class="preset-sql-btn" data-sql="SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;">All 35 Tables</button>
+            </div>
+          </div>
+          <textarea id="sql-console-input" class="sql-textarea" spellcheck="false">SELECT * FROM occupancy LIMIT 15;</textarea>
+          <div class="console-run-bar">
+            <button type="button" class="admin-btn admin-btn-primary" id="btn-run-sql">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <span>Execute Query (⌘+Enter)</span>
+            </button>
+            <span class="sql-execution-time" id="sql-exec-time">Ready</span>
+          </div>
+        </div>
+
+        <div class="console-results-box" id="console-results-box">
+          <div class="console-placeholder">Execute a query above to see live JSON/table results from Turso Cloud.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Add / Edit Record Modal Dialog -->
+  <div class="admin-modal-overlay" id="admin-edit-modal" style="display: none;" role="dialog" aria-modal="true">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <div class="admin-modal-title" id="admin-modal-title">Add Reference Code</div>
+        <button type="button" class="admin-modal-close" id="btn-close-edit-modal">&times;</button>
+      </div>
+
+      <form id="admin-record-form" class="admin-record-form">
+        <input type="hidden" id="modal-record-id">
+        <input type="hidden" id="modal-is-edit" value="false">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="modal-category-select">Category Table</label>
+            <select id="modal-category-select" class="admin-select" required>
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="modal-code-input">Code Identifier <span class="req">*</span></label>
+            <input type="text" id="modal-code-input" class="admin-input" placeholder="e.g. 113, 301, 7" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-desc-input">Primary Description <span class="req">*</span></label>
+          <textarea id="modal-desc-input" class="admin-textarea" rows="3" placeholder="Full Touchstone UNICEDE or Underwriting description..." required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="modal-name-input">Short Title / Name</label>
+            <input type="text" id="modal-name-input" class="admin-input" placeholder="e.g. Rubble Stone Masonry">
+          </div>
+
+          <div class="form-group">
+            <label for="modal-client-input">Client Scope</label>
+            <input type="text" id="modal-client-input" class="admin-input" value="Global" placeholder="Global or Client Name">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="modal-keywords-input">Synonym Keywords (Comma-separated)</label>
+          <input type="text" id="modal-keywords-input" class="admin-input" placeholder="e.g. stone facade, fieldstone, stone exterior">
+        </div>
+
+        <div class="admin-modal-footer">
+          <button type="button" class="admin-btn admin-btn-outline" id="btn-cancel-edit-modal">Cancel</button>
+          <button type="submit" class="admin-btn admin-btn-primary" id="btn-save-record">Save to Turso Cloud DB</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="admin-toast-container" id="admin-toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="data/touchstone_data.js?v=5.0"></script>
+  <script src="data/custom_codes_db.js?v=5.0"></script>
+  <script src="data/turso_reference_models.js?v=5.0"></script>
+  <script src="data/learning_memory_engine.js?v=5.0"></script>
+  <script src="admin.js?v=1.0"></script>
+</body>
+</html>
